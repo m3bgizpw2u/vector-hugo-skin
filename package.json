@@ -1,6 +1,6 @@
 {
   "name": "vector-hugo-theme",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "private": true,
   "description": "Static Hugo reimplementation of Wikipedia's Vector 2022 skin + MediaWiki-style Infobox shortcode family",
   "license": "MIT",

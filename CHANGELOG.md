@@ -4,7 +4,16 @@ All notable changes to this project are documented here, in Keep-a-Changelog sty
 Every commit that changes user-facing or developer-facing behavior lands a matching
 entry in the same commit — see `.cursor/rules/70-changelog.mdc`.
 
-## [Unreleased]
+The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [1.0.0] - 2026-07-11
+
+The first shippable release of `vector-hugo-skin`: a static Hugo reimplementation
+of Wikipedia's Vector 2022 skin + a MediaWiki-style Infobox shortcode family.
+No PHP, no MediaWiki server, no database. The bundled example site
+(`exampleSite/`) doubles as both the developer reference and the canonical
+build-green verification target.
 
 ### Added
 - Project scaffolding: theme directory structure, example site fixtures, dev tooling
