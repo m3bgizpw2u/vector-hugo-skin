@@ -1,0 +1,27 @@
+---
+description: "Playwright E2E testing conventions for CachyOS/Arch"
+globs:
+  - "tests/**"
+  - "**/*.spec.ts"
+alwaysApply: false
+---
+
+# Testing
+
+- Playwright must launch **system-installed Chromium only** on this machine (CachyOS), not
+  Playwright's own bundled downloads and not Firefox/WebKit — Arch is not an officially
+  supported platform for `npx playwright install` and it reliably fails or produces
+  broken binaries, and visual regression across browsers is out of scope. Configure
+  `launchOptions.executablePath` pointing at `/usr/bin/chromium` (installed via
+  `pacman`), verifying the actual path on this machine rather than assuming. **No
+  Firefox, no WebKit, no `toHaveScreenshot()` in the main `test:e2e` script** — visual
+  regression is a separate, opt-in script if ever added.
+- Use Playwright's `webServer` config option to start `hugo server` against
+  `exampleSite/` automatically around the test run, rather than manually backgrounding a
+  dev server in Fish shell — this avoids Fish's job-control/`wait` semantics differing
+  from bash-oriented CI scripts.
+- One spec file per feature area under `tests/e2e/specs/`: `sidebar.spec.ts`,
+  `toc.spec.ts`, `infobox.spec.ts`, `theme-toggle.spec.ts`, `search.spec.ts`. Don't
+  combine unrelated feature assertions into one spec file.
+- Every spec targets `exampleSite/` content — never test a template/shortcode against ad
+  hoc inline HTML; the example site is the single source of truth for E2E fixtures.

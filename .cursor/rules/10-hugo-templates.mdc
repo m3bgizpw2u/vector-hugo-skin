@@ -1,0 +1,28 @@
+---
+description: "Hugo template and partial conventions"
+globs:
+  - "layouts/**"
+  - "i18n/**"
+alwaysApply: false
+---
+
+# Hugo templates & partials
+
+- `layouts/_default/baseof.html` composes partials only — no raw component markup and no
+  business logic beyond `{{ block }}` wiring.
+- Partials live under `layouts/_partials/{region}/` (Hugo renamed `layouts/partials/` to
+  `layouts/_partials/` in v0.146.0 — Phase 8 caught this; see `docs/RESEARCH.md`), one file
+  per element within that region (e.g. `header/logo.html`, `header/search-box.html`,
+  not one large `header.html`).
+- Sidebar/menu content comes from Hugo's native `menus` config (`hugo.toml`), never
+  hardcoded links in a template.
+- The Table of Contents partial renders Hugo's built-in `.TableOfContents`, wrapped in
+  markup that matches what `assets/css/components/toc.scss` and `assets/js/modules/toc.ts`
+  expect — keep class names and data attributes in sync across all three.
+- Never reimplement MediaWiki server features (login, watchlist, edit/history tabs,
+  VisualEditor hooks) — see `docs/RESEARCH.md` for the full exclusion list. If a template
+  seems to need one of these, that's a signal the feature is out of scope, not a template
+  bug to work around.
+- Verify current Hugo Pipes function signatures (`css.Sass`, `js.Build`, etc.) against the
+  installed Hugo version's own docs before using them — the asset pipeline API changes
+  across releases.

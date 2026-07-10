@@ -251,6 +251,19 @@ entry in the same commit — see `.cursor/rules/70-changelog.mdc`.
   `docs/ARCHITECTURE.md` §2/§3.
 
 ### Changed
+- Phase 11 Cursor rules audit (per `.plans/first-plan/11-cursor-rules-plan.md`): the
+  three rule files affected by Phase 8's `layouts/partials/` → `layouts/_partials/` and
+  `layouts/shortcodes/` → `layouts/_shortcodes/` rename are now consistent — `10-hugo-templates.mdc`
+  was still referencing the old `layouts/partials/` directory and has been updated to
+  `layouts/_partials/` with the v0.146.0 rename note inline; `40-shortcodes.mdc` already
+  carried the rename note from Phase 8 and is unchanged. `20-styles.mdc` was still using
+  the deprecated `@use`/`@import` pattern and is now `@use`/`@forward` to match Dart
+  Sass's modern module system. `50-testing.mdc` was generalised to "system-installed
+  browsers" without naming one — it is now locked to **Chromium only** as the hard
+  Phase 10 decision: `launchOptions.executablePath` → `/usr/bin/chromium`, no Firefox,
+  no WebKit, no `toHaveScreenshot()` in the main `test:e2e` script. All 8 rule files
+  remain under the Phase 11 word budgets (`00-core.mdc` 157/200, others ≤ 232/300).
+  See `.plans/first-plan/11-cursor-rules-plan.md`.
 
 ### Fixed
 

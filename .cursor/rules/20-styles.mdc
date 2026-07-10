@@ -1,0 +1,25 @@
+---
+description: "SCSS / CSS conventions"
+globs:
+  - "assets/css/**"
+  - "**/*.scss"
+alwaysApply: false
+---
+
+# Styles
+
+- Design tokens (`assets/css/base/_tokens.scss`) are CSS custom properties, not SCSS
+  variables — this is what makes light/dark theme switching a matter of overriding
+  property values rather than compiling two stylesheets.
+- One file per component under `assets/css/components/`; a component file only styles
+  its own DOM subtree, never reaches into layout-level concerns.
+- Layout skeleton (`grid.scss`, `header.scss`, `footer.scss`) is separate from component
+  styling — layout positions things, components style themselves.
+- `assets/css/main.scss` contains only `@use`/`@forward` statements in cascade order
+  (base → layout → components → themes) — never add rules directly to it.
+- Themes (`themes/light.scss`, `themes/dark.scss`) only override token values under
+  `[data-theme="..."]` selectors — no component-specific overrides there; if a component
+  needs theme-aware styling beyond a token swap, that logic belongs in the component's
+  own file, referencing the tokens.
+- Use SCSS via Hugo Pipes (Dart Sass), not LESS — this project reimplements Vector's
+  design independently rather than transpiling its LESS source.
