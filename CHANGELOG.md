@@ -62,6 +62,29 @@ warm-start shows `Built in 85 ms`, zero ERROR lines; the previously
 failing articles (`church-demo`, `football-biography-demo`,
 `baseball-biography-demo`) all serve HTTP 200.
 
+### Fixed
+- **Real root cause (resolved):** the EOF errors resurfaced after `02c2740`
+  because of an environment-specific sass binary lookup failure. Hugo v0.163.3
+  resolves `sass` via Go's `exec.LookPath`, walks `PATH` left-to-right, and
+  invokes the chosen binary with the `--embedded` flag (the dart-sass
+  embedded-protocol server mode). The host's `~/.npm-global/bin/sass`
+  (a Node.js wrapper installed by `npm i -g sass`) appears on `PATH` ahead
+  of `/usr/bin/sass`; that JS wrapper does not implement the embedded
+  protocol, so the bridge saw EOF mid-stream and reported
+  `TOCSS-DART … got unexpected EOF when executing "sass"` plus
+  `"<stream>:1:1": connection is shut down`. Confirmed by `strace`:
+  `execve("/usr/bin/sass", ["/usr/bin/sass", "--embedded"], …)` succeeds
+  in clean-PATH mode but fails when `npm-global/bin` is first. Fixed by
+  adding `sass-embedded` (`1.100.0`) to `devDependencies`. The package's
+  `node_modules/.bin/sass` is the embedded-protocol server, `npm` prepends
+  `node_modules/.bin` to `PATH` ahead of `~/.npm-global/bin` and `/usr/bin`,
+  and Hugo's `security.exec.allow = ['^(dart-)?sass(-embedded)?$', …]`
+  whitelist accepts the basename `sass`. Cold-start verification:
+  `rm -rf exampleSite/resources && npm run dev` returns 45 pages, zero
+  ERROR lines, in 144 ms — and the same result holds when
+  `PATH=/home/alpha01/.npm-global/bin:$PATH npm run dev` reproduces the
+  user's actual `PATH` ordering.
+
 ## [1.0.0] - 2026-07-11
 
 The first shippable release of `vector-hugo-skin`: a static Hugo reimplementation
