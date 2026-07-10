@@ -15,6 +15,27 @@ No PHP, no MediaWiki server, no database. The bundled example site
 (`exampleSite/`) doubles as both the developer reference and the canonical
 build-green verification target.
 
+> **Phase 14 post-tag patch (2026-07-11, added via `docs: ship Phase 14`
+> commit, not by amending `v1.0.0`):** the v1.0.0 release commit
+> (`e69a50d`) shipped without a `LICENSE` file or with a placeholder
+> reference — Phase 14 (licensing and scope notes, the final validation
+> gate) landed these afterwards:
+>
+> - `LICENSE` at the repo root: MIT text, Copyright (c) 2026
+>   vector-hugo-skin contributors.
+> - `README.md` "License" section rewritten: it now points at the
+>   `LICENSE` file and restates the Wikimedia non-affiliation disclosure
+>   previously embedded inline above the section.
+>
+> Existing artefacts already present at `v1.0.0` time and unchanged by
+> this patch: the inline non-affiliation disclosure at the top of
+> `README.md` (lines 6–11 at the v1.0.0 tag), `docs/RESEARCH.md` and
+> `docs/SHORTCODES.md` in original-analysis wording, `.gitignore`
+> excluding `/reference/`, and the empty `git ls-files reference/` and
+> `git log --all --full-history -- 'reference/**'` results.
+> No `reference/` or upstream Vector source files have ever been
+> committed to the repository's history at any time.
+
 ### Added
 - Project scaffolding: theme directory structure, example site fixtures, dev tooling
   (npm + Playwright + ESLint + Stylelint + TypeScript configs), and Cursor rule set —

@@ -73,13 +73,20 @@ narrowly to one logical unit of work, and never sweep in unrelated edits via
 
 ## License
 
-License text is a **Phase 14 placeholder**. `package.json` declares `MIT` as the
-intended license; the final LICENSE file and copyright header are deferred to
-Phase 14 (licensing and scope notes) alongside the formal Wikimedia boundary
-language.
+Licensed under the **MIT License** — see [`LICENSE`](LICENSE) at the repository
+root. Copyright (c) 2026 vector-hugo-skin contributors.
 
-Until Phase 14 lands, treat the project as **all rights reserved by its authors**
-and ask before redistributing. Demo content under `exampleSite/content/articles/`
-is original prose invented for this theme — never Wikipedia verbatim, per the
-licensing boundary documented in `docs/RESEARCH.md` and
-`.plans/first-plan/14-licensing-and-scope-notes.md`.
+> **Independent reimplementation (restated).** This project is an independent
+> reimplementation of the visual conventions of MediaWiki's Vector 2022 skin.
+> It is **not affiliated with, endorsed by, or sponsored by the Wikimedia
+> Foundation**. MediaWiki and Vector are trademarks of the Wikimedia Foundation;
+> this project makes fair-use reference to those conventions for the purpose of
+> compatibility, not redistribution of any Wikimedia source code or assets.
+> See `docs/RESEARCH.md`, `docs/SHORTCODES.md`, and
+> `.plans/first-plan/14-licensing-and-scope-notes.md` for the licensing
+> boundary around the Phase 1 research notes, the Phase 2 infobox research,
+> the per-template reference entries in `docs/SHORTCODES.md` §10, and the
+> demo articles under `exampleSite/content/articles/` (all original
+> prose invented for this theme — never Wikipedia verbatim). The upstream
+> source clone at `./reference/` is gitignored and never tracked; see
+> `docs/RESEARCH.md` for the file-level scope notes.
