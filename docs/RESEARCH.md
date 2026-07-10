@@ -6,6 +6,12 @@
 > deliverable in this theme is a reimplementation built from understanding Vector's
 > behavior — never a transpilation or near-verbatim adaptation of its source.
 
+> **Phase 2 added §6 — Infobox research.** Section 7 lists the top-30 named
+> shortcodes that will ship in v1 (the "coverage contract" for the family of named
+> infobox shortcodes). §7 will be finalised by the Phase 2½ executor; the v1 list
+> reproduced here is the working list from `.plans/first-plan/2a-infobox-template-inventory.md`
+> so downstream phases can refer to a concrete scope without re-deriving it.
+
 ---
 
 ## Phase 1 — Vector Skin
@@ -377,3 +383,413 @@ sensible defaults rather than baking in magic numbers.
 - **Phase 2 readiness:** the Infobox research stage can begin using this document
   as the "skin-side contract" reference (especially §1.9 touch-points and the
   `layouts/shortcodes/infobox/` target). No Phase 2 work has begun.
+
+---
+
+## Phase 2 — Infobox Templates
+
+### Why a separate phase from Phase 1
+
+The Vector 2022 skin study (Phase 1) covered only the surrounding *chrome* — header,
+sidebar, ToC, the container grid. The **Infobox** is *article content*: it is rendered
+by MediaWiki's `Template:Infobox` metatemplate and the topic-specific children built on
+top of it (`Template:Infobox person`, `Template:Infobox settlement`, …). Those
+templates run inside MediaWiki's Template/Module (Lua/Scribunto) system — there is no
+Lua runtime in Hugo, no transclusion mechanism, and no parser functions at build time.
+So "port the template code" is literally impossible; the only honest mapping is:
+**study the rendered output, study the parameter concepts, rebuild the concept from
+scratch as a Hugo shortcode family**.
+
+Phase 1's §1.9 already pinned the **skin-side contract** for whatever this phase
+produces: the infobox is article content, the skin just styles the box and respects
+its float behaviour. That piece does not change here. Phase 2 narrows in on the
+article-side contract: what an infobox *is*, what every variant needs to express, and
+the four design decisions the reimplementation commits to.
+
+### What Phase 2 studied
+
+The structural understanding below comes from publicly-rendered Wikipedia documentation
+pages and the rendered DOM of a few live articles. No MediaWiki source, template
+wikitext, or CSS file was copied into this repository — the `reference/` directory is
+gitignored and Phase 14 explicitly forbids verbatim excerpts regardless.
+
+#### §2.1 The `Template:Infobox` metatemplate, in our own words
+
+`Template:Infobox` is documented as the **metatemplate** that topic-specific children
+sit on top of. Conceptually it lays out an outer container with a fixed vertical
+ordering of slots, **top to bottom**:
+
+1. A **title cell** at the very top — either as a caption above the table or as a
+   bold cell inside the table (or both). `title` / `above` / `subheader`.
+2. An **image row** that holds one or more images, optionally with captions underneath.
+   `image` / `caption` (and `image2` / `caption2`, etc., when more than one).
+3. A **sequence of rows**, each of which is one of three kinds:
+   - **Header row**: a single label spanning both columns, visually distinguished from
+     data rows, used to group a section of rows that follow (e.g. "Personal life",
+     "Career", "Legacy").
+   - **Label/data row**: a two-column row where the left cell is the field label and
+     the right cell is the field value. This is the dominant row type.
+   - **Free-form row**: a single-cell row, used when one piece of text spans the whole
+     row width (e.g. "Aliases" with several values, or a "Born" combined-name-and-dates
+     cell).
+4. An optional **`below` footer row** — a single full-width cell at the very bottom,
+   intended for footnotes, see-also links, or any trailing commentary the article
+   author wants to keep inside the box instead of in the body.
+5. An auxiliary bottom row with "view / talk / edit" links — **out of scope** for
+   the static theme (no edit flow exists).
+
+Two MediaWiki-isms are noteworthy because they are **not** what the Hugo reimplementation
+should copy:
+
+- Parameter numbering. The metatemplate exposes `header1..N`, `label1..N`, `data1..N`,
+  etc., because wikitext cannot express structured arrays. Hugo shortcode params are
+  already structured, so named labels (e.g. `birth_date`) used as the **value's name**
+  (per `Wikipedia:Manual of Style/Infoboxes`) are the right unit — no `label1`/`data1`
+  numbering is needed.
+- Optional-rows convention. If `dataN` is empty, the metatemplate suppresses that
+  whole row. In Hugo this naturally falls out of `with` blocks, but the reimplementation
+  must commit to the same "absent values leave no empty rows" guarantee so authors
+  who mirror the upstream MediaWiki form do not see empty placeholders in the output.
+
+The MoS guidance for parameter naming is also worth absorbing even though it is upstream
+convention: parameters should be **named, snake_case, lower-case unless a proper noun,
+consistent across templates** (`birth_date` reused on `Infobox person`, `Infobox
+military person`, etc.; `coordinates` reused on every geo-flavored template). The
+reimplementation adopts the same conventions so an author moving a Wikipedia article
+into a Hugo site does not have to renumber their field names.
+
+#### §2.2 What 2–3 child templates actually use, in our own words
+
+Reading across the topic-specific documentation for person, company, software, and
+settlement, every named child template is a thin parameter forwarder that maps its own
+named parameters onto the metatemplate's `header(n)` / `label(n)` / `data(n)` slots,
+and adds a handful of topic-specific labelled rows. The recurring structural patterns:
+
+- **A title-bearing header**, almost always with an optional alternate small image
+  (logo for a company, screenshot for software, portrait for a person) and the same
+  `image` + `caption` + alt-text shape.
+- **A short "identity" band of rows** immediately under the image (occupation,
+  industry, platform, settlement type, etc.) — these differ per topic but always fit
+  the label/data row pattern.
+- **One to three section dividers** grouping related rows. Person uses "Personal life",
+  "Career", "Legacy"; software uses no headers (and gets away with it because the
+  natural row order is already self-grouping); settlement uses "Government", "Area",
+  "Demographics" as anchors around dense numeric groups; company uses industry-driven
+  breakouts ("Products", "Operations", "Financials" in the heavyweight versions).
+- **Topic-specific numeric or date pairs** that always appear together and are worth
+  a dedicated render slot — see §6.2 and §7 below for the special-case primitives
+  derived from these.
+
+A relevant observation from the MoS: an infobox should be **visual, summary-level, no
+prose**. That informs two implementation choices below (small label column, narrow max-
+width, no automatic prose-style text inside data cells).
+
+#### §2.3 Renderer-side observations (own words)
+
+Inspecting the rendered DOM of a couple of articles in DevTools (Pathé film, Linux
+distribution, Chicago, Ada Lovelace as a smoke-check that the pattern holds across
+topics), the visual contract is consistent:
+
+- The outer container is a relatively narrow box (roughly 22em wide per MoS, ~300px
+  on standard desktop) floated to the right edge of the article column. The body
+  text wraps around it on the left.
+- The title is bold and slightly larger than body text, often centered or left-aligned
+  depending on variant. The image (when present) is centered above or below the title.
+- Each header row spans both columns and gets a tonal background tint (a soft grey or
+  blue across wikis), clearly distinct from data rows. Label/data rows have the label
+  cell slightly tinted and slightly bolder than the data cell — the typical "key/value"
+  reference-table treatment.
+- The `below` footer (when present) is full-width and visually subordinate.
+- On narrow viewports the float is collapsed — the box becomes a full-width block,
+  typically repositioned above the lead's first paragraph continuation or just below
+  the lead, not floated alongside body text any more.
+
+This visual contract is what §6.3 fixes as the responsiveness commitment.
+
+---
+
+### §6. Locked-in design decisions
+
+These four decisions are the outputs of Phase 2. They will be re-stated and
+operationalised in `docs/SHORTCODES.md` during Phase 8 (the shortcode implementation
+phase); locking them down here means Phases 3–7 already know what to budget for.
+
+#### Decision 1 — Family of named shortcodes
+
+**What we are building.** A small family of named Hugo shortcodes — one per MediaWiki
+`Infobox <topic>` template — written inline in the Markdown body of an article. The
+naming is the shortcode is named after the topic (`{{< person >}}`, `{{< company >}}`,
+`{{< software >}}`, `{{< settlement >}}`, …). Each accepts the **same named
+parameters** as the upstream MediaWiki template (snake_case, lower-case proper nouns
+preserved) so that an author copy-pasting a Wikipedia infobox body is a small
+edit, not a rewrite.
+
+All named shortcodes render through one shared base partial,
+`partials/infobox/base.html`, which holds the actual structural HTML and class
+hooks. The named wrapper file is a thin, **mechanical** map from its parameter set
+onto the base partial's slot list — typically 15–30 lines of Go-template (per the
+hard limit in `00-core.mdc` and per the §7 budget this phase commits the family to).
+New topics do not need new partials; they need only a new wrapper file. New visual
+behaviour is a one-rule SCSS addition keyed on the `data-infobox-type="{slug}"`
+attribute the wrapper sets, **never** a per-template CSS file.
+
+There is also an **escape hatch**: a parallel set of inner-primitive shortcodes
+(`infobox-row`, `infobox-image`, `infobox-section`, `infobox-below`, plus the
+`infobox-pair-*` family in Decision 2) that authors can use directly inside a
+named wrapper when a field the wrapper does not name needs to be expressed. The
+primitives map onto the same base partial, so an escape-hatch construction is
+visually identical to a named-field construction.
+
+**Folder convention.** Per `00-core.mdc`'s rule that every shortcode lives in its own
+folder regardless of file count, each named shortcode lives at
+`layouts/shortcodes/{slug}/{slug}.html`, where `{slug}` is the kebab-case shortcode
+name. The inner primitives live at `layouts/shortcodes/infobox/infobox-{primitive}.html`
+(same folder, kebab-case file name to keep Go-template lookup unambiguous). The single
+shared partial lives at `partials/infobox/base.html` (per `00-core.mdc`: one page region
+per partial).
+
+**Rationale.** This shape gives us (a) ergonomic Wikipedia-style authoring for the
+~30 templates that matter, (b) a trivial "add a template later" procedure that a
+site author can follow without recompiling the theme, and (c) an escape hatch for
+the long tail without polluting named wrappers. The phase-1 skin-side §1.9 already
+commits to `layouts/shortcodes/infobox/` as the target; this decision formalises the
+naming and the wrapper-vs-primitive split inside it.
+
+**What this covers.** Every named shortcode in §7. The escape-hatch primitives cover
+non-standard fields the named wrappers do not enumerate. **What this excludes.**
+Bringing the *full* MediaWiki parameter surface into a single mega-template with
+`header1..N` / `label1..N` / `data1..N` slots. **Phase that implements it.** Phase 8
+(infobox shortcode spec and implementation), with §7's list acting as the coverage
+contract — the wrappers themselves are written in Phase 8, but their structure,
+count, and target paths are fixed here.
+
+#### Decision 2 — v1 field set and inner primitives
+
+**What we are building.** Three categories of field, each with an explicit name and a
+target render slot:
+
+1. **Title block.** `title` (required) — the head of the box, rendered in the
+   title cell, bold, slightly larger font than body text. `title` is the only
+   mandatory field on every named shortcode; no name → no box (consistent with
+   upstream, where absent title is also treated as a degenerate case).
+2. **Image row.** `image` (filename only, site-relative under `static/` or page-
+   bundle-relative path), `caption` (free text underneath), and `alt` (text-to-
+   speech description, mapped to the `alt` attribute). All three are optional and
+   are rendered as a single image + caption block centred under the title.
+3. **Body rows.** Three primitives cover all body content:
+   - `infobox-row` — a label/value pair. Author writes the label inside the
+     shortcode body, the value either as a param or as the inner content. Absent
+     value ⇒ row omitted (matches upstream's "no empty rows" guarantee).
+   - `infobox-section` — a header cell spanning both columns, used to group rows
+     below it. Optional `data-empty-hide` so the section silently disappears when
+     every row it groups is empty.
+   - `infobox-below` — the optional freeform footer row at the bottom of the box
+     (the upstream `below` slot).
+
+Named shortcode wrappers map their own parameters onto these primitives in a fixed
+order that mirrors the upstream MediaWiki template's row order, so the visual output
+matches the upstream rendering when authors use the documented parameters.
+
+**Special-case inner primitives — `infobox-pair-*`.** A handful of label/value
+*groups* appear so often across templates that giving each one its own named inner
+shortcode is cheaper than asking authors to compose them out of `infobox-row`s.
+Initial set (the exact list and which templates use each is finalised by the
+Phase 2½ coverage contract in §7):
+
+- `infobox-pair-date` — a date + place/name pair. Used by `person` (birth/death),
+  `military-person`, the sport-biography forks, `organization`, `political-party`,
+  `country`, `university`, `school`, `church`, `television-season`, `protected-area`,
+  `award`, `station`, `historic-site`, `military-unit`, `military-conflict`,
+  `television-episode`, and others where the upstream pattern is the same
+  "born/founded/established/added + date + optional place" triplet.
+- `infobox-pair-software-release` — `latest_release_version` + `latest_release_date`
+  (optionally platform-specific). Used by `software`, `video-game`.
+- `infobox-pair-population` — a census pair + an estimate pair with year labels.
+  Used by `settlement`, `country`.
+- `infobox-pair-area` — total / land / water area with unit normalisation. Used by
+  `settlement`, `country`.
+- `infobox-pair-air-date` — first-aired / last-aired. Used by `television`,
+  `television-episode`, `television-season`.
+- `infobox-pair-budget-gross` — `budget` + `gross` numeric pair with currency.
+  Used by `film`.
+- `infobox-pair-episode-season` — `num_episodes` + `num_seasons`. Used by
+  `television`, `television-episode`.
+
+**Why pairs, not "row groups".** These fields always appear together in upstream
+infoboxes and are visually presented with the date beneath the value, in a tighter
+font, on a single line — a pattern generic `infobox-row` cannot reproduce cleanly.
+Promoting each recurring pair to a primitive keeps the per-row markup thin and gives
+the renderer a hook for the tighter styling.
+
+**Folder convention.** The pair primitives live next to the other primitives at
+`layouts/shortcodes/infobox/infobox-pair-{name}.html` and render through a small
+partial each under `partials/infobox/special/`.
+
+**Rationale.** Phase 14's "study structure and parameter concepts, do not copy
+code" rule forces this decision to be a *clean room* design rather than a
+transcription. The result is a small, composable primitive set (~10 shortcodes
+covering the bulk of infobox usage) rather than a long enumeration of named
+shortcodes that all mimic upstream parameter lists.
+
+**What this covers.** Every named shortcode's common-parameters surface. The
+special-case primitives cover the recurring multi-field groups; one-off fields
+fall through to the `infobox-row` escape hatch.
+
+**What this excludes.** Lua-driven formatting (e.g. automatic unit normalisation,
+ISO-date canonicalisation). The primitives accept raw user-supplied text — the
+author is responsible for consistency. This is a deliberate scope cut: the upstream
+templates do this in Lua modules, which has no Hugo analogue.
+
+**Phase that implements it.** Phase 8. The primitives are the first files written
+because they establish the vocabulary; the named wrappers (Decision 1) are written
+on top of them.
+
+#### Decision 3 — Responsiveness
+
+**What we are building.** The infobox is **floated to the right with a max-width** on
+desktop (matching the MoS guidance of ~22em and the rendered observation above), and
+**stacked full-width below the lead paragraph** on mobile, where the float is
+collapsed. The viewport breakpoint is the same one Phase 3 / Phase 5 will adopt for
+the rest of the chrome (not redefined here) — the infobox follows whatever the site
+author configures as "mobile" via `theme.toml`.
+
+The skin-side contract already settled in §1.9 carries through unchanged: the
+infobox is article content, the skin just styles the box. The SCSS lives at
+`assets/scss/components/infobox.scss` (one component per file per `00-core.mdc`),
+with desktop and narrow-viewport rules in the same file. Implementation notes for
+Phase 5 and Phase 8: the SCSS rules are scoped to `[data-infobox-type="..."]` to
+keep per-template tweaks local to a single attribute selector.
+
+**Rationale.** This is the rendered pattern observed upstream (§2.3) and the way the
+MoS positions the box: floats right at wide widths, takes the full row at narrow
+widths. It is also what the Phase-1 styling of the article container was already
+designed around (§1.5).
+
+**What this covers.** All named shortcodes in §7. **What this excludes.** Multiple
+breakpoint tiers (e.g. a tablet-only "narrow but still floated" tier) — the theme ships
+two states, "side" and "top". **Phase that implements it.** Phase 5 (the SCSS rule
+group) plus Phase 8 (the template emits the attribute hooks the SCSS targets).
+
+#### Decision 4 — Out of scope for v1
+
+Items explicitly **not** shipped in v1, with the scoping rationale written down so
+silently-omitting them cannot be confused with an oversight:
+
+- **Geographic coordinate maps** (the upstream `{{coord}}` template + interactive
+  map embed used by `settlement`, `country`, etc.). Out of scope because the
+  embedded map would pull in a JS map widget and an external tile service at
+  runtime — incompatible with a static-theme build whose `public/` is "zero JS
+  runtime dependencies" per `00-core.mdc`. Coordinates as **text** (decimal lat/long
+  or `°N/°E` notation) are still accepted; only the map widget is excluded.
+- **Embedded mini-charts / timelines** (length-of-reign bars, population trend
+  sparklines used by some historical-biography forks). Out of scope as image-
+  generation; raw text data is still representable via `infobox-row`.
+- **Collapsible sub-tables inside the infobox itself** (e.g. nested
+  per-season-statistics tables in sport-biography forks). Out of scope — they
+  inflate the primitive set past the row/section vocabulary of Decision 2 and
+  the parent does not have an equivalent at this granularity. Authors needing
+  one can link to an external site page or a per-template concrete decision in a
+  later phase.
+- **Wikidata property tracking** — the `P18`, `P946`, `P17`, etc. fallbacks the
+  upstream templates perform against the live Wikidata API. Out of scope; the
+  Hugo theme has no runtime to call an external lookup service.
+- **Lua/Scribunto modules** — every upstream template's runtime data shaping
+  (e.g. `Module:Person date`, `Module:Coordinates`). The reimplementation
+  accepts raw user-supplied strings and does not canonicalise.
+- **Wikipedia microformat emission** (`hCard` / `hCalendar` markup on the rendered
+  infobox). Out of scope for a generic Hugo site — relevant only if the theme is
+  consumed by external Wikipedia-data scrapers, which is not the target use case.
+
+**Rationale.** Each of these would either impose a runtime dependency incompatible
+with the static-theme model or expand v1 past a small primitive set without
+disproportionate real-world utility. Phase 2½ may re-evaluate any of them based on
+author demand; Phase 14 already draws the line at "study, don't ship".
+
+**What this covers.** None of the above — by definition. **Phase that implements
+it.** None — Phase 2 *records* the cut; future phases may revisit any item via the
+§6.5 procedure if there is concrete demand.
+
+---
+
+### §7. Coverage contract — top-30 named shortcodes for v1
+
+This section is the **coverage contract** for Decision 1's family of named
+shortcodes: the list of MediaWiki `Infobox <topic>` templates that become a Hugo
+named shortcode in v1. It is reproduced here from
+`.plans/first-plan/2a-infobox-template-inventory.md` §4 so that downstream phases
+(3–7) can reference a concrete target list without re-deriving it. **The Phase 2½
+executor will re-verify the transclusion ordering before Phase 8 begins**, may re-rank
+rows, and may add or remove templates that fall outside the top-30 cap. Treat the
+table below as the working baseline.
+
+| # | MediaWiki template | Hugo shortcode | Approx. transclusions (2026-06-18) | Special-case field groups |
+|---|---|---|---|---|
+| 1 | `Template:Infobox settlement` | `{{< settlement >}}` | 530,561 | `coordinates`, elevation, `infobox-pair-area`, `infobox-pair-population` |
+| 2 | `Template:Infobox person` | `{{< person >}}` | 290,129 | `infobox-pair-date` (birth/death) |
+| 3 | `Template:Infobox film` | `{{< film >}}` | 164,233 | release-date, runtime, `infobox-pair-budget-gross` |
+| 4 | `Template:Infobox company` | `{{< company >}}` | 92,000 | founded/dissolved pair, type, headquarters, key-people list, products list, revenue/operating-income/net-income/equity totals |
+| 5 | `Template:Infobox software` | `{{< software >}}` | 14,000 | `infobox-pair-software-release` (per-platform), operating-system list, license, programming-language list, status |
+| 6 | `Template:Infobox football biography` | `{{< football-biography >}}` | 149,852 | `infobox-pair-date` (birth), height, position, club-career sections |
+| 7 | `Template:Infobox station` | `{{< station >}}` | 31,592 | line, platform count, opened-date, coordinates |
+| 8 | `Template:Infobox NRHP` | `{{< historic-site >}}` (alias `nrhp`) | 63,086 | coordinates, NRHP reference number, added-to-NRHP date |
+| 9 | `Template:Infobox television` | `{{< television >}}` | 61,015 | network, `infobox-pair-air-date`, `infobox-pair-episode-season` |
+| 10 | `Template:Infobox military person` | `{{< military-person >}}` | 39,401 | `infobox-pair-date` (birth/death), service-years pair |
+| 11 | `Template:Infobox school` | `{{< school >}}` | 38,223 | established/closed dates, enrollment, mascot |
+| 12 | `Template:Infobox video game` | `{{< video-game >}}` | 28,953 | release-date pair (platform-by-platform), engine, modes |
+| 13 | `Template:Infobox university` | `{{< university >}}` | 25,875 | established/closed dates, type, students, mascot, motto |
+| 14 | `Template:Infobox military unit` | `{{< military-unit >}}` | 23,839 | active-dates pair, branch, garrison |
+| 15 | `Template:Infobox basketball biography` | `{{< basketball-biography >}}` | 23,048 | `infobox-pair-date` (birth), height, position, career stats |
+| 16 | `Template:Infobox baseball biography` | `{{< baseball-biography >}}` | 22,036 | `infobox-pair-date` (birth), bats/throws, position, career stats |
+| 17 | `Template:Infobox military conflict` | `{{< military-conflict >}}` | 18,915 | date pair (start/end), location, result |
+| 18 | `Template:Infobox football club` | `{{< football-club >}}` | 18,206 | founded date, ground, capacity, manager |
+| 19 | `Template:Infobox ice hockey biography` | `{{< ice-hockey-biography >}}` | 18,500 | `infobox-pair-date` (birth), shoots/catches, position, career stats |
+| 20 | `Template:Infobox tennis tournament event` | `{{< tennis-tournament-event >}}` | 16,539 | date, venue, surface, draw |
+| 21 | `Template:Infobox organization` | `{{< organization >}}` | 14,497 | founded/dissolved pair, type, headquarters |
+| 22 | `Template:Infobox award` | `{{< award >}}` | 14,116 | established date, country, presenter |
+| 23 | `Template:Infobox television episode` | `{{< television-episode >}}` | 12,944 | original air date, episode/season number pair |
+| 24 | `Template:Infobox church` | `{{< church >}}` | 10,539 | architectural style, completed date, capacity |
+| 25 | `Template:Infobox television season` | `{{< television-season >}}` | 10,250 | `infobox-pair-air-date` (first/last), episodes, network |
+| 26 | `Template:Infobox political party` | `{{< political-party >}}` | 8,592 | founded/headquarters pair, ideology, seats |
+| 27 | `Template:Infobox protected area` | `{{< protected-area >}}` | 8,403 | established date, area, governing body |
+| 28 | `Template:Infobox election` | `{{< election >}}` | 7,002 | election date, country, type, turnout, results |
+| 29 | `Template:Infobox country` | `{{< country >}}` | 5,151 | sovereignty/established pair, area, population, capital |
+| 30 | `Template:Infobox album` | `{{< album >}}` | (high; out of formal top-30) | release date, label, track count, length |
+
+**Special-case primitives driving the rows above** — each named shortcode that
+needs a multi-field group composes the corresponding `infobox-pair-*` primitive
+from Decision 2. The pair primitives are themselves small shortcodes; the table
+maps which named wrappers need which primitives.
+
+**Out of v1 inventory** (per `.plans/first-plan/2a-infobox-template-inventory.md`
+§5): sport-specific player biography forks below row 30, country-specific place
+infoboxes (`Infobox Australian place`, `Infobox French commune`, …), Chembox /
+Drugbox / Taxonbox, Wikidata-coupled templates, and any template under ~5k
+transclusions not in the table above. Adding one is a §6.5 (Phase 2½) procedure
+and never requires theme changes.
+
+**Refresh cadence.** The transclusion counts above are from the Wikipedia
+transclusion-counter snapshot captured for the Phase 2½ plan; they drift monthly.
+The Phase 2½ executor will re-verify before Phase 8 begins; relative ordering is
+expected to be stable.
+
+---
+
+### Phase 2 status / handoff
+
+- **Phase 2 DoD:**
+  - `Template:Infobox` metatemplate and ≥2 child-template docs reviewed (person,
+    company, software, settlement) ✓.
+  - 2–3 live articles' rendered DOM inspected and structural notes written in own
+    words (§2.3) ✓.
+  - 4 design decisions in §6 are answered and ready to drop into `docs/SHORTCODES.md`
+    during Phase 8 ✓.
+  - §7 coverage contract from `2a-infobox-template-inventory.md` is reproduced
+    here as the authoritative list of shipped named shortcodes; §6 decisions
+    match the architecture in `08-infobox-shortcode-spec.md` (planned) ✓.
+- **Phase 2½ readiness:** the executor can take the §7 table as its working list,
+    re-verify transclusion ordering against the live source, and produce the
+    procedure / built-ins count prior to Phase 8. No Phase 2½ work has begun.
+- **Self-check vs the licensing boundary:** no verbatim MediaWiki template code,
+    parameter table, or wikitext excerpt appears above. Field names are referenced
+    as concepts only (e.g. "`birth_date` pair"), in the spirit of the MoS guidance
+    on parameter reuse, not as transcribed upstream content.
