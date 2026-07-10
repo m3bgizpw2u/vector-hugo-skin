@@ -44,6 +44,25 @@ entries in commit order.
   entries (About / Privacy / Terms / Code of conduct) mirroring Vector
   2022's `Footer.mustache` link shape. Downstream sites can replace
   this block with their own footer nav.
+- `layouts/_partials/header/sticky-header.html` — new partial emitting
+  the condensed chrome (page title + ToC quick-open button) that
+  `assets/css/components/sticky-header.scss` styles and
+  `assets/js/modules/sticky-header.ts` drives. The CSS and JS existed
+  already; the module exited silently because the markup was never
+  emitted. Wired into `layouts/_default/baseof.html` immediately after
+  the footer so it overlays the page chrome without reflowing it.
+- `layouts/_partials/sidebar/toc-panel.html` upgraded from a 6-line
+  stub to a `<aside id="toc-panel">` shell with a `Contents` heading
+  and a `with .TableOfContents` guard so pages with no headings
+  (home, section index) don't render a half-empty ToC. The new
+  `id="toc-panel"` is the aria-controls target referenced by the
+  sticky-header's ToC-toggle button.
+- `assets/css/components/article-categories.scss` — new file (one
+  concern per `00-core.mdc`) styling `.article-categories` as a
+  pill-shaped row of category links at the bottom of an article.
+  The markup contract was emitted by
+  `layouts/_partials/article/categories-footer.html` already; the
+  previous CSS-less state rendered as plain bullet links.
 - `docs/UI-AUDIT.md` — per-surface gap analysis comparing the rendered
   site against Vector 2022's behavior, plus a 5-commit implementation
   plan, the surfaces consciously deferred (with rationale), and the

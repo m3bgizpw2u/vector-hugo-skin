@@ -50,6 +50,12 @@
     {{ partial "sidebar/toc-panel.html" . }}
   </main>
   {{ partial "footer/site-footer.html" . }}
+  {{- /* Sticky (condensed) header — docks at top of viewport on scroll.
+        Emitted at the end so it overlays the page chrome rather than
+        reflowing it. assets/js/modules/sticky-header.ts already queries
+        `.sticky-header`; without this partial that selector returned
+        null and the module exited silently. */}}
+  {{ partial "header/sticky-header.html" . }}
   {{- /* JS bundle — esbuild via js.Build, deferred module script. */}}
   {{- $js := resources.Get "js/main.ts" | js.Build (dict "targetPath" "main.js" "minify" true) | resources.Fingerprint "sha256" }}
   <script type="module" src="{{ $js.Permalink }}" integrity="{{ $js.Data.Integrity }}" crossorigin="anonymous" defer></script>

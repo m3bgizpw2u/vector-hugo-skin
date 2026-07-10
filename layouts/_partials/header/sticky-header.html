@@ -1,0 +1,34 @@
+{{/*
+  Sticky (condensed) header — the chrome that docks at the top of the
+  viewport once the user scrolls past the regular header. Matches the
+  `assets/css/components/sticky-header.scss` selectors and the show/hide
+  behavior driven by `assets/js/modules/sticky-header.ts`.
+
+  Composition (per docs/ARCHITECTURE.md §3, one concern per partial):
+    .sticky-header             outer element (the JS module targets this)
+      .sticky-header__title    condensed page title
+      .sticky-header__actions  action slot — currently the ToC quick-open
+                               button (Vector's BottomDock equivalent)
+
+  The condensed title mirrors .Title so the user has orientation
+  context without scrolling back up. The ToC button surfaces the right-
+  column table of contents on narrow viewports (where it is hidden by
+  the page-grid's `max-width: 1024px` rule) and offers a no-scroll
+  navigation affordance on wide viewports.
+
+  No JS module is included — assets/js/main.ts already invokes
+  `initStickyHeader()`, which queries `.sticky-header` and runs only if
+  the element exists. Without this partial the module was a silent
+  no-op (existing comment in sticky-header.ts confirms this).
+*/}}
+<header class="sticky-header" aria-label="{{ i18n "stickyHeaderLabel" | default "Sticky header" }}">
+  <h2 class="sticky-header__title">{{ .Title }}</h2>
+  <div class="sticky-header__actions">
+    <button type="button" class="sticky-header__toc-toggle" data-toc-toggle aria-expanded="false" aria-controls="toc-panel">
+      <span class="sticky-header__toc-toggle-icon" aria-hidden="true">
+        <svg viewBox="0 0 12 12" width="12" height="12"><path d="M2 2 H10 M2 6 H10 M2 10 H10" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+      </span>
+      <span class="sticky-header__toc-toggle-label">{{ i18n "tocLabel" | default "Contents" }}</span>
+    </button>
+  </div>
+</header>
