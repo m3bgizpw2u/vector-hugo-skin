@@ -1,6 +1,6 @@
-// Search box — input + submit button + optional suggestion dropdown.
+// Search box — input + submit icon + suggestion dropdown.
 // Visual styling only; the actual filtering/suggestion logic lives in
-// assets/js/modules/search.ts (Phase 6).
+// assets/js/modules/search.ts.
 
 .search-box {
   display: flex;
@@ -8,6 +8,28 @@
   position: relative;
   width: 100%;
   max-width: 28rem;
+}
+
+// Magnifier affordance rendered inside the form (label-wrapped so a click
+// focuses the input). Sits to the left of the input; the submit icon
+// button mirrors it on the right.
+.search-box__icon {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--space-sm);
+  color: var(--color-text-muted);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-right: none;
+  border-top-left-radius: var(--radius-md);
+  border-bottom-left-radius: var(--radius-md);
+  cursor: text;
+}
+
+.search-box__icon svg {
+  display: block;
 }
 
 .search-box__input {
@@ -19,9 +41,8 @@
   color: var(--color-text);
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
+  border-left: none;
   border-right: none;
-  border-top-left-radius: var(--radius-md);
-  border-bottom-left-radius: var(--radius-md);
   transition: border-color var(--transition-fast),
     box-shadow var(--transition-fast);
 }
@@ -56,9 +77,13 @@
   background-color: var(--color-divider);
 }
 
+.search-box__submit:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: -2px;
+}
+
 .search-box__submit-icon {
-  width: 1rem;
-  height: 1rem;
+  display: block;
 }
 
 .search-box__suggestions {
@@ -74,11 +99,6 @@
   overflow-y: auto;
   z-index: var(--z-overlay);
   padding: var(--space-xs) 0;
-  display: none;
-}
-
-.search-box--suggestions-open .search-box__suggestions {
-  display: block;
 }
 
 .search-box__suggestion {

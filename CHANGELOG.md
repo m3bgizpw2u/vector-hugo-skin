@@ -86,6 +86,25 @@ entries in commit order.
   share the same DOM root and the same persistence namespace;
   splitting them would force a third wiring file in `main.ts` for
   no separation benefit. Acceptable for this pass; revisitable.
+- `layouts/_partials/header/search-box.html` rewritten to emit a
+  three-region input (magnifier affordance label + plain input + icon
+  submit button) replacing the previous text submit. Vector's
+  SearchBox pattern: the visible submit is a magnifier icon, the input
+  is plain text, and the label-wrapped magnifier on the left focuses
+  the input on click. Adds `id="search-box-input"` (the label's `for`
+  target) and `id="search-box-suggestions"` on the suggestions list.
+- `assets/css/components/search-box.scss` restructured to style the
+  three-region layout and use the HTML `hidden` attribute on
+  `.search-box__suggestions` instead of the previous
+  `.search-box--suggestions-open` class toggle. Same observable
+  behavior, fewer state tokens to track; the JS module already sets
+  `list.hidden = true/false` so no JS change is required.
+- `layouts/_partials/header/personal-tools.html` rewritten so each
+  `[data-theme-value]` button shows an inline SVG icon (sun / moon /
+  clock) instead of text labels. `aria-label` on each button remains
+  so screen readers announce "Light theme" / "Dark theme" / "Auto
+  theme" — same accessible name as before, just visually iconified to
+  match Vector's Appearance dropdown.
 - `docs/UI-AUDIT.md` — per-surface gap analysis comparing the rendered
   site against Vector 2022's behavior, plus a 5-commit implementation
   plan, the surfaces consciously deferred (with rationale), and the

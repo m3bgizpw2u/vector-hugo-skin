@@ -2,10 +2,25 @@
   Search input + submit + live-results slot.
   Markup only — assets/js/modules/search.ts reads user input against the
   build-time JSON index (layouts/_default/home.json + assets/js/main.ts) and
-  populates .search-results client-side. No inline script allowed.
+  populates .search-box__suggestions client-side. No inline script allowed.
+
+  The visible button is an SVG icon (Vector's magnifier-in-submit-button
+  pattern). The input wraps the magnifier affordance so the visible
+  click target is the icon while the form still submits cleanly on Enter.
 */}}
 <form class="search-box" role="search" action="{{ "/search/" | relURL }}">
-  <input type="search" name="q" placeholder="{{ i18n "searchPlaceholder" | default "Search" }}" aria-label="{{ i18n "searchPlaceholder" | default "Search" }}">
-  <button type="submit">{{ i18n "searchButtonLabel" | default "Search" }}</button>
+  <label class="search-box__icon" for="search-box-input" aria-hidden="true">
+    <svg viewBox="0 0 16 16" width="16" height="16">
+      <circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" stroke-width="1.5"/>
+      <path d="M11 11 L14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+  </label>
+  <input id="search-box-input" class="search-box__input" type="search" name="q" placeholder="{{ i18n "searchPlaceholder" | default "Search" }}" aria-label="{{ i18n "searchPlaceholder" | default "Search" }}">
+  <button type="submit" class="search-box__submit" aria-label="{{ i18n "searchButtonLabel" | default "Search" }}">
+    <svg class="search-box__submit-icon" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+      <circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" stroke-width="1.5"/>
+      <path d="M11 11 L14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+  </button>
 </form>
-<div class="search-results" aria-live="polite"></div>
+<div class="search-box__suggestions" id="search-box-suggestions" role="listbox" aria-live="polite" hidden></div>

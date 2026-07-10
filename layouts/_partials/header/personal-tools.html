@@ -11,14 +11,35 @@
   attaches click handlers to every `[data-theme-value]` child and persists the
   choice under `vhskin:theme`. Auto mode resolves to light/dark at runtime
   based on `prefers-color-scheme`.
+
+  Each option shows an inline SVG icon (sun / moon / clock) plus an
+  aria-label, mirroring Vector's iconified Appearance dropdown.
 */}}
 <nav class="personal-tools" aria-label="{{ i18n "personalToolsLabel" | default "Personal tools" }}">
   {{ range .Site.Menus.personal }}
   <a href="{{ .URL }}" class="personal-tools__item">{{ .Name }}</a>
   {{ end }}
   <div class="theme-toggle" role="group" aria-label="{{ i18n "themeToggleLabel" | default "Toggle theme" }}">
-    <button type="button" class="theme-toggle__option" data-theme-value="light" aria-label="Light theme">Light</button>
-    <button type="button" class="theme-toggle__option" data-theme-value="dark" aria-label="Dark theme">Dark</button>
-    <button type="button" class="theme-toggle__option" data-theme-value="auto" aria-label="Auto theme">Auto</button>
+    <button type="button" class="theme-toggle__option" data-theme-value="light" aria-label="Light theme" aria-pressed="false">
+      <svg class="theme-toggle__icon" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+        <circle cx="8" cy="8" r="3" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <g stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+          <path d="M8 1 V3"/><path d="M8 13 V15"/><path d="M1 8 H3"/><path d="M13 8 H15"/>
+          <path d="M3.05 3.05 L4.46 4.46"/><path d="M11.54 11.54 L12.95 12.95"/>
+          <path d="M3.05 12.95 L4.46 11.54"/><path d="M11.54 4.46 L12.95 3.05"/>
+        </g>
+      </svg>
+    </button>
+    <button type="button" class="theme-toggle__option" data-theme-value="dark" aria-label="Dark theme" aria-pressed="false">
+      <svg class="theme-toggle__icon" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+        <path d="M13 9.5 A6 6 0 1 1 6.5 3 A4.5 4.5 0 0 0 13 9.5 Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+      </svg>
+    </button>
+    <button type="button" class="theme-toggle__option" data-theme-value="auto" aria-label="Auto theme" aria-pressed="false">
+      <svg class="theme-toggle__icon" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+        <circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M8 4 V8 L10.5 9.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+    </button>
   </div>
 </nav>
