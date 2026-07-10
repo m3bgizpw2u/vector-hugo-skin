@@ -266,6 +266,19 @@ entry in the same commit — see `.cursor/rules/70-changelog.mdc`.
   See `.plans/first-plan/11-cursor-rules-plan.md`.
 
 ### Fixed
+- Phase 8 `layouts/partials/` → `layouts/_partials/` rename cleanup (per
+  `.plans/first-plan/08-infobox-shortcode-spec.md`): the 25 stale files under
+  `layouts/partials/{article,footer,header,infobox,special,sidebar}/` that
+  remained on disk after Phase 8 moved their content to `layouts/_partials/`
+  are removed — `git rm` was never run, so the directory lingered as dead
+  tracked files even though Hugo never read from it. Also fix two comment
+  references to the old path that slipped through: the composition note in
+  `layouts/_default/baseof.html` now points at `layouts/_partials/<region>/`,
+  and the call-site note in `layouts/_partials/infobox/header.html` now
+  points at `layouts/_partials/infobox/base.html`. `npm run build` exits 0
+  (45 pages) before and after the cleanup, confirming the dead files had no
+  build-time effect — they were a stale-history hazard only, fixed now so
+  Phase 13's DoD gate starts from a clean tree.
 
 ### Removed
 
