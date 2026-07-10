@@ -1,6 +1,6 @@
 baseURL = "http://example.org/"
 title = "Vector Hugo Skin — Example Site"
-languageCode = "en-us"
+defaultContentLanguage = "en"
 
 # Workspace-as-theme per docs/ARCHITECTURE.md §3:
 # The theme lives at the parent directory (the workspace root). Hugo's CLI
@@ -26,6 +26,14 @@ themesDir = "../.."
   name = "Articles"
   url = "/articles/"
   weight = 2
+
+# Multilingual config: Hugo v0.158.0 deprecated the top-level `languageCode`
+# key in favour of an explicit `[languages.<code>]` table with a `locale`
+# field. Setting `weight = 1` keeps this the default language.
+[languages]
+  [languages.en]
+    locale = "en-US"
+    weight = 1
 
 # License text consumed by `partials/footer/site-footer.html` (Phase 7).
 # Phase 14 boundary: demo content is original prose, never Wikipedia verbatim —

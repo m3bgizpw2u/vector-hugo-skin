@@ -1,6 +1,6 @@
 name = 'vector-hugo-skin'
 license = 'MIT'
-description = 'Static Hugo reimplementation of Wikipedia\'s Vector 2022 skin with a MediaWiki-style Infobox shortcode family.'
+description = "Static Hugo reimplementation of Wikipedia's Vector 2022 skin with a MediaWiki-style Infobox shortcode family."
 homepage = 'https://example.invalid/vector-hugo-theme'
 tags = ['skin', 'wikipedia', 'vector', 'infobox']
 features = ['responsive', 'dark-mode', 'infobox']
@@ -13,4 +13,4 @@ min_version = '0.124.0'
 [original]
   name = 'MediaWiki Vector skin'
   homepage = 'https://www.mediawiki.org/wiki/Skin:Vector'
-  reason = 'This theme is an independent reimplementation studied from MediaWiki\'s Vector skin. See docs/RESEARCH.md.'
+  reason = "This theme is an independent reimplementation studied from MediaWiki's Vector skin. See docs/RESEARCH.md."

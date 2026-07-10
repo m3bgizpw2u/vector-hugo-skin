@@ -7,6 +7,32 @@ entry in the same commit — see `.cursor/rules/70-changelog.mdc`.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.1] - 2026-07-11
+
+Hotfix patch: three build errors surfaced by `npm run dev` immediately after the
+v1.0.0 tag — `theme.toml` was malformed TOML, `exampleSite/hugo.toml` used the
+deprecated top-level `languageCode` key, and `layouts/_default/baseof.html`
+referenced `.Site.LanguageCode` (deprecated since Hugo v0.158.0). Fixing the
+TOML parse error restored the Dart Sass pipeline; the SCSS tree itself was
+healthy (verified by standalone `npx sass` compile).
+
+### Fixed
+- `theme.toml` used TOML literal strings (`'…'`) for two descriptions but
+  contained an `\'` escape — literal strings forbid backslash escapes, so
+  Hugo's module loader reported `_stream.toml:3:59` parse failure (the same
+  parser, surfaced under its internal `_stream.toml` name) and aborted every
+  page render with `Failed to read module config`. Switched both lines to
+  TOML basic strings (`"…"`) where the apostrophe needs no escaping. The
+  v1.0.0 tag (`44094eea`) remains immutable; the fix lands on `main` as a new
+  commit.
+- `exampleSite/hugo.toml`: replaced deprecated top-level `languageCode = "en-us"`
+  with `defaultContentLanguage = "en"` plus an explicit `[languages.en]` block
+  (`locale = "en-US"`, `weight = 1`), silencing the `project config key
+  languageCode was deprecated in Hugo v0.158.0` warning.
+- `layouts/_default/baseof.html`: replaced `{{ .Site.LanguageCode | default "en" }}`
+  on the `<html lang>` attribute with `{{ .Site.Language.Locale | default "en" }}`,
+  silencing the `.Site.LanguageCode was deprecated in Hugo v0.158.0` warning.
+
 ## [1.0.0] - 2026-07-11
 
 The first shippable release of `vector-hugo-skin`: a static Hugo reimplementation
