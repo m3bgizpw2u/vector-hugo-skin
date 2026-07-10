@@ -1,26 +1,85 @@
-# vector-hugo-theme
+# vector-hugo-skin
 
 Static Hugo reimplementation of Wikipedia's Vector 2022 skin, plus a MediaWiki-style
-Infobox shortcode family. No PHP, no MediaWiki server, no database.
+Infobox shortcode family. **No PHP, no MediaWiki server, no database.**
 
 > **Independent reimplementation.** This project is not affiliated with the Wikimedia
 > Foundation, is not an official Wikimedia project, and does not redistribute the
-> GPL-2.0-or-licensed MediaWiki Vector skin source code. All CSS and JS is written from
-> an understanding of Vector's behavior; the upstream source lives in `./reference/`
-> (gitignored) for study only. See `docs/RESEARCH.md` for the research notes and
-> Phase 14 of the build plan (`.plans/first-plan/14-licensing-and-scope-notes.md`)
-> for the licensing rationale.
+> GPL-2.0-or-later MediaWiki Vector skin source code. All CSS and JS is written from
+> a behavioral study of Vector; the upstream source clone lives in `./reference/`
+> (gitignored) for study only. See `docs/RESEARCH.md` and
+> `.plans/first-plan/14-licensing-and-scope-notes.md` for the licensing boundary.
 
-## Status
+## Quickstart
 
-Phase 0 — environment & scaffolding. See `.plans/first-plan/` for the build plan.
-
-## Quick start (planned, not yet implemented)
+Five commands to a running theme + example site:
 
 ```sh
-hugo server --source exampleSite --themesDir .. --theme vector-hugo-theme
+git clone <repo-url>
+cd vector-hugo-skin
+npm install
+# No git submodule, no Hugo Modules init — the theme ships in-tree.
+npm run dev                       # → http://localhost:1313
 ```
 
-## Architecture
+`npm run dev` shells out to
+`hugo server --source exampleSite --themesDir ../.. --theme vector-hugo-skin --port 1313`.
+The workspace-as-theme layout means the theme root sits at the repository root, and
+`exampleSite/hugo.toml` declares `themesDir = "../.."` to point at it — see
+`docs/ARCHITECTURE.md` §3. To produce a deployable `public/` directory instead, run
+`npm run build`.
 
-See `.cursor/rules/*.mdc` and (eventually) `docs/ARCHITECTURE.md`.
+## Features
+
+- **30 named infobox shortcodes** — `{{< person >}}`, `{{< settlement >}}`,
+  `{{< film >}}`, `{{< university >}}`, `{{< country >}}`, and 25 more, each a 1:1
+  conceptual wrapper for the corresponding MediaWiki `Infobox <topic>` template.
+  See `docs/SHORTCODES.md` §10 and the live demos under
+  `exampleSite/content/articles/{slug}-demo.md`.
+- **Light / dark / auto theme toggle** — persisted in `localStorage`, respects
+  `prefers-color-scheme`, switches via CSS custom properties only (no Sass
+  recompile, no JS framework hydration).
+- **Collapsible left sidebar** with main-menu navigation derived from the site's
+  `[menus.main]` block in `hugo.toml`.
+- **Scroll-spy table of contents** for long articles, with a sticky page header
+  on scroll.
+- **Build-time JSON search index** + client-side substring matching — no runtime
+  dependency on Lunr, Fuse, or MiniSearch for the v1 content scale.
+- **Zero-runtime build** — `node_modules/` is dev tooling only; the produced
+  `public/` directory runs on any static host with only the browser's native APIs.
+
+## Contributing
+
+Read these before opening a change:
+
+- **`.cursor/rules/00-core.mdc`** — five hard constraints: file size ceiling,
+  one-language-per-file, one-concern-per-file, folder-per-shortcode, and no runtime
+  Node dependencies. Every contribution must respect these.
+- **`.cursor/rules/*.mdc`** — the remaining rule files cover CSS, JS, templates,
+  shortcodes, and testing conventions.
+- **`docs/ARCHITECTURE.md`** — locked architecture decisions: module boundaries,
+  the 3-layer shortcode architecture (HTML → CSS hook → JS behavior), folder
+  conventions, the workspace-as-theme build invocation, pinned toolchain versions,
+  and stack rationale.
+- **`docs/SHORTCODES.md`** — author-facing reference for the infobox shortcode
+  family, with the per-template parameter tables in §10.
+- **`CHANGELOG.md`** + **`.cursor/rules/70-changelog.mdc`** — every commit that
+  changes user-facing or developer-facing behavior gets a matching entry in the
+  same commit, in Keep-a-Changelog style.
+
+Commits follow Conventional Commits (`.cursor/rules/60-git-commit.mdc`), are scoped
+narrowly to one logical unit of work, and never sweep in unrelated edits via
+`git add .` / `git add -A`.
+
+## License
+
+License text is a **Phase 14 placeholder**. `package.json` declares `MIT` as the
+intended license; the final LICENSE file and copyright header are deferred to
+Phase 14 (licensing and scope notes) alongside the formal Wikimedia boundary
+language.
+
+Until Phase 14 lands, treat the project as **all rights reserved by its authors**
+and ask before redistributing. Demo content under `exampleSite/content/articles/`
+is original prose invented for this theme — never Wikipedia verbatim, per the
+licensing boundary documented in `docs/RESEARCH.md` and
+`.plans/first-plan/14-licensing-and-scope-notes.md`.

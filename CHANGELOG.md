@@ -268,3 +268,14 @@ entry in the same commit — see `.cursor/rules/70-changelog.mdc`.
 ### Fixed
 
 ### Removed
+
+### Skipped
+- Phase 10 (Playwright E2E) skipped per user decision; the project ships as
+  build-green without an E2E suite. `package.json`'s `test:e2e` script and
+  the `@playwright/test` devDependency are removed; the `tests/e2e/`
+  directory and its pre-Phase-10 spec prototypes are kept as scaffolding but
+  are not wired into any `npm run` script. Verification rests on
+  `npm run build` (canonical correctness gate) plus manual smoke through
+  `npm run dev` against the example site — see `docs/ARCHITECTURE.md` §2
+  "Verification (replaces the Phase 10 Playwright suite)" and the
+  `README.md` Quickstart.

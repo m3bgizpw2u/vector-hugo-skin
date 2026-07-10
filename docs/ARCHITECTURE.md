@@ -131,14 +131,122 @@ not a branch in an existing one.
 ### Tests and example site
 
 - `exampleSite/` — a real Hugo site consuming the theme. Doubles as the
-  Playwright test target. Theme templates are never tested in isolation from a
-  rendered site; the contract is what the user sees, not the internal partial
-  graph.
-- `tests/e2e/` — Playwright config plus one spec file per feature area
-  (`sidebar.spec.ts`, `toc.spec.ts`, `infobox.spec.ts`, `theme-toggle.spec.ts`,
-  `search.spec.ts`).
+  manual smoke target (see "Verification" below). Theme templates are never
+  exercised in isolation from a rendered site; the contract is what the user
+  sees, not the internal partial graph.
+- `tests/e2e/` — directory scaffolding from Phase 10's Playwright work. The
+  suite is **not** wired into the release pipeline (see "Verification" below),
+  and the spec files are pre-Phase-10 prototypes kept around for reference
+  until Phase 14 decides whether to revive, retire, or replace them.
 
-## 3. Build invocation
+### Verification (replaces the Phase 10 Playwright suite)
+
+Phase 10 (Playwright E2E against system Chromium) was **skipped per user
+decision** before this release. Verification of the theme therefore rests on
+two pillars:
+
+1. `npm run build` — the canonical gate. Hugo must compile `exampleSite/`
+   against the in-tree theme with zero errors and exit 0. The 30 named
+   shortcodes, the partials, the CSS bundle, the JS bundle, the search
+   index, and the RSS / JSON / sitemap outputs all flow through this one
+   command; a green build is the strongest static-site correctness signal
+   available without a browser.
+2. Manual smoke through `npm run dev` against `exampleSite/` — load
+   `http://localhost:1313/`, verify each behavior (sidebar collapse, scroll-
+   spy ToC, theme toggle, search, infobox rendering on a demo article).
+   This is documented in `docs/SHORTCODES.md` §10 per-shortcode and in the
+   `README.md` Quickstart.
+
+A future phase may re-introduce Playwright (Chromium-only on CachyOS, per the
+historical decision in `.cursor/rules/50-testing.mdc`) without disturbing the
+above two-pillar baseline.
+
+## 3. Folder conventions and the 3-layer component model
+
+Every UI component in this theme is the union of **three files in three
+folders**, one per layer. This is the per-component application of the
+one-concern-per-file rule from §1: each file owns exactly one concern, and
+the three together form the component contract.
+
+```
+┌──────────────────────────────────────────────────────────────────────┐
+│  Layer 1 — HTML (the template)                                       │
+│  layouts/_partials/<region>/<component>.html                          │
+│  Go-template that emits the DOM subtree for this component. One      │
+│  concern: the markup. Never inlines CSS or JS. Never grows past      │
+│  the §1 file-size ceiling without splitting into sub-partials.        │
+│                                                                      │
+│  Example: layouts/_partials/infobox/base.html emits every infobox    │
+│  by dispatching to per-template partials.                            │
+└──────────────────────────────────────────────────────────────────────┘
+                              │ marked up with
+                              ▼
+┌──────────────────────────────────────────────────────────────────────┐
+│  Layer 2 — CSS hook (the style)                                      │
+│  assets/css/components/<component>.scss                              │
+│  Styles exactly one component. Selectors key off the data attributes │
+│  the HTML layer emits (e.g. `[data-infobox-type="person"]` for the   │
+│  per-template overrides). Never reaches into another component's      │
+│  subtree. Never uses SCSS variables for runtime-themable values —     │
+│  those live as CSS custom properties in `base/_tokens.scss`.         │
+│                                                                      │
+│  Example: assets/css/components/infobox.scss keys off               │
+│  `[data-infobox-type="…"]` for per-template rules.                   │
+└──────────────────────────────────────────────────────────────────────┘
+                              │ activates via
+                              ▼
+┌──────────────────────────────────────────────────────────────────────┐
+│  Layer 3 — JS behavior (the interaction)                             │
+│  assets/js/modules/<behavior>.ts                                     │
+│  Vanilla TS module that owns the DOM queries, event listeners, and   │
+│  state for one behavior. Exposes an `init()`-style entry point and   │
+│  is invoked from `assets/js/main.ts`. Never imports another module — │
+│  cross-module coordination lives in `main.ts`, not in cross-imports. │
+│                                                                      │
+│  Example: assets/js/modules/theme-toggle.ts wires click handlers on  │
+│  `[data-theme-value]` and persists the choice under                 │
+│  `vhskin:theme` in localStorage.                                     │
+└──────────────────────────────────────────────────────────────────────┘
+```
+
+The three files **co-locate by name** (`infobox.html` ↔ `infobox.scss` ↔
+`infobox.ts`), even though they live in three different folders. A developer
+working on any one layer can find the other two by grepping for the bare
+filename — no scrolling between distant directories.
+
+### Shortcode-specific layout
+
+The folder-per-shortcode rule from §1 gets its own pattern:
+
+```
+layouts/_shortcodes/<slug>/
+└── <slug>.html          # the named wrapper — Layer 1 of the infobox family
+                         # calls partials/infobox/base.html with the
+                         # upstream-style param dict
+```
+
+The named wrapper is a 15–30 line mechanical map from the upstream
+`Infobox <topic>` parameter list onto the base partial's slot list. Adding a
+new wrapper is purely additive — no directory restructure is required, even
+when the wrapper grows to need `infobox-row`, `infobox-image`, and
+`infobox-section` siblings in the same folder.
+
+### Auxiliary folder conventions
+
+| Concern | Folder | Convention |
+|---|---|---|
+| Design tokens, reset | `assets/css/base/` | `_tokens.scss`, `_reset.scss`, `_typography.scss`. No component selectors. |
+| Page-region skeleton | `assets/css/layout/` | `header.scss`, `sidebar.scss`, `article-body.scss`, `footer.scss`. One region per file. |
+| Theme overrides | `assets/css/themes/` | `light.scss`, `dark.scss`. Only `[data-theme="…"]` selectors. |
+| Tiny pure helpers | `assets/js/utils/` | `dom.ts`, `debounce.ts`, `storage.ts`. No side effects, no event listeners. |
+| Behavior wiring | `assets/js/modules/` | One behavior per file. Never cross-imports another module. |
+| Page-region partials | `layouts/_partials/<region>/` | `header/`, `sidebar/`, `article/`, `footer/`, `infobox/`. Region folder is not a single mega-partial. |
+| Infobox rendering primitives | `layouts/_partials/infobox/` | `base.html`, `header.html`, `image-block.html`, `row.html`, `section.html`, `below.html`, plus `special/` for cross-template pair/section templates (`person-birth-death.html`, `software-release.html`, `organization-founded-dissolved.html`, `settlement-coordinates.html`). |
+
+The naming contract is locked because the grep-for-filename workflow only
+works if it is consistent across the whole repo.
+
+## 4. Build invocation
 
 This workspace *is* the theme root, not a parent of it. `theme.toml` sits at the
 top of the repo and `exampleSite/hugo.toml` declares `theme = "vector-hugo-skin"`
@@ -153,12 +261,12 @@ Phase 5+ may revisit this — moving to a sibling-dir layout or Hugo Modules wou
 change the build invocation. Until then, `--source exampleSite` is the canonical
 way to build, and any new npm script that shells out to Hugo must include it.
 
-## 4. Pinned toolchain versions
+## 5. Pinned toolchain versions
 
 | Tool | Version | Why pinned |
 |------|---------|------------|
 | Hugo | 0.163.3+extended | Required for the Dart Sass asset pipeline. LibSass was deprecated; extended Hugo is the only configuration that gets the modern Sass compiler. |
-| Node.js | 26.4.0 | LTS; needed for dev tooling (TypeScript, ESLint, Stylelint, Playwright). Not a runtime dep of the built site. |
+| Node.js | 26.4.0 | LTS; needed for dev tooling (TypeScript, ESLint, Stylelint). Not a runtime dep of the built site. |
 | npm | 11.18.0 | Ships with Node 26.4.0; lockfile is `package-lock.json`. |
 | Git | 2.55.0 | Standard; required identity configured for the auto-commit rule. |
 
@@ -167,7 +275,7 @@ These may need to be relaxed if the workspace-as-theme arrangement evolves
 theme directory). The pinned versions are recorded so a contributor hitting a
 "works on my machine" error has a baseline to check against.
 
-## 5. Stack rationale
+## 6. Stack rationale
 
 The build is SCSS, vanilla TypeScript, and CSS custom properties — none of
 which is an arbitrary choice, all of which is defensible against alternatives.
