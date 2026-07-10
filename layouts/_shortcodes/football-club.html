@@ -1,0 +1,33 @@
+{{/*
+  Shortcode: football-club
+  Upstream: https://en.wikipedia.org/wiki/Template:Infobox_football_club
+  Parameters: name, image, caption, alt, logo, full_name, nickname, founded,
+              dissolved, ground, capacity, owntitle, owner, chrtitle,
+              chairman, ceo, mgrtitle, manager, coach, league, position,
+              season, website, below
+*/}}
+{{ partial "infobox/base.html" (dict
+  "type"    "football-club"
+  "title"   (.Get "name")
+  "image"   (.Get "image" | default (.Get "logo"))
+  "caption" (.Get "caption")
+  "alt"     (.Get "alt")
+  "fields"  (slice
+    (dict "label" "Full name" "value" (.Get "full_name"))
+    (dict "label" "Nickname(s)" "value" (.Get "nickname"))
+    (dict "label" "Founded" "value" (.Get "founded"))
+    (dict "label" "Dissolved" "value" (.Get "dissolved"))
+    (dict "label" "Ground" "value" (.Get "ground"))
+    (dict "label" "Capacity" "value" (.Get "capacity"))
+    (dict "label" (.Get "owntitle" | default "Owner") "value" (.Get "owner"))
+    (dict "label" (.Get "chrtitle" | default "Chairman") "value" (.Get "chairman"))
+    (dict "label" "CEO" "value" (.Get "ceo"))
+    (dict "label" (.Get "mgrtitle" | default "Manager") "value" (.Get "manager"))
+    (dict "label" "Coach" "value" (.Get "coach"))
+    (dict "label" "League" "value" (.Get "league"))
+    (dict "label" "Position" "value" (printf "%s (as of %s)" (.Get "position") (.Get "season")))
+    (dict "label" "Website" "value" (.Get "website"))
+  )
+  "Inner"   .Inner
+  "below"   (.Get "below")
+) }}

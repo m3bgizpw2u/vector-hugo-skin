@@ -1,0 +1,37 @@
+{{/*
+  Shortcode: ice-hockey-biography
+  Upstream: https://en.wikipedia.org/wiki/Template:Infobox_ice_hockey_biography
+  Parameters: name, image, caption, alt, birth_date, birth_place, death_date,
+              death_place, height, weight, position, shoots, catches,
+              played_for, national_team, draft, draft_team, draft_year,
+              draft_pick, career_start, career_end, career_position, hall_of_fame,
+              website, below
+*/}}
+{{ partial "infobox/base.html" (dict
+  "type"    "ice-hockey-biography"
+  "title"   (.Get "name")
+  "image"   (.Get "image")
+  "caption" (.Get "caption")
+  "alt"     (.Get "alt")
+  "fields"  (slice
+    (dict "label" "Born" "value" (printf "%s%s"
+        (.Get "birth_date")
+        (cond (ne (.Get "birth_place") "") (printf ", %s" (.Get "birth_place")) "")))
+    (dict "label" "Died" "value" (printf "%s%s"
+        (.Get "death_date")
+        (cond (ne (.Get "death_place") "") (printf ", %s" (.Get "death_place")) "")))
+    (dict "label" "Height" "value" (printf "%s cm" (.Get "height")))
+    (dict "label" "Weight" "value" (printf "%s kg" (.Get "weight")))
+    (dict "label" "Position" "value" (.Get "position"))
+    (dict "label" "Shoots" "value" (.Get "shoots"))
+    (dict "label" "Catches" "value" (.Get "catches"))
+    (dict "label" "Played for" "value" (.Get "played_for"))
+    (dict "label" "National team" "value" (.Get "national_team"))
+    (dict "label" "NHL draft" "value" (printf "%s, %s — round %s #%s" (.Get "draft_year") (.Get "draft_team") (.Get "draft_round") (.Get "draft_pick")))
+    (dict "label" "Playing career" "value" (printf "%s — %s" (.Get "career_start") (.Get "career_end")))
+    (dict "label" "Hall of Fame" "value" (.Get "hall_of_fame"))
+    (dict "label" "Website" "value" (.Get "website"))
+  )
+  "Inner"   .Inner
+  "below"   (.Get "below")
+) }}

@@ -1,0 +1,42 @@
+{{/*
+  Shortcode: basketball-biography
+  Upstream: https://en.wikipedia.org/wiki/Template:Infobox_basketball_biography
+  Parameters: name, image, caption, alt, birth_date, birth_place, death_date,
+              death_place, nationality, height, weight, position, jersey_number,
+              high_school, college, draft_year, draft_round, draft_pick,
+              draft_team, career_start, career_end, career_position,
+              career_number, coach_team, years_as_coach, hall_of_fame,
+              highlights, stats, below
+*/}}
+{{ partial "infobox/base.html" (dict
+  "type"    "basketball-biography"
+  "title"   (.Get "name")
+  "image"   (.Get "image")
+  "caption" (.Get "caption")
+  "alt"     (.Get "alt")
+  "fields"  (slice
+    (dict "label" "Born" "value" (printf "%s%s"
+        (.Get "birth_date")
+        (cond (ne (.Get "birth_place") "") (printf ", %s" (.Get "birth_place")) "")))
+    (dict "label" "Died" "value" (printf "%s%s"
+        (.Get "death_date")
+        (cond (ne (.Get "death_place") "") (printf ", %s" (.Get "death_place")) "")))
+    (dict "label" "Nationality" "value" (.Get "nationality"))
+    (dict "label" "Height" "value" (printf "%s m" (.Get "height")))
+    (dict "label" "Weight" "value" (printf "%s kg" (.Get "weight")))
+    (dict "label" "Position" "value" (.Get "position"))
+    (dict "label" "Jersey no." "value" (.Get "jersey_number"))
+    (dict "label" "High school" "value" (.Get "high_school"))
+    (dict "label" "College" "value" (.Get "college"))
+    (dict "label" "NBA draft" "value" (printf "%s, %s — round %s #%s" (.Get "draft_year") (.Get "draft_team") (.Get "draft_round") (.Get "draft_pick")))
+    (dict "label" "Playing career" "value" (printf "%s — %s" (.Get "career_start") (.Get "career_end")))
+    (dict "label" "Position" "value" (.Get "career_position"))
+    (dict "label" "Number" "value" (.Get "career_number"))
+    (dict "label" "Coaching career" "value" (printf "%s — %s" (.Get "coach_team") (.Get "years_as_coach")))
+    (dict "label" "Hall of Fame" "value" (.Get "hall_of_fame"))
+    (dict "label" "Career highlights" "value" (.Get "highlights"))
+    (dict "label" "Stats" "value" (.Get "stats"))
+  )
+  "Inner"   .Inner
+  "below"   (.Get "below")
+) }}

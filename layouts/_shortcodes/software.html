@@ -1,0 +1,35 @@
+{{/*
+  Shortcode: software
+  Upstream: https://en.wikipedia.org/wiki/Template:Infobox_software
+  Parameters: name, image, caption, alt, logo, developer, initial_release,
+              latest_release, latest_preview, status, operating_system,
+              platform, available_languages, genre, license, source_model,
+              programming_language, website, repo, below
+*/}}
+{{ partial "infobox/base.html" (dict
+  "type"    "software"
+  "title"   (.Get "name")
+  "image"   (.Get "image" | default (.Get "logo"))
+  "caption" (.Get "caption")
+  "alt"     (.Get "alt")
+  "fields"  (slice
+    (dict "label" "Developer" "value" (.Get "developer"))
+    (dict "label" "Initial release" "value" (.Get "initial_release"))
+    (dict "label" "Stable release" "pair" "software-release"
+      "value" (printf "%s%s" (.Get "latest_release")
+        (cond (ne (.Get "latest_release_date") "") (printf " — %s" (.Get "latest_release_date")) "")))
+    (dict "label" "Preview release" "value" (.Get "latest_preview"))
+    (dict "label" "Status" "value" (.Get "status"))
+    (dict "label" "Operating system" "value" (.Get "operating_system"))
+    (dict "label" "Platform" "value" (.Get "platform"))
+    (dict "label" "Available in" "value" (.Get "available_languages"))
+    (dict "label" "Genre" "value" (.Get "genre"))
+    (dict "label" "License" "value" (.Get "license"))
+    (dict "label" "Source model" "value" (.Get "source_model"))
+    (dict "label" "Written in" "value" (.Get "programming_language"))
+    (dict "label" "Repository" "value" (.Get "repo"))
+    (dict "label" "Website" "value" (.Get "website"))
+  )
+  "Inner"   .Inner
+  "below"   (.Get "below")
+) }}

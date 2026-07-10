@@ -1,0 +1,12 @@
+{{/*
+  Inner primitive — a single label/value row.
+  Pair-form `{{< infobox-row >}}label text{{< /infobox-row >}}` and
+  parameter form `{{< infobox-row label="Born" value="1990-01-15" >}}`
+  are both supported; the parameter form wins when present.
+*/}}
+{{ $label := .Get "label" }}
+{{ if not $label }}{{ with .Inner }}{{ $label = . }}{{ end }}{{ end }}
+{{ partial "infobox/row.html" (dict
+    "label" $label
+    "value" (.Get "value")
+) }}

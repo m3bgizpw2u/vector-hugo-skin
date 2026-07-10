@@ -1,0 +1,37 @@
+{{/*
+  Shortcode: protected-area
+  Upstream: https://en.wikipedia.org/wiki/Template:Infobox_protected_area
+  Parameters: name, image, caption, alt, alt_name, location, nearest_city,
+              coordinates, area, established, named_for, visitation_num,
+              visitation_year, governing_body, administrator, owner, website,
+              iucn_category, designation, created, world_heritage_site,
+              relief, map_size, map_caption, embedded, below
+*/}}
+{{ partial "infobox/base.html" (dict
+  "type"    "protected-area"
+  "title"   (.Get "name")
+  "image"   (.Get "image")
+  "caption" (.Get "caption")
+  "alt"     (.Get "alt")
+  "fields"  (slice
+    (dict "label" "Other name" "value" (.Get "alt_name"))
+    (dict "label" "Location" "value" (printf "%s%s"
+        (.Get "location")
+        (cond (ne (.Get "nearest_city") "") (printf " (nearest %s)" (.Get "nearest_city")) "")))
+    (dict "label" "Coordinates" "value" (.Get "coordinates"))
+    (dict "label" "Area" "value" (.Get "area"))
+    (dict "label" "Established" "value" (.Get "established"))
+    (dict "label" "Named for" "value" (.Get "named_for"))
+    (dict "label" "Visitors" "value" (printf "%s (%s)" (.Get "visitation_num") (.Get "visitation_year")))
+    (dict "label" "Governing body" "value" (.Get "governing_body"))
+    (dict "label" "Administrator" "value" (.Get "administrator"))
+    (dict "label" "Owner" "value" (.Get "owner"))
+    (dict "label" "Website" "value" (.Get "website"))
+    (dict "label" "IUCN category" "value" (.Get "iucn_category"))
+    (dict "label" "Designation" "value" (.Get "designation"))
+    (dict "label" "Created" "value" (.Get "created"))
+    (dict "label" "UNESCO World Heritage Site" "value" (.Get "world_heritage_site"))
+  )
+  "Inner"   .Inner
+  "below"   (.Get "below")
+) }}

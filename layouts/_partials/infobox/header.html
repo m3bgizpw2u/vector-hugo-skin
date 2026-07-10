@@ -1,0 +1,13 @@
+{{/*
+  Infobox header — title + optional subtitle row at the top of the infobox box.
+  Phase 8 builds the rest of the infobox primitives (image-block, row, section,
+  below); this header partial ships now so Phase 8 can compose it without
+  having to add it under Phase 7's watch.
+
+  Called by layouts/partials/infobox/base.html (Phase 8 deliverable) with
+  a dict context that includes .title (required) and .subtitle (optional).
+*/}}
+<div class="infobox-header">
+  {{ if .title }}<h2 class="infobox-title">{{ .title }}</h2>{{ end }}
+  {{ if .subtitle }}<p class="infobox-subtitle">{{ .subtitle }}</p>{{ end }}
+</div>

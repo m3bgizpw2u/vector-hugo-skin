@@ -1,0 +1,30 @@
+---
+description: "Shortcode authoring conventions, especially the Infobox family"
+globs:
+  - "layouts/_shortcodes/**"
+alwaysApply: false
+---
+
+# Shortcodes
+
+- Every shortcode gets its own folder: `layouts/_shortcodes/{name}/{file}.html` — never a
+  flat file directly under `layouts/_shortcodes/`. (Hugo renamed
+  `layouts/shortcodes/` to `layouts/_shortcodes/` in v0.146.0; Phase 8 caught and
+  migrated this — see `docs/RESEARCH.md` for the version history.)
+- The Infobox shortcode family (`infobox`, `infobox-row`, `infobox-image`,
+  `infobox-section`) must remain authorable **inline in the Markdown body** using nested
+  paired/single shortcodes — never require front matter or a `data/*.yaml` file to define
+  infobox content. This is a hard product requirement, not a style preference.
+- Keep the four Infobox files each single-purpose: the outer wrapper renders the header
+  and `.Inner`; each inner shortcode renders exactly one row/image/section-header
+  concept. If new fields are needed, add a new inner shortcode file rather than growing
+  an existing one with conditional branches.
+- Class names emitted by shortcode templates (`infobox`, `infobox-header`,
+  `infobox-row`, `infobox-label`, `infobox-data`, `infobox-image`, `infobox-caption`,
+  `infobox-section-header`) must exactly match what `assets/css/components/infobox.scss`
+  styles — treat the shortcode templates as the source of truth for these names.
+- Values passed through shortcode params that may contain formatting (e.g. `value` on
+  `infobox-row`) should render through `markdownify` to support inline bold/italic/links,
+  consistent with how the value would look in real wikitext.
+- Any new shortcode's usage must be documented in `docs/SHORTCODES.md` with a full
+  worked example before being considered done.

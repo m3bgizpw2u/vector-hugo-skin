@@ -1,0 +1,21 @@
+{{/*
+  Infobox row — a label/value pair, the dominant row type inside an
+  infobox. Standalone `<dt>` and `<dd>` elements are valid HTML5 outside
+  a `<dl>` when they form a term/value group (WHATWG HTML Living
+  Standard). The parent `<aside>` is not a description list, so we keep
+  the row's wrapper as a `<div>` and let the term/value cells stand on
+  their own.
+
+  Dict keys expected:
+    .label   string  — row label (left cell)
+    .value   string  — row value (right cell); rendered through safeHTML
+                       so inline emphasis and links work
+    .pair    string  — optional pair-primitive slug (e.g. "date",
+                       "budget-gross") that lights up the matching
+                       assets/css/components/infobox-pair-*.scss rules
+                       via [data-pair="<name>"]
+*/}}
+<div class="infobox-row"{{ with .pair }} data-pair="{{ . }}"{{ end }}>
+  {{ with .label }}<dt class="infobox-label">{{ . }}</dt>{{ end }}
+  {{ with .value }}<dd class="infobox-data">{{ . | safeHTML }}</dd>{{ end }}
+</div>

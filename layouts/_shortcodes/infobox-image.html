@@ -1,0 +1,10 @@
+{{/*
+  Inner primitive — image + caption + alt block, used standalone when a
+  named wrapper does not cover the article's image, or composed inside
+  the `infobox` paired outer.
+*/}}
+{{ partial "infobox/image-block.html" (dict
+    "image"   (.Get "image")
+    "caption" (.Get "caption")
+    "alt"     (.Get "alt")
+) }}

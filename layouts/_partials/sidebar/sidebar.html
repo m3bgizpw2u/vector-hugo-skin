@@ -1,0 +1,7 @@
+{{/*
+  Sidebar region wrapper — composes the main menu (and any future sidebar
+  portlets) without inline markup.
+*/}}
+<aside class="sidebar" aria-label="{{ i18n "mainMenuLabel" | default "Main menu" }}">
+  {{ partial "sidebar/main-menu.html" . }}
+</aside>

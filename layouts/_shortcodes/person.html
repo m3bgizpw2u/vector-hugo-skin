@@ -1,0 +1,30 @@
+{{/*
+  Shortcode: person
+  Upstream: https://en.wikipedia.org/wiki/Template:Infobox_person
+  Parameters: name, image, caption, alt, birth_date, birth_place,
+              death_date, death_place, nationality, occupation,
+              years_active, known_for, notable_works, website, below
+*/}}
+{{ partial "infobox/base.html" (dict
+  "type"    "person"
+  "title"   (.Get "name")
+  "image"   (.Get "image")
+  "caption" (.Get "caption")
+  "alt"     (.Get "alt")
+  "fields"  (slice
+    (dict "label" "Born" "value" (printf "%s%s"
+        (.Get "birth_date")
+        (cond (ne (.Get "birth_place") "") (printf ", %s" (.Get "birth_place")) "")))
+    (dict "label" "Died" "value" (printf "%s%s"
+        (.Get "death_date")
+        (cond (ne (.Get "death_place") "") (printf ", %s" (.Get "death_place")) "")))
+    (dict "label" "Nationality" "value" (.Get "nationality"))
+    (dict "label" "Occupation" "value" (.Get "occupation"))
+    (dict "label" "Years active" "value" (.Get "years_active"))
+    (dict "label" "Known for" "value" (.Get "known_for"))
+    (dict "label" "Notable works" "value" (.Get "notable_works"))
+    (dict "label" "Website" "value" (.Get "website"))
+  )
+  "Inner"   .Inner
+  "below"   (.Get "below")
+) }}

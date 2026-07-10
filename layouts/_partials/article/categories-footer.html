@@ -1,0 +1,11 @@
+{{/*
+  Categories footer — Wikipedia-style row of category links at the bottom of an
+  article. Renders nothing when .Params.categories is absent.
+*/}}
+<footer class="article-categories">
+  {{ with .Params.categories }}
+  <ul>
+    {{ range . }}<li><a href="{{ "/categories/" | relURL }}{{ . | urlize }}">{{ . }}</a></li>{{ end }}
+  </ul>
+  {{ end }}
+</footer>

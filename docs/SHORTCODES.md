@@ -35,7 +35,7 @@ The architecture is three layers, top to bottom:
 ```
 ┌──────────────────────────────────────────────────────────────────┐
 │  Layer 1: Named wrappers                                         │
-│  layouts/shortcodes/{slug}/{slug}.html                           │
+│  layouts/_shortcodes/{slug}/{slug}.html                           │
 │  One file per MediaWiki template (top 30 in RESEARCH.md §7).     │
 │  Thin 15–30 line Go-template that maps the upstream param list    │
 │  onto the base partial's slot list.                              │
@@ -58,7 +58,7 @@ The architecture is three layers, top to bottom:
                               ▼
 ┌──────────────────────────────────────────────────────────────────┐
 │  Layer 3: Inner primitive shortcodes                            │
-│  layouts/shortcodes/infobox/infobox-{primitive}.html             │
+│  layouts/_shortcodes/infobox/infobox-{primitive}.html             │
 │  Five generic building blocks (infobox-row, infobox-image,       │
 │  infobox-section, infobox-below, the outer infobox paired         │
 │  wrapper) plus seven infobox-pair-* special-case primitives.     │
@@ -138,7 +138,7 @@ cell uses the same base styles.
 
 A **named wrapper** is one Go-template file per MediaWiki `Infobox <topic>`
 template. The 30 in v1 are the rows of `docs/RESEARCH.md` §7. The file lives
-at `layouts/shortcodes/{slug}/{slug}.html` per the folder-per-shortcode rule
+at `layouts/_shortcodes/{slug}/{slug}.html` per the folder-per-shortcode rule
 in `.cursor/rules/00-core.mdc` and `.cursor/rules/40-shortcodes.mdc`.
 
 A named wrapper is small — **15 to 30 lines**. The file does three things
@@ -217,7 +217,7 @@ Adding a new named shortcode is the wrapper-only work in §3.
 When the named wrapper's fixed schema does not cover a field an author
 needs, the **inner primitive escape hatch** is the answer. Five generic
 primitives plus seven `infobox-pair-*` special-case primitives make up
-layer 3. All live at `layouts/shortcodes/infobox/infobox-{name}.html`
+layer 3. All live at `layouts/_shortcodes/infobox/infobox-{name}.html`
 (folder-per-shortcode rule applies) and render through the base partial's
 slot system — so a primitive inside a `.Inner` block is visually
 indistinguishable from the same primitive called from inside the named
@@ -394,3 +394,672 @@ with the trigger condition for picking them up:
   with the Hugo form, and a "see also" link to the upstream template
   documentation on `en.wikipedia.org`. The Authoring Guide above is the
   whole document until that phase ships.
+
+---
+
+## §10. Per-template reference
+
+One sub-section per shipped named shortcode, in the order from
+`docs/RESEARCH.md` §7. Each entry follows the same shape: a one-line intent
+statement, the most-used parameters, a worked example in Hugo shortcode form,
+and a "see also" link to the upstream MediaWiki template documentation on
+`en.wikipedia.org`. The full parameter list lives in the comment block at the
+top of each wrapper file under `layouts/_shortcodes/{name}.html` — that
+header comment is the source of truth, this section is the human-readable
+companion.
+
+> **Note on self-closing vs paired.** Hugo 0.146.0+ distinguishes paired from
+> self-closing shortcodes at parse time based on whether the template
+> references `.Inner`. Every named wrapper in this family does, so all
+> examples below use the **paired form** (`{{< name … >}}…{{< /name >}}`)
+> even when there is no body content. The empty-body paired form is still
+> valid Hugo and matches what the Markdown author writes for the named
+> infobox family. The inner-primitive escape hatch (e.g. `{{< infobox-row … >}}`)
+> supports both forms because each primitive template reads `.Get` only.
+
+### `{{< settlement >}}`
+**Intent:** Settlement / city / town / village infobox — replicates `Template:Infobox settlement` from Wikipedia.
+**Most-used parameters:** `name`, `image`, `caption`, `alt`, `country`, `subdivision_type1`, `subdivision_name1`, `coordinates`, `population_total`, `population_as_of`, `area_total_km2`, `established_title1`, `established_date1`, `leader_title`, `leader_name`, `timezone`, `postal_code`, `area_code`, `website`, `below`.
+**Worked example:**
+
+```go
+{{< settlement
+    name        = "Springfield"
+    image       = "springfield.jpg"
+    caption     = "Downtown Springfield"
+    country     = "United States"
+    coordinates = "39.7817°N 89.6501°W"
+    population_total = "114,738"
+    area_total_km2  = "171.2"
+    leader_title    = "Mayor"
+    leader_name     = "Misty Vela"
+>}}{{< /settlement >}}
+```
+
+**See also:** <https://en.wikipedia.org/wiki/Template:Infobox_settlement>
+
+### `{{< person >}}`
+**Intent:** Person infobox — replicates `Template:Infobox person` from Wikipedia (~570k transclusions, the second-most-used infobox template).
+**Most-used parameters:** `name`, `image`, `caption`, `alt`, `birth_date`, `birth_place`, `death_date`, `death_place`, `nationality`, `occupation`, `years_active`, `known_for`, `notable_works`, `website`, `below`.
+**Worked example:**
+
+```go
+{{< person
+    name        = "Ada Lovelace"
+    image       = "ada.jpg"
+    caption     = "Portrait of Ada Lovelace, 1843"
+    birth_date  = "10 December 1815"
+    birth_place = "London, England"
+    death_date  = "27 November 1852"
+    occupation  = "Mathematician, writer"
+    notable_works = "*Notes on the Analytical Engine*"
+>}}{{< /person >}}
+```
+
+**See also:** <https://en.wikipedia.org/wiki/Template:Infobox_person>
+
+### `{{< football-biography >}}`
+**Intent:** Football (soccer) player biography infobox — replicates `Template:Infobox football biography` from Wikipedia (~218k transclusions).
+**Most-used parameters:** `name`, `full_name`, `birth_date`, `birth_place`, `death_date`, `death_place`, `height`, `position`, `current_club`, `youth_years`, `youth_clubs`, `years`, `clubs`, `nationalyears`, `nationalteam`, `nationalcaps`, `nationalgoals`, `below`.
+**Worked example:**
+
+```go
+{{< football-biography
+    name        = "Marta"
+    full_name   = "Marta Vieira da Silva"
+    birth_date  = "19 February 1986"
+    birth_place = "Dois Riachos, Alagoas, Brazil"
+    height      = "1.63"
+    position    = "Forward"
+    clubs       = "Vasco da Gama, Umeå, Orlando Pride"
+    nationalcaps = "179"
+    nationalgoals = "115"
+>}}{{< /football-biography >}}
+```
+
+**See also:** <https://en.wikipedia.org/wiki/Template:Infobox_football_biography>
+
+### `{{< film >}}`
+**Intent:** Film infobox — replicates `Template:Infobox film` from Wikipedia (~170k transclusions).
+**Most-used parameters:** `name`, `director`, `producer`, `writer`, `starring`, `music`, `cinematography`, `editing`, `studio`, `distributor`, `released`, `runtime`, `country`, `language`, `budget`, `gross`, `currency`, `below`.
+**Worked example:**
+
+```go
+{{< film
+    name      = "Inception"
+    director  = "Christopher Nolan"
+    producer  = "Emma Thomas, Christopher Nolan"
+    writer    = "Christopher Nolan"
+    starring  = "Leonardo DiCaprio, Joseph Gordon-Levitt, Elliot Page"
+    music     = "Hans Zimmer"
+    studio    = "Syncopy Films, Legendary Pictures"
+    distributor = "Warner Bros. Pictures"
+    released  = "8 July 2010"
+    runtime   = "148"
+    budget    = "160,000,000"
+    gross     = "836,836,967"
+    currency  = "USD"
+>}}{{< /film >}}
+```
+
+**See also:** <https://en.wikipedia.org/wiki/Template:Infobox_film>
+
+### `{{< album >}}`
+**Intent:** Music album infobox — replicates `Template:Infobox album` from Wikipedia (~168k transclusions).
+**Most-used parameters:** `name`, `type`, `artist`, `cover`, `released`, `recorded`, `studio`, `genre`, `length`, `label`, `producer`, `executive_producer`, `last_album`, `last_album_year`, `next_album`, `next_album_year`, `tracks`, `total_length`, `awards`, `certifications`, `below`.
+**Worked example:**
+
+```go
+{{< album
+    name      = "OK Computer"
+    type      = "Studio"
+    artist    = "Radiohead"
+    cover     = "ok-computer.jpg"
+    released  = "21 May 1997"
+    recorded  = "1996–1997"
+    studio    = "St Catherine's Court, Bath"
+    genre     = "Art rock, alternative rock, electronica"
+    length    = "53:30"
+    label     = "Parlophone, Capitol"
+    producer  = "Nigel Godrich, Radiohead"
+    tracks    = "12"
+>}}{{< /album >}}
+```
+
+**See also:** <https://en.wikipedia.org/wiki/Template:Infobox_album>
+
+### `{{< software >}}`
+**Intent:** Software / application infobox — replicates `Template:Infobox software` from Wikipedia (~14k transclusions).
+**Most-used parameters:** `name`, `logo`, `developer`, `initial_release`, `latest_release`, `latest_release_date`, `latest_preview`, `status`, `operating_system`, `platform`, `available_languages`, `genre`, `license`, `source_model`, `programming_language`, `website`, `repo`, `below`.
+**Worked example:**
+
+```go
+{{< software
+    name              = "Hugo"
+    developer         = "spf13, Bjørn Erik Pedersen, and contributors"
+    initial_release   = "2013"
+    latest_release    = "0.163.3"
+    latest_release_date = "2026-06-19"
+    status            = "Active"
+    operating_system  = "Cross-platform"
+    platform          = "Linux, macOS, Windows"
+    license           = "Apache-2.0"
+    source_model      = "Open-source"
+    programming_language = "Go"
+>}}{{< /software >}}
+```
+
+**See also:** <https://en.wikipedia.org/wiki/Template:Infobox_software>
+
+### `{{< company >}}`
+**Intent:** Company / corporation infobox — replicates `Template:Infobox company` from Wikipedia (~92k transclusions).
+**Most-used parameters:** `name`, `trade_name`, `type`, `industry`, `founded`, `founder`, `defunct`, `hq_location`, `hq_location_country`, `num_employees`, `num_locations`, `key_people`, `products`, `revenue`, `operating_income`, `net_income`, `assets`, `equity`, `owner`, `parent`, `website`, `below`.
+**Worked example:**
+
+```go
+{{< company
+    name           = "Acme Corporation"
+    trade_name     = "Acme Co."
+    type           = "Public"
+    industry       = "Conglomerate"
+    founded        = "1 January 1907"
+    founder        = "R. J. Acme"
+    hq_location    = "Springfield"
+    hq_location_country = "United States"
+    key_people     = "W. E. Coyote (CEO)"
+    products       = "Anvils, rockets, road runners"
+    revenue        = "US$1.2 billion"
+>}}{{< /company >}}
+```
+
+**See also:** <https://en.wikipedia.org/wiki/Template:Infobox_company>
+
+### `{{< historic-site >}}`
+**Intent:** Historic site infobox (canonical alias `nrhp`) — replicates `Template:Infobox NRHP` from Wikipedia (~74k transclusions).
+**Most-used parameters:** `name`, `image`, `caption`, `location`, `nearest_city`, `coordinates`, `area`, `built`, `architect`, `architecture`, `added`, `NRHP_ref`, `governing_body`, `owner`, `website`, `below`.
+**Worked example:**
+
+```go
+{{< historic-site
+    name        = "Empire State Building"
+    location    = "350 Fifth Avenue, Manhattan, New York City"
+    coordinates = "40.7484°N 73.9857°W"
+    built       = "1930–1931"
+    architect   = "Shreve, Lamb and Harmon"
+    architecture = "Art Deco"
+    added       = "23 June 1986"
+    NRHP_ref    = "86001256"
+>}}{{< /historic-site >}}
+```
+
+**See also:** <https://en.wikipedia.org/wiki/Template:Infobox_NRHP>
+
+### `{{< television >}}`
+**Intent:** Television show infobox — replicates `Template:Infobox television` from Wikipedia (~64k transclusions).
+**Most-used parameters:** `name`, `genre`, `creator`, `based_on`, `written_by`, `director`, `starring`, `voices`, `narrated`, `music`, `country_of_origin`, `original_language`, `num_seasons`, `num_episodes`, `executive_producer`, `producer`, `location`, `editor`, `camera`, `runtime`, `network`, `first_aired`, `last_aired`, `related`, `website`, `below`.
+**Worked example:**
+
+```go
+{{< television
+    name             = "Severance"
+    genre            = "Science fiction, thriller"
+    creator          = "Dan Erickson"
+    starring         = "Adam Scott, Britt Lower, Patricia Arquette"
+    num_seasons      = "2"
+    num_episodes     = "19"
+    network          = "Apple TV+"
+    first_aired      = "18 February 2022"
+    last_aired       = "present"
+>}}{{< /television >}}
+```
+
+**See also:** <https://en.wikipedia.org/wiki/Template:Infobox_television>
+
+### `{{< station >}}`
+**Intent:** Transit / railway station infobox — replicates `Template:Infobox station` from Wikipedia (~57k transclusions).
+**Most-used parameters:** `name`, `native_name`, `address`, `country`, `coordinates`, `line`, `connections`, `platforms`, `tracks`, `structure`, `depth`, `levels`, `type`, `opened`, `closed`, `rebuilt`, `electrified`, `ADA`, `code`, `owned`, `operator`, `zone`, `former`, `passengers`, `pass_year`, `pass_rank`, `services`, `below`.
+**Worked example:**
+
+```go
+{{< station
+    name        = "Waterloo"
+    native_name = "London Waterloo"
+    country     = "United Kingdom"
+    coordinates = "51.5031°N 0.1132°W"
+    line        = "South Western main line"
+    platforms   = "22"
+    tracks      = "24"
+    opened      = "11 July 1848"
+    code        = "WAT"
+    operator    = "Network Rail"
+>}}{{< /station >}}
+```
+
+**See also:** <https://en.wikipedia.org/wiki/Template:Infobox_station>
+
+### `{{< military-person >}}`
+**Intent:** Military person infobox — replicates `Template:Infobox military person` from Wikipedia (~54k transclusions).
+**Most-used parameters:** `name`, `birth_date`, `birth_place`, `death_date`, `death_place`, `allegiance`, `branch`, `service_years`, `rank`, `unit`, `commands`, `battles`, `awards`, `alma_mater`, `spouse`, `relations`, `children`, `laterwork`, `website`, `below`.
+**Worked example:**
+
+```go
+{{< military-person
+    name          = "Patton"
+    birth_date    = "11 November 1885"
+    birth_place   = "San Gabriel, California, U.S."
+    death_date    = "21 December 1945"
+    allegiance    = "United States"
+    branch        = "United States Army"
+    service_years = "1909–1945"
+    rank          = "General"
+    battles       = "World War I, World War II"
+>}}{{< /military-person >}}
+```
+
+**See also:** <https://en.wikipedia.org/wiki/Template:Infobox_military_person>
+
+### `{{< school >}}`
+**Intent:** School infobox — replicates `Template:Infobox school` from Wikipedia (~40k transclusions).
+**Most-used parameters:** `name`, `motto`, `established`, `closed`, `type`, `affiliation`, `religion`, `president`, `principal`, `dean`, `head`, `faculty`, `staff`, `students`, `grades`, `gender`, `age_range`, `enrolment`, `campus`, `campus_size`, `area`, `colors`, `nickname`, `mascot`, `accreditation`, `website`, `below`.
+**Worked example:**
+
+```go
+{{< school
+    name        = "Springfield High School"
+    motto       = "Veritas Lux in Tenebris"
+    established = "1889"
+    type        = "Public secondary"
+    principal   = "John Smith"
+    students    = "2,100"
+    grades      = "9–12"
+    nickname    = "Tigers"
+    mascot      = "Tommy Tiger"
+    colors      = "Orange and black"
+>}}{{< /school >}}
+```
+
+**See also:** <https://en.wikipedia.org/wiki/Template:Infobox_school>
+
+### `{{< video-game >}}`
+**Intent:** Video game infobox — replicates `Template:Infobox video game` from Wikipedia (~30k transclusions).
+**Most-used parameters:** `name`, `cover_art`, `developer`, `publisher`, `director`, `producer`, `designer`, `programmer`, `artist`, `writer`, `composer`, `series`, `engine`, `platform`, `initial_release_date`, `latest_release`, `genre`, `modes`, `requirements`, `ratings`, `input`, `language`, `format`, `status`, `website`, `below`.
+**Worked example:**
+
+```go
+{{< video-game
+    name      = "Hades"
+    developer = "Supergiant Games"
+    publisher = "Supergiant Games"
+    director  = "Greg Kasavin"
+    composer  = "Darren Korb"
+    engine    = "Hades Engine"
+    platform  = "Windows, macOS, Nintendo Switch"
+    initial_release_date = "17 September 2020"
+    latest_release = "1.0"
+    genre     = "Roguelike"
+    modes     = "Single-player"
+    status    = "Released"
+>}}{{< /video-game >}}
+```
+
+**See also:** <https://en.wikipedia.org/wiki/Template:Infobox_video_game>
+
+### `{{< university >}}`
+**Intent:** University / college infobox — replicates `Template:Infobox university` from Wikipedia (~26k transclusions).
+**Most-used parameters:** `name`, `motto`, `motto_language`, `established`, `closed`, `type`, `affiliation`, `endowment`, `budget`, `president`, `chancellor`, `dean`, `faculty`, `students`, `undergrad`, `postgrad`, `doctoral`, `city`, `state`, `country`, `campus`, `colors`, `mascot`, `nickname`, `sporting_affiliations`, `website`, `below`.
+**Worked example:**
+
+```go
+{{< university
+    name        = "Massachusetts Institute of Technology"
+    motto       = "Mens et Manus"
+    established = "1861"
+    type        = "Private research university"
+    endowment   = "US$24.6 billion"
+    president   = "Sally Kornbluth"
+    students    = "11,934"
+    city        = "Cambridge"
+    state       = "Massachusetts"
+    country     = "United States"
+    colors      = "Cardinal red and silver gray"
+    mascot      = "Tim the Beaver"
+>}}{{< /university >}}
+```
+
+**See also:** <https://en.wikipedia.org/wiki/Template:Infobox_university>
+
+### `{{< military-unit >}}`
+**Intent:** Military unit infobox — replicates `Template:Infobox military unit` from Wikipedia (~29k transclusions).
+**Most-used parameters:** `name`, `start_date`, `end_date`, `country`, `allegiance`, `branch`, `type`, `role`, `size`, `command`, `garrison`, `nickname`, `patron`, `motto`, `colors`, `march`, `battles`, `anniversaries`, `decorations`, `commander`, `notable_commanders`, `identification_symbol`, `website`, `below`.
+**Worked example:**
+
+```go
+{{< military-unit
+    name        = "101st Airborne Division"
+    start_date  = "15 August 1942"
+    country     = "United States"
+    branch      = "United States Army"
+    type        = "Airborne infantry"
+    role        = "Air assault"
+    garrison    = "Fort Campbell, Kentucky"
+    nickname    = "Screaming Eagles"
+    motto       = "Rendezvous with Destiny"
+    commander   = "Major General Andrew C. Hilmes"
+>}}{{< /military-unit >}}
+```
+
+**See also:** <https://en.wikipedia.org/wiki/Template:Infobox_military_unit>
+
+### `{{< basketball-biography >}}`
+**Intent:** Basketball player biography infobox — replicates `Template:Infobox basketball biography` from Wikipedia (~23k transclusions).
+**Most-used parameters:** `name`, `birth_date`, `birth_place`, `death_date`, `death_place`, `nationality`, `height`, `weight`, `position`, `jersey_number`, `high_school`, `college`, `draft_year`, `draft_round`, `draft_pick`, `draft_team`, `career_start`, `career_end`, `hall_of_fame`, `highlights`, `stats`, `below`.
+**Worked example:**
+
+```go
+{{< basketball-biography
+    name        = "Lisa Leslie"
+    birth_date  = "7 July 1972"
+    birth_place = "Gardena, California, U.S."
+    nationality = "American"
+    height      = "1.96"
+    position    = "Center"
+    college     = "USC"
+    draft_year  = "1997"
+    draft_pick  = "7"
+    draft_team  = "Los Angeles Sparks"
+>}}{{< /basketball-biography >}}
+```
+
+**See also:** <https://en.wikipedia.org/wiki/Template:Infobox_basketball_biography>
+
+### `{{< baseball-biography >}}`
+**Intent:** Baseball player biography infobox — replicates `Template:Infobox baseball biography` from Wikipedia (~30k transclusions).
+**Most-used parameters:** `name`, `birth_date`, `birth_place`, `death_date`, `death_place`, `bats`, `throws`, `debut`, `final_game`, `position`, `team`, `teams`, `highlights`, `awards`, `hall_of_fame`, `stat1label`, `stat1value`, `stat2label`, `stat2value`, `stat3label`, `stat3value`, `below`.
+**Worked example:**
+
+```go
+{{< baseball-biography
+    name      = "Babe Ruth"
+    birth_date = "6 February 1895"
+    birth_place = "Baltimore, Maryland, U.S."
+    bats      = "Left"
+    throws    = "Left"
+    debut     = "11 July 1914"
+    final_game = "30 May 1935"
+    position  = "Outfielder, pitcher"
+    teams     = "Boston Red Sox, New York Yankees"
+    hall_of_fame = "Inducted 1936"
+>}}{{< /baseball-biography >}}
+```
+
+**See also:** <https://en.wikipedia.org/wiki/Template:Infobox_baseball_biography>
+
+### `{{< football-club >}}`
+**Intent:** Football (soccer) club infobox — replicates `Template:Infobox football club` from Wikipedia (~29k transclusions).
+**Most-used parameters:** `name`, `logo`, `full_name`, `nickname`, `founded`, `dissolved`, `ground`, `capacity`, `owntitle`, `owner`, `chrtitle`, `chairman`, `ceo`, `mgrtitle`, `manager`, `coach`, `league`, `position`, `season`, `website`, `below`.
+**Worked example:**
+
+```go
+{{< football-club
+    name      = "Manchester United"
+    full_name = "Manchester United Football Club"
+    nickname  = "The Red Devils"
+    founded   = "1878"
+    ground    = "Old Trafford"
+    capacity  = "74,310"
+    manager   = "Erik ten Hag"
+    league    = "Premier League"
+>}}{{< /football-club >}}
+```
+
+**See also:** <https://en.wikipedia.org/wiki/Template:Infobox_football_club>
+
+### `{{< military-conflict >}}`
+**Intent:** Military conflict / battle / war infobox — replicates `Template:Infobox military conflict` from Wikipedia (~28k transclusions).
+**Most-used parameters:** `name`, `conflict`, `part_of`, `date_start`, `date_end`, `place`, `location`, `coordinates`, `territory`, `result`, `status`, `combatant1`, `combatant2`, `commander1`, `commander2`, `strength1`, `strength2`, `casualties1`, `casualties2`, `civilian_deaths`, `military_deaths`, `total_deaths`, `notes`, `website`, `below`.
+**Worked example:**
+
+```go
+{{< military-conflict
+    name        = "Battle of Gettysburg"
+    part_of     = "American Civil War"
+    date_start  = "1 July 1863"
+    date_end    = "3 July 1863"
+    place       = "Gettysburg, Pennsylvania, United States"
+    result      = "Union victory"
+    combatant1  = "United States (Union)"
+    combatant2  = "Confederate States"
+>}}{{< /military-conflict >}}
+```
+
+**See also:** <https://en.wikipedia.org/wiki/Template:Infobox_military_conflict>
+
+### `{{< tennis-tournament-event >}}`
+**Intent:** Tennis tournament event infobox — replicates `Template:Infobox tennis tournament event` from Wikipedia (~22k transclusions).
+**Most-used parameters:** `name`, `tournament`, `tour`, `type`, `category`, `draw`, `surface`, `location`, `place`, `venue`, `coordinates`, `date`, `edition`, `champ_name`, `runner_name`, `score`, `prize_money`, `attendance`, `seeds`, `players`, `main_draw`, `website`, `below`.
+**Worked example:**
+
+```go
+{{< tennis-tournament-event
+    name      = "2024 Wimbledon Championships – Men's singles"
+    tournament = "Wimbledon Championships"
+    tour      = "Grand Slam"
+    draw      = "128S / 64Q"
+    surface   = "Grass"
+    location  = "Wimbledon, London"
+    venue     = "All England Lawn Tennis and Croquet Club"
+    date      = "1–14 July 2024"
+    champ_name = "Carlos Alcaraz"
+>}}{{< /tennis-tournament-event >}}
+```
+
+**See also:** <https://en.wikipedia.org/wiki/Template:Infobox_tennis_tournament_event>
+
+### `{{< ice-hockey-biography >}}`
+**Intent:** Ice hockey player biography infobox — replicates `Template:Infobox ice hockey biography` from Wikipedia (~21k transclusions).
+**Most-used parameters:** `name`, `birth_date`, `birth_place`, `death_date`, `death_place`, `height`, `weight`, `position`, `shoots`, `catches`, `played_for`, `national_team`, `draft_year`, `draft_team`, `draft_round`, `draft_pick`, `career_start`, `career_end`, `career_position`, `hall_of_fame`, `website`, `below`.
+**Worked example:**
+
+```go
+{{< ice-hockey-biography
+    name        = "Connor McDavid"
+    birth_date  = "13 January 1997"
+    birth_place = "Richmond Hill, Ontario, Canada"
+    height      = "188"
+    weight      = "88"
+    position    = "Center"
+    shoots      = "Left"
+    played_for  = "Erie Otters, Edmonton Oilers"
+    national_team = "Canada"
+    draft_year  = "2015"
+    draft_team  = "Edmonton Oilers"
+>}}{{< /ice-hockey-biography >}}
+```
+
+**See also:** <https://en.wikipedia.org/wiki/Template:Infobox_ice_hockey_biography>
+
+### `{{< organization >}}`
+**Intent:** Organization infobox — replicates `Template:Infobox organization` from Wikipedia (~43k transclusions).
+**Most-used parameters:** `name`, `native_name`, `logo`, `type`, `industry`, `founded`, `founder`, `defunct`, `hq_location`, `hq_location_country`, `coordinates`, `area_served`, `members`, `employees`, `volunteers`, `budget`, `key_people`, `products`, `services`, `parent`, `subsidiaries`, `affiliations`, `motto`, `formation`, `dissolution`, `registration_id`, `status`, `purpose`, `language`, `leader_name`, `leader_title`, `website`, `below`.
+**Worked example:**
+
+```go
+{{< organization
+    name           = "Wikimedia Foundation"
+    logo           = "wikimedia-logo.svg"
+    type           = "501(c)(3) nonprofit"
+    founded        = "20 June 2003"
+    founder        = "Jimmy Wales"
+    hq_location    = "San Francisco, California"
+    hq_location_country = "United States"
+    area_served    = "Worldwide"
+    key_people     = "Maryana Iskander (CEO)"
+>}}{{< /organization >}}
+```
+
+**See also:** <https://en.wikipedia.org/wiki/Template:Infobox_organization>
+
+### `{{< award >}}`
+**Intent:** Award / prize infobox — replicates `Template:Infobox award` from Wikipedia (~16k transclusions).
+**Most-used parameters:** `name`, `awarded_for`, `presenter`, `country`, `host`, `location`, `year`, `established`, `first_awarded`, `last_awarded`, `website`, `related`, `higher`, `lower`, `total`, `total_recipients`, `categories`, `network`, `viewership`, `below`.
+**Worked example:**
+
+```go
+{{< award
+    name          = "Academy Award for Best Picture"
+    awarded_for   = "Excellence in cinematic achievements"
+    presenter     = "Academy of Motion Picture Arts and Sciences"
+    country       = "United States"
+    established   = "16 May 1929"
+    first_awarded = "1929"
+>}}{{< /award >}}
+```
+
+**See also:** <https://en.wikipedia.org/wiki/Template:Infobox_award>
+
+### `{{< television-episode >}}`
+**Intent:** Television episode infobox — replicates `Template:Infobox television episode` from Wikipedia (~13k transclusions).
+**Most-used parameters:** `name`, `series`, `season`, `episode`, `director`, `writer`, `teleplay`, `story`, `based_on`, `narrator`, `presenter`, `starring`, `guests`, `music`, `camera`, `editor`, `producer`, `executive_producer`, `airdate`, `network`, `production_code`, `runtime`, `channel`, `prev`, `next`, `episode_list`, `website`, `below`.
+**Worked example:**
+
+```go
+{{< television-episode
+    name        = "Ozymandias"
+    series      = "Breaking Bad"
+    season      = "5"
+    episode     = "14"
+    director    = "Rian Johnson"
+    writer      = "Moira Walley-Beckett"
+    airdate     = "15 September 2013"
+    network     = "AMC"
+    runtime     = "47"
+>}}{{< /television-episode >}}
+```
+
+**See also:** <https://en.wikipedia.org/wiki/Template:Infobox_television_episode>
+
+### `{{< church >}}`
+**Intent:** Church / religious building infobox — replicates `Template:Infobox church` from Wikipedia (~17k transclusions).
+**Most-used parameters:** `name`, `dedication`, `denomination`, `previous_denomination`, `status`, `heritage_designation`, `functional_status`, `location`, `country`, `coordinates`, `architecture_style`, `founded`, `founder`, `completed`, `capacity`, `length`, `width`, `nave`, `transept`, `tower_height`, `spire_height`, `materials`, `diocese`, `parish`, `archbishop`, `bishop`, `website`, `below`.
+**Worked example:**
+
+```go
+{{< church
+    name        = "St. Patrick's Cathedral"
+    dedication  = "Saint Patrick"
+    denomination = "Catholic (Roman)"
+    location    = "New York City"
+    country     = "United States"
+    coordinates = "40.7587°N 73.9757°W"
+    architecture_style = "Gothic Revival"
+    founded     = "1809"
+    completed   = "1878"
+    capacity    = "2,400"
+>}}{{< /church >}}
+```
+
+**See also:** <https://en.wikipedia.org/wiki/Template:Infobox_church>
+
+### `{{< television-season >}}`
+**Intent:** Television season infobox — replicates `Template:Infobox television season` from Wikipedia (~11k transclusions).
+**Most-used parameters:** `name`, `series_name`, `season_number`, `num_episodes`, `host`, `starring`, `judges`, `director`, `presenter`, `narrator`, `music`, `country`, `network`, `channel`, `first_aired`, `last_aired`, `episode_list`, `prev_season`, `next_season`, `website`, `below`.
+**Worked example:**
+
+```go
+{{< television-season
+    name          = "Breaking Bad — Season 5"
+    series_name   = "Breaking Bad"
+    season_number = "5"
+    num_episodes  = "16"
+    network       = "AMC"
+    first_aired   = "15 July 2012"
+    last_aired    = "29 September 2013"
+>}}{{< /television-season >}}
+```
+
+**See also:** <https://en.wikipedia.org/wiki/Template:Infobox_television_season>
+
+### `{{< political-party >}}`
+**Intent:** Political party infobox — replicates `Template:Infobox political party` from Wikipedia (~16k transclusions).
+**Most-used parameters:** `name`, `logo`, `abbreviation`, `leader`, `founder`, `founder2`, `founded`, `dissolved`, `split`, `merged`, `headquarters`, `country`, `ideology`, `position`, `european`, `international`, `youth_wing`, `wing`, `membership`, `slogan`, `anthem`, `colors`, `seats1_title`, `seats1`, `seats2_title`, `seats2`, `website`, `below`.
+**Worked example:**
+
+```go
+{{< political-party
+    name        = "Green Party of England and Wales"
+    abbreviation = "GPEW"
+    leader      = "Co-leaders"
+    founded     = "1990"
+    headquarters = "London"
+    country     = "United Kingdom"
+    ideology    = "Green politics, eco-socialism"
+    position    = "Left-wing"
+    colors      = "Green"
+>}}{{< /political-party >}}
+```
+
+**See also:** <https://en.wikipedia.org/wiki/Template:Infobox_political_party>
+
+### `{{< protected-area >}}`
+**Intent:** Protected area / national park infobox — replicates `Template:Infobox protected area` from Wikipedia (~15k transclusions).
+**Most-used parameters:** `name`, `alt_name`, `location`, `nearest_city`, `coordinates`, `area`, `established`, `named_for`, `visitation_num`, `visitation_year`, `governing_body`, `administrator`, `owner`, `website`, `iucn_category`, `designation`, `created`, `world_heritage_site`, `below`.
+**Worked example:**
+
+```go
+{{< protected-area
+    name        = "Yellowstone National Park"
+    location    = "Wyoming, Montana, Idaho"
+    coordinates = "44.4280°N 110.5885°W"
+    area        = "2,219,791 acres (8,987 km²)"
+    established = "1 March 1872"
+    governing_body = "U.S. National Park Service"
+    iucn_category = "II (national park)"
+>}}{{< /protected-area >}}
+```
+
+**See also:** <https://en.wikipedia.org/wiki/Template:Infobox_protected_area>
+
+### `{{< election >}}`
+**Intent:** Election infobox — replicates `Template:Infobox election` from Wikipedia (~40k transclusions).
+**Most-used parameters:** `name`, `country`, `type`, `ongoing`, `previous_election`, `next_election`, `seats_for_election`, `majority_seats`, `election_date`, `turnout`, `opinion_polling`, `candidate`, `leader`, `party`, `alliance`, `last_election`, `seats_won`, `seats_before`, `popular_vote`, `percentage`, `swing`, `results`, `leader2`, `party2`, `last_election2`, `seats_won2`, `seats_before2`, `popular_vote2`, `percentage2`, `swing2`, `below`.
+**Worked example:**
+
+```go
+{{< election
+    name            = "2024 United States presidential election"
+    country         = "United States"
+    type            = "Presidential"
+    election_date   = "5 November 2024"
+    turnout         = "63.9%"
+    leader          = "Donald Trump"
+    party           = "Republican"
+    seats_won       = "312 electoral votes"
+    percentage      = "49.8%"
+>}}{{< /election >}}
+```
+
+**See also:** <https://en.wikipedia.org/wiki/Template:Infobox_election>
+
+### `{{< country >}}`
+**Intent:** Country / sovereign state infobox — replicates `Template:Infobox country` from Wikipedia (~7k transclusions of the canonical form).
+**Most-used parameters:** `name`, `native_name`, `alt_name`, `motto`, `anthem`, `royal_anthem`, `image_flag`, `image_coat`, `symbol`, `symbol_type`, `capital`, `largest_city`, `official_languages`, `recognized_languages`, `regional_languages`, `ethnic_groups`, `religion`, `demonym`, `government`, `leader_title1`, `leader_name1`, `leader_title2`, `leader_name2`, `sovereignty_type`, `established_event1`, `established_date1`, `area_km2`, `area_rank`, `percent_water`, `population_estimate`, `population_estimate_rank`, `population_census`, `population_density_km2`, `GDP_PPP`, `GDP_PPP_year`, `GDP_nominal`, `GDP_nominal_year`, `GDP_nominal_rank`, `Gini`, `HDI`, `currency`, `timezone`, `drives_on`, `calling_code`, `patron_saint`, `website`, `below`.
+**Worked example:**
+
+```go
+{{< country
+    name               = "France"
+    native_name        = "République française"
+    motto              = "Liberté, Égalité, Fraternité"
+    capital            = "Paris"
+    official_languages = "French"
+    demonym            = "French"
+    government         = "Unitary semi-presidential republic"
+    leader_title1      = "President"
+    leader_name1       = "Emmanuel Macron"
+    area_km2           = "643,801"
+    population_estimate = "68,070,000"
+    currency           = "Euro (€) (EUR)"
+>}}{{< /country >}}
+```
+
+**See also:** <https://en.wikipedia.org/wiki/Template:Infobox_country>

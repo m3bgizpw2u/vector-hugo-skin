@@ -1,0 +1,19 @@
+{{/*
+  Special-case budget+gross pair primitive — emits a row tagged
+  `data-pair="budget-gross"` for the budget + gross numeric pair with
+  currency. Used by `film` named shortcode.
+
+  Parameters:
+    label      string  required  — row label, e.g. "Box office"
+    budget     string  optional  — production budget, e.g. "200,000,000"
+    gross      string  optional  — worldwide gross, e.g. "858,373,000"
+    currency   string  optional  — currency code, e.g. "USD"
+*/}}
+{{ partial "infobox/row.html" (dict
+    "label" (.Get "label")
+    "pair"  "budget-gross"
+    "value" (printf "%s%s%s"
+        (cond (ne (.Get "budget") "") (printf "Budget: %s%s" (.Get "currency") (.Get "budget")) "")
+        (cond (and (ne (.Get "budget") "") (ne (.Get "gross") "")) " | " "")
+        (cond (ne (.Get "gross") "") (printf "Gross: %s%s" (.Get "currency") (.Get "gross")) ""))
+) }}

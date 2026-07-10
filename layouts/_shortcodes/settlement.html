@@ -1,0 +1,42 @@
+{{/*
+  Shortcode: settlement (the example — already in place)
+  This file is included for completeness; Phase 4 left a fully-fleshed
+  implementation here. The pattern is the reference for the other 29 wrappers.
+  Upstream: https://en.wikipedia.org/wiki/Template:Infobox_settlement
+  Parameters: name, image, caption, alt, country, subdivision_name1,
+              subdivision_type1, population_total, population_as_of,
+              area_total_km2, area_footnotes, pushpin_map, coordinates,
+              established_title1, established_date1, leader_title,
+              leader_name, timezone, postal_code, area_code, blank_name,
+              blank_info, website, below
+*/}}
+{{ $pop := "" }}
+{{ if .Get "population_total" }}
+  {{ $pop = printf "%s (%s)" (.Get "population_total") (.Get "population_as_of") }}
+{{ end }}
+{{ $area := "" }}
+{{ if .Get "area_total_km2" }}
+  {{ $area = printf "%s km²" (.Get "area_total_km2") }}
+{{ end }}
+{{ partial "infobox/base.html" (dict
+    "type"    "settlement"
+    "title"   (.Get "name")
+    "image"   (.Get "image")
+    "caption" (.Get "caption")
+    "alt"     (.Get "alt")
+    "fields"  (slice
+      (dict "label" "Country" "value" (.Get "country"))
+      (dict "label" (.Get "subdivision_type1" | default "Region") "value" (.Get "subdivision_name1"))
+      (dict "label" "Coordinates" "value" (.Get "coordinates"))
+      (dict "label" "Population" "pair" "population" "value" $pop)
+      (dict "label" "Area" "pair" "area" "value" $area)
+      (dict "label" (.Get "established_title1" | default "Established") "value" (.Get "established_date1"))
+      (dict "label" (.Get "leader_title" | default "Leader") "value" (.Get "leader_name"))
+      (dict "label" "Timezone" "value" (.Get "timezone"))
+      (dict "label" "Postal code" "value" (.Get "postal_code"))
+      (dict "label" "Area code" "value" (.Get "area_code"))
+      (dict "label" "Website" "value" (.Get "website"))
+    )
+    "Inner"   .Inner
+    "below"   (.Get "below")
+) }}

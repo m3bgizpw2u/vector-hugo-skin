@@ -1,0 +1,41 @@
+{{/*
+  Shortcode: political-party
+  Upstream: https://en.wikipedia.org/wiki/Template:Infobox_political_party
+  Parameters: name, image, caption, alt, logo, abbreviation, leader, founder,
+              founder2, founded, dissolved, split, merged, headquarters,
+              country, ideology, position, european, international, youth_wing,
+              wing, membership, slogan, anthem, colors, seats1_title, seats1,
+              seats2_title, seats2, website, below
+*/}}
+{{ partial "infobox/base.html" (dict
+  "type"    "political-party"
+  "title"   (.Get "name")
+  "image"   (.Get "image" | default (.Get "logo"))
+  "caption" (.Get "caption")
+  "alt"     (.Get "alt")
+  "fields"  (slice
+    (dict "label" "Abbreviation" "value" (.Get "abbreviation"))
+    (dict "label" "Leader" "value" (.Get "leader"))
+    (dict "label" "Founder(s)" "value" (printf "%s, %s" (.Get "founder") (.Get "founder2")))
+    (dict "label" "Founded" "value" (.Get "founded"))
+    (dict "label" "Dissolved" "value" (.Get "dissolved"))
+    (dict "label" "Split from" "value" (.Get "split"))
+    (dict "label" "Merged into" "value" (.Get "merged"))
+    (dict "label" "Headquarters" "value" (printf "%s, %s" (.Get "headquarters") (.Get "country")))
+    (dict "label" "Ideology" "value" (.Get "ideology"))
+    (dict "label" "Political position" "value" (.Get "position"))
+    (dict "label" "European affiliation" "value" (.Get "european"))
+    (dict "label" "International affiliation" "value" (.Get "international"))
+    (dict "label" "Youth wing" "value" (.Get "youth_wing"))
+    (dict "label" "Wing" "value" (.Get "wing"))
+    (dict "label" "Membership" "value" (.Get "membership"))
+    (dict "label" "Slogan" "value" (.Get "slogan"))
+    (dict "label" "Anthem" "value" (.Get "anthem"))
+    (dict "label" "Colors" "value" (.Get "colors"))
+    (dict "label" (.Get "seats1_title" | default "Seats") "value" (.Get "seats1"))
+    (dict "label" (.Get "seats2_title" | default "Seats (upper house)") "value" (.Get "seats2"))
+    (dict "label" "Website" "value" (.Get "website"))
+  )
+  "Inner"   .Inner
+  "below"   (.Get "below")
+) }}

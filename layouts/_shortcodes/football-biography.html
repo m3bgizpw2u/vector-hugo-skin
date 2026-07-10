@@ -1,0 +1,36 @@
+{{/*
+  Shortcode: football-biography
+  Upstream: https://en.wikipedia.org/wiki/Template:Infobox_football_biography
+  Parameters: name, image, caption, alt, full_name, birth_date, birth_place,
+              death_date, death_place, height, position, current_club,
+              youth_years, youth_clubs, years, clubs, nationalyears,
+              nationalteam, nationalcaps, nationalgoals, pcupdate, ntupdate,
+              below
+*/}}
+{{ partial "infobox/base.html" (dict
+  "type"    "football-biography"
+  "title"   (.Get "name")
+  "image"   (.Get "image")
+  "caption" (.Get "caption")
+  "alt"     (.Get "alt")
+  "fields"  (slice
+    (dict "label" "Full name" "value" (.Get "full_name"))
+    (dict "label" "Date of birth" "value" (printf "%s%s"
+        (.Get "birth_date")
+        (cond (ne (.Get "birth_place") "") (printf " (%s)" (.Get "birth_place")) "")))
+    (dict "label" "Date of death" "value" (printf "%s%s"
+        (.Get "death_date")
+        (cond (ne (.Get "death_place") "") (printf " (%s)" (.Get "death_place")) "")))
+    (dict "label" "Height" "value" (printf "%s m" (.Get "height")))
+    (dict "label" "Position" "value" (.Get "position"))
+    (dict "label" "Current club" "value" (.Get "current_club"))
+    (dict "label" "Youth years" "value" (.Get "youth_years"))
+    (dict "label" "Youth clubs" "value" (.Get "youth_clubs"))
+    (dict "label" "Senior career" "value" (printf "%s — %s" (.Get "years") (.Get "clubs")))
+    (dict "label" "National team" "value" (printf "%s — %s" (.Get "nationalyears") (.Get "nationalteam")))
+    (dict "label" "National caps" "value" (.Get "nationalcaps"))
+    (dict "label" "National goals" "value" (.Get "nationalgoals"))
+  )
+  "Inner"   .Inner
+  "below"   (.Get "below")
+) }}

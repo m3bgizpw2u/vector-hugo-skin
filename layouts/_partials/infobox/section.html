@@ -1,0 +1,10 @@
+{{/*
+  Infobox section header — a divider that spans both columns to group
+  the rows beneath it (e.g. "Personal life", "Career"). Rendered as a
+  `<div>` so the row list stays uniform; the CSS hook contract keeps
+  the class name `infobox-section-header` regardless.
+
+  Dict keys expected:
+    .title  string  — section divider text
+*/}}
+<div class="infobox-section-header">{{ .title }}</div>

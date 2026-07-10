@@ -1,0 +1,49 @@
+{{/*
+  Infobox base partial — the single rendering entrypoint for every named
+  shortcode in the family. Receives a dict from a named wrapper (or from
+  the inner-primitive `infobox` paired outer) and renders the full box
+  in fixed slot order: header → image-block → field slice → .Inner
+  (paired-form rows) → below.
+
+  Dict keys expected:
+    .type     string  — slug used for data-infobox-type (and CSS hook)
+    .title    string  — header text; absent title suppresses the header
+    .subtitle string  — optional subtitle under the title
+    .image    string  — image URL/path; absent image suppresses the block
+    .caption  string  — caption text under the image
+    .alt      string  — alt text for the image element
+    .fields   slice   — ordered list of row dicts (label/value/pair/title)
+    .Inner    string  — optional paired-form rows injected by author
+    .below    string  — optional freeform footer content
+
+  Class names emitted exactly match docs/SHORTCODES.md §6 (CSS hook
+  contract) and assets/css/components/infobox.scss.
+*/}}
+<aside class="infobox" data-infobox-type="{{ .type | default "generic" }}">
+  {{ partial "infobox/header.html" (dict
+      "title"    .title
+      "subtitle" .subtitle
+  ) }}
+  {{ if or .image .caption }}
+    {{ partial "infobox/image-block.html" (dict
+        "image"   .image
+        "caption" .caption
+        "alt"     .alt
+    ) }}
+  {{ end }}
+  {{ range .fields }}
+    {{ if eq .kind "section" }}
+      {{ partial "infobox/section.html" (dict "title" .title) }}
+    {{ else }}
+      {{ partial "infobox/row.html" (dict
+          "label" .label
+          "value" .value
+          "pair"  .pair
+      ) }}
+    {{ end }}
+  {{ end }}
+  {{ with .Inner }}{{ . }}{{ end }}
+  {{ with .below }}
+    {{ partial "infobox/below.html" (dict "below" .) }}
+  {{ end }}
+</aside>

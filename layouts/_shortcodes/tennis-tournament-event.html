@@ -1,0 +1,41 @@
+{{/*
+  Shortcode: tennis-tournament-event
+  Upstream: https://en.wikipedia.org/wiki/Template:Infobox_tennis_tournament_event
+  Parameters: name, image, caption, alt, tournament, tour, type, category,
+              draw, surface, location, place, venue, coordinates, date,
+              edition, champ_name, runner_name, score, prize_money, attendance,
+              seeds, players, main_draw, website, below
+*/}}
+{{ partial "infobox/base.html" (dict
+  "type"    "tennis-tournament-event"
+  "title"   (.Get "name")
+  "image"   (.Get "image")
+  "caption" (.Get "caption")
+  "alt"     (.Get "alt")
+  "fields"  (slice
+    (dict "label" "Tournament" "value" (.Get "tournament"))
+    (dict "label" "Tour" "value" (.Get "tour"))
+    (dict "label" "Type" "value" (.Get "type"))
+    (dict "label" "Category" "value" (.Get "category"))
+    (dict "label" "Draw" "value" (.Get "draw"))
+    (dict "label" "Surface" "value" (.Get "surface"))
+    (dict "label" "Location" "value" (printf "%s%s"
+        (.Get "location")
+        (cond (ne (.Get "place") "") (printf " — %s" (.Get "place")) "")))
+    (dict "label" "Venue" "value" (.Get "venue"))
+    (dict "label" "Coordinates" "value" (.Get "coordinates"))
+    (dict "label" "Date" "value" (.Get "date"))
+    (dict "label" "Edition" "value" (.Get "edition"))
+    (dict "label" "Champion" "value" (.Get "champ_name"))
+    (dict "label" "Runner-up" "value" (.Get "runner_name"))
+    (dict "label" "Score" "value" (.Get "score"))
+    (dict "label" "Prize money" "value" (.Get "prize_money"))
+    (dict "label" "Attendance" "value" (.Get "attendance"))
+    (dict "label" "Seeds" "value" (.Get "seeds"))
+    (dict "label" "Players" "value" (.Get "players"))
+    (dict "label" "Main draw" "value" (.Get "main_draw"))
+    (dict "label" "Website" "value" (.Get "website"))
+  )
+  "Inner"   .Inner
+  "below"   (.Get "below")
+) }}

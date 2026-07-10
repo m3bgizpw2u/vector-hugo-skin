@@ -1,0 +1,37 @@
+{{/*
+  Shortcode: award
+  Upstream: https://en.wikipedia.org/wiki/Template:Infobox_award
+  Parameters: name, image, caption, alt, awarded_for, presenter, country,
+              host, location, year, established, first_awarded, last_awarded,
+              website, related, higher, lower, total, total_recipients,
+              categories, network, viewership, below
+*/}}
+{{ partial "infobox/base.html" (dict
+  "type"    "award"
+  "title"   (.Get "name")
+  "image"   (.Get "image")
+  "caption" (.Get "caption")
+  "alt"     (.Get "alt")
+  "fields"  (slice
+    (dict "label" "Awarded for" "value" (.Get "awarded_for"))
+    (dict "label" "Presented by" "value" (.Get "presenter"))
+    (dict "label" "Country" "value" (.Get "country"))
+    (dict "label" "Hosted by" "value" (.Get "host"))
+    (dict "label" "Location" "value" (.Get "location"))
+    (dict "label" "Year" "value" (.Get "year"))
+    (dict "label" "Established" "value" (.Get "established"))
+    (dict "label" "First awarded" "value" (.Get "first_awarded"))
+    (dict "label" "Last awarded" "value" (.Get "last_awarded"))
+    (dict "label" "Website" "value" (.Get "website"))
+    (dict "label" "Related" "value" (.Get "related"))
+    (dict "label" "Higher" "value" (.Get "higher"))
+    (dict "label" "Lower" "value" (.Get "lower"))
+    (dict "label" "Total awarded" "value" (.Get "total"))
+    (dict "label" "Recipients" "value" (.Get "total_recipients"))
+    (dict "label" "Categories" "value" (.Get "categories"))
+    (dict "label" "Network" "value" (.Get "network"))
+    (dict "label" "Viewership" "value" (.Get "viewership"))
+  )
+  "Inner"   .Inner
+  "below"   (.Get "below")
+) }}

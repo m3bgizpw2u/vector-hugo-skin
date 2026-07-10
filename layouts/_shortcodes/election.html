@@ -1,0 +1,51 @@
+{{/*
+  Shortcode: election
+  Upstream: https://en.wikipedia.org/wiki/Template:Infobox_election
+  Parameters: name, image, caption, alt, country, type, ongoing, previous_election,
+              next_election, seats_for_election, majority_seats, election_date,
+              turnout, opinion_polling, candidate, leader, party, alliance,
+              last_election, seats_won, seats_before, popular_vote, percentage,
+              swing, results, map_image, map_caption, map_size, leader2, party2,
+              last_election2, seats_won2, seats_before2, popular_vote2,
+              percentage2, swing2, below
+*/}}
+{{ partial "infobox/base.html" (dict
+  "type"    "election"
+  "title"   (.Get "name")
+  "image"   (.Get "image")
+  "caption" (.Get "caption")
+  "alt"     (.Get "alt")
+  "fields"  (slice
+    (dict "label" "Country" "value" (.Get "country"))
+    (dict "label" "Type" "value" (.Get "type"))
+    (dict "label" "Ongoing" "value" (.Get "ongoing"))
+    (dict "label" "Previous election" "value" (.Get "previous_election"))
+    (dict "label" "Next election" "value" (.Get "next_election"))
+    (dict "label" "Seats up for election" "value" (.Get "seats_for_election"))
+    (dict "label" "Majority seats" "value" (.Get "majority_seats"))
+    (dict "label" "Election date" "value" (.Get "election_date"))
+    (dict "label" "Turnout" "value" (.Get "turnout"))
+    (dict "label" "Opinion polling" "value" (.Get "opinion_polling"))
+    (dict "label" "Candidate" "value" (.Get "candidate"))
+    (dict "label" "Leader" "value" (.Get "leader"))
+    (dict "label" "Party" "value" (.Get "party"))
+    (dict "label" "Alliance" "value" (.Get "alliance"))
+    (dict "label" "Last election" "value" (.Get "last_election"))
+    (dict "label" "Seats won" "value" (.Get "seats_won"))
+    (dict "label" "Seats before" "value" (.Get "seats_before"))
+    (dict "label" "Popular vote" "value" (.Get "popular_vote"))
+    (dict "label" "Percentage" "value" (.Get "percentage"))
+    (dict "label" "Swing" "value" (.Get "swing"))
+    (dict "label" "Results" "value" (.Get "results"))
+    (dict "label" "Second party" "value" (.Get "party2"))
+    (dict "label" "Second leader" "value" (.Get "leader2"))
+    (dict "label" "Second last election" "value" (.Get "last_election2"))
+    (dict "label" "Second seats won" "value" (.Get "seats_won2"))
+    (dict "label" "Second seats before" "value" (.Get "seats_before2"))
+    (dict "label" "Second popular vote" "value" (.Get "popular_vote2"))
+    (dict "label" "Second percentage" "value" (.Get "percentage2"))
+    (dict "label" "Second swing" "value" (.Get "swing2"))
+  )
+  "Inner"   .Inner
+  "below"   (.Get "below")
+) }}

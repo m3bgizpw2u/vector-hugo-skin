@@ -141,6 +141,44 @@ entry in the same commit — see `.cursor/rules/70-changelog.mdc`.
   `.plans/first-plan/06-js-ts-porting-plan.md` and
   `.plans/first-plan/14-licensing-and-scope-notes.md` §3 for the licensing
   boundary around this work.
+- Phase 8 infobox shortcode spec & implementation (per
+  `.plans/first-plan/08-infobox-shortcode-spec.md`): the 30 named wrappers
+  in `docs/RESEARCH.md` §7 each get a real implementation — a thin
+  Go-template that maps the upstream MediaWiki parameter list onto the base
+  partial's slot system — at `layouts/_shortcodes/{slug}.html`. Each
+  wrapper's header comment block lists the accepted parameters in
+  declaration order; each wrapper emits its type key through the dict
+  passed to `layouts/_partials/infobox/base.html`, which is the single
+  entry point that emits `<aside class="infobox" data-infobox-type="…">`
+  for every named shortcode. The 13 inner-primitive shortcodes (paired
+  outer `infobox`, five generic primitives `infobox-row` / `-image` /
+  `-section` / `-below` / `-field`, and seven special-case `infobox-pair-*`
+  pairs for date / software-release / population / area / air-date /
+  budget-gross / episode-season) were already implemented in Phase 4 / 7
+  and ship unchanged. The six partials under `layouts/_partials/infobox/`
+  (`base`, `header`, `image-block`, `row`, `section`, `below`) are real
+  implementations from Phase 4 / 7 and ship unchanged. The `_shortcodes`
+  and `_partials` directory rename — `layouts/shortcodes/` → `layouts/_shortcodes/`
+  and `layouts/partials/` → `layouts/_partials/` — was a Phase 8 catch:
+  Hugo v0.146.0+ renamed those directories, so the Phase 4 folder names
+  silently broke every shortcode lookup in v0.163.3 (the installed
+  version). The rename keeps the per-shortcode-file-per-concern intent of
+  `.cursor/rules/00-core.mdc` and `.cursor/rules/40-shortcodes.mdc` while
+  matching the v0.146+ lookup convention; both rules were updated in the
+  same commit. Worst-offender file is `layouts/_shortcodes/country.html`
+  at 65 LOC (well under the 500-line ceiling). The 30 per-template
+  reference entries land in `docs/SHORTCODES.md` §10 (one section per
+  shipped named shortcode — one-line intent, most-used parameter list,
+  paired-form worked example, upstream MediaWiki "see also" link) on top
+  of the §1–§9 Authoring Guide from Phase 2½. A build-time smoke
+  fixture at `exampleSite/content/articles/phase8-smoke-test.md`
+  exercises every shipped named shortcode so `npm run build` produces
+  30 real `<aside class="infobox" data-infobox-type="…">` blocks (used
+  to verify Phase 8's implementation during development; downstream
+  phases can remove or replace it). `npm run build` exits 0. Worst
+  offender is `country.html` at 65 LOC. See
+  `.plans/first-plan/08-infobox-shortcode-spec.md`.
+
 - Phase 7 page skeleton & partials (per `.plans/first-plan/07-page-skeleton-partials.md`):
   `layouts/_default/baseof.html` composes the full page region graph — `<head>`
   with charset/viewport/title/description/canonical, Hugo Pipes wiring for the

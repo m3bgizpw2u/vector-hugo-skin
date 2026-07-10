@@ -1,0 +1,39 @@
+{{/*
+  Shortcode: military-person
+  Upstream: https://en.wikipedia.org/wiki/Template:Infobox_military_person
+  Parameters: name, image, caption, alt, birth_date, birth_place, death_date,
+              death_place, allegiance, branch, service_years, rank, unit,
+              commands, battles, awards, alma_mater, spouse, relations,
+              children, laterwork, website, below
+*/}}
+{{ partial "infobox/base.html" (dict
+  "type"    "military-person"
+  "title"   (.Get "name")
+  "image"   (.Get "image")
+  "caption" (.Get "caption")
+  "alt"     (.Get "alt")
+  "fields"  (slice
+    (dict "label" "Born" "value" (printf "%s%s"
+        (.Get "birth_date")
+        (cond (ne (.Get "birth_place") "") (printf ", %s" (.Get "birth_place")) "")))
+    (dict "label" "Died" "value" (printf "%s%s"
+        (.Get "death_date")
+        (cond (ne (.Get "death_place") "") (printf ", %s" (.Get "death_place")) "")))
+    (dict "label" "Allegiance" "value" (.Get "allegiance"))
+    (dict "label" "Branch" "value" (.Get "branch"))
+    (dict "label" "Service years" "value" (.Get "service_years"))
+    (dict "label" "Rank" "value" (.Get "rank"))
+    (dict "label" "Unit" "value" (.Get "unit"))
+    (dict "label" "Commands" "value" (.Get "commands"))
+    (dict "label" "Battles/wars" "value" (.Get "battles"))
+    (dict "label" "Awards" "value" (.Get "awards"))
+    (dict "label" "Alma mater" "value" (.Get "alma_mater"))
+    (dict "label" "Spouse(s)" "value" (.Get "spouse"))
+    (dict "label" "Relations" "value" (.Get "relations"))
+    (dict "label" "Children" "value" (.Get "children"))
+    (dict "label" "Other work" "value" (.Get "laterwork"))
+    (dict "label" "Website" "value" (.Get "website"))
+  )
+  "Inner"   .Inner
+  "below"   (.Get "below")
+) }}

@@ -1,0 +1,48 @@
+{{/*
+  Shortcode: church
+  Upstream: https://en.wikipedia.org/wiki/Template:Infobox_church
+  Parameters: name, image, caption, alt, dedication, denomination, previous_denomination,
+              status, heritage_designation, functional_status, location,
+              country, coordinates, architecture_style, founded, founder,
+              completed, capacity, length, width, nave, transept, tower_height,
+              spire_height, materials, diocese, parish, archbishop, bishop,
+              website, below
+*/}}
+{{ partial "infobox/base.html" (dict
+  "type"    "church"
+  "title"   (.Get "name")
+  "image"   (.Get "image")
+  "caption" (.Get "caption")
+  "alt"     (.Get "alt")
+  "fields"  (slice
+    (dict "label" "Dedication" "value" (.Get "dedication"))
+    (dict "label" "Denomination" "value" (.Get "denomination"))
+    (dict "label" "Previous denomination" "value" (.Get "previous_denomination"))
+    (dict "label" "Status" "value" (.Get "status"))
+    (dict "label" "Heritage designation" "value" (.Get "heritage_designation"))
+    (dict "label" "Functional status" "value" (.Get "functional_status"))
+    (dict "label" "Location" "value" (printf "%s%s"
+        (.Get "location")
+        (cond (ne (.Get "country") "") (printf ", %s" (.Get "country")) "")))
+    (dict "label" "Coordinates" "value" (.Get "coordinates"))
+    (dict "label" "Architectural style" "value" (.Get "architecture_style"))
+    (dict "label" "Founded" "value" (.Get "founded"))
+    (dict "label" "Founder" "value" (.Get "founder"))
+    (dict "label" "Completed" "value" (.Get "completed"))
+    (dict "label" "Capacity" "value" (.Get "capacity"))
+    (dict "label" "Length" "value" (.Get "length"))
+    (dict "label" "Width" "value" (.Get "width"))
+    (dict "label" "Nave height" "value" (.Get "nave"))
+    (dict "label" "Transept width" "value" (.Get "transept"))
+    (dict "label" "Tower height" "value" (.Get "tower_height"))
+    (dict "label" "Spire height" "value" (.Get "spire_height"))
+    (dict "label" "Materials" "value" (.Get "materials"))
+    (dict "label" "Diocese" "value" (.Get "diocese"))
+    (dict "label" "Parish" "value" (.Get "parish"))
+    (dict "label" "Archbishop" "value" (.Get "archbishop"))
+    (dict "label" "Bishop" "value" (.Get "bishop"))
+    (dict "label" "Website" "value" (.Get "website"))
+  )
+  "Inner"   .Inner
+  "below"   (.Get "below")
+) }}

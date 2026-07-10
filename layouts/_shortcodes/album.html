@@ -1,0 +1,35 @@
+{{/*
+  Shortcode: album
+  Upstream: https://en.wikipedia.org/wiki/Template:Infobox_album
+  Parameters: name, image, caption, alt, type, artist, cover, released,
+              recorded, studio, genre, length, label, producer, executive_producer,
+              chronology, last_album, next_album, tracks, total_length,
+              awards, certifications, misc, below
+*/}}
+{{ partial "infobox/base.html" (dict
+  "type"    "album"
+  "title"   (.Get "name")
+  "image"   (.Get "image" | default (.Get "cover"))
+  "caption" (.Get "caption")
+  "alt"     (.Get "alt")
+  "fields"  (slice
+    (dict "label" "Type" "value" (.Get "type"))
+    (dict "label" "Artist" "value" (.Get "artist"))
+    (dict "label" "Released" "value" (.Get "released"))
+    (dict "label" "Recorded" "value" (.Get "recorded"))
+    (dict "label" "Studio" "value" (.Get "studio"))
+    (dict "label" "Genre" "value" (.Get "genre"))
+    (dict "label" "Length" "value" (.Get "length"))
+    (dict "label" "Label" "value" (.Get "label"))
+    (dict "label" "Producer" "value" (.Get "producer"))
+    (dict "label" "Executive producer" "value" (.Get "executive_producer"))
+    (dict "label" "Prev album" "value" (printf "%s (%s)" (.Get "last_album") (.Get "last_album_year")))
+    (dict "label" "Next album" "value" (printf "%s (%s)" (.Get "next_album") (.Get "next_album_year")))
+    (dict "label" "Track count" "value" (.Get "tracks"))
+    (dict "label" "Total length" "value" (.Get "total_length"))
+    (dict "label" "Awards" "value" (.Get "awards"))
+    (dict "label" "Certifications" "value" (.Get "certifications"))
+  )
+  "Inner"   .Inner
+  "below"   (.Get "below")
+) }}

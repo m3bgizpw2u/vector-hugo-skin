@@ -1,0 +1,11 @@
+{{/*
+  Search input + submit + live-results slot.
+  Markup only — assets/js/modules/search.ts reads user input against the
+  build-time JSON index (layouts/_default/home.json + assets/js/main.ts) and
+  populates .search-results client-side. No inline script allowed.
+*/}}
+<form class="search-box" role="search" action="{{ "/search/" | relURL }}">
+  <input type="search" name="q" placeholder="{{ i18n "searchPlaceholder" | default "Search" }}" aria-label="{{ i18n "searchPlaceholder" | default "Search" }}">
+  <button type="submit">{{ i18n "searchButtonLabel" | default "Search" }}</button>
+</form>
+<div class="search-results" aria-live="polite"></div>

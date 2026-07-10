@@ -1,0 +1,47 @@
+{{/*
+  Shortcode: television-episode
+  Upstream: https://en.wikipedia.org/wiki/Template:Infobox_television_episode
+  Parameters: name, image, caption, alt, series, season, episode, director,
+              writer, teleplay, story, based_on, narrator, presenter,
+              starring, guests, music, camera, editor, producer, executive_producer,
+              airdate, production_code, runtime, network, channel, prev, next,
+              episode_list, website, below
+*/}}
+{{ partial "infobox/base.html" (dict
+  "type"    "television-episode"
+  "title"   (.Get "name")
+  "image"   (.Get "image")
+  "caption" (.Get "caption")
+  "alt"     (.Get "alt")
+  "fields"  (slice
+    (dict "label" "Series" "value" (.Get "series"))
+    (dict "label" "Season" "value" (.Get "season"))
+    (dict "label" "Episode" "value" (.Get "episode"))
+    (dict "label" "Directed by" "value" (.Get "director"))
+    (dict "label" "Written by" "value" (.Get "writer"))
+    (dict "label" "Teleplay by" "value" (.Get "teleplay"))
+    (dict "label" "Story by" "value" (.Get "story"))
+    (dict "label" "Based on" "value" (.Get "based_on"))
+    (dict "label" "Narrated by" "value" (.Get "narrator"))
+    (dict "label" "Presented by" "value" (.Get "presenter"))
+    (dict "label" "Starring" "value" (.Get "starring"))
+    (dict "label" "Guests" "value" (.Get "guests"))
+    (dict "label" "Music by" "value" (.Get "music"))
+    (dict "label" "Camera setup" "value" (.Get "camera"))
+    (dict "label" "Editor" "value" (.Get "editor"))
+    (dict "label" "Producer" "value" (.Get "producer"))
+    (dict "label" "Executive producer" "value" (.Get "executive_producer"))
+    (dict "label" "Original air date" "pair" "air-date"
+      "value" (printf "%s%s" (.Get "airdate")
+        (cond (ne (.Get "network") "") (printf " (%s)" (.Get "network")) "")))
+    (dict "label" "Production code" "value" (.Get "production_code"))
+    (dict "label" "Running time" "value" (printf "%s min" (.Get "runtime")))
+    (dict "label" "Network" "value" (.Get "channel"))
+    (dict "label" "Previous episode" "value" (.Get "prev"))
+    (dict "label" "Next episode" "value" (.Get "next"))
+    (dict "label" "Episode list" "value" (.Get "episode_list"))
+    (dict "label" "Website" "value" (.Get "website"))
+  )
+  "Inner"   .Inner
+  "below"   (.Get "below")
+) }}

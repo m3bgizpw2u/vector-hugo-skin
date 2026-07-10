@@ -1,0 +1,11 @@
+{{/*
+  Infobox below — the optional freeform footer row at the bottom of the
+  box. Mirrors the upstream MediaWiki `below` slot: full-width, used for
+  footnotes, see-also links, or trailing commentary the author wants to
+  keep inside the box instead of in the body. Rendered through safeHTML
+  so inline emphasis and links work.
+
+  Dict keys expected:
+    .below  string  — footer content
+*/}}
+<div class="infobox-below">{{ .below | safeHTML }}</div>

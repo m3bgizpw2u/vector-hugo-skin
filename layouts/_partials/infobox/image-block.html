@@ -1,0 +1,20 @@
+{{/*
+  Infobox image block — figure wrapper around an optional image with an
+  optional caption. Called by the base partial (when `image` or
+  `caption` is present) or directly by the `infobox-image` primitive
+  shortcode.
+
+  Dict keys expected:
+    .image   string  — image URL or page-bundle-relative path
+    .caption string  — caption text; rendered through safeHTML so
+                       inline emphasis and links work
+    .alt     string  — alt text for assistive tech
+*/}}
+<figure class="infobox-image-block">
+  {{ with .image }}
+    <img src="{{ . }}" alt="{{ $.alt | default "" }}" loading="lazy">
+  {{ end }}
+  {{ with .caption }}
+    <figcaption class="infobox-caption">{{ . | safeHTML }}</figcaption>
+  {{ end }}
+</figure>

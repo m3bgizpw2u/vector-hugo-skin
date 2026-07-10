@@ -1,0 +1,20 @@
+{{/*
+  Special-case software-release pair primitive — emits a row tagged
+  `data-pair="software-release"` for the version+date pair pattern.
+  Used by `software` and `video-game` named shortcodes.
+
+  Parameters:
+    label      string  required  — row label, e.g. "Stable release"
+    version    string  required  — version string, e.g. "4.2.0"
+    date       string  optional  — release date, e.g. "2026-03-15"
+    platform   string  optional  — platform chip when the wrapper
+                                   passes per-platform data
+*/}}
+{{ partial "infobox/row.html" (dict
+    "label" (.Get "label")
+    "pair"  "software-release"
+    "value" (printf "%s%s%s"
+        (.Get "version")
+        (cond (ne (.Get "date") "") (printf " — %s" (.Get "date")) "")
+        (cond (ne (.Get "platform") "") (printf " (%s)" (.Get "platform")) ""))
+) }}

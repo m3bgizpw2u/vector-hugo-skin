@@ -1,0 +1,41 @@
+{{/*
+  Shortcode: company
+  Upstream: https://en.wikipedia.org/wiki/Template:Infobox_company
+  Parameters: name, image, caption, alt, trade_name, type, industry,
+              founded, founder, defunct, hq_location, hq_location_country,
+              num_employees, num_locations, key_people, products, revenue,
+              operating_income, net_income, assets, equity, owner, parent,
+              website, below
+*/}}
+{{ partial "infobox/base.html" (dict
+  "type"    "company"
+  "title"   (.Get "name")
+  "image"   (.Get "image")
+  "caption" (.Get "caption")
+  "alt"     (.Get "alt")
+  "fields"  (slice
+    (dict "label" "Trade name" "value" (.Get "trade_name"))
+    (dict "label" "Type" "value" (.Get "type"))
+    (dict "label" "Industry" "value" (.Get "industry"))
+    (dict "label" "Founded" "value" (printf "%s%s"
+        (.Get "founded")
+        (cond (ne (.Get "founder") "") (printf " by %s" (.Get "founder")) "")))
+    (dict "label" "Defunct" "value" (.Get "defunct"))
+    (dict "label" "Headquarters" "value" (printf "%s%s"
+        (.Get "hq_location")
+        (cond (ne (.Get "hq_location_country") "") (printf ", %s" (.Get "hq_location_country")) "")))
+    (dict "label" "Number of employees" "value" (.Get "num_employees"))
+    (dict "label" "Key people" "value" (.Get "key_people"))
+    (dict "label" "Products" "value" (.Get "products"))
+    (dict "label" "Revenue" "value" (.Get "revenue"))
+    (dict "label" "Operating income" "value" (.Get "operating_income"))
+    (dict "label" "Net income" "value" (.Get "net_income"))
+    (dict "label" "Total assets" "value" (.Get "assets"))
+    (dict "label" "Total equity" "value" (.Get "equity"))
+    (dict "label" "Owner" "value" (.Get "owner"))
+    (dict "label" "Parent" "value" (.Get "parent"))
+    (dict "label" "Website" "value" (.Get "website"))
+  )
+  "Inner"   .Inner
+  "below"   (.Get "below")
+) }}

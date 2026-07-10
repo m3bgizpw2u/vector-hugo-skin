@@ -1,0 +1,49 @@
+{{/*
+  Shortcode: organization
+  Upstream: https://en.wikipedia.org/wiki/Template:Infobox_organization
+  Parameters: name, image, caption, alt, native_name, logo, type, industry,
+              founded, founder, defunct, hq_location, hq_location_country,
+              coordinates, area_served, members, employees, volunteers, budget,
+              website, key_people, products, services, parent, subsidiaries,
+              affiliations, motto, formation, dissolution, registration_id,
+              status, purpose, language, leader_name, leader_title, below
+*/}}
+{{ partial "infobox/base.html" (dict
+  "type"    "organization"
+  "title"   (.Get "name")
+  "image"   (.Get "image" | default (.Get "logo"))
+  "caption" (.Get "caption")
+  "alt"     (.Get "alt")
+  "fields"  (slice
+    (dict "label" "Native name" "value" (.Get "native_name"))
+    (dict "label" "Type" "value" (.Get "type"))
+    (dict "label" "Industry" "value" (.Get "industry"))
+    (dict "label" "Founded" "value" (printf "%s%s" (.Get "founded") (cond (ne (.Get "founder") "") (printf " by %s" (.Get "founder")) "")))
+    (dict "label" "Defunct" "value" (.Get "defunct"))
+    (dict "label" "Headquarters" "value" (.Get "hq_location"))
+    (dict "label" "Country" "value" (.Get "hq_location_country"))
+    (dict "label" "Coordinates" "value" (.Get "coordinates"))
+    (dict "label" "Area served" "value" (.Get "area_served"))
+    (dict "label" "Members" "value" (.Get "members"))
+    (dict "label" "Employees" "value" (.Get "employees"))
+    (dict "label" "Volunteers" "value" (.Get "volunteers"))
+    (dict "label" "Budget" "value" (.Get "budget"))
+    (dict "label" "Key people" "value" (.Get "key_people"))
+    (dict "label" "Products" "value" (.Get "products"))
+    (dict "label" "Services" "value" (.Get "services"))
+    (dict "label" "Parent" "value" (.Get "parent"))
+    (dict "label" "Subsidiaries" "value" (.Get "subsidiaries"))
+    (dict "label" "Affiliations" "value" (.Get "affiliations"))
+    (dict "label" "Motto" "value" (.Get "motto"))
+    (dict "label" "Formation" "value" (.Get "formation"))
+    (dict "label" "Dissolution" "value" (.Get "dissolution"))
+    (dict "label" "Registration ID" "value" (.Get "registration_id"))
+    (dict "label" "Status" "value" (.Get "status"))
+    (dict "label" "Purpose" "value" (.Get "purpose"))
+    (dict "label" "Official language" "value" (.Get "language"))
+    (dict "label" (.Get "leader_title" | default "Leader") "value" (.Get "leader_name"))
+    (dict "label" "Website" "value" (.Get "website"))
+  )
+  "Inner"   .Inner
+  "below"   (.Get "below")
+) }}

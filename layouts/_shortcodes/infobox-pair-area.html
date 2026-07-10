@@ -1,0 +1,21 @@
+{{/*
+  Special-case area pair primitive — emits a row tagged
+  `data-pair="area"` for the total / land / water area triple with unit
+  normalisation. Used by `settlement` and `country` named shortcodes.
+
+  Parameters:
+    label      string  required  — row label, e.g. "Area"
+    total      string  required  — total area, e.g. "1,572 km²"
+    land       string  optional  — land area
+    water      string  optional  — water area
+    unit       string  optional  — unit annotation, e.g. "km²"
+*/}}
+{{ partial "infobox/row.html" (dict
+    "label" (.Get "label")
+    "pair"  "area"
+    "value" (printf "%s%s%s%s"
+        (cond (ne (.Get "total") "") (printf "Total: %s" (.Get "total")) "")
+        (cond (ne (.Get "land") "") (printf " — Land: %s" (.Get "land")) "")
+        (cond (ne (.Get "water") "") (printf " — Water: %s" (.Get "water")) "")
+        (cond (ne (.Get "unit") "") (printf " (%s)" (.Get "unit")) ""))
+) }}

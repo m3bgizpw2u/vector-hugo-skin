@@ -1,0 +1,30 @@
+{{/*
+  Shortcode: historic-site (NRHP)
+  Upstream: https://en.wikipedia.org/wiki/Template:Infobox_NRHP
+  Parameters: name, image, caption, alt, location, nearest_city, coordinates,
+              area, built, architect, architecture, added, NRHP_ref,
+              governing_body, owner, website, below
+*/}}
+{{ partial "infobox/base.html" (dict
+  "type"    "historic-site"
+  "title"   (.Get "name")
+  "image"   (.Get "image")
+  "caption" (.Get "caption")
+  "alt"     (.Get "alt")
+  "fields"  (slice
+    (dict "label" "Location" "value" (.Get "location"))
+    (dict "label" "Nearest city" "value" (.Get "nearest_city"))
+    (dict "label" "Coordinates" "value" (.Get "coordinates"))
+    (dict "label" "Area" "value" (.Get "area"))
+    (dict "label" "Built" "value" (.Get "built"))
+    (dict "label" "Architect" "value" (.Get "architect"))
+    (dict "label" "Architectural style" "value" (.Get "architecture"))
+    (dict "label" "Added to NRHP" "value" (.Get "added"))
+    (dict "label" "NRHP reference No." "value" (.Get "NRHP_ref"))
+    (dict "label" "Governing body" "value" (.Get "governing_body"))
+    (dict "label" "Owner" "value" (.Get "owner"))
+    (dict "label" "Website" "value" (.Get "website"))
+  )
+  "Inner"   .Inner
+  "below"   (.Get "below")
+) }}

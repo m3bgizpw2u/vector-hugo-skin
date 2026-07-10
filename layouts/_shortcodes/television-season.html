@@ -1,0 +1,42 @@
+{{/*
+  Shortcode: television-season
+  Upstream: https://en.wikipedia.org/wiki/Template:Infobox_television_season
+  Parameters: name, image, caption, alt, series_name, num_seasons, num_episodes,
+              season_number, first_aired, last_aired, network, channel,
+              host, starring, judges, director, presenter, narrator, music,
+              country, num_episodes_release, episode_list, prev_season,
+              next_season, website, below
+*/}}
+{{ partial "infobox/base.html" (dict
+  "type"    "television-season"
+  "title"   (.Get "name")
+  "image"   (.Get "image")
+  "caption" (.Get "caption")
+  "alt"     (.Get "alt")
+  "fields"  (slice
+    (dict "label" "Series" "value" (.Get "series_name"))
+    (dict "label" "Season no." "value" (.Get "season_number"))
+    (dict "label" "No. of episodes" "value" (.Get "num_episodes"))
+    (dict "label" "Host(s)" "value" (.Get "host"))
+    (dict "label" "Starring" "value" (.Get "starring"))
+    (dict "label" "Judges" "value" (.Get "judges"))
+    (dict "label" "Director(s)" "value" (.Get "director"))
+    (dict "label" "Presented by" "value" (.Get "presenter"))
+    (dict "label" "Narrated by" "value" (.Get "narrator"))
+    (dict "label" "Music by" "value" (.Get "music"))
+    (dict "label" "Country of origin" "value" (.Get "country"))
+    (dict "label" "Original network" "value" (.Get "network"))
+    (dict "label" "Original channel" "value" (.Get "channel"))
+    (dict "label" "Original release" "pair" "air-date"
+      "value" (printf "%s%s%s"
+        (.Get "first_aired")
+        (cond (and (ne (.Get "first_aired") "") (ne (.Get "last_aired") "")) " to " "")
+        (.Get "last_aired")))
+    (dict "label" "Episode list" "value" (.Get "episode_list"))
+    (dict "label" "Previous season" "value" (.Get "prev_season"))
+    (dict "label" "Next season" "value" (.Get "next_season"))
+    (dict "label" "Website" "value" (.Get "website"))
+  )
+  "Inner"   .Inner
+  "below"   (.Get "below")
+) }}

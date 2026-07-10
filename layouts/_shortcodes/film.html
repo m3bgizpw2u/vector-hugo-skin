@@ -1,0 +1,37 @@
+{{/*
+  Shortcode: film
+  Upstream: https://en.wikipedia.org/wiki/Template:Infobox_film
+  Parameters: name, image, caption, alt, director, producer, writer,
+              screenplay, story, based_on, starring, music, cinematography,
+              editing, studio, distributor, released, runtime, country,
+              language, budget, gross, below
+*/}}
+{{ partial "infobox/base.html" (dict
+  "type"    "film"
+  "title"   (.Get "name")
+  "image"   (.Get "image")
+  "caption" (.Get "caption")
+  "alt"     (.Get "alt")
+  "fields"  (slice
+    (dict "label" "Directed by" "value" (.Get "director"))
+    (dict "label" "Written by" "value" (.Get "writer"))
+    (dict "label" "Produced by" "value" (.Get "producer"))
+    (dict "label" "Starring" "value" (.Get "starring"))
+    (dict "label" "Music by" "value" (.Get "music"))
+    (dict "label" "Cinematography" "value" (.Get "cinematography"))
+    (dict "label" "Edited by" "value" (.Get "editing"))
+    (dict "label" "Production company" "value" (.Get "studio"))
+    (dict "label" "Distributed by" "value" (.Get "distributor"))
+    (dict "label" "Release date" "value" (.Get "released"))
+    (dict "label" "Running time" "value" (printf "%s min" (.Get "runtime")))
+    (dict "label" "Country" "value" (.Get "country"))
+    (dict "label" "Language" "value" (.Get "language"))
+    (dict "label" "Box office" "pair" "budget-gross"
+      "value" (printf "%s%s%s"
+        (cond (ne (.Get "budget") "") (printf "Budget: %s%s" (.Get "currency" | default "$") (.Get "budget")) "")
+        (cond (and (ne (.Get "budget") "") (ne (.Get "gross") "")) " | " "")
+        (cond (ne (.Get "gross") "") (printf "Gross: %s%s" (.Get "currency" | default "$") (.Get "gross")) "")))
+  )
+  "Inner"   .Inner
+  "below"   (.Get "below")
+) }}

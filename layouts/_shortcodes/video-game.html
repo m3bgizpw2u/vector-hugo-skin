@@ -1,0 +1,44 @@
+{{/*
+  Shortcode: video-game
+  Upstream: https://en.wikipedia.org/wiki/Template:Infobox_video_game
+  Parameters: name, image, caption, alt, cover_art, developer, publisher,
+              director, producer, designer, programmer, artist, writer,
+              composer, series, engine, platform, release, genre, modes,
+              initial_release_date, latest_release, requirements, ratings,
+              input, language, format, status, website, below
+*/}}
+{{ partial "infobox/base.html" (dict
+  "type"    "video-game"
+  "title"   (.Get "name")
+  "image"   (.Get "image" | default (.Get "cover_art"))
+  "caption" (.Get "caption")
+  "alt"     (.Get "alt")
+  "fields"  (slice
+    (dict "label" "Developer" "value" (.Get "developer"))
+    (dict "label" "Publisher" "value" (.Get "publisher"))
+    (dict "label" "Director" "value" (.Get "director"))
+    (dict "label" "Producer" "value" (.Get "producer"))
+    (dict "label" "Designer" "value" (.Get "designer"))
+    (dict "label" "Programmer" "value" (.Get "programmer"))
+    (dict "label" "Artist" "value" (.Get "artist"))
+    (dict "label" "Writer" "value" (.Get "writer"))
+    (dict "label" "Composer" "value" (.Get "composer"))
+    (dict "label" "Series" "value" (.Get "series"))
+    (dict "label" "Engine" "value" (.Get "engine"))
+    (dict "label" "Platform(s)" "value" (.Get "platform"))
+    (dict "label" "Release" "pair" "software-release"
+      "value" (printf "%s%s" (.Get "initial_release_date")
+        (cond (ne (.Get "latest_release") "") (printf " — latest: %s" (.Get "latest_release")) "")))
+    (dict "label" "Genre(s)" "value" (.Get "genre"))
+    (dict "label" "Mode(s)" "value" (.Get "modes"))
+    (dict "label" "System requirements" "value" (.Get "requirements"))
+    (dict "label" "Ratings" "value" (.Get "ratings"))
+    (dict "label" "Input" "value" (.Get "input"))
+    (dict "label" "Language(s)" "value" (.Get "language"))
+    (dict "label" "Format" "value" (.Get "format"))
+    (dict "label" "Status" "value" (.Get "status"))
+    (dict "label" "Website" "value" (.Get "website"))
+  )
+  "Inner"   .Inner
+  "below"   (.Get "below")
+) }}

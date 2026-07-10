@@ -1,0 +1,24 @@
+---
+description: "Core project constraints for vector-hugo-theme — always active"
+alwaysApply: true
+---
+
+# Core constraints
+
+This project reimplements Wikipedia's Vector 2022 skin as a static Hugo theme, plus a
+MediaWiki-style Infobox shortcode. It never depends on a MediaWiki server, PHP, or a
+database.
+
+- No code file (JS, TS, CSS/SCSS, HTML/Go-template) exceeds **500–1000 lines**. Split
+  before hitting the ceiling, not after.
+- Never mix languages in one file — no inline `<style>`/`<script>` in templates.
+- One concern per file: one component per CSS file, one behavior per TS module, one page
+  region per partial.
+- Every shortcode lives in its own folder: `layouts/_shortcodes/{name}/{file}.html`, even
+  if currently a single file.
+- The built `public/` output must run with zero JS runtime dependencies beyond the
+  browser — `node_modules/` is dev-tooling only.
+- If a task would require violating any of the above, stop and flag it rather than
+  silently exceeding the limit.
+
+Full rationale: `docs/ARCHITECTURE.md` in this repo.

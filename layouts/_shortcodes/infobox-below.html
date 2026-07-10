@@ -1,0 +1,7 @@
+{{/*
+  Inner primitive — the optional freeform footer block at the bottom of
+  the box. Mirrors the upstream MediaWiki `below` slot. The `content`
+  param carries the footer text; rendered through safeHTML so inline
+  emphasis and links work.
+*/}}
+{{ partial "infobox/below.html" (dict "below" (.Get "content")) }}

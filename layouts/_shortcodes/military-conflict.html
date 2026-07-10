@@ -1,0 +1,41 @@
+{{/*
+  Shortcode: military-conflict
+  Upstream: https://en.wikipedia.org/wiki/Template:Infobox_military_conflict
+  Parameters: name, image, caption, alt, conflict, part_of, date, date_start,
+              date_end, place, location, coordinates, territory, result,
+              status, combatant1, combatant2, commander1, commander2,
+              strength1, strength2, casualties1, casualties2, casualties,
+              civilian_deaths, military_deaths, total_deaths, notes, website,
+              below
+*/}}
+{{ partial "infobox/base.html" (dict
+  "type"    "military-conflict"
+  "title"   (.Get "name" | default (.Get "conflict"))
+  "image"   (.Get "image")
+  "caption" (.Get "caption")
+  "alt"     (.Get "alt")
+  "fields"  (slice
+    (dict "label" "Part of" "value" (.Get "part_of"))
+    (dict "label" "Date" "value" (printf "%s%s%s"
+        (.Get "date_start")
+        (cond (and (ne (.Get "date_start") "") (ne (.Get "date_end") "")) " — " "")
+        (.Get "date_end")))
+    (dict "label" "Place" "value" (.Get "place"))
+    (dict "label" "Location" "value" (.Get "location"))
+    (dict "label" "Coordinates" "value" (.Get "coordinates"))
+    (dict "label" "Territory" "value" (.Get "territory"))
+    (dict "label" "Result" "value" (.Get "result"))
+    (dict "label" "Status" "value" (.Get "status"))
+    (dict "label" "Combatants" "value" (printf "%s vs. %s" (.Get "combatant1") (.Get "combatant2")))
+    (dict "label" "Commanders" "value" (printf "%s / %s" (.Get "commander1") (.Get "commander2")))
+    (dict "label" "Strength" "value" (printf "%s / %s" (.Get "strength1") (.Get "strength2")))
+    (dict "label" "Casualties" "value" (printf "%s / %s" (.Get "casualties1") (.Get "casualties2")))
+    (dict "label" "Civilian deaths" "value" (.Get "civilian_deaths"))
+    (dict "label" "Military deaths" "value" (.Get "military_deaths"))
+    (dict "label" "Total deaths" "value" (.Get "total_deaths"))
+    (dict "label" "Notes" "value" (.Get "notes"))
+    (dict "label" "Website" "value" (.Get "website"))
+  )
+  "Inner"   .Inner
+  "below"   (.Get "below")
+) }}

@@ -1,0 +1,51 @@
+{{/*
+  Shortcode: television
+  Upstream: https://en.wikipedia.org/wiki/Template:Infobox_television
+  Parameters: name, image, caption, alt, genre, creator, based_on,
+              written_by, director, starring, voices, narrated, music,
+              country_of_origin, original_language, num_seasons, num_episodes,
+              list_episodes, executive_producer, producer, location, editor,
+              camera, runtime, network, first_aired, last_aired, related,
+              website, below
+*/}}
+{{ partial "infobox/base.html" (dict
+  "type"    "television"
+  "title"   (.Get "name")
+  "image"   (.Get "image")
+  "caption" (.Get "caption")
+  "alt"     (.Get "alt")
+  "fields"  (slice
+    (dict "label" "Genre" "value" (.Get "genre"))
+    (dict "label" "Created by" "value" (.Get "creator"))
+    (dict "label" "Based on" "value" (.Get "based_on"))
+    (dict "label" "Written by" "value" (.Get "written_by"))
+    (dict "label" "Directed by" "value" (.Get "director"))
+    (dict "label" "Starring" "value" (.Get "starring"))
+    (dict "label" "Voices of" "value" (.Get "voices"))
+    (dict "label" "Narrated by" "value" (.Get "narrated"))
+    (dict "label" "Music by" "value" (.Get "music"))
+    (dict "label" "Country of origin" "value" (.Get "country_of_origin"))
+    (dict "label" "Original language" "value" (.Get "original_language"))
+    (dict "label" "No. of seasons" "pair" "episode-season"
+      "value" (printf "%s%s"
+        (.Get "num_seasons")
+        (cond (and (ne (.Get "num_seasons") "") (ne (.Get "num_episodes") "")) " seasons × " "")
+        (cond (ne (.Get "num_episodes") "") (printf "%s episodes" (.Get "num_episodes")) "")))
+    (dict "label" "Executive producer(s)" "value" (.Get "executive_producer"))
+    (dict "label" "Producer(s)" "value" (.Get "producer"))
+    (dict "label" "Production location" "value" (.Get "location"))
+    (dict "label" "Editor(s)" "value" (.Get "editor"))
+    (dict "label" "Camera setup" "value" (.Get "camera"))
+    (dict "label" "Running time" "value" (printf "%s min" (.Get "runtime")))
+    (dict "label" "Original network" "value" (.Get "network"))
+    (dict "label" "Original release" "pair" "air-date"
+      "value" (printf "%s%s%s"
+        (.Get "first_aired")
+        (cond (and (ne (.Get "first_aired") "") (ne (.Get "last_aired") "")) " to " "")
+        (.Get "last_aired")))
+    (dict "label" "Related shows" "value" (.Get "related"))
+    (dict "label" "Website" "value" (.Get "website"))
+  )
+  "Inner"   .Inner
+  "below"   (.Get "below")
+) }}

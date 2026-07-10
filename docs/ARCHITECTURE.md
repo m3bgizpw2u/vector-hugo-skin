@@ -38,7 +38,7 @@ be revisited, but only by flagging it, never by silently breaking them.
    file also styles `.toc-list`.
 
 4. **Folder-per-shortcode.** Every shortcode lives in its own folder under
-   `layouts/shortcodes/{name}/`, even when that folder currently contains a single
+   `layouts/_shortcodes/{name}/`, even when that folder currently contains a single
    file. The reason is that shortcodes grow — an `infobox` wrapper eventually wants
    separate `infobox-row`, `infobox-image`, and `infobox-section` files, and a
    named `person` wrapper eventually wants `person-birth-death.html` /

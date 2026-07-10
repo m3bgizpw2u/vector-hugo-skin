@@ -1,0 +1,45 @@
+{{/*
+  Shortcode: station
+  Upstream: https://en.wikipedia.org/wiki/Template:Infobox_station
+  Parameters: name, image, caption, alt, native_name, address, country,
+              coordinates, line, connections, platforms, tracks, structure,
+              depth, levels, type, opened, closed, rebuilt, electrified,
+              ADA, code, owned, operator, zone, former, passengers, pass_year,
+              pass_rank, services, below
+*/}}
+{{ partial "infobox/base.html" (dict
+  "type"    "station"
+  "title"   (.Get "name")
+  "image"   (.Get "image")
+  "caption" (.Get "caption")
+  "alt"     (.Get "alt")
+  "fields"  (slice
+    (dict "label" "Native name" "value" (.Get "native_name"))
+    (dict "label" "Address" "value" (.Get "address"))
+    (dict "label" "Location" "value" (printf "%s%s"
+        (.Get "country")
+        (cond (ne (.Get "coordinates") "") (printf " (%s)" (.Get "coordinates")) "")))
+    (dict "label" "Line(s)" "value" (.Get "line"))
+    (dict "label" "Connections" "value" (.Get "connections"))
+    (dict "label" "Platforms" "value" (.Get "platforms"))
+    (dict "label" "Tracks" "value" (.Get "tracks"))
+    (dict "label" "Structure" "value" (.Get "structure"))
+    (dict "label" "Depth" "value" (.Get "depth"))
+    (dict "label" "Levels" "value" (.Get "levels"))
+    (dict "label" "Type" "value" (.Get "type"))
+    (dict "label" "Opened" "value" (.Get "opened"))
+    (dict "label" "Closed" "value" (.Get "closed"))
+    (dict "label" "Rebuilt" "value" (.Get "rebuilt"))
+    (dict "label" "Electrified" "value" (.Get "electrified"))
+    (dict "label" "Accessible" "value" (.Get "ADA"))
+    (dict "label" "Station code" "value" (.Get "code"))
+    (dict "label" "Owned by" "value" (.Get "owned"))
+    (dict "label" "Operated by" "value" (.Get "operator"))
+    (dict "label" "Fare zone" "value" (.Get "zone"))
+    (dict "label" "Former name" "value" (.Get "former"))
+    (dict "label" "Passengers" "value" (printf "%s (%s) — rank %s" (.Get "passengers") (.Get "pass_year") (.Get "pass_rank")))
+    (dict "label" "Services" "value" (.Get "services"))
+  )
+  "Inner"   .Inner
+  "below"   (.Get "below")
+) }}

@@ -1,0 +1,39 @@
+{{/*
+  Shortcode: baseball-biography
+  Upstream: https://en.wikipedia.org/wiki/Template:Infobox_baseball_biography
+  Parameters: name, image, caption, alt, birth_date, birth_place, death_date,
+              death_place, bats, throws, debut, final_game, position,
+              team, stat1label, stat1value, stat2label, stat2value,
+              stat3label, stat3value, teams, highlights, awards, hall_of_fame,
+              throws_left, bats_left, below
+*/}}
+{{ partial "infobox/base.html" (dict
+  "type"    "baseball-biography"
+  "title"   (.Get "name")
+  "image"   (.Get "image")
+  "caption" (.Get "caption")
+  "alt"     (.Get "alt")
+  "fields"  (slice
+    (dict "label" "Born" "value" (printf "%s%s"
+        (.Get "birth_date")
+        (cond (ne (.Get "birth_place") "") (printf ", %s" (.Get "birth_place")) "")))
+    (dict "label" "Died" "value" (printf "%s%s"
+        (.Get "death_date")
+        (cond (ne (.Get "death_place") "") (printf ", %s" (.Get "death_place")) "")))
+    (dict "label" "Bats" "value" (.Get "bats"))
+    (dict "label" "Throws" "value" (.Get "throws"))
+    (dict "label" "MLB debut" "value" (.Get "debut"))
+    (dict "label" "Last MLB appearance" "value" (.Get "final_game"))
+    (dict "label" "Position" "value" (.Get "position"))
+    (dict "label" "Team" "value" (.Get "team"))
+    (dict "label" (.Get "stat1label") "value" (.Get "stat1value"))
+    (dict "label" (.Get "stat2label") "value" (.Get "stat2value"))
+    (dict "label" (.Get "stat3label") "value" (.Get "stat3value"))
+    (dict "label" "Teams" "value" (.Get "teams"))
+    (dict "label" "Career highlights" "value" (.Get "highlights"))
+    (dict "label" "Awards" "value" (.Get "awards"))
+    (dict "label" "Hall of Fame" "value" (.Get "hall_of_fame"))
+  )
+  "Inner"   .Inner
+  "below"   (.Get "below")
+) }}

@@ -1,0 +1,7 @@
+{{/*
+  Inner primitive — a bare inline field. Renders the value inside a
+  `<span class="infobox-field">` so it can be embedded in prose or in
+  a custom row the named wrapper does not enumerate. Used as an
+  escape-hatch building block alongside infobox-row.
+*/}}
+<span class="infobox-field">{{ .Get "value" | safeHTML }}</span>

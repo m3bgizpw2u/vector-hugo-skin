@@ -1,0 +1,44 @@
+{{/*
+  Shortcode: military-unit
+  Upstream: https://en.wikipedia.org/wiki/Template:Infobox_military_unit
+  Parameters: name, image, caption, alt, start_date, end_date, country,
+              allegiance, branch, type, role, size, command, garrison,
+              nickname, patron, motto, colors, march, battles, anniversaries,
+              decorations, commander, notable_commanders, identification_symbol,
+              website, below
+*/}}
+{{ partial "infobox/base.html" (dict
+  "type"    "military-unit"
+  "title"   (.Get "name")
+  "image"   (.Get "image")
+  "caption" (.Get "caption")
+  "alt"     (.Get "alt")
+  "fields"  (slice
+    (dict "label" "Active" "value" (printf "%s%s%s"
+        (.Get "start_date")
+        (cond (and (ne (.Get "start_date") "") (ne (.Get "end_date") "")) " — " "")
+        (.Get "end_date")))
+    (dict "label" "Country" "value" (.Get "country"))
+    (dict "label" "Allegiance" "value" (.Get "allegiance"))
+    (dict "label" "Branch" "value" (.Get "branch"))
+    (dict "label" "Type" "value" (.Get "type"))
+    (dict "label" "Role" "value" (.Get "role"))
+    (dict "label" "Size" "value" (.Get "size"))
+    (dict "label" "Command structure" "value" (.Get "command"))
+    (dict "label" "Garrison/HQ" "value" (.Get "garrison"))
+    (dict "label" "Nickname(s)" "value" (.Get "nickname"))
+    (dict "label" "Patron" "value" (.Get "patron"))
+    (dict "label" "Motto" "value" (.Get "motto"))
+    (dict "label" "Colors" "value" (.Get "colors"))
+    (dict "label" "March" "value" (.Get "march"))
+    (dict "label" "Battles/wars" "value" (.Get "battles"))
+    (dict "label" "Anniversaries" "value" (.Get "anniversaries"))
+    (dict "label" "Decorations" "value" (.Get "decorations"))
+    (dict "label" "Commander" "value" (.Get "commander"))
+    (dict "label" "Notable commanders" "value" (.Get "notable_commanders"))
+    (dict "label" "Insignia" "value" (.Get "identification_symbol"))
+    (dict "label" "Website" "value" (.Get "website"))
+  )
+  "Inner"   .Inner
+  "below"   (.Get "below")
+) }}

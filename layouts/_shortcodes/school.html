@@ -1,0 +1,50 @@
+{{/*
+  Shortcode: school
+  Upstream: https://en.wikipedia.org/wiki/Template:Infobox_school
+  Parameters: name, image, caption, alt, motto, established, closed, type,
+              affiliation, religion, president, principal, dean, head,
+              faculty, staff, students, grades, gender, age_range, enrolment,
+              campus, campus_size, area, colors, nickname, mascot,
+              accreditation, publication, newspaper, yearbook, affiliation2,
+              website, below
+*/}}
+{{ partial "infobox/base.html" (dict
+  "type"    "school"
+  "title"   (.Get "name")
+  "image"   (.Get "image")
+  "caption" (.Get "caption")
+  "alt"     (.Get "alt")
+  "fields"  (slice
+    (dict "label" "Motto" "value" (.Get "motto"))
+    (dict "label" "Established" "value" (.Get "established"))
+    (dict "label" "Closed" "value" (.Get "closed"))
+    (dict "label" "Type" "value" (.Get "type"))
+    (dict "label" "Affiliation" "value" (.Get "affiliation"))
+    (dict "label" "Religious affiliation" "value" (.Get "religion"))
+    (dict "label" "President" "value" (.Get "president"))
+    (dict "label" "Principal" "value" (.Get "principal"))
+    (dict "label" "Dean" "value" (.Get "dean"))
+    (dict "label" "Head teacher" "value" (.Get "head"))
+    (dict "label" "Faculty" "value" (.Get "faculty"))
+    (dict "label" "Staff" "value" (.Get "staff"))
+    (dict "label" "Students" "value" (.Get "students"))
+    (dict "label" "Grades" "value" (.Get "grades"))
+    (dict "label" "Gender" "value" (.Get "gender"))
+    (dict "label" "Age range" "value" (.Get "age_range"))
+    (dict "label" "Enrolment" "value" (.Get "enrolment"))
+    (dict "label" "Campus" "value" (.Get "campus"))
+    (dict "label" "Campus size" "value" (.Get "campus_size"))
+    (dict "label" "Area" "value" (.Get "area"))
+    (dict "label" "Colors" "value" (.Get "colors"))
+    (dict "label" "Nickname" "value" (.Get "nickname"))
+    (dict "label" "Mascot" "value" (.Get "mascot"))
+    (dict "label" "Accreditation" "value" (.Get "accreditation"))
+    (dict "label" "Publication" "value" (.Get "publication"))
+    (dict "label" "Newspaper" "value" (.Get "newspaper"))
+    (dict "label" "Yearbook" "value" (.Get "yearbook"))
+    (dict "label" "Affiliations" "value" (.Get "affiliation2"))
+    (dict "label" "Website" "value" (.Get "website"))
+  )
+  "Inner"   .Inner
+  "below"   (.Get "below")
+) }}

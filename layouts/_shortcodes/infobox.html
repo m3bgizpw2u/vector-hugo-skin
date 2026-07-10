@@ -1,0 +1,23 @@
+{{/*
+  Paired outer infobox escape hatch.
+  `{{< infobox type="custom" >}}…{{< /infobox >}}` for content that does
+  not fit any named shortcode. Author composes rows from inner
+  primitives (infobox-row, infobox-image, infobox-section, infobox-below)
+  inside the `.Inner` block.
+*/}}
+<aside class="infobox" data-infobox-type="{{ .Get "type" | default "custom" }}">
+  {{ with .Get "title" }}
+    {{ partial "infobox/header.html" (dict "title" .) }}
+  {{ end }}
+  {{ if or (.Get "image") (.Get "caption") }}
+    {{ partial "infobox/image-block.html" (dict
+        "image"   (.Get "image")
+        "caption" (.Get "caption")
+        "alt"     (.Get "alt")
+    ) }}
+  {{ end }}
+  {{ .Inner }}
+  {{ with .Get "below" }}
+    {{ partial "infobox/below.html" (dict "below" .) }}
+  {{ end }}
+</aside>
