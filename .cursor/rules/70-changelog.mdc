@@ -1,0 +1,24 @@
+---
+description: "Changelog policy — invoke immediately after preparing any commit"
+alwaysApply: false
+---
+
+# Changelog policy
+
+Every commit made under `60-git-commit.mdc` that changes user-facing or
+developer-facing behavior gets a matching `CHANGELOG.md` entry, added in the **same
+commit** — never as a separate follow-up commit.
+
+- Use Keep-a-Changelog style structure: a dated heading per work session or logical
+  release chunk, with `### Added`, `### Changed`, `### Fixed`, `### Removed`
+  sub-sections as applicable.
+- Each entry is one line, written for a future reader who wasn't in this session:
+  explain *why* when the reason isn't obvious from the description alone. Example:
+  `- Removed edit/history tab markup — no server backend to act on it, see
+  docs/RESEARCH.md.` rather than just `- Removed edit/history tab markup.`
+- Skip an entry only for genuinely non-user-facing internal churn (comment fixes, minor
+  formatting) — use judgment; the goal is a changelog someone can read end-to-end to
+  understand the project's evolution, not a mechanical mirror of every commit hash.
+- If a change reverses or significantly modifies an earlier changelog entry from the
+  same unreleased section, edit that entry in place rather than adding a contradictory
+  new one — keep the changelog internally consistent, not just append-only.

@@ -1,0 +1,29 @@
+---
+description: "Commit policy — invoke whenever a logical unit of code changes is finalized"
+alwaysApply: false
+---
+
+# Commit policy
+
+Invoke this rule after finishing any logically-complete unit of work (a component's
+styles, a JS module, a shortcode file, a doc update) — commits happen frequently, scoped
+narrowly, not batched at the end of a session.
+
+- Stage only the files intentionally changed for this unit of work. Never a blanket
+  `git add .` / `git add -A` that might sweep in unrelated in-progress edits.
+- Never commit generated/build output: `public/`, `resources/`, `.hugo_build.lock`,
+  `node_modules/`, `test-results/`, `playwright-report/`, `blob-report/` — these should
+  already be `.gitignore`d; if any show up as untracked-but-about-to-be-staged, stop and
+  fix `.gitignore` first rather than committing them.
+- Never commit anything from outside the repo tree (e.g. research notes kept in
+  `/tmp/research/` while studying the Vector skin source) — that material stays external
+  by design, see `docs/RESEARCH.md`.
+- Write commit messages in Conventional Commits style:
+  `type(scope): short description`, where `type` is one of `feat`, `fix`, `chore`,
+  `docs`, `style`, `refactor`, `test`, and `scope` names the affected area
+  (`infobox`, `toc`, `sidebar`, `css`, `e2e`, etc.). Example:
+  `feat(infobox): add nested row shortcode`.
+- Every commit that changes user-facing or developer-facing behavior must be paired with
+  a `CHANGELOG.md` entry in the **same commit** — see `70-changelog.mdc`.
+- Purely exploratory work that produces no repo changes (e.g. reading source, browsing
+  documentation) never results in a commit.

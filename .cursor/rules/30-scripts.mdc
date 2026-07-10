@@ -1,0 +1,25 @@
+---
+description: "TypeScript / JS module conventions"
+globs:
+  - "assets/js/**"
+  - "**/*.ts"
+alwaysApply: false
+---
+
+# Scripts
+
+- One behavior per file under `assets/js/modules/` (`toc.ts`, `sidebar-toggle.ts`,
+  `sticky-header.ts`, `tabs.ts`, `theme-toggle.ts`, `search.ts`). Each exports an
+  `init()` entry point and manages its own DOM queries/listeners.
+- Pure, dependency-free helpers only in `assets/js/utils/` (`dom.ts`, `debounce.ts`,
+  `storage.ts`) — no behavior/business logic there.
+- `assets/js/main.ts` only imports modules and calls their `init()` functions — no
+  conditionals, no DOM queries, no logic of its own. If setup data is needed, pass it at
+  the `init()` call site.
+- Never reference `mw.*` or any MediaWiki global — none of it exists in a static site.
+  Every module is written from scratch against plain DOM APIs (`IntersectionObserver`,
+  `localStorage`, standard event listeners), not transpiled from Vector's own JS.
+- `search.ts` reads a build-time-generated JSON index (Hugo output format), not a live
+  API call — there is no `action=opensearch` equivalent to call.
+- Wrap all `localStorage` access in `utils/storage.ts` with try/catch — private
+  browsing / storage-disabled contexts must not throw uncaught errors.

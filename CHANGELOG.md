@@ -264,23 +264,6 @@ entry in the same commit — see `.cursor/rules/70-changelog.mdc`.
   no WebKit, no `toHaveScreenshot()` in the main `test:e2e` script. All 8 rule files
   remain under the Phase 11 word budgets (`00-core.mdc` 157/200, others ≤ 232/300).
   See `.plans/first-plan/11-cursor-rules-plan.md`.
-
-### Fixed
-- Phase 8 `layouts/partials/` → `layouts/_partials/` rename cleanup (per
-  `.plans/first-plan/08-infobox-shortcode-spec.md`): the 25 stale files under
-  `layouts/partials/{article,footer,header,infobox,special,sidebar}/` that
-  remained on disk after Phase 8 moved their content to `layouts/_partials/`
-  are removed — `git rm` was never run, so the directory lingered as dead
-  tracked files even though Hugo never read from it. Also fix two comment
-  references to the old path that slipped through: the composition note in
-  `layouts/_default/baseof.html` now points at `layouts/_partials/<region>/`,
-  and the call-site note in `layouts/_partials/infobox/header.html` now
-  points at `layouts/_partials/infobox/base.html`. `npm run build` exits 0
-  (45 pages) before and after the cleanup, confirming the dead files had no
-  build-time effect — they were a stale-history hazard only, fixed now so
-  Phase 13's DoD gate starts from a clean tree.
-
-### Changed
 - Theme toggle markup (`layouts/_partials/header/personal-tools.html`):
   replace the single hidden `<button class="theme-toggle">` placeholder from
   Phase 7 with a segmented three-button group
@@ -301,6 +284,33 @@ entry in the same commit — see `.cursor/rules/70-changelog.mdc`.
   `.sidebar-list__link--active` on the active item. This unlocks the
   collapse/expand behaviour shipped but previously inert (no matching
   markup to hook into) and matches the per-template Phase 8 contract.
+- Cursor rule set complete (per `.plans/first-plan/11-cursor-rules-plan.md`):
+  the three rule files written alongside Phase 11's audit but never
+  committed — `30-scripts.mdc` (TypeScript / JS module conventions, with
+  the one-behavior-per-file + no-`mw.*` rules Phase 6 enforced), and the two
+  process rules `60-git-commit.mdc` (Conventional Commits scope,
+  never-`git-add-.`, paired-CHANGELOG contract) and `70-changelog.mdc`
+  (Keep-a-Changelog structure, same-commit entry, edit-in-place for
+  reversals). These were tracked on disk since Phase 11 but never
+  `git add`-ed; without them the rule file the commit-policy and
+  changelog-policy guidance was supposed to enforce is itself missing
+  from history. All 8 rule files are now tracked, all under the Phase 11
+  word budgets.
+
+### Fixed
+- Phase 8 `layouts/partials/` → `layouts/_partials/` rename cleanup (per
+  `.plans/first-plan/08-infobox-shortcode-spec.md`): the 25 stale files under
+  `layouts/partials/{article,footer,header,infobox,special,sidebar}/` that
+  remained on disk after Phase 8 moved their content to `layouts/_partials/`
+  are removed — `git rm` was never run, so the directory lingered as dead
+  tracked files even though Hugo never read from it. Also fix two comment
+  references to the old path that slipped through: the composition note in
+  `layouts/_default/baseof.html` now points at `layouts/_partials/<region>/`,
+  and the call-site note in `layouts/_partials/infobox/header.html` now
+  points at `layouts/_partials/infobox/base.html`. `npm run build` exits 0
+  (45 pages) before and after the cleanup, confirming the dead files had no
+  build-time effect — they were a stale-history hazard only, fixed now so
+  Phase 13's DoD gate starts from a clean tree.
 
 ### Removed
 
