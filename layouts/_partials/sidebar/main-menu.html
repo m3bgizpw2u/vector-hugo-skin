@@ -1,11 +1,28 @@
 {{/*
   Main menu navigation — populated from hugo.toml's [[menu.main]] entries so
-  downstream site authors can customise nav without editing templates. Active
-  page gets the .is-active class for sidebar.scss / sticky-header.scss to key
-  off.
+  downstream site authors can customise nav without editing templates. The
+  markup matches the portlet-list pattern the sidebar SCSS
+  (`assets/css/components/sidebar.scss`) and the `sidebar-toggle.ts` module
+  were designed against: each portlet group is a `.sidebar-list__group` with
+  a `.sidebar-list__heading` toggler and `.sidebar-list__items` list of
+  `.sidebar-list__link` anchors. One group per menu here (labelled
+  "Navigation") keeps the collapse/expand behavior useful on the example
+  site while leaving room for downstream sites to add additional groups.
 */}}
-<nav class="main-menu">
-  {{ range .Site.Menus.main }}
-  <a href="{{ .URL }}" class="main-menu-item{{ if or ($.IsMenuCurrent "main" .) ($.HasMenuCurrent "main" .) }} is-active{{ end }}">{{ .Name }}</a>
-  {{ end }}
+<nav class="sidebar-list main-menu">
+  <div class="sidebar-list__group" id="sidebar-group-navigation">
+    <h2 class="sidebar-list__heading">
+      {{ i18n "mainMenuLabel" | default "Navigation" }}
+      <svg class="sidebar-list__chevron" aria-hidden="true" viewBox="0 0 12 12">
+        <path d="M2 4 L6 8 L10 4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+      </svg>
+    </h2>
+    <ul class="sidebar-list__items">
+      {{ range .Site.Menus.main }}
+      <li class="sidebar-list__item">
+        <a href="{{ .URL }}" class="sidebar-list__link{{ if or ($.IsMenuCurrent "main" .) ($.HasMenuCurrent "main" .) }} sidebar-list__link--active{{ end }}">{{ .Name }}</a>
+      </li>
+      {{ end }}
+    </ul>
+  </div>
 </nav>

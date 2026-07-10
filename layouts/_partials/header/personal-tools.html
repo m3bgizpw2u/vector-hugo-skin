@@ -2,13 +2,23 @@
   Top-right personal-tools area — Phase 7 decision per 07-page-skeleton-partials.md
   §3 (line 62–63): a static site has no auth flow / watchlist / notifications, so
   Vector's personal-tools content has no equivalent. The slot is repurposed as a
-  hooks region — the theme toggle lives here once assets/js/modules/theme-toggle.ts
-  init() runs, and downstream site authors can extend it via the
-  .Site.Menus.personal menu defined in exampleSite/hugo.toml.
+  hooks region — the theme toggle lives here, and downstream site authors can
+  extend it via the .Site.Menus.personal menu defined in exampleSite/hugo.toml.
+
+  The theme toggle is a segmented button group per
+  `assets/js/modules/theme-toggle.ts`: a single `.theme-toggle` container with
+  three `[data-theme-value]` buttons (light / dark / auto). The JS module
+  attaches click handlers to every `[data-theme-value]` child and persists the
+  choice under `vhskin:theme`. Auto mode resolves to light/dark at runtime
+  based on `prefers-color-scheme`.
 */}}
 <nav class="personal-tools" aria-label="{{ i18n "personalToolsLabel" | default "Personal tools" }}">
   {{ range .Site.Menus.personal }}
   <a href="{{ .URL }}" class="personal-tools__item">{{ .Name }}</a>
   {{ end }}
-  <button type="button" class="theme-toggle" aria-label="{{ i18n "themeToggleLabel" | default "Toggle theme" }}" hidden></button>
+  <div class="theme-toggle" role="group" aria-label="{{ i18n "themeToggleLabel" | default "Toggle theme" }}">
+    <button type="button" class="theme-toggle__option" data-theme-value="light" aria-label="Light theme">Light</button>
+    <button type="button" class="theme-toggle__option" data-theme-value="dark" aria-label="Dark theme">Dark</button>
+    <button type="button" class="theme-toggle__option" data-theme-value="auto" aria-label="Auto theme">Auto</button>
+  </div>
 </nav>

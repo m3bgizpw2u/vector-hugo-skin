@@ -280,6 +280,28 @@ entry in the same commit — see `.cursor/rules/70-changelog.mdc`.
   build-time effect — they were a stale-history hazard only, fixed now so
   Phase 13's DoD gate starts from a clean tree.
 
+### Changed
+- Theme toggle markup (`layouts/_partials/header/personal-tools.html`):
+  replace the single hidden `<button class="theme-toggle">` placeholder from
+  Phase 7 with a segmented three-button group
+  (`<div class="theme-toggle">` containing three `<button class="theme-toggle__option" data-theme-value="…">`
+  for light / dark / auto). The Phase 6 `assets/js/modules/theme-toggle.ts`
+  already attaches click handlers to `[data-theme-value]` children and
+  persists the choice under `vhskin:theme` — the new markup is what the JS
+  expects. Header comment block updated to describe the segmented group
+  and the auto-resolves-to-light/dark behaviour so future maintainers don't
+  try to "simplify" it back to a single button. `npm run build` exits 0.
+- Sidebar main-menu markup (`layouts/_partials/sidebar/main-menu.html`):
+  upgrade from the flat `<a class="main-menu-item">` list to the
+  portlet-list pattern the Phase 5 `assets/css/components/sidebar.scss`
+  and Phase 6 `assets/js/modules/sidebar-toggle.ts` were designed against
+  — a single `.sidebar-list__group` ("Navigation") with a
+  `.sidebar-list__heading` toggler (chevron SVG), and a `.sidebar-list__items`
+  `<ul>` of `.sidebar-list__link` anchors with
+  `.sidebar-list__link--active` on the active item. This unlocks the
+  collapse/expand behaviour shipped but previously inert (no matching
+  markup to hook into) and matches the per-template Phase 8 contract.
+
 ### Removed
 
 ### Skipped
