@@ -34,26 +34,33 @@ exit 0, and by `npm run dev` clean warm-start).
   on the `<html lang>` attribute with `{{ .Site.Language.Locale | default "en" }}`,
   silencing the `.Site.LanguageCode was deprecated in Hugo v0.158.0` warning.
 
-### Verified (follow-up re-investigation)
-A follow-up re-investigation after the initial fix landed was prompted by
-terminal output suggesting the SCSS EOF error persisted. The follow-up could
-not reproduce the error from a clean state — every reproduction path
-(`hugo --source exampleSite`, `hugo server`, `npm run dev`, `npm run build`,
-and real SCSS edits triggering fast-render rebuilds) produced a clean build
-with no ERROR lines, and `exampleSite/resources/_gen/assets/css/main.scss_*.content`
-shows the full 28KB compiled output. The CSS in `exampleSite/public/css/`
-from a previous successful run (`main.min.04d17316…css`) further confirms
-the pipeline works end-to-end. The previously-failing pages
-(`church-demo`, `football-club-demo`, `football-biography-demo`,
-`content/_index.md`) all serve HTTP 200 in the post-fix environment.
+### Fixed
+- `assets/css/main.scss` line 38: `@use 'components/article-body';` was
+  missing the alias convention used by its layout twin on line 27
+  (`@use 'layout/article-body' as layout-article-body;`). Both partials
+  share the basename `article-body`, and Dart Sass enforces "no duplicate
+  basenames across `@use` targets" in the namespace table. Without the
+  alias, the Hugo Pipes Dart Sass bridge emitted `TOCSS-DART … got
+  unexpected EOF when executing "sass"` plus `"<stream>:1:1": connection
+  is shut down` instead of a clearer duplicate-module error. Adding
+  `as components-article-body;` matches the layout-side aliasing convention
+  (already explained in `main.scss:12-17`) and resolves the namespace
+  collision.
 
-The likely explanation for the persistence of the error in some terminals
-is stale Hugo state from before the TOML fix landed — specifically,
-`exampleSite/resources/_gen/` containing partial cached compile attempts,
-or a stale `hugo server` process from a pre-fix run still bound to port
-1313 (whose `npm run dev` would have printed `address already in use`).
-Clearing `exampleSite/resources/` and killing any stale `hugo server`
-reliably restores a clean run; no further code change was warranted.
+### Verified (follow-up re-investigation, corrected)
+A first follow-up after the 1.0.1 TOML/locale fixes landed could not
+reproduce the SCSS EOF error from a clean state and concluded "no further
+code change was warranted" — that conclusion was wrong. A second
+follow-up with the Dart Sass namespace-table hypothesis confirmed the
+real root cause: `components/article-body` and `layout/article-body`
+share a basename, and `components/article-body` was loaded unaliased.
+The earlier "clean warm-start" runs only happened to succeed because
+the SCSS module cache order put the aliased `layout/article-body` first;
+once the unaliased `components/article-body` was reached the namespace
+slot collided and the bridge died. Post-fix verification: `npm run dev`
+warm-start shows `Built in 85 ms`, zero ERROR lines; the previously
+failing articles (`church-demo`, `football-biography-demo`,
+`baseball-biography-demo`) all serve HTTP 200.
 
 ## [1.0.0] - 2026-07-11
 
