@@ -10,6 +10,17 @@ entry in the same commit — see `.cursor/rules/70-changelog.mdc`.
 - Project scaffolding: theme directory structure, example site fixtures, dev tooling
   (npm + Playwright + ESLint + Stylelint + TypeScript configs), and Cursor rule set —
   see `.plans/first-plan/00-environment-setup.md` and `04-repo-directory-structure.md`.
+- Phase 3 architecture overview (`docs/ARCHITECTURE.md`): the five hard constraints
+  from `.cursor/rules/00-core.mdc` restated with rationale (file size ceiling,
+  one-language-per-file, one-concern-per-file, folder-per-shortcode, no runtime
+  Node deps), the CSS / JS / template / tests module-boundary map with real-file
+  examples, the workspace-as-theme build invocation (Hugo invoked with
+  `--source exampleSite`), the pinned toolchain versions (Hugo 0.163.3+extended,
+  Node 26.4.0, npm 11.18.0, Git 2.55.0), and the SCSS-over-LESS / vanilla-TS-over-
+  framework / CSS-custom-properties-over-Sass-vars / build-time-JSON-search-index
+  stack rationale. Phase 12 will expand with full Hugo API notes and search-index
+  scaling tradeoffs. See `.plans/first-plan/03-architecture-overview.md` and
+  `12-documentation-and-handoff.md`.
 - Phase 1 research notes (`docs/RESEARCH.md`): catalog of what to keep and what to exclude
   from Wikipedia's Vector 2022 skin, plus the upstream LESS → SCSS and ES6 → TS source
   mappings and the candidate `theme.toml` parameter surface. The Vector source clone at
