@@ -1,0 +1,12 @@
+// Infobox pair primitive — num_episodes + num_seasons numeric pair,
+// rendered inline with a small "×" separator.
+// Used by: television, television-episode.
+
+.infobox-row[data-pair="episode-season"] .infobox-data {
+  font-variant-numeric: tabular-nums;
+}
+
+.infobox-row[data-pair="episode-season"] .infobox-data__separator {
+  color: var(--color-text-muted);
+  margin: 0 var(--space-xs);
+}

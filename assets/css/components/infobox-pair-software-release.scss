@@ -1,0 +1,19 @@
+// Infobox pair primitive — latest_release_version + latest_release_date
+// pair, optionally repeated per platform.
+// Used by: software, video-game.
+
+.infobox-row[data-pair="software-release"] .infobox-data {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.infobox-row[data-pair="software-release"] .infobox-data__version {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+}
+
+.infobox-row[data-pair="software-release"] .infobox-data__platform {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}

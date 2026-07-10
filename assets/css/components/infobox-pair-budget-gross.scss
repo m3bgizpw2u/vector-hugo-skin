@@ -1,0 +1,15 @@
+// Infobox pair primitive — budget + gross numeric pair with currency.
+// Used by: film.
+
+.infobox-row[data-pair="budget-gross"] .infobox-data {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.infobox-row[data-pair="budget-gross"] .infobox-data__currency {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}

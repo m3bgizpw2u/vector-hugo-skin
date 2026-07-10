@@ -1,1 +1,202 @@
-placeholder
+// Infobox — the MediaWiki-style summary box that appears at the top of
+// articles. Styles one component per .cursor/rules/00-core.mdc; per-
+// template visual tweaks are keyed on the [data-infobox-type="..."]
+// attribute on the outer <aside> (per docs/SHORTCODES.md §6 — CSS hook
+// contract). Per-template CSS files are prohibited.
+//
+// CSS hook contract (must match docs/SHORTCODES.md §6 exactly):
+//   .infobox              outer <aside>
+//   .infobox-header       title <div>
+//   .infobox-image        image <figure>
+//   .infobox-caption      caption <figcaption>
+//   .infobox-row          label/value row <div>
+//   .infobox-label        label cell
+//   .infobox-data         data cell
+//   .infobox-section-header  grouping header <div>
+//   .infobox-below        freeform footer <div>
+//   [data-infobox-type="..."]  per-template hook on the outer <aside>
+
+// The seven infobox-pair-* primitives live in their own files under
+// components/ (one concern per file per .cursor/rules/00-core.mdc).
+// They must be @use'd before any rule in this file — Dart Sass forbids
+// @use after rule declarations. Each pair file emits rules keyed on
+// .infobox-row[data-pair="<name>"].
+@use 'infobox-pair-date';
+@use 'infobox-pair-software-release';
+@use 'infobox-pair-population';
+@use 'infobox-pair-area';
+@use 'infobox-pair-air-date';
+@use 'infobox-pair-budget-gross';
+@use 'infobox-pair-episode-season';
+
+.infobox {
+  float: right;
+  clear: right;
+  width: 100%;
+  max-width: var(--infobox-max-width);
+  margin: 0 0 var(--space-lg) var(--space-lg);
+  padding: 0;
+  background-color: var(--color-infobox-bg);
+  border: 1px solid var(--color-infobox-border);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-snug);
+  color: var(--color-text);
+  box-shadow: var(--shadow-sm);
+}
+
+.infobox-header {
+  padding: var(--space-sm) var(--space-md);
+  background-color: var(--color-infobox-header-bg);
+  border-bottom: 1px solid var(--color-infobox-border);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  text-align: center;
+  border-top-left-radius: var(--radius-md);
+  border-top-right-radius: var(--radius-md);
+}
+
+.infobox-image {
+  margin: 0;
+  padding: var(--space-sm);
+  text-align: center;
+  background-color: var(--color-surface);
+}
+
+.infobox-image img {
+  max-width: 100%;
+  height: auto;
+  display: inline-block;
+}
+
+.infobox-caption {
+  padding: var(--space-xs) var(--space-sm);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  text-align: center;
+  font-style: italic;
+}
+
+.infobox-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  border-bottom: 1px solid var(--color-infobox-border);
+}
+
+.infobox-row:last-child {
+  border-bottom: none;
+}
+
+.infobox-label {
+  flex: 0 0 40%;
+  padding: var(--space-xs) var(--space-sm);
+  font-weight: var(--font-weight-semibold);
+  background-color: var(--color-infobox-label-bg);
+  color: var(--color-text);
+  word-wrap: break-word;
+}
+
+.infobox-data {
+  flex: 1 1 60%;
+  min-width: 0;
+  padding: var(--space-xs) var(--space-sm);
+  word-wrap: break-word;
+}
+
+.infobox-data a {
+  color: var(--color-link);
+}
+
+.infobox-section-header {
+  padding: var(--space-xs) var(--space-sm);
+  background-color: var(--color-infobox-header-bg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+  border-bottom: 1px solid var(--color-infobox-border);
+  font-size: var(--font-size-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.infobox-below {
+  padding: var(--space-sm) var(--space-md);
+  border-top: 1px solid var(--color-infobox-border);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  background-color: var(--color-surface-alt);
+  border-bottom-left-radius: var(--radius-md);
+  border-bottom-right-radius: var(--radius-md);
+}
+
+// ---- Mobile: stack full-width below the lead ----
+@media (max-width: 720px) {
+  .infobox {
+    float: none;
+    max-width: 100%;
+    margin: var(--space-lg) 0;
+  }
+}
+
+// ---- Print: keep the infobox visible but tighten borders ----
+@media print {
+  .infobox {
+    float: none;
+    page-break-inside: avoid;
+    box-shadow: none;
+  }
+}
+
+// =========================================================================
+// Per-template hooks — keyed on [data-infobox-type="..."] per the
+// CSS hook contract in docs/SHORTCODES.md §6. Independent of the seven
+// pair primitives; this is where named shortcodes that need a unique
+// visual tweak land (portrait aspect ratio for person, banner treatment
+// for film, etc.). Per-template CSS files are forbidden.
+// =========================================================================
+
+.infobox[data-infobox-type="person"] .infobox-image img {
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+}
+
+.infobox[data-infobox-type="film"] .infobox-header {
+  background-color: var(--color-text);
+  color: var(--color-surface);
+}
+
+.infobox[data-infobox-type="software"] .infobox-data {
+  font-variant-numeric: tabular-nums;
+}
+
+.infobox[data-infobox-type="company"] .infobox-row[data-pair="date"] {
+  background-color: var(--color-surface-alt);
+}
+
+.infobox[data-infobox-type="settlement"] .infobox-section-header {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.infobox[data-infobox-type="country"] {
+  border-top: 3px solid var(--color-accent);
+}
+
+.infobox[data-infobox-type="television"] .infobox-image img,
+.infobox[data-infobox-type="television-episode"] .infobox-image img,
+.infobox[data-infobox-type="television-season"] .infobox-image img {
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+
+.infobox[data-infobox-type="album"] .infobox-image img {
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+}
+
+.infobox[data-infobox-type="organization"] .infobox-header {
+  background-color: var(--color-accent);
+  color: var(--color-accent-contrast);
+}

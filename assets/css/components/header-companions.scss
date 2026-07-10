@@ -1,0 +1,55 @@
+// Header companions — the icon-buttons, badges, and small chrome
+// inside the top header row (notification-style dots, personal-tools
+// links, language chip, etc.). Lives next to the header layout file;
+// does not style the search box (search-box.scss) or the theme toggle
+// (theme-toggle.scss) — those have their own component files.
+
+.header-companion {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-md);
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  text-decoration: none;
+  background: transparent;
+  border: 1px solid transparent;
+  transition: background-color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.header-companion:hover,
+.header-companion:focus-visible {
+  background-color: var(--color-surface-alt);
+  border-color: var(--color-divider);
+  text-decoration: none;
+  color: var(--color-text);
+}
+
+.header-companion__icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.header-companion__badge {
+  display: inline-block;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  padding: 0 var(--space-xs);
+  border-radius: var(--radius-pill);
+  background-color: var(--color-accent);
+  color: var(--color-accent-contrast);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  text-align: center;
+  line-height: 1.25rem;
+}
+
+.header-companion--active {
+  background-color: var(--color-surface-alt);
+  border-color: var(--color-divider);
+}

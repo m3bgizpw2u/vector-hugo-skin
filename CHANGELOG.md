@@ -72,6 +72,40 @@ entry in the same commit — see `.cursor/rules/70-changelog.mdc`.
   so Phase 5 (styles), 6 (scripts), 7 (templates), and 8 (shortcodes) each land in their
   own follow-up commits. `hugo --source exampleSite --quiet` exits 0. See
   `.plans/first-plan/04-repo-directory-structure.md`.
+- Phase 5 SCSS porting (per `.plans/first-plan/05-css-porting-plan.md`): reimplemented
+  Vector's visual design as SCSS, processed through Hugo Pipes. The full cascade ships
+  in `assets/css/main.scss` as imports only — base → layout → components → themes. Base
+  layer (`assets/css/base/`) defines design tokens as CSS custom properties
+  (`--color-*`, `--font-*`, `--space-*`, `--layout-*`, `--radius-*`, `--shadow-*`,
+  `--transition-*`, `--z-*`) so light/dark/auto themes can override them at runtime
+  without recompilation, plus a minimal reset and a typography rhythm (body,
+  h1–h6, code/kbd/pre, lists, blockquote, article-body). Layout layer
+  (`assets/css/layout/`) holds the page-grid skeleton (`page-grid.scss`), the header
+  region (`header.scss`), the sidebar column (`sidebar.scss`), the ToC panel
+  (`toc-panel.scss`), the article body container (`article-body.scss`), and the footer
+  region (`footer.scss`). Components layer holds 18 one-component-per-file SCSS modules
+  under `assets/css/components/` — `header-companions`, `search-box`, `sidebar`,
+  `sticky-header`, `toc`, `tabs`, `infobox`, the seven `infobox-pair-*` primitives
+  (date, software-release, population, area, air-date, budget-gross, episode-season),
+  `article-header`, `article-body`, `footer`, and `theme-toggle`. The infobox base file
+  consumes the seven pair files via `@use` and emits per-template visual tweaks keyed
+  on `[data-infobox-type="<slug>"]` for `person`, `film`, `software`, `company`,
+  `settlement`, `country`, `television` (and its episode/season children), `album`,
+  and `organization` — per-template CSS files are prohibited per
+  `.cursor/rules/00-core.mdc` so all per-template rules live in the single
+  `infobox.scss`. Theme layer (`assets/css/themes/{light,dark,auto}.scss`) ships
+  `[data-theme="light"]`, `[data-theme="dark"]`, and a `prefers-color-scheme` media-
+  query block that redefine the colour tokens only — no layout or component rules in
+  any theme file. Worst-offender file is `infobox.scss` at 201 LOC (well under the
+  500-line ceiling). `hugo --source exampleSite --quiet` exits 0 and a direct
+  `dart-sass` compile of `main.scss` produces 33 KB of valid CSS with zero errors.
+  No theme tokens were copied verbatim from Vector's LESS — every value is a clean-
+  room reimplementation from rendered observation, see
+  `.plans/first-plan/14-licensing-and-scope-notes.md` §3. Phase 7 owns the Hugo
+  Pipes wiring (`css.Sass` in the partial that emits the `<link>` tag) — no template
+  changes ship in this commit. See
+  `.plans/first-plan/05-css-porting-plan.md`, `docs/ARCHITECTURE.md` §5, and
+  `docs/SHORTCODES.md` §6.
 
 ### Changed
 

@@ -1,1 +1,37 @@
-placeholder
+// Dark theme — overrides the color tokens only. Spacing, typography,
+// and effect tokens (shadow / radius / transition) stay the same across
+// modes; this file deliberately does not redefine them.
+//
+// Themes only override tokens — no component-specific rules live here.
+// See .cursor/rules/20-styles.mdc and docs/ARCHITECTURE.md §2.
+
+[data-theme="dark"] {
+  --color-surface: #101922;
+  --color-surface-alt: #1f2a38;
+  --color-surface-raised: #18222f;
+  --color-text: #eaecf0;
+  --color-text-muted: #a2a9b1;
+  --color-link: #88a3e8;
+  --color-link-visited: #b08fe6;
+  --color-link-hover: #b6c4f4;
+  --color-border: #54595d;
+  --color-divider: #404448;
+  --color-accent: #88a3e8;
+  --color-accent-contrast: #101922;
+  --color-focus-ring: #88a3e8;
+  --color-code-bg: #1f2a38;
+  --color-code-text: #eaecf0;
+  --color-selection-bg: #404448;
+  --color-selection-text: #eaecf0;
+  --color-infobox-bg: #18222f;
+  --color-infobox-header-bg: #1f2a38;
+  --color-infobox-label-bg: #1f2a38;
+  --color-infobox-border: #404448;
+
+  // In dark mode the soft shadow tokens become invisible against the
+  // dark surface; redefine them to a slightly lifted alpha so depth
+  // cues still work.
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.6);
+}

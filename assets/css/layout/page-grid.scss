@@ -1,0 +1,63 @@
+// Page grid — the three-column shell that mirrors Vector 2022's
+// sidebar | main | toc arrangement. Independent reimplementation.
+//
+// The grid collapses to a single column on narrow viewports; the components
+// (sidebar, toc-panel) handle their own internal state when stacked.
+// Token-driven so theme overrides can shift column widths without
+// re-authoring the layout.
+
+.page-grid {
+  display: grid;
+  grid-template-areas:
+    "header header header"
+    "sidebar main toc"
+    "footer footer footer";
+  grid-template-columns: var(--sidebar-width) minmax(0, 1fr) var(--toc-width);
+  grid-template-rows: var(--header-height) minmax(0, 1fr) auto;
+  gap: 0 var(--space-lg);
+  max-width: var(--content-max-width);
+  margin: 0 auto;
+  padding: 0 var(--space-md);
+  min-height: 100vh;
+}
+
+.page-grid__header { grid-area: header; }
+.page-grid__sidebar { grid-area: sidebar; }
+.page-grid__main { grid-area: main; min-width: 0; }
+.page-grid__toc { grid-area: toc; }
+.page-grid__footer { grid-area: footer; }
+
+// ---- Tablet: hide the TOC column, keep sidebar ----
+@media (max-width: 1024px) {
+  .page-grid {
+    grid-template-areas:
+      "header header"
+      "sidebar main"
+      "footer footer";
+    grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
+  }
+
+  .page-grid__toc {
+    display: none;
+  }
+}
+
+// ---- Mobile: stack everything ----
+@media (max-width: 720px) {
+  .page-grid {
+    grid-template-areas:
+      "header"
+      "main"
+      "sidebar"
+      "toc"
+      "footer";
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr) auto auto auto;
+    padding: 0 var(--space-sm);
+    gap: 0;
+  }
+
+  .page-grid__toc {
+    display: block;
+  }
+}

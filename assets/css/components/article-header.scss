@@ -1,0 +1,43 @@
+// Article header — title, subtitle, byline row at the top of an
+// article. Visual styling only.
+
+.article-header {
+  margin-bottom: var(--space-lg);
+  padding-bottom: var(--space-md);
+  border-bottom: 1px solid var(--color-divider);
+}
+
+.article-header__title {
+  font-family: var(--font-serif);
+  font-size: var(--font-size-h1);
+  line-height: var(--line-height-tight);
+  font-weight: var(--font-weight-normal);
+  margin: 0 0 var(--space-sm);
+  color: var(--color-text);
+}
+
+.article-header__subtitle {
+  font-size: var(--font-size-lg);
+  color: var(--color-text-muted);
+  margin: 0 0 var(--space-md);
+  font-weight: var(--font-weight-normal);
+}
+
+.article-header__byline {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  align-items: center;
+}
+
+.article-header__byline-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.article-header__byline-separator {
+  color: var(--color-divider);
+}

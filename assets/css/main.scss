@@ -1,19 +1,44 @@
 // main.scss — imports only, no rules of its own.
-// Cascade order per docs/ARCHITECTURE.md and .cursor/rules/20-styles.mdc.
+// Cascade order per docs/ARCHITECTURE.md and .cursor/rules/20-styles.mdc:
+//   base → layout → components → themes.
+//
+// Notes for Phase 7 wiring:
+//   * assets/css/main.scss is processed through Hugo Pipes (`css.Sass`)
+//     in the partial that emits the <link> tag — see Phase 05 §6.
+//   * @use is the modern Dart Sass module syntax; do not reintroduce
+//     @import. Pair primitives (`infobox-pair-*`) are pulled in by
+//     components/infobox.scss via @use; the cascade above does not
+//     need to know about them.
+//   * Layout partials are aliased with a `layout-` prefix because
+//     `layout/sidebar` and `components/sidebar` would otherwise collide
+//     in the @use namespace table (Dart Sass forbids duplicate
+//     basenames across @use targets). The alias is purely a Sass
+//     module-namespace mechanism — it does not affect cascade order or
+//     the final class names emitted by either file.
+
 @use 'base/reset';
 @use 'base/tokens';
 @use 'base/typography';
 
-@use 'layout/grid';
-@use 'layout/header';
-@use 'layout/footer';
+@use 'layout/page-grid' as layout-page-grid;
+@use 'layout/header' as layout-header;
+@use 'layout/sidebar' as layout-sidebar;
+@use 'layout/toc-panel' as layout-toc-panel;
+@use 'layout/article-body' as layout-article-body;
+@use 'layout/footer' as layout-footer;
 
+@use 'components/header-companions';
+@use 'components/search-box';
 @use 'components/sidebar';
 @use 'components/sticky-header';
 @use 'components/toc';
 @use 'components/tabs';
-@use 'components/search-box';
 @use 'components/infobox';
+@use 'components/article-header';
+@use 'components/article-body';
+@use 'components/footer';
+@use 'components/theme-toggle';
 
 @use 'themes/light';
 @use 'themes/dark';
+@use 'themes/auto';

@@ -1,0 +1,16 @@
+// Infobox pair primitive — census + estimate population pair with
+// year labels on both sides.
+// Used by: settlement, country.
+
+.infobox-row[data-pair="population"] .infobox-data {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.infobox-row[data-pair="population"] .infobox-data__census,
+.infobox-row[data-pair="population"] .infobox-data__estimate {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}

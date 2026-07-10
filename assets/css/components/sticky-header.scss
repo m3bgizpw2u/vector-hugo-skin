@@ -1,1 +1,53 @@
-placeholder
+// Sticky header — the condensed chrome that docks at the top of the
+// viewport once the user scrolls past the regular header. Visual styling
+// only; show/hide on scroll and the pinnable toggle live in
+// assets/js/modules/sticky-header.ts (Phase 6).
+
+.sticky-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--sticky-header-height);
+  background-color: var(--color-surface-raised);
+  border-bottom: 1px solid var(--color-divider);
+  box-shadow: var(--shadow-sm);
+  z-index: var(--z-sticky);
+  display: flex;
+  align-items: center;
+  padding: 0 var(--space-md);
+  gap: var(--space-md);
+
+  // Hidden by default; sticky-header.ts toggles the .is-visible class.
+  transform: translateY(-100%);
+  opacity: 0;
+  transition: transform var(--transition-base),
+    opacity var(--transition-base);
+}
+
+.sticky-header.is-visible {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.sticky-header.is-hidden {
+  transform: translateY(-100%);
+  opacity: 0;
+}
+
+.sticky-header__title {
+  flex: 1 1 auto;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sticky-header__actions {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}

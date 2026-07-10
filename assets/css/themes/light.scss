@@ -1,1 +1,31 @@
-placeholder
+// Light theme — explicit override block. Sets token values matching the
+// :root defaults in _tokens.scss; the block is here as the canonical
+// "light" mode so future maintenance can change the palette in one
+// place without editing _tokens.scss (which holds shared defaults).
+//
+// Themes only override tokens — no component-specific rules live here.
+// See .cursor/rules/20-styles.mdc and docs/ARCHITECTURE.md §2.
+
+[data-theme="light"] {
+  --color-surface: #ffffff;
+  --color-surface-alt: #f8f9fa;
+  --color-surface-raised: #ffffff;
+  --color-text: #202122;
+  --color-text-muted: #54595d;
+  --color-link: #36c;
+  --color-link-visited: #6b4ba1;
+  --color-link-hover: #447ff5;
+  --color-border: #a2a9b1;
+  --color-divider: #c8ccd1;
+  --color-accent: #36c;
+  --color-accent-contrast: #ffffff;
+  --color-focus-ring: #36c;
+  --color-code-bg: #f8f9fa;
+  --color-code-text: #202122;
+  --color-selection-bg: #c8ccd1;
+  --color-selection-text: #202122;
+  --color-infobox-bg: #f8f9fa;
+  --color-infobox-header-bg: #c8ccd1;
+  --color-infobox-label-bg: #f0f1f3;
+  --color-infobox-border: #a2a9b1;
+}

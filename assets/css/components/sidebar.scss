@@ -1,1 +1,89 @@
-placeholder
+// Sidebar component — the collapsible portlet list that lives inside
+// the .sidebar region. Visual styling only; the collapse/expand and
+// off-canvas drawer behaviour lives in assets/js/modules/sidebar-toggle.ts
+// (Phase 6). Independent reimplementation from Vector's Menu.less /
+// MainMenu.less — see .plans/first-plan/14-licensing-and-scope-notes.md.
+
+.sidebar-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.sidebar-list__group {
+  margin-bottom: var(--space-md);
+}
+
+.sidebar-list__heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: var(--space-xs) var(--space-sm);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+}
+
+.sidebar-list__heading:hover {
+  color: var(--color-text);
+}
+
+.sidebar-list__chevron {
+  width: 0.75rem;
+  height: 0.75rem;
+  transition: transform var(--transition-fast);
+}
+
+.sidebar-list__group--collapsed .sidebar-list__chevron {
+  transform: rotate(-90deg);
+}
+
+.sidebar-list__items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  max-height: 100rem;
+  transition: max-height var(--transition-base);
+}
+
+.sidebar-list__group--collapsed .sidebar-list__items {
+  max-height: 0;
+}
+
+.sidebar-list__item {
+  margin: 0;
+}
+
+.sidebar-list__link {
+  display: block;
+  padding: var(--space-xs) var(--space-md);
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  text-decoration: none;
+  border-left: 3px solid transparent;
+  transition: background-color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.sidebar-list__link:hover,
+.sidebar-list__link:focus-visible {
+  background-color: var(--color-surface-alt);
+  color: var(--color-link);
+  text-decoration: none;
+}
+
+.sidebar-list__link--active,
+.sidebar-list__link[aria-current="page"] {
+  background-color: var(--color-surface-alt);
+  border-left-color: var(--color-accent);
+  color: var(--color-text);
+  font-weight: var(--font-weight-medium);
+}

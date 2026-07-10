@@ -1,0 +1,40 @@
+// Table-of-Contents panel layout — the right column that hosts the
+// scroll-spy / collapsible heading list. The panel shell is sticky
+// at wide widths; the toc widget's own scroll-spy + collapse logic
+// lives in components/toc.scss.
+
+.toc-panel {
+  position: sticky;
+  top: calc(var(--header-height) + var(--space-md));
+  height: calc(100vh - var(--header-height) - var(--space-xl));
+  overflow-y: auto;
+  padding: var(--space-md) 0;
+  font-size: var(--font-size-sm);
+}
+
+.toc-panel__heading {
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-semibold);
+  padding: 0 var(--space-sm);
+  margin-bottom: var(--space-sm);
+}
+
+@media (max-width: 1024px) {
+  .toc-panel {
+    display: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .toc-panel {
+    position: static;
+    height: auto;
+    display: block;
+    border-top: 1px solid var(--color-divider);
+    margin-top: var(--space-lg);
+    padding: var(--space-md) 0;
+  }
+}

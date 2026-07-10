@@ -1,0 +1,14 @@
+// Infobox pair primitive — first-aired + last-aired date pair with
+// a small "to" separator.
+// Used by: television, television-episode, television-season.
+
+.infobox-row[data-pair="air-date"] .infobox-data {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.infobox-row[data-pair="air-date"] .infobox-data__separator {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+}

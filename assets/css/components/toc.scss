@@ -1,1 +1,93 @@
-placeholder
+// Table of Contents — nested list of heading anchors with collapsible
+// sub-sections and scroll-spy active-state. Visual styling only;
+// scroll-spy and collapsible logic live in assets/js/modules/toc.ts
+// (Phase 6). The <details>/<summary> pattern gives keyboard support
+// for free.
+
+.toc {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: var(--font-size-sm);
+}
+
+.toc__item {
+  margin: 0;
+  border-left: 2px solid transparent;
+  transition: border-color var(--transition-fast);
+}
+
+.toc__item--active {
+  border-left-color: var(--color-accent);
+}
+
+.toc__link {
+  display: block;
+  padding: var(--space-xs) var(--space-sm);
+  color: var(--color-text-muted);
+  text-decoration: none;
+  border-radius: var(--radius-sm);
+  transition: color var(--transition-fast),
+    background-color var(--transition-fast);
+}
+
+.toc__link:hover,
+.toc__link:focus-visible {
+  color: var(--color-link);
+  background-color: var(--color-surface-alt);
+  text-decoration: none;
+}
+
+.toc__item--active .toc__link {
+  color: var(--color-link);
+  font-weight: var(--font-weight-medium);
+}
+
+// ---- Nested levels get indentation ----
+.toc__list--level-2 .toc__item { padding-left: var(--space-sm); }
+.toc__list--level-3 .toc__item { padding-left: var(--space-lg); }
+.toc__list--level-4 .toc__item { padding-left: var(--space-xl); }
+.toc__list--level-5 .toc__item { padding-left: var(--space-2xl); }
+.toc__list--level-6 .toc__item { padding-left: var(--space-2xl); }
+
+// ---- Collapsible sections: <details>/<summary> with a chevron ----
+.toc__details {
+  margin: 0;
+}
+
+.toc__summary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-xs) var(--space-sm);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+  border-radius: var(--radius-sm);
+}
+
+.toc__summary::-webkit-details-marker {
+  display: none;
+}
+
+.toc__summary:hover {
+  background-color: var(--color-surface-alt);
+  color: var(--color-text);
+}
+
+.toc__chevron {
+  width: 0.75rem;
+  height: 0.75rem;
+  flex: 0 0 auto;
+  transition: transform var(--transition-fast);
+}
+
+.toc__details[open] > .toc__summary .toc__chevron {
+  transform: rotate(90deg);
+}
+
+.toc__details > .toc {
+  padding-left: var(--space-md);
+}

@@ -1,1 +1,65 @@
-placeholder
+// Tabs widget — generic tab list + tab panels. Used for the
+// Article/Talk/etc. row and any future tab-shaped navigation. Visual
+// styling only; keyboard navigation, ARIA wiring, and collapse logic
+// live in assets/js/modules/tabs.ts (Phase 6).
+
+.tabs {
+  display: flex;
+  flex-direction: column;
+}
+
+.tabs__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  border-bottom: 1px solid var(--color-divider);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tabs__tab {
+  margin: 0;
+  padding: 0;
+}
+
+.tabs__button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-sm) var(--space-md);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--color-text-muted);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.tabs__button:hover {
+  color: var(--color-text);
+  border-bottom-color: var(--color-divider);
+}
+
+.tabs__button[aria-selected="true"] {
+  color: var(--color-text);
+  border-bottom-color: var(--color-accent);
+}
+
+.tabs__button:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: -2px;
+  border-radius: var(--radius-sm);
+}
+
+.tabs__panel {
+  padding: var(--space-md) 0;
+}
+
+.tabs__panel[hidden] {
+  display: none;
+}

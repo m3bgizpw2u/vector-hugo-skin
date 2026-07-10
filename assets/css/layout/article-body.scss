@@ -1,0 +1,41 @@
+// Article body container — long-form reading layout. Constrains the
+// prose width inside the main grid column and gives it the larger
+// type rhythm reserved for article content. Independent reimplementation
+// from Vector's article-container LESS, written from rendered observation.
+
+.article-body {
+  max-width: var(--article-max-width);
+  margin: 0 auto;
+  padding: var(--space-lg) var(--space-md);
+}
+
+.article-body__title {
+  font-size: var(--font-size-h1);
+  line-height: var(--line-height-tight);
+  margin-bottom: var(--space-md);
+  border-bottom: 1px solid var(--color-divider);
+  padding-bottom: var(--space-sm);
+}
+
+.article-body__lede {
+  font-size: var(--font-size-lg);
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-lg);
+}
+
+.article-body__content {
+  font-size: var(--font-size-lg);
+  line-height: var(--line-height-relaxed);
+}
+
+.article-body__content p {
+  margin-bottom: var(--space-md);
+}
+
+.article-body__content figure {
+  margin: var(--space-lg) 0;
+}
+
+.article-body__content img {
+  border-radius: var(--radius-md);
+}

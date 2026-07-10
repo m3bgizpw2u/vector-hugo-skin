@@ -1,1 +1,61 @@
-placeholder
+// Header region — top page chrome bar. Positions the logo, search box,
+// and personal-tools row. Layout-level only; the visual styling of the
+// search box, theme toggle, etc. lives in their component files.
+
+.page-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  height: var(--header-height);
+  padding: 0 var(--space-md);
+  background-color: var(--color-surface);
+  border-bottom: 1px solid var(--color-divider);
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+}
+
+.page-header__logo {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-family: var(--font-serif);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.page-header__logo:hover,
+.page-header__logo:focus-visible {
+  text-decoration: none;
+  color: var(--color-link);
+}
+
+.page-header__title {
+  flex: 1 1 auto;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-normal);
+  color: var(--color-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.page-header__tools {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+@media (max-width: 720px) {
+  .page-header {
+    padding: 0 var(--space-sm);
+  }
+
+  .page-header__title {
+    font-size: var(--font-size-base);
+  }
+}

@@ -1,1 +1,98 @@
-placeholder
+// Search box — input + submit button + optional suggestion dropdown.
+// Visual styling only; the actual filtering/suggestion logic lives in
+// assets/js/modules/search.ts (Phase 6).
+
+.search-box {
+  display: flex;
+  align-items: stretch;
+  position: relative;
+  width: 100%;
+  max-width: 28rem;
+}
+
+.search-box__input {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: var(--space-xs) var(--space-md);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-right: none;
+  border-top-left-radius: var(--radius-md);
+  border-bottom-left-radius: var(--radius-md);
+  transition: border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.search-box__input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.search-box__input:focus {
+  outline: none;
+  border-color: var(--color-focus-ring);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-focus-ring) 30%, transparent);
+}
+
+.search-box__submit {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-xs) var(--space-md);
+  background-color: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-top-right-radius: var(--radius-md);
+  border-bottom-right-radius: var(--radius-md);
+  cursor: pointer;
+  color: var(--color-text);
+  transition: background-color var(--transition-fast);
+}
+
+.search-box__submit:hover,
+.search-box__submit:focus-visible {
+  background-color: var(--color-divider);
+}
+
+.search-box__submit-icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.search-box__suggestions {
+  position: absolute;
+  top: calc(100% + 2px);
+  left: 0;
+  right: 0;
+  background-color: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  max-height: 18rem;
+  overflow-y: auto;
+  z-index: var(--z-overlay);
+  padding: var(--space-xs) 0;
+  display: none;
+}
+
+.search-box--suggestions-open .search-box__suggestions {
+  display: block;
+}
+
+.search-box__suggestion {
+  display: block;
+  padding: var(--space-xs) var(--space-md);
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  text-decoration: none;
+}
+
+.search-box__suggestion:hover,
+.search-box__suggestion--active,
+.search-box__suggestion:focus-visible {
+  background-color: var(--color-surface-alt);
+  color: var(--color-link);
+  text-decoration: none;
+}

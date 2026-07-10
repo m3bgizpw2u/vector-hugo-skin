@@ -1,0 +1,35 @@
+// Auto theme — respects the user's prefers-color-scheme when no
+// explicit data-theme is set. Mirrors the dark token values via a media
+// query so the cascade still uses the dark palette in auto mode.
+//
+// Per docs/ARCHITECTURE.md and .cursor/rules/20-styles.mdc, themes only
+// override tokens; no component-specific rules live here.
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --color-surface: #101922;
+    --color-surface-alt: #1f2a38;
+    --color-surface-raised: #18222f;
+    --color-text: #eaecf0;
+    --color-text-muted: #a2a9b1;
+    --color-link: #88a3e8;
+    --color-link-visited: #b08fe6;
+    --color-link-hover: #b6c4f4;
+    --color-border: #54595d;
+    --color-divider: #404448;
+    --color-accent: #88a3e8;
+    --color-accent-contrast: #101922;
+    --color-focus-ring: #88a3e8;
+    --color-code-bg: #1f2a38;
+    --color-code-text: #eaecf0;
+    --color-selection-bg: #404448;
+    --color-selection-text: #eaecf0;
+    --color-infobox-bg: #18222f;
+    --color-infobox-header-bg: #1f2a38;
+    --color-infobox-label-bg: #1f2a38;
+    --color-infobox-border: #404448;
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.5);
+    --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.6);
+  }
+}
