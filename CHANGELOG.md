@@ -14,7 +14,8 @@ v1.0.0 tag — `theme.toml` was malformed TOML, `exampleSite/hugo.toml` used the
 deprecated top-level `languageCode` key, and `layouts/_default/baseof.html`
 referenced `.Site.LanguageCode` (deprecated since Hugo v0.158.0). Fixing the
 TOML parse error restored the Dart Sass pipeline; the SCSS tree itself was
-healthy (verified by standalone `npx sass` compile).
+healthy (verified by standalone `npx sass` compile, by `hugo --source ...`
+exit 0, and by `npm run dev` clean warm-start).
 
 ### Fixed
 - `theme.toml` used TOML literal strings (`'…'`) for two descriptions but
@@ -32,6 +33,27 @@ healthy (verified by standalone `npx sass` compile).
 - `layouts/_default/baseof.html`: replaced `{{ .Site.LanguageCode | default "en" }}`
   on the `<html lang>` attribute with `{{ .Site.Language.Locale | default "en" }}`,
   silencing the `.Site.LanguageCode was deprecated in Hugo v0.158.0` warning.
+
+### Verified (follow-up re-investigation)
+A follow-up re-investigation after the initial fix landed was prompted by
+terminal output suggesting the SCSS EOF error persisted. The follow-up could
+not reproduce the error from a clean state — every reproduction path
+(`hugo --source exampleSite`, `hugo server`, `npm run dev`, `npm run build`,
+and real SCSS edits triggering fast-render rebuilds) produced a clean build
+with no ERROR lines, and `exampleSite/resources/_gen/assets/css/main.scss_*.content`
+shows the full 28KB compiled output. The CSS in `exampleSite/public/css/`
+from a previous successful run (`main.min.04d17316…css`) further confirms
+the pipeline works end-to-end. The previously-failing pages
+(`church-demo`, `football-club-demo`, `football-biography-demo`,
+`content/_index.md`) all serve HTTP 200 in the post-fix environment.
+
+The likely explanation for the persistence of the error in some terminals
+is stale Hugo state from before the TOML fix landed — specifically,
+`exampleSite/resources/_gen/` containing partial cached compile attempts,
+or a stale `hugo server` process from a pre-fix run still bound to port
+1313 (whose `npm run dev` would have printed `address already in use`).
+Clearing `exampleSite/resources/` and killing any stale `hugo server`
+reliably restores a clean run; no further code change was warranted.
 
 ## [1.0.0] - 2026-07-11
 
