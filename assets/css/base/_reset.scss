@@ -51,14 +51,42 @@ input, button, textarea, select {
 }
 
 // ---- Accessible focus ring (keyboard only) ----
+// Inset (outline-offset: -2px) so the ring lives inside the element
+// rather than shifting the layout. Falls back to outline-offset: 0 for
+// full-width chrome (header, footer) where inset would clip into text.
 :focus-visible {
   outline: 2px solid var(--color-focus-ring);
-  outline-offset: 2px;
+  outline-offset: -2px;
   border-radius: var(--radius-sm);
 }
 
 // Remove the default ring on mouse focus, keep it on keyboard focus
 :focus:not(:focus-visible) {
+  outline: none;
+}
+
+// ---- Skip link — hidden until focused, then anchored top-left. Vector's
+//      `.mw-jump-link` equivalent. Visible only on keyboard focus. ----
+.skip-link {
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: var(--space-xs) var(--space-md);
+  background-color: var(--color-surface);
+  color: var(--color-link);
+  font-weight: var(--font-weight-semibold);
+  text-decoration: none;
+  border: 2px solid var(--color-focus-ring);
+  border-top: none;
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+  transform: translateY(-100%);
+  z-index: var(--z-modal);
+}
+
+.skip-link:focus,
+.skip-link:focus-visible {
+  transform: translateY(0);
+  text-decoration: none;
   outline: none;
 }
 

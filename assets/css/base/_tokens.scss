@@ -6,6 +6,13 @@
 // Tokens are exposed as CSS custom properties (NOT SCSS variables) so the
 // light/dark/auto themes can redefine them at the cascade root without
 // requiring a second compiled stylesheet. See docs/ARCHITECTURE.md §5.
+//
+// The :root block below carries the LIGHT defaults so any page that boots
+// without an explicit `[data-theme]` attribute (or before theme-toggle.ts
+// upgrades to the stored preference) renders light. The `[data-theme="light"]`
+// block in themes/light.scss intentionally repeats these values so a future
+// palette change happens in one place; the duplication is documentation, not
+// a bug.
 
 :root {
   // ---- Colors (light defaults; overridden by [data-theme="dark"] etc.) ----
@@ -24,7 +31,7 @@
   --color-focus-ring: #36c;
   --color-code-bg: #f8f9fa;
   --color-code-text: #202122;
-  --color-selection-bg: #c8ccd1;
+  --color-selection-bg: #bbd5f1;
   --color-selection-text: #202122;
   --color-infobox-bg: #f8f9fa;
   --color-infobox-header-bg: #c8ccd1;

@@ -7,6 +7,44 @@ entry in the same commit — see `.cursor/rules/70-changelog.mdc`.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+Vector 2022 visual-fidelity pass — see `docs/UI-AUDIT.md` for the full
+surface-by-surface gap analysis. Five commits; this section collects their
+entries in commit order.
+
+### Changed
+- Selection background colour moved from `--color-divider` (`#c8ccd1`) to a
+  Vector-faithful blue-tinted value (`#bbd5f1` in light / `#2a4365` in
+  dark / `#2a4365` in auto). The old value matched a neutral divider,
+  not Vector's selection palette. Affects every selection across the
+  site (light and dark themes only; the change is cosmetic in dark).
+- Default `:focus-visible` ring switched from outset (`outline-offset:
+  2px`) to inset (`outline-offset: -2px`) so the ring lives inside the
+  element and does not shift layout on focus. Vector uses inset rings
+  for the same reason; our previous outset ring clipped chrome elements
+  and nudged inline content when tabbing through sidebar links.
+
+### Added
+- `.skip-link` styling in `assets/css/base/_reset.scss`. The skip link
+  itself was emitted by `layouts/_default/baseof.html` already, but had
+  no CSS so it rendered inline. The new rule hides it until focused,
+  then anchors it top-left with a focus-ring border — Vector's
+  `.mw-jump-link` equivalent.
+- `docs/UI-AUDIT.md` — per-surface gap analysis comparing the rendered
+  site against Vector 2022's behavior, plus a 5-commit implementation
+  plan, the surfaces consciously deferred (with rationale), and the
+  rule-tensions surfaced for the user.
+
+### Notes (deferred, not in this Unreleased)
+- Limited-width toggle (`vector-limited-width` preference).
+- ToC auto-collapse at 28 headings (`wgVectorTableOfContentsCollapseAtCount`).
+- ToC pinned state (`vector-toc-pinned` preference).
+- Pinnable Appearance dropdown (would replace the current segmented
+  text-button theme toggle with an iconified dropdown).
+- Right-side Page-tools portlet.
+- See `docs/UI-AUDIT.md` §3 for the full list and rationale.
+
 ## [1.0.1] - 2026-07-11
 
 Hotfix patch: three build errors surfaced by `npm run dev` immediately after the
