@@ -179,6 +179,42 @@ entry in the same commit — see `.cursor/rules/70-changelog.mdc`.
   offender is `country.html` at 65 LOC. See
   `.plans/first-plan/08-infobox-shortcode-spec.md`.
 
+- Phase 9 example site (per `.plans/first-plan/09-example-site.md`): `exampleSite/`
+  is upgraded from Phase 0/4 stubs into a real consuming site that doubles as
+  the Playwright E2E target. `exampleSite/hugo.toml` finalizes with the
+  workspace-as-theme `themesDir` + `theme` pair, a `[[menus.main]]` block
+  carrying Home and Articles entries consumed by the Phase 7 sidebar
+  `main-menu.html` partial, `[params].licenseText` driving the footer
+  notice, and `[outputs]` widened to `home = ["HTML", "JSON"]`,
+  `page = ["HTML", "JSON"]`, and `section = ["HTML", "JSON"]`. The
+  `exampleSite/archetypes/default.md` archetype now emits empty `summary`
+  and `categories` arrays, and the `exampleSite/archetypes/infobox-demo.md`
+  archetype produces a per-shortcode demo scaffold that downstream sites
+  call with `hugo new --kind infobox-demo articles/<slug>-demo.md`. Thirty
+  per-shortcode demo pages land at
+  `exampleSite/content/articles/{slug}-demo.md`, one for every named
+  shortcode in the `docs/RESEARCH.md` §7 coverage contract (settlement,
+  person, film, company, software, football-biography, station,
+  historic-site, television, military-person, school, video-game,
+  university, military-unit, basketball-biography, baseball-biography,
+  military-conflict, football-club, ice-hockey-biography,
+  tennis-tournament-event, organization, award, television-episode,
+  church, television-season, political-party, protected-area, election,
+  country, album); each demo uses paired-form shortcode invocation per
+  Phase 8, exercises 5–12 representative parameters, and runs original
+  prose invented for the demo (no Wikipedia verbatim content, per Phase 14
+  licensing boundary). Two article fixtures join them:
+  `long-article-with-toc.md` with 6 h2 sections plus one inline person
+  infobox — the ToC scroll-spy, sticky header, and sidebar persistence
+  target — and `short-article.md` with no headings for the empty-state
+  ToC path. The Phase 8 smoke fixture `phase8-smoke-test.md` is kept as a
+  cross-template regression sentinel. The Phase 4 `article-with-infobox.md`
+  stub is retired (its content is folded into the per-template demo
+  pages). `npm run build` exits 0 producing 30 rendered demo HTMLs each
+  carrying `data-infobox-type="<slug>"`. See
+  `.plans/first-plan/09-example-site.md` and
+  `.plans/first-plan/14-licensing-and-scope-notes.md` §3.
+
 - Phase 7 page skeleton & partials (per `.plans/first-plan/07-page-skeleton-partials.md`):
   `layouts/_default/baseof.html` composes the full page region graph — `<head>`
   with charset/viewport/title/description/canonical, Hugo Pipes wiring for the
