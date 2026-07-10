@@ -1,9 +1,40 @@
 {{/*
-  Site footer — license text from .Site.Params.licenseText, falling back to the
-  i18n bundle (i18n/en.toml "licenseText"), then to a default. Per
-  07-page-skeleton-partials.md §3: license text is configurable so downstream
-  sites don't have to inherit CC BY-SA unless they want to.
+  Site footer — four-region structure matching Vector's Footer.mustache
+  shape. The matching SCSS lives in assets/css/components/footer.scss.
+
+  Composition:
+    .site-footer__inner   — content-max-width wrapper
+      .site-footer__brand — site wordmark + tagline (left column)
+      .site-footer__nav   — link list from hugo.toml's [[menu.footer]] (right column)
+    .site-footer__legal   — copyright + license row, full-width below the inner
+
+  Per .cursor/rules/10-hugo-templates.mdc, footer nav content comes from
+  Hugo's native `menus` config (added in this pass as a [[menu.footer]]
+  block in exampleSite/hugo.toml) — never hardcoded links.
+
+  License text comes from .Site.Params.licenseText, falling back to the
+  i18n bundle, then to a safe default.
 */}}
 <footer class="site-footer">
-  <div class="footer-content">{{ .Site.Params.licenseText | default (i18n "licenseText" | default "Content available under a permissive license; see repository for details.") | safeHTML }}</div>
+  <div class="site-footer__inner">
+    <div class="site-footer__brand">
+      <span class="site-footer__brand-name">{{ .Site.Title | default "vector-hugo-skin" }}</span>
+      {{ with .Site.Params.tagline }}<span class="site-footer__tagline">{{ . }}</span>{{ end }}
+    </div>
+    {{ with .Site.Menus.footer }}
+    <ul class="site-footer__nav">
+      {{ range . }}
+      <li><a href="{{ .URL }}">{{ .Name }}</a></li>
+      {{ end }}
+    </ul>
+    {{ end }}
+  </div>
+  <div class="site-footer__legal">
+    <small class="site-footer__copyright">
+      {{ with .Site.Copyright }}{{ . }}{{ else }}&copy; {{ now.Year }} {{ .Site.Title }}{{ end }}
+    </small>
+    <small class="site-footer__license">
+      {{ .Site.Params.licenseText | default (i18n "licenseText" | default "Content available under a permissive license; see repository for details.") | safeHTML }}
+    </small>
+  </div>
 </footer>

@@ -24,6 +24,15 @@ entries in commit order.
   element and does not shift layout on focus. Vector uses inset rings
   for the same reason; our previous outset ring clipped chrome elements
   and nudged inline content when tabbing through sidebar links.
+- `layouts/_partials/footer/site-footer.html` rewritten to emit the
+  four-region structure (`.site-footer__inner` with brand + nav,
+  `.site-footer__legal` row) that the SCSS in
+  `assets/css/components/footer.scss` already styles. The previous
+  markup emitted only a single `<div class="footer-content">` line
+  with the license text — every other rule in `footer.scss` was dead.
+  Behaviour equivalent: same license text, same copyright fallback,
+  same i18n hook. Adds a nav list sourced from a new
+  `[[menu.footer]]` block in `exampleSite/hugo.toml`.
 
 ### Added
 - `.skip-link` styling in `assets/css/base/_reset.scss`. The skip link
@@ -31,6 +40,10 @@ entries in commit order.
   no CSS so it rendered inline. The new rule hides it until focused,
   then anchors it top-left with a focus-ring border — Vector's
   `.mw-jump-link` equivalent.
+- `[[menu.footer]]` config block in `exampleSite/hugo.toml` with four
+  entries (About / Privacy / Terms / Code of conduct) mirroring Vector
+  2022's `Footer.mustache` link shape. Downstream sites can replace
+  this block with their own footer nav.
 - `docs/UI-AUDIT.md` — per-surface gap analysis comparing the rendered
   site against Vector 2022's behavior, plus a 5-commit implementation
   plan, the surfaces consciously deferred (with rationale), and the

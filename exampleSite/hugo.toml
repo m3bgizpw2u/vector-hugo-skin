@@ -27,6 +27,29 @@ themesDir = "../.."
   url = "/articles/"
   weight = 2
 
+# Footer nav consumed by `partials/footer/site-footer.html`. Four entries
+# mirror Vector 2022's Footer.mustache shape (terms / privacy / about /
+# disclaimer). Downstream sites can replace this block with their own.
+[[menu.footer]]
+  name = "About"
+  url = "/about/"
+  weight = 1
+
+[[menu.footer]]
+  name = "Privacy"
+  url = "/privacy/"
+  weight = 2
+
+[[menu.footer]]
+  name = "Terms"
+  url = "/terms/"
+  weight = 3
+
+[[menu.footer]]
+  name = "Code of conduct"
+  url = "/code-of-conduct/"
+  weight = 4
+
 # Multilingual config: Hugo v0.158.0 deprecated the top-level `languageCode`
 # key in favour of an explicit `[languages.<code>]` table with a `locale`
 # field. Setting `weight = 1` keeps this the default language.
