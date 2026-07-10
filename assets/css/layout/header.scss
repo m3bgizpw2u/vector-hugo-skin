@@ -1,6 +1,7 @@
-// Header region — top page chrome bar. Positions the logo, search box,
-// and personal-tools row. Layout-level only; the visual styling of the
-// search box, theme toggle, etc. lives in their component files.
+// Header region — top page chrome bar. Positions the logo, sidebar-toggle
+// button, search box, and personal-tools row. Layout-level only; the
+// visual styling of the search box, theme toggle, etc. lives in their
+// component files.
 
 .page-header {
   display: flex;
@@ -13,6 +14,34 @@
   position: sticky;
   top: 0;
   z-index: var(--z-sticky);
+}
+
+.page-header__sidebar-toggle {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  color: var(--color-text);
+  cursor: pointer;
+  transition: background-color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.page-header__sidebar-toggle:hover,
+.page-header__sidebar-toggle:focus-visible {
+  background-color: var(--color-surface-alt);
+  border-color: var(--color-divider);
+}
+
+.page-header__sidebar-toggle:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: -2px;
 }
 
 .page-header__logo {

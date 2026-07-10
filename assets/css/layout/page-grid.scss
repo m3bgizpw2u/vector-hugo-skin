@@ -22,10 +22,35 @@
 }
 
 .page-grid__header { grid-area: header; }
-.page-grid__sidebar { grid-area: sidebar; }
+.page-grid__sidebar { grid-area: sidebar; min-width: 0; }
 .page-grid__main { grid-area: main; min-width: 0; }
 .page-grid__toc { grid-area: toc; }
 .page-grid__footer { grid-area: footer; }
+
+// ---- Outer sidebar collapse (user-triggered via the header button) ----
+// When [data-sidebar="collapsed"] is set on the root, the sidebar column
+// drops to 0 and the main column expands to fill the freed space. The
+// transition keeps the collapse visible rather than instant. Pairs
+// with assets/js/modules/sidebar-toggle.ts.
+:root[data-sidebar="collapsed"] .page-grid {
+  grid-template-columns: 0 minmax(0, 1fr) var(--toc-width);
+  gap: 0;
+}
+
+:root[data-sidebar="collapsed"] .sidebar {
+  overflow: hidden;
+  padding: 0;
+}
+
+:root[data-sidebar="collapsed"] .page-grid__sidebar > * {
+  visibility: hidden;
+}
+
+@media (max-width: 1024px) {
+  :root[data-sidebar="collapsed"] .page-grid {
+    grid-template-columns: 0 minmax(0, 1fr);
+  }
+}
 
 // ---- Tablet: hide the TOC column, keep sidebar ----
 @media (max-width: 1024px) {

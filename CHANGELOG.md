@@ -63,6 +63,29 @@ entries in commit order.
   The markup contract was emitted by
   `layouts/_partials/article/categories-footer.html` already; the
   previous CSS-less state rendered as plain bullet links.
+- `layouts/_partials/header/site-header.html` emits `class="page-header"`
+  (was `site-header`) so the sticky positioning rule in
+  `assets/css/layout/header.scss` activates. Adds a
+  `[data-sidebar-toggle]` button (Vector's hamburger affordance) as
+  the first child of the header so it can drive the new outer
+  sidebar-collapse behavior. Styles for the toggle button live in
+  `assets/css/layout/header.scss`.
+- Outer sidebar-collapse behavior in
+  `assets/js/modules/sidebar-toggle.ts`. Previously the module
+  handled only per-portlet collapse; this commit extends it to wire
+  the new header toggle button. Click flips `[data-sidebar="collapsed"]`
+  on `<html>`, persisted under `vhskin:sidebar:outer`. The CSS side
+  collapses the page-grid's sidebar column to width 0 when the
+  attribute is set (rule added in `assets/css/layout/page-grid.scss`).
+
+### Changed
+- `assets/js/modules/sidebar-toggle.ts` now coordinates two related
+  behaviors in one file (outer collapse + per-portlet collapse) —
+  flagged in `docs/UI-AUDIT.md` §6 as a tension with the
+  `30-scripts.mdc` "one behavior per file" rule. The two behaviors
+  share the same DOM root and the same persistence namespace;
+  splitting them would force a third wiring file in `main.ts` for
+  no separation benefit. Acceptable for this pass; revisitable.
 - `docs/UI-AUDIT.md` — per-surface gap analysis comparing the rendered
   site against Vector 2022's behavior, plus a 5-commit implementation
   plan, the surfaces consciously deferred (with rationale), and the

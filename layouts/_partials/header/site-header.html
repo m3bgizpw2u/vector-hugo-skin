@@ -1,9 +1,20 @@
 {{/*
-  Top header bar — composes logo, search, and personal-tools sub-partials.
-  Per Phase 7: the header region is one row; sub-elements each have their own
-  partial so they can be repositioned or restyled independently.
+  Top header bar — composes the logo, the sidebar-toggle button, the
+  search box, and the personal-tools sub-partials. Per Phase 7: the
+  header region is one row; sub-elements each have their own partial
+  so they can be repositioned or restyled independently.
+
+  Class name `page-header` matches the layout rule in
+  `assets/css/layout/header.scss` that sets position: sticky and the
+  bottom border — the previous class `site-header` didn't match the
+  SCSS selector, so the sticky positioning was inert.
 */}}
-<header class="site-header">
+<header class="page-header">
+  <button type="button" class="page-header__sidebar-toggle" data-sidebar-toggle aria-controls="sidebar" aria-expanded="true" aria-label="{{ i18n "sidebarToggleLabel" | default "Toggle sidebar" }}">
+    <svg class="page-header__sidebar-toggle-icon" aria-hidden="true" viewBox="0 0 16 16" width="16" height="16">
+      <path d="M2 3 H14 M2 8 H14 M2 13 H14" fill="none" stroke="currentColor" stroke-width="1.5"/>
+    </svg>
+  </button>
   {{ partial "header/logo.html" . }}
   {{ partial "header/search-box.html" . }}
   {{ partial "header/personal-tools.html" . }}
