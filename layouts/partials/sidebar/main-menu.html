@@ -1,0 +1,8 @@
+{{/*
+  Stub — implementation lands in Phase 7. See .cursor/rules/10-hugo-templates.mdc.
+*/}}
+<nav class="sidebar-main-menu" aria-label="{{ T "mainMenuLabel" | default "Main menu" }}">
+  {{ range .Site.Menus.main }}
+  <a href="{{ .URL }}">{{ .Name }}</a>
+  {{ end }}
+</nav>

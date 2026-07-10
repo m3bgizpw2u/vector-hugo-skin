@@ -1,0 +1,19 @@
+// main.scss — imports only, no rules of its own.
+// Cascade order per docs/ARCHITECTURE.md and .cursor/rules/20-styles.mdc.
+@use 'base/reset';
+@use 'base/tokens';
+@use 'base/typography';
+
+@use 'layout/grid';
+@use 'layout/header';
+@use 'layout/footer';
+
+@use 'components/sidebar';
+@use 'components/sticky-header';
+@use 'components/toc';
+@use 'components/tabs';
+@use 'components/search-box';
+@use 'components/infobox';
+
+@use 'themes/light';
+@use 'themes/dark';

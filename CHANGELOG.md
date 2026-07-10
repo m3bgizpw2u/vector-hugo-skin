@@ -55,6 +55,23 @@ entry in the same commit — see `.cursor/rules/70-changelog.mdc`.
   work list — per-template entries remain a Phase 8 deliverable. See
   `.plans/first-plan/2a-infobox-template-inventory.md`, `08-infobox-shortcode-spec.md`,
   and `14-licensing-and-scope-notes.md`.
+- Phase 4 directory-structure compliance (per `.plans/first-plan/04-repo-directory-structure.md`):
+  the full annotated scaffold now exists — 33 shortcode folders (30 named family plus
+  `infobox/`, the latter with 6 layer primitives + 7 `infobox-pair-*` shortcodes), all
+  five `partials/{header,sidebar,article,footer,infobox}` regions with their partials,
+  `assets/css/main.scss` as imports-only and `assets/js/main.ts` as a single `init()`
+  orchestrator, `layouts/_default/{baseof,single,list}.html` stubs, `theme.toml` with
+  name/license/description plus author + repo blocks, `i18n/en.toml` with the minimum
+  keys for the partials (`searchPlaceholder`, `personalToolsLabel`, `mainMenuLabel`,
+  `readingTime`), `tests/e2e/{specs,fixtures}/.gitkeep` stubs plus Playwright config
+  with workspace-as-theme `webServer` command matching `docs/ARCHITECTURE.md` §3, and
+  the `exampleSite/` with three content fixtures (long-article with ToC, article with
+  infobox, short article) and `archetypes/{default,infobox-demo}.md`. Tightened the
+  Playwright webServer command and the `exampleSite/hugo.toml` comment block; no
+  substantive code shipped yet — all CSS/JS/shortcode/partial files remain placeholders
+  so Phase 5 (styles), 6 (scripts), 7 (templates), and 8 (shortcodes) each land in their
+  own follow-up commits. `hugo --source exampleSite --quiet` exits 0. See
+  `.plans/first-plan/04-repo-directory-structure.md`.
 
 ### Changed
 

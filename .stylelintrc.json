@@ -1,0 +1,9 @@
+{
+  "extends": ["stylelint-config-standard-scss"],
+  "rules": {
+    "max-line-length": null,
+    "no-descending-specificity": null,
+    "scss/at-use-no-unnamespaced": null
+  },
+  "ignoreFiles": ["public/**", "resources/**", "node_modules/**"]
+}

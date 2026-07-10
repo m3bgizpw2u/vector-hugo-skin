@@ -1,0 +1,19 @@
+baseURL = "http://example.org/"
+title = "vector-hugo-skin example site"
+
+# Workspace-as-theme per docs/ARCHITECTURE.md §3:
+# `theme = ""` makes Hugo treat the parent directory (the workspace root) as the
+# theme directly, which sidesteps the <themesDir>/<theme-name>/ path resolution that
+# the "workspace IS the theme" layout is incompatible with. Phase 5 may switch to a
+# sibling-dir layout or Hugo Modules for a more idiomatic Phase 9+ setup.
+
+[params]
+  description = "Example site used to test the vector-hugo-theme."
+
+[[menu.main]]
+  name = "Home"
+  url = "/"
+
+[[menu.personal]]
+  name = "Log in"
+  url = "/login/"

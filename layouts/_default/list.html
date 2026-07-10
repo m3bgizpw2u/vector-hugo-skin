@@ -1,0 +1,14 @@
+{{/*
+  Stub — section list layout. Implementation lands in Phase 7.
+  See .cursor/rules/10-hugo-templates.mdc.
+*/ -}}
+{{ define "main" }}
+<section class="list">
+  <h1>{{ .Title }}</h1>
+  <ul>
+    {{ range .Pages }}
+    <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
+    {{ end }}
+  </ul>
+</section>
+{{ end }}

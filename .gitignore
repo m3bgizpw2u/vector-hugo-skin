@@ -1,0 +1,31 @@
+# Hugo build artifacts (workspace root and any nested location, since `hugo --source`
+# can emit to <source>/public/ depending on flags).
+**/public/
+**/resources/
+.hugo_build.lock
+
+# Node tooling (dev-time only)
+node_modules/
+npm-debug.log*
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
+# Cloned MediaWiki/Wikipedia reference source (study only, never commit)
+# Phase 1 clones wikimedia/mediawiki-skins-Vector into reference/vector/.
+# Directory persists across sessions for ongoing reference but is never tracked.
+/reference/
+
+# Planning notes (read-only research material, lives inside workspace for convenience
+# but is never part of the theme repo's history).
+/.plans/
+
+# Editor/OS noise
+.DS_Store
+Thumbs.db
+*.swp
+.vscode/
+.idea/

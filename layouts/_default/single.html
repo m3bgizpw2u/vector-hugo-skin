@@ -1,0 +1,14 @@
+{{/*
+  Stub — article single-page layout. Implementation lands in Phase 7.
+  See .cursor/rules/10-hugo-templates.mdc.
+*/ -}}
+{{ define "main" }}
+<article class="article">
+  <header class="article-header">
+    <h1>{{ .Title }}</h1>
+  </header>
+  <div class="article-body">
+    {{ .Content }}
+  </div>
+</article>
+{{ end }}

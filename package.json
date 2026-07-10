@@ -1,0 +1,23 @@
+{
+  "name": "vector-hugo-theme",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Static Hugo reimplementation of Wikipedia's Vector 2022 skin + MediaWiki-style Infobox shortcode family",
+  "license": "MIT",
+  "scripts": {
+    "dev": "hugo server --source exampleSite --port 1313",
+    "build": "hugo --source exampleSite --minify",
+    "test:e2e": "playwright test --config tests/e2e/playwright.config.ts",
+    "format": "prettier --write \"**/*.{ts,js,scss,html,md,json}\"",
+    "lint": "eslint \"assets/js/**/*.ts\" && stylelint \"assets/css/**/*.scss\""
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.0",
+    "concurrently": "^9.1.0",
+    "eslint": "^9.17.0",
+    "prettier": "^3.4.2",
+    "stylelint": "^16.12.0",
+    "typescript": "^5.7.2",
+    "wait-on": "^8.0.1"
+  }
+}
