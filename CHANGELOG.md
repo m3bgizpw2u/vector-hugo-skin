@@ -29,6 +29,21 @@ entry in the same commit — see `.cursor/rules/70-changelog.mdc`.
   re-rank before Phase 8 begins. See `.plans/first-plan/02-research-infobox-templates.md`
   and `14-licensing-and-scope-notes.md` §3 for the licensing boundary around this
   work (study structure and parameter concepts only — never copy template code).
+- Phase 2½ lock-in (`docs/RESEARCH.md` §7–§9 and `docs/SHORTCODES.md`): the §7
+  coverage contract is re-verified against the live `linkcount.toolforge.org`
+  snapshot dated 2026-07-10 and re-ranked to reflect month-over-month drift
+  (5 shortcodes moved more than two positions; canonical 30-row set unchanged from
+  the Phase 2½ plan). §8 documents the 9-step procedure for adding a new named
+  shortcode past v1 (verify upstream, add row, create wrapper, special partial,
+  one-line SCSS rule, demo page, per-template doc entry, E2E parametrisation,
+  optional rule update). §9 catalogues the seven `infobox-pair-*` inner
+  primitives with the named shortcodes that consume each one. The
+  `docs/SHORTCODES.md` Authoring Guide ships the 3-layer architecture, the
+  MediaWiki → Hugo syntax mapping, the inner-primitive escape hatch, the CSS hook
+  contract, the responsiveness commitment, the v1 scope cuts, and the future
+  work list — per-template entries remain a Phase 8 deliverable. See
+  `.plans/first-plan/2a-infobox-template-inventory.md`, `08-infobox-shortcode-spec.md`,
+  and `14-licensing-and-scope-notes.md`.
 
 ### Changed
 

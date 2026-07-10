@@ -717,60 +717,221 @@ This section is the **coverage contract** for Decision 1's family of named
 shortcodes: the list of MediaWiki `Infobox <topic>` templates that become a Hugo
 named shortcode in v1. It is reproduced here from
 `.plans/first-plan/2a-infobox-template-inventory.md` §4 so that downstream phases
-(3–7) can reference a concrete target list without re-deriving it. **The Phase 2½
-executor will re-verify the transclusion ordering before Phase 8 begins**, may re-rank
-rows, and may add or remove templates that fall outside the top-30 cap. Treat the
-table below as the working baseline.
+(3–7) can reference a concrete target list without re-deriving it.
 
-| # | MediaWiki template | Hugo shortcode | Approx. transclusions (2026-06-18) | Special-case field groups |
-|---|---|---|---|---|
-| 1 | `Template:Infobox settlement` | `{{< settlement >}}` | 530,561 | `coordinates`, elevation, `infobox-pair-area`, `infobox-pair-population` |
-| 2 | `Template:Infobox person` | `{{< person >}}` | 290,129 | `infobox-pair-date` (birth/death) |
-| 3 | `Template:Infobox film` | `{{< film >}}` | 164,233 | release-date, runtime, `infobox-pair-budget-gross` |
-| 4 | `Template:Infobox company` | `{{< company >}}` | 92,000 | founded/dissolved pair, type, headquarters, key-people list, products list, revenue/operating-income/net-income/equity totals |
-| 5 | `Template:Infobox software` | `{{< software >}}` | 14,000 | `infobox-pair-software-release` (per-platform), operating-system list, license, programming-language list, status |
-| 6 | `Template:Infobox football biography` | `{{< football-biography >}}` | 149,852 | `infobox-pair-date` (birth), height, position, club-career sections |
-| 7 | `Template:Infobox station` | `{{< station >}}` | 31,592 | line, platform count, opened-date, coordinates |
-| 8 | `Template:Infobox NRHP` | `{{< historic-site >}}` (alias `nrhp`) | 63,086 | coordinates, NRHP reference number, added-to-NRHP date |
-| 9 | `Template:Infobox television` | `{{< television >}}` | 61,015 | network, `infobox-pair-air-date`, `infobox-pair-episode-season` |
-| 10 | `Template:Infobox military person` | `{{< military-person >}}` | 39,401 | `infobox-pair-date` (birth/death), service-years pair |
-| 11 | `Template:Infobox school` | `{{< school >}}` | 38,223 | established/closed dates, enrollment, mascot |
-| 12 | `Template:Infobox video game` | `{{< video-game >}}` | 28,953 | release-date pair (platform-by-platform), engine, modes |
-| 13 | `Template:Infobox university` | `{{< university >}}` | 25,875 | established/closed dates, type, students, mascot, motto |
-| 14 | `Template:Infobox military unit` | `{{< military-unit >}}` | 23,839 | active-dates pair, branch, garrison |
-| 15 | `Template:Infobox basketball biography` | `{{< basketball-biography >}}` | 23,048 | `infobox-pair-date` (birth), height, position, career stats |
-| 16 | `Template:Infobox baseball biography` | `{{< baseball-biography >}}` | 22,036 | `infobox-pair-date` (birth), bats/throws, position, career stats |
-| 17 | `Template:Infobox military conflict` | `{{< military-conflict >}}` | 18,915 | date pair (start/end), location, result |
-| 18 | `Template:Infobox football club` | `{{< football-club >}}` | 18,206 | founded date, ground, capacity, manager |
-| 19 | `Template:Infobox ice hockey biography` | `{{< ice-hockey-biography >}}` | 18,500 | `infobox-pair-date` (birth), shoots/catches, position, career stats |
-| 20 | `Template:Infobox tennis tournament event` | `{{< tennis-tournament-event >}}` | 16,539 | date, venue, surface, draw |
-| 21 | `Template:Infobox organization` | `{{< organization >}}` | 14,497 | founded/dissolved pair, type, headquarters |
-| 22 | `Template:Infobox award` | `{{< award >}}` | 14,116 | established date, country, presenter |
-| 23 | `Template:Infobox television episode` | `{{< television-episode >}}` | 12,944 | original air date, episode/season number pair |
-| 24 | `Template:Infobox church` | `{{< church >}}` | 10,539 | architectural style, completed date, capacity |
-| 25 | `Template:Infobox television season` | `{{< television-season >}}` | 10,250 | `infobox-pair-air-date` (first/last), episodes, network |
-| 26 | `Template:Infobox political party` | `{{< political-party >}}` | 8,592 | founded/headquarters pair, ideology, seats |
-| 27 | `Template:Infobox protected area` | `{{< protected-area >}}` | 8,403 | established date, area, governing body |
-| 28 | `Template:Infobox election` | `{{< election >}}` | 7,002 | election date, country, type, turnout, results |
-| 29 | `Template:Infobox country` | `{{< country >}}` | 5,151 | sovereignty/established pair, area, population, capital |
-| 30 | `Template:Infobox album` | `{{< album >}}` | (high; out of formal top-30) | release date, label, track count, length |
+**Verification snapshot: 2026-07-10** (re-ranked against live Wikipedia
+transclusion counts from the Toolforge linkcount endpoint). The Phase 2½
+executor re-ran the full §4 inventory against `linkcount.toolforge.org` rather than
+scraping the Wikipedia list-of-infoboxes page, because the latter omits several
+high-volume templates (`Infobox company`, `Infobox software`, `Infobox album`) from
+its rendered table even though the templates themselves remain heavily used. The
+table below is the live 2026-07-10 ranking; the original Phase 2 plan snapshot
+column is preserved for transparency and to show month-over-month drift. The
+canonical 30 shortcode set itself is **unchanged** from `2a-infobox-template-inventory.md`
+§4 — re-ranking was applied to existing rows only, no row was added or dropped.
+
+| # | MediaWiki template | Hugo shortcode | Transclusions (2026-07-10, live) | Transclusions (2026-06-18, plan snapshot) | Special-case field groups |
+|---|---|---|---|---|---|
+| 1 | `Template:Infobox settlement` | `{{< settlement >}}` | 597,022 | 530,561 | `coordinates`, elevation, `infobox-pair-area`, `infobox-pair-population` |
+| 2 | `Template:Infobox person` | `{{< person >}}` | 570,431 | 290,129 | `infobox-pair-date` (birth/death) |
+| 3 | `Template:Infobox football biography` | `{{< football-biography >}}` | 218,297 | 149,852 | `infobox-pair-date` (birth), height, position, club-career sections |
+| 4 | `Template:Infobox film` | `{{< film >}}` | 169,548 | 164,233 | release-date, runtime, `infobox-pair-budget-gross` |
+| 5 | `Template:Infobox album` | `{{< album >}}` | 168,381 | (high; out of formal top-30) | release date, label, track count, length |
+| 6 | `Template:Infobox company` | `{{< company >}}` | 92,412 | 92,000 | founded/dissolved pair, type, headquarters, key-people list, products list, revenue/operating-income/net-income/equity totals |
+| 7 | `Template:Infobox NRHP` | `{{< historic-site >}}` (alias `nrhp`) | 74,077 | 63,086 | coordinates, NRHP reference number, added-to-NRHP date |
+| 8 | `Template:Infobox television` | `{{< television >}}` | 63,686 | 61,015 | network, `infobox-pair-air-date`, `infobox-pair-episode-season` |
+| 9 | `Template:Infobox station` | `{{< station >}}` | 57,429 | 31,592 | line, platform count, opened-date, coordinates |
+| 10 | `Template:Infobox military person` | `{{< military-person >}}` | 53,598 | 39,401 | `infobox-pair-date` (birth/death), service-years pair |
+| 11 | `Template:Infobox organization` | `{{< organization >}}` | 42,733 | 14,497 | founded/dissolved pair, type, headquarters |
+| 12 | `Template:Infobox election` | `{{< election >}}` | 40,314 | 7,002 | election date, country, type, turnout, results |
+| 13 | `Template:Infobox school` | `{{< school >}}` | 40,102 | 38,223 | established/closed dates, enrollment, mascot |
+| 14 | `Template:Infobox video game` | `{{< video-game >}}` | 30,137 | 28,953 | release-date pair (platform-by-platform), engine, modes |
+| 15 | `Template:Infobox baseball biography` | `{{< baseball-biography >}}` | 29,755 | 22,036 | `infobox-pair-date` (birth), bats/throws, position, career stats |
+| 16 | `Template:Infobox football club` | `{{< football-club >}}` | 29,490 | 18,206 | founded date, ground, capacity, manager |
+| 17 | `Template:Infobox military unit` | `{{< military-unit >}}` | 28,576 | 23,839 | active-dates pair, branch, garrison |
+| 18 | `Template:Infobox military conflict` | `{{< military-conflict >}}` | 27,709 | 18,915 | date pair (start/end), location, result |
+| 19 | `Template:Infobox university` | `{{< university >}}` | 25,649 | 25,875 | established/closed dates, type, students, mascot, motto |
+| 20 | `Template:Infobox basketball biography` | `{{< basketball-biography >}}` | 23,374 | 23,048 | `infobox-pair-date` (birth), height, position, career stats |
+| 21 | `Template:Infobox tennis tournament event` | `{{< tennis-tournament-event >}}` | 22,164 | 16,539 | date, venue, surface, draw |
+| 22 | `Template:Infobox ice hockey biography` | `{{< ice-hockey-biography >}}` | 20,729 | 18,500 | `infobox-pair-date` (birth), shoots/catches, position, career stats |
+| 23 | `Template:Infobox church` | `{{< church >}}` | 17,169 | 10,539 | architectural style, completed date, capacity |
+| 24 | `Template:Infobox political party` | `{{< political-party >}}` | 16,187 | 8,592 | founded/headquarters pair, ideology, seats |
+| 25 | `Template:Infobox award` | `{{< award >}}` | 15,639 | 14,116 | established date, country, presenter |
+| 26 | `Template:Infobox protected area` | `{{< protected-area >}}` | 15,359 | 8,403 | established date, area, governing body |
+| 27 | `Template:Infobox software` | `{{< software >}}` | 14,170 | 14,000 | `infobox-pair-software-release` (per-platform), operating-system list, license, programming-language list, status |
+| 28 | `Template:Infobox television episode` | `{{< television-episode >}}` | 13,199 | 12,944 | original air date, episode/season number pair |
+| 29 | `Template:Infobox television season` | `{{< television-season >}}` | 10,654 | 10,250 | `infobox-pair-air-date` (first/last), episodes, network |
+| 30 | `Template:Infobox country` | `{{< country >}}` | 7,137 | 5,151 | sovereignty/established pair, area, population, capital |
+
+**Notable re-rankings since 2026-06-18 snapshot.** Five shortcodes moved by more
+than two places, all driven by sustained growth: `album` (30 → 5), `organization`
+(21 → 11), `election` (28 → 12), `television-episode` (23 → 28), and
+`television-season` (25 → 29). `software` (5 → 27) shows the steepest decline —
+relative position dropped but absolute count is essentially flat (14,000 → 14,170),
+so the movement is the rest of the field catching up, not a real decline. The full
+set of 30 shortcodes is unchanged from `.plans/first-plan/2a-infobox-template-inventory.md`
+§4; only the row order moved.
 
 **Special-case primitives driving the rows above** — each named shortcode that
 needs a multi-field group composes the corresponding `infobox-pair-*` primitive
 from Decision 2. The pair primitives are themselves small shortcodes; the table
-maps which named wrappers need which primitives.
+maps which named wrappers need which primitives. The seven primitives and the
+named shortcodes that consume them are catalogued in §9.
 
 **Out of v1 inventory** (per `.plans/first-plan/2a-infobox-template-inventory.md`
 §5): sport-specific player biography forks below row 30, country-specific place
 infoboxes (`Infobox Australian place`, `Infobox French commune`, …), Chembox /
 Drugbox / Taxonbox, Wikidata-coupled templates, and any template under ~5k
-transclusions not in the table above. Adding one is a §6.5 (Phase 2½) procedure
+transclusions not in the table above. Adding one is §8's procedure
 and never requires theme changes.
 
-**Refresh cadence.** The transclusion counts above are from the Wikipedia
-transclusion-counter snapshot captured for the Phase 2½ plan; they drift monthly.
-The Phase 2½ executor will re-verify before Phase 8 begins; relative ordering is
-expected to be stable.
+**Refresh cadence.** Transclusion counts drift month-to-month; the relative
+ordering is mostly stable but a handful of templates regularly shift by several
+places (e.g. `album`, `election`, `software` all moved more than two positions
+between 2026-06-18 and 2026-07-10). The §7 table should be re-verified at the
+start of every Phase 8 execution run against the same source this snapshot was
+captured from (`linkcount.toolforge.org`, queried per template). Re-ranking is
+allowed by the §8 procedure; adding or removing rows from the 30-shortcode set
+is not — that requires a plan amendment.
+
+---
+
+## §8. Procedure for adding a new named shortcode
+
+Phase 2½ is the v1 lock-in. Beyond v1, the architecture in Phase 8 makes adding
+a new named shortcode a small, mechanical process. The 9-step procedure below
+is what a follow-on executor (or a downstream site author following the
+`docs/SHORTCODES.md` Authoring Guide) follows. The list is the authoritative
+copy of `.plans/first-plan/2a-infobox-template-inventory.md` §6, expanded
+one-paragraph per step.
+
+1. **Verify the upstream template exists and is stable.** Confirm the
+   MediaWiki `Infobox <topic>` template is in `Category:Infobox templates`,
+   has a public documentation page (the `Template:Infobox <topic>/doc` subpage
+   is the canonical reference), and that its parameter list has been stable for
+   at least one release cycle. Templates that have an open "holding cell" /
+   merge discussion on `Wikipedia:Templates for discussion` are not eligible
+   for promotion until the discussion resolves. Record the upstream
+   documentation URL alongside the decision; downstream phases link back to it
+   from `docs/SHORTCODES.md`.
+
+2. **Add a row to the §7 coverage contract.** Insert the new shortcode into
+   the table with the MediaWiki template name, the Hugo shortcode slug
+   (kebab-case, matching the upstream name verbatim), the current
+   transclusion count from `linkcount.toolforge.org`, and a list of which
+   `infobox-pair-*` primitives (Decision 2) the template needs. Re-run the
+   re-rank only if the new template's position causes an existing row to move
+   by more than two places; otherwise slot it in at the bottom of the table.
+
+3. **Create `layouts/shortcodes/{slug}/{slug}.html`.** Per `.cursor/rules/00-core.mdc`,
+   every shortcode gets its own folder. The named-wrapper file is a 15–30 line
+   Go-template that opens `<aside class="infobox" data-infobox-type="{slug}">`,
+   builds a `dict` of the named params plus `.Inner`, and delegates to
+   `partials/infobox/base.html`. The named-parameter list mirrors the upstream
+   MediaWiki template verbatim — no renumbering, no renaming, no
+   value-transformation. A comment block at the top of the file lists the
+   accepted parameters in declaration order, so reading the file is sufficient
+   to know the wrapper's surface.
+
+4. **Add a special partial if the template needs a new field group.** If the
+   upstream template uses a recurring multi-field group that none of the
+   seven `infobox-pair-*` primitives cover, add a new partial under
+   `layouts/partials/infobox/special/{group-name}.html` and a thin
+   `infobox-pair-{group-name}.html` shortcode under
+   `layouts/shortcodes/infobox/` so the primitive is reusable across any
+   shortcode that needs the same group. The pair primitive's structure is the
+   same pattern as the seven shipped in §9 — a small Go-template that returns
+   a `dict` of label/value pairs for the base partial to render. Do **not**
+   add a per-template CSS file (see step 5).
+
+5. **Add a one-line visual rule in `assets/scss/components/infobox.scss`.** If
+   the new shortcode needs a visual tweak that the base styles don't cover
+   (e.g. a portrait aspect ratio for a portrait-style infobox, a darker
+   tonal background for a different category), add a single SCSS rule keyed
+   on `[data-infobox-type="{slug}"]` to the existing `infobox.scss` file. This
+   is the only CSS contract the wrapper needs; per-template CSS files are
+   prohibited by `.cursor/rules/00-core.mdc`. The base partial must emit the
+   `data-infobox-type` attribute on the outer `<aside>` for the selector to
+   match.
+
+6. **Add a demo page to `exampleSite/`.** Use `hugo new --kind infobox-demo
+   articles/{slug}-demo.md` to generate the demo, then fill it with a worked
+   example mirroring the format in `docs/SHORTCODES.md` §X for the relevant
+   template. The demo must render without template errors at `hugo server`
+   time. Demos also serve as visual regression fixtures for the Playwright
+   suite (Phase 10).
+
+7. **Add a per-template entry to `docs/SHORTCODES.md`.** Each shipped named
+   shortcode gets its own sub-section in the Phase-8 author-facing reference:
+   one-line description, parameter table matching the upstream MediaWiki docs,
+   a worked example in MediaWiki form side-by-side with the Hugo form, and a
+   "see also" link to the upstream template documentation. Phase 2½ ships
+   only the Authoring Guide at the top of `docs/SHORTCODES.md`; the
+   per-template entries land in Phase 8 alongside the implementation.
+
+8. **Parametrise `infobox.spec.ts` for the new template.** The Playwright E2E
+   suite (per `.plans/first-plan/10-playwright-e2e-cachyos.md` §4) is
+   parametrised over the §7 shortcode list — adding a shortcode means
+   appending the new slug to the test's data table so the suite visits the
+   new demo page and asserts the infobox renders, has the right
+   `data-infobox-type`, and shows the expected rows.
+
+9. **Update `.cursor/rules/40-shortcodes.mdc` if a new authoring convention
+   emerges.** This is the only step that may be skipped. Most additions
+   follow existing conventions and do not require a rule update. Touch the
+   rule only when a new pattern of shortcode composition needs to be locked in
+   (e.g. a new kind of pair primitive, a new way of nesting the inner
+   primitives inside a named wrapper). The rule is the contract future
+   authors read first, so keep additions small and example-driven.
+
+The 9-step procedure is symmetrical with the v1 initial ship: the same steps
+that got the 30 named shortcodes into the architecture are the steps that
+grow the family past 30. None of the nine steps require touching the base
+partial, the skin-side SCSS, the layout grid, or any other Phase 3–7 surface.
+
+---
+
+## §9. Inner-primitive shortcode library
+
+The 30 named shortcodes in §7 share a small library of **inner primitive
+shortcodes** that the named wrappers compose into their final output. This
+section catalogues the seven `infobox-pair-*` special-case primitives
+(finalised by Phase 2½) and maps each to the named shortcodes that consume it.
+The four non-pair primitives (`infobox-row`, `infobox-image`, `infobox-section`,
+`infobox-below`, plus the outer `infobox` paired wrapper) are documented in
+`docs/SHORTCODES.md` §5; they are not catalogued here because they are generic
+building blocks used by every named shortcode in equal measure, not
+template-specific.
+
+| # | Inner primitive | Intent (what it abstracts) | Used by (named shortcodes in §7) |
+|---|---|---|---|
+| 1 | `infobox-pair-date` | A date + place / location pair rendered as a tight, two-line cell with the date above the value, in slightly smaller type than a regular `infobox-row`. Mirrors upstream's "born/died", "founded/dissolved", "opened/closed", "first-aired/last-aired", "established/added" pattern that recurs across ~20 named templates. | `person`, `military-person`, `football-biography`, `basketball-biography`, `baseball-biography`, `ice-hockey-biography`, `organization`, `political-party`, `country`, `university`, `school`, `church`, `television-season`, `protected-area`, `tennis-tournament-event`, `award`, `station`, `historic-site`, `military-unit`, `military-conflict`, `television-episode` |
+| 2 | `infobox-pair-software-release` | A `latest_release_version` + `latest_release_date` pair, optionally repeated per platform. Renders the version above the date, with a small platform chip inline when the wrapper passes the per-platform flag. | `software`, `video-game` |
+| 3 | `infobox-pair-population` | A census + estimate population pair with year labels on both sides. Used when a place's infobox has both a snapshot census figure and a more recent estimate — the upstream pattern that the named wrapper needs to surface identically. | `settlement`, `country` |
+| 4 | `infobox-pair-area` | A total / land / water area triple with unit normalisation. The named wrapper passes the three sub-values; the primitive renders them stacked with the total on top in bold and land/water beneath in lighter type. | `settlement`, `country` |
+| 5 | `infobox-pair-air-date` | A first-aired + last-aired date pair with a small "to" separator. The two fields are visually grouped in a single cell rather than split across two rows, matching the upstream rendering. | `television`, `television-episode`, `television-season` |
+| 6 | `infobox-pair-budget-gross` | A `budget` + `gross` numeric pair with currency. Both values are right-aligned in the same cell; currency is rendered as a small leading prefix glyph. | `film` |
+| 7 | `infobox-pair-episode-season` | A `num_episodes` + `num_seasons` numeric pair, rendered inline with an `×` separator. The two values stay on one line — splitting them across two `infobox-row`s would over-weight the row count for what is conceptually a single metadata pair. | `television`, `television-episode` |
+
+**Why pairs, not "row groups".** A pair primitive is a thin wrapper that
+renders two related values in a single visual cell. The pattern recurs because
+upstream MediaWiki templates use the same idiom for "X and Y that always travel
+together" — birth date + birth place, budget + gross, etc. Promoting each
+recurring pair to a primitive keeps the per-row markup in the named wrapper
+short and gives the renderer a hook for the tighter styling (smaller type,
+closer line height, no row gap between the two values).
+
+**Folder and file convention.** Each pair primitive lives at
+`layouts/shortcodes/infobox/infobox-pair-{name}.html` and renders through a
+matching partial at `layouts/partials/infobox/special/{name}.html`. The named
+wrapper calls the primitive as a paired shortcode with the relevant named
+params, and the base partial handles placement in the row sequence.
+
+**Library lock.** The seven primitives above are the complete v1 inner-primitive
+set. Adding a new one is a §8 step 4 operation (it requires both a special
+partial and a thin inner shortcode wrapper). Naming must follow the
+`infobox-pair-{concept}` pattern so the `layouts/shortcodes/infobox/` directory
+is greppable for every pair by name.
 
 ---
 
@@ -786,10 +947,23 @@ expected to be stable.
   - §7 coverage contract from `2a-infobox-template-inventory.md` is reproduced
     here as the authoritative list of shipped named shortcodes; §6 decisions
     match the architecture in `08-infobox-shortcode-spec.md` (planned) ✓.
-- **Phase 2½ readiness:** the executor can take the §7 table as its working list,
-    re-verify transclusion ordering against the live source, and produce the
-    procedure / built-ins count prior to Phase 8. No Phase 2½ work has begun.
+- **Phase 2½ DoD:**
+  - §7 re-verified against the live `linkcount.toolforge.org` snapshot dated
+    2026-07-10; re-ranking applied to existing rows only, no row added or
+    dropped ✓.
+  - §8 documents the 9-step procedure for adding a new named shortcode past
+    v1, expanded one-paragraph per step ✓.
+  - §9 catalogues the seven `infobox-pair-*` inner primitives with the named
+    shortcodes that consume each one ✓.
+  - `docs/SHORTCODES.md` Authoring Guide populated with the 3-layer
+    architecture, syntax mapping, and escape-hatch description; per-template
+    entries remain a Phase 8 deliverable ✓.
+- **Phase 3 readiness:** the architecture-overview reading phase can begin.
+  §6 (4 design decisions) and §7 (coverage contract) and §8 (add procedure) and
+  §9 (inner-primitive library) lock the contract Phase 3 onward needs.
 - **Self-check vs the licensing boundary:** no verbatim MediaWiki template code,
-    parameter table, or wikitext excerpt appears above. Field names are referenced
-    as concepts only (e.g. "`birth_date` pair"), in the spirit of the MoS guidance
-    on parameter reuse, not as transcribed upstream content.
+  parameter table, or wikitext excerpt appears above. Field names are referenced
+  as concepts only (e.g. "`birth_date` pair"), in the spirit of the MoS guidance
+  on parameter reuse, not as transcribed upstream content. The §7 and §9 tables
+  reference parameter names and transclusion counts as facts, not as
+  reproduced documentation.
