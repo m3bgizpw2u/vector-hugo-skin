@@ -1,0 +1,10 @@
+{{/*
+  Top header bar — composes logo, search, and personal-tools sub-partials.
+  Per Phase 7: the header region is one row; sub-elements each have their own
+  partial so they can be repositioned or restyled independently.
+*/}}
+<header class="site-header">
+  {{ partial "header/logo.html" . }}
+  {{ partial "header/search-box.html" . }}
+  {{ partial "header/personal-tools.html" . }}
+</header>

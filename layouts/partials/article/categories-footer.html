@@ -1,8 +1,11 @@
 {{/*
-  Stub — implementation lands in Phase 7. See .cursor/rules/10-hugo-templates.mdc.
+  Categories footer — Wikipedia-style row of category links at the bottom of an
+  article. Renders nothing when .Params.categories is absent.
 */}}
 <footer class="article-categories">
-  {{ range .Params.categories }}
-  <a class="category" href="{{ "categories/" | absURL }}{{ . | urlize }}">{{ . }}</a>
+  {{ with .Params.categories }}
+  <ul>
+    {{ range . }}<li><a href="{{ "/categories/" | relURL }}{{ . | urlize }}">{{ . }}</a></li>{{ end }}
+  </ul>
   {{ end }}
 </footer>

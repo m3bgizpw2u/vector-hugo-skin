@@ -1,4 +1,6 @@
 {{/*
-  Stub — implementation lands in Phase 7. See .cursor/rules/10-hugo-templates.mdc.
+  Site logo + wordmark. One concern: link to home and render the site title.
 */}}
-<a class="site-logo" href="{{ .Site.BaseURL }}">{{ .Site.Title }}</a>
+<a href="{{ .Site.BaseURL }}" class="site-logo">
+  <span class="site-logo-mark">{{ .Site.Title | default "vector-hugo-skin" }}</span>
+</a>

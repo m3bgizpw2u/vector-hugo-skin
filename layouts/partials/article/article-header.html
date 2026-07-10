@@ -1,6 +1,10 @@
 {{/*
-  Stub — implementation lands in Phase 7. See .cursor/rules/10-hugo-templates.mdc.
+  Article header — title, optional subtitle (page description), and a byline slot.
+  The byline sub-partial will land in a later phase; rendering it through the
+  safe pipeline is a no-op until then.
 */}}
 <header class="article-header">
-  <h1>{{ .Title }}</h1>
+  <h1 class="article-title">{{ .Title }}</h1>
+  {{ with .Description }}<p class="article-subtitle">{{ . }}</p>{{ end }}
+  {{ partial "article/byline.html" . | default "" | safeHTML }}
 </header>

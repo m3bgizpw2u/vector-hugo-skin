@@ -141,6 +141,40 @@ entry in the same commit — see `.cursor/rules/70-changelog.mdc`.
   `.plans/first-plan/06-js-ts-porting-plan.md` and
   `.plans/first-plan/14-licensing-and-scope-notes.md` §3 for the licensing
   boundary around this work.
+- Phase 7 page skeleton & partials (per `.plans/first-plan/07-page-skeleton-partials.md`):
+  `layouts/_default/baseof.html` composes the full page region graph — `<head>`
+  with charset/viewport/title/description/canonical, Hugo Pipes wiring for the
+  CSS bundle (`css.Sass` Dart Sass transpiler + `resources.Minify` +
+  `resources.Fingerprint "sha256"` — corrected from the Phase 6 task's stale
+  `resources.ToCSS` namespace, which doesn't exist in Hugo 0.163.3; `css.Sass`
+  is the namespace-aliased `toCSS`) and JS bundle (`js.Build` esbuild +
+  minify + fingerprint), and the body region tree of `header.site-header` +
+  `main.page-grid` (sidebar + main + toc-panel) + `footer.site-footer`, all
+  wired through partials; `data-theme="auto"` on `<html>` so the Phase 5
+  `themes/auto.scss` `prefers-color-scheme` media query fires on first paint
+  before `theme-toggle.ts` upgrades to a stored user choice. `_default/single.html`
+  fills `main` with `article-header` + `article-body` + `categories-footer`;
+  `_default/list.html` emits a section-list of `.Pages`. Three new wrapper
+  partials (`header/site-header.html`, `sidebar/sidebar.html`,
+  `article/byline.html` stub) plus the 11 spec partials — `header/{logo,
+  search-box, personal-tools}.html` (sidebar `.main-menu-item.is-active`
+  highlight from `IsMenuCurrent`/`HasMenuCurrent`), `sidebar/main-menu.html`
+  (iterates `hugo.toml`'s `[menus.main]` so downstream sites can customise nav
+  without editing templates), `article/{article-header, article-body,
+  categories-footer}.html`, `footer/site-footer.html` (license text via
+  `.Site.Params.licenseText` with i18n + default fallback per Phase 7 §3), and
+  `infobox/header.html` populated so Phase 8 can compose the title-row into
+  the rest of `base.html` without stubbing it. CSS bundle is 28.7 KB, JS bundle
+  is 7.5 KB, both with SRI (`integrity` + `crossorigin="anonymous"`); JS emits
+  as `<script type="module" defer>`. `npm run build` exits 0 producing 16
+  public/ files (5 HTML pages + 1 CSS bundle + 1 JS bundle + 1 JSON index +
+  3 XML feeds + a `.gitkeep` + 4 section/taxonomy HTMLs). Worst-offender file
+  is `baseof.html` at 57 LOC (well under the 500-line ceiling);
+  `grep -r 'mw\.' layouts/` returns 0 matches. The `theme.toml` TOML warning
+  about `\'` in `Wikipedia's` predates this phase; left for Phase 12's docs
+  sweep. See `.plans/first-plan/07-page-skeleton-partials.md`,
+  `.plans/first-plan/14-licensing-and-scope-notes.md`, and
+  `docs/ARCHITECTURE.md` §2/§3.
 
 ### Changed
 

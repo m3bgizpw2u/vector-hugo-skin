@@ -1,6 +1,9 @@
 {{/*
-  Stub — implementation lands in Phase 7. See .cursor/rules/10-hugo-templates.mdc.
+  Site footer — license text from .Site.Params.licenseText, falling back to the
+  i18n bundle (i18n/en.toml "licenseText"), then to a default. Per
+  07-page-skeleton-partials.md §3: license text is configurable so downstream
+  sites don't have to inherit CC BY-SA unless they want to.
 */}}
 <footer class="site-footer">
-  {{ partial "footer/license-notice.html" . }}
+  <div class="footer-content">{{ .Site.Params.licenseText | default (i18n "licenseText" | default "Content available under a permissive license; see repository for details.") | safeHTML }}</div>
 </footer>

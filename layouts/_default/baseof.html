@@ -1,15 +1,57 @@
 {{/*
-  Stub — wired up in Phase 5/6/7/8 per docs/ARCHITECTURE.md.
-  See .cursor/rules/10-hugo-templates.mdc for partial composition conventions.
-*/ -}}
+  Page skeleton — composition only, per docs/ARCHITECTURE.md §1.
+  Every page region and element is its own partial under layouts/partials/<region>/.
+  No raw component markup, no inline <style>/<script>, no business logic beyond
+  the {{ block }} wiring defined by single.html / list.html.
+
+  Hugo Pipes wiring (per .plans/first-plan/05-css-porting-plan.md §6 and
+  06-js-ts-porting-plan.md §5):
+   * CSS — assets/css/main.scss → css.Sass (Dart Sass, css namespace, aliased
+     toCSS) → resources.Minify → resources.Fingerprint sha256.
+   * JS  — assets/js/main.ts  → js.Build (esbuild) → resources.Minify →
+     resources.Fingerprint sha256.
+  Both bundles emit SRI attributes (`integrity` + `crossorigin="anonymous"`).
+
+  Note: in Hugo 0.163.3 the SCSS transpiler lives under the `css` namespace
+  (`css.Sass`), NOT `resources.ToCSS` — Phase 6's task description had an
+  out-of-date API name; corrected during Phase 7 execution.
+  See https://gohugo.io/functions/resources/tocss/.
+
+  The initial data-theme="auto" attribute lets themes/auto.scss's
+  prefers-color-scheme media query fire before theme-toggle.ts upgrades to
+  the user's stored preference — no flash-of-light-theme on first paint.
+*/}}
 <!DOCTYPE html>
-<html lang="{{ .Site.LanguageCode | default "en" }}">
+<html lang="{{ .Site.LanguageCode | default "en" }}" data-theme="auto">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  {{ block "head" . }}{{ end }}
+  <title>{{ block "title" . }}{{ .Title }} — {{ .Site.Title }}{{ end }}</title>
+  <meta name="description" content="{{ with .Description }}{{ . }}{{ else }}{{ .Summary | plainify }}{{ end }}">
+  <link rel="canonical" href="{{ .Permalink }}">
+  {{- with .Site.Home.OutputFormats.Get "rss" }}
+  <link rel="alternate" type="application/rss+xml" href="{{ .Permalink }}">
+  {{- end }}
+  {{- /* CSS bundle — Dart Sass via Hugo Pipes (css.Sass namespace). */}}
+  {{- $cssOpts := dict "transpiler" "dartsass" "targetPath" "css/main.css" }}
+  {{- $css := resources.Get "css/main.scss" | css.Sass $cssOpts | resources.Minify | resources.Fingerprint "sha256" }}
+  <link rel="stylesheet" href="{{ $css.Permalink }}" integrity="{{ $css.Data.Integrity }}" crossorigin="anonymous">
+  {{- block "head" . }}{{ end }}
 </head>
 <body>
-  {{ block "main" . }}{{ end }}
+  <a class="skip-link" href="#main-content">{{ i18n "skipToContent" | default "Skip to content" }}</a>
+  {{ partial "header/site-header.html" . }}
+  <main class="page-grid" id="main-content">
+    {{ partial "sidebar/sidebar.html" . }}
+    <div class="main-content">
+      {{ block "main" . }}{{ end }}
+    </div>
+    {{- /* ToC partial lands in Phase 8; placeholder preserves page-grid layout. */}}
+    {{ partial "sidebar/toc-panel.html" . }}
+  </main>
+  {{ partial "footer/site-footer.html" . }}
+  {{- /* JS bundle — esbuild via js.Build, deferred module script. */}}
+  {{- $js := resources.Get "js/main.ts" | js.Build (dict "targetPath" "main.js" "minify" true) | resources.Fingerprint "sha256" }}
+  <script type="module" src="{{ $js.Permalink }}" integrity="{{ $js.Data.Integrity }}" crossorigin="anonymous" defer></script>
 </body>
 </html>

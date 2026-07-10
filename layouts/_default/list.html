@@ -1,13 +1,14 @@
 {{/*
-  Stub — section list layout. Implementation lands in Phase 7.
-  See .cursor/rules/10-hugo-templates.mdc.
-*/ -}}
+  Section list layout — fills baseof.html's `main` block with a list of section pages.
+*/}}
+{{ define "title" }}{{ .Title }} — {{ .Site.Title }}{{ end }}
 {{ define "main" }}
-<section class="list">
+<section class="section-list">
   <h1>{{ .Title }}</h1>
-  <ul>
+  {{ with .Content }}<div class="section-intro">{{ . }}</div>{{ end }}
+  <ul class="section-items">
     {{ range .Pages }}
-    <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
+    <li><a href="{{ .Permalink }}">{{ .Title }}</a>{{ with .Description }}<p>{{ . }}</p>{{ end }}</li>
     {{ end }}
   </ul>
 </section>
