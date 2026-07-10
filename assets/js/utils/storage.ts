@@ -1,17 +1,39 @@
-// Stub — implementation lands in Phase 6. See .cursor/rules/30-scripts.mdc.
-// localStorage try/catch wrapper per 30-scripts.mdc.
-export const safeGet = (key: string): string | null => {
+/**
+ * Wrapper around `window.localStorage` with try/catch + JSON serialization.
+ *
+ * Private browsing, disabled storage, and quota-exceeded contexts must not throw
+ * uncaught — modules that persist preferences go through this helper.
+ * See `.cursor/rules/30-scripts.mdc`.
+ */
+
+const STORAGE_NAMESPACE = 'vhskin:';
+
+export const storageKey = (key: string): string => `${STORAGE_NAMESPACE}${key}`;
+
+export const get = <T>(key: string, fallback: T): T => {
   try {
-    return window.localStorage.getItem(key);
+    const raw = window.localStorage.getItem(storageKey(key));
+    if (raw === null) return fallback;
+    return JSON.parse(raw) as T;
   } catch {
-    return null;
+    return fallback;
   }
 };
 
-export const safeSet = (key: string, value: string): void => {
+export const set = (key: string, value: unknown): boolean => {
   try {
-    window.localStorage.setItem(key, value);
+    window.localStorage.setItem(storageKey(key), JSON.stringify(value));
+    return true;
   } catch {
-    // private browsing / storage-disabled — silently ignore
+    return false;
+  }
+};
+
+export const remove = (key: string): boolean => {
+  try {
+    window.localStorage.removeItem(storageKey(key));
+    return true;
+  } catch {
+    return false;
   }
 };

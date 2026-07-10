@@ -5,8 +5,9 @@
   "description": "Static Hugo reimplementation of Wikipedia's Vector 2022 skin + MediaWiki-style Infobox shortcode family",
   "license": "MIT",
   "scripts": {
-    "dev": "hugo server --source exampleSite --port 1313",
-    "build": "hugo --source exampleSite --minify",
+    "dev": "hugo server --source exampleSite --themesDir ../.. --theme vector-hugo-skin --port 1313",
+    "build": "hugo --source exampleSite --themesDir ../.. --theme vector-hugo-skin --minify",
+    "hugo": "hugo --source exampleSite --themesDir ../.. --theme vector-hugo-skin",
     "test:e2e": "playwright test --config tests/e2e/playwright.config.ts",
     "format": "prettier --write \"**/*.{ts,js,scss,html,md,json}\"",
     "lint": "eslint \"assets/js/**/*.ts\" && stylelint \"assets/css/**/*.scss\""

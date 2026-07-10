@@ -106,6 +106,41 @@ entry in the same commit — see `.cursor/rules/70-changelog.mdc`.
   changes ship in this commit. See
   `.plans/first-plan/05-css-porting-plan.md`, `docs/ARCHITECTURE.md` §5, and
   `docs/SHORTCODES.md` §6.
+- Phase 6 JS/TS porting (per `.plans/first-plan/06-js-ts-porting-plan.md`): reimplemented
+  Vector's six client-side behaviors as vanilla TS modules in clean room from a
+  behavioral study of the upstream skin — never a transpilation of Vector's ES6, so
+  zero `mw.*` references remain. Six modules under `assets/js/modules/`, each
+  implementing exactly one behavior per `03-architecture-overview.md` hard
+  constraint #3: `sidebar-toggle.ts` collapses and expands `.sidebar-list__group`
+  portlet groups with `localStorage` persistence; `toc.ts` does scroll-spy via
+  `IntersectionObserver` and toggles `.toc__item--active` against Hugo's
+  `.TableOfContents` anchors; `sticky-header.ts` shows/hides the condensed header
+  on scroll direction, always visible at top/bottom, scroll events throttled via
+  `utils/debounce.throttle`; `tabs.ts` is a generic ARIA-correct tab widget
+  (click, arrow keys, Home/End, roving tabindex) keyed off `[role="tablist"]`;
+  `theme-toggle.ts` cycles light/dark/auto and respects
+  `prefers-color-scheme` while in auto mode; `search.ts` does a build-time-JSON
+  substring search against titles + summaries, capped at 10 results. Three utils
+  under `assets/js/utils/` — `dom.ts` (`q`, `qAll`, `addClass`, `removeClass`,
+  `toggleClass`), `debounce.ts` (`debounce`, `throttle`), and `storage.ts`
+  (`get`/`set`/`remove` all wrapped in try/catch + JSON serialization under the
+  `vhskin:` namespace). `assets/js/main.ts` is straight-line composition only —
+  6 imports + `bootstrap()` of `init()` calls + the `readyState === 'loading'`
+  guard, no logic of its own. The build-time search index runs through Hugo
+  output formats: `exampleSite/hugo.toml` adds `[outputs] home = ["HTML", "JSON"]`
+  and `layouts/_default/home.json` emits `[/]` of `{title, summary (plainified),
+  url}` for every regular page — `npm run build` produces a valid
+  `public/index.json` array. `package.json` `dev` and `build` scripts now pass
+  `--themesDir ../..` + `--theme vector-hugo-skin` so the workspace-as-theme
+  layout actually resolves across Hugo versions that don't honour an empty
+  `theme` value (Phase 5 flagged this but deferred it). `npx tsc --noEmit`
+  exits 0, `npm run build` exits 0, `hugo --source exampleSite --quiet` exits 0;
+  worst-offender file is `search.ts` at 167 LOC (well under the 500-line
+  ceiling); `grep -r 'mw\.' assets/js/` returns 0 matches. Hugo Pipes `js.Build`
+  wiring stays in Phase 7 (no `baseof.html` / partial changes ship here). See
+  `.plans/first-plan/06-js-ts-porting-plan.md` and
+  `.plans/first-plan/14-licensing-and-scope-notes.md` §3 for the licensing
+  boundary around this work.
 
 ### Changed
 

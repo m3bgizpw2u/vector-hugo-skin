@@ -1,0 +1,20 @@
+{{/*
+  Build-time search index — Phase 6 (`docs/ARCHITECTURE.md` §5).
+
+  Hugo's output-formats system emits this template's output as `/index.json`
+  because the example site config maps the home kind to `["HTML", "JSON"]` and
+  the default JSON output format uses the basename `index`. `search.ts`
+  fetches it once on first focus, caches it, and ranks results against the
+  user's query. No MediaWiki API to call — see `.plans/first-plan/06-js-ts-porting-plan.md`
+  §3 for the full rationale.
+*/ -}}
+[
+  {{- range $i, $p := where .Site.RegularPages "Kind" "page" -}}
+    {{- if $i }},{{ end }}
+    {
+      "title": {{ $p.Title | jsonify }},
+      "summary": {{ $p.Plain | plainify | jsonify }},
+      "url": {{ $p.RelPermalink | jsonify }}
+    }
+  {{- end -}}
+]

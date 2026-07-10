@@ -2,13 +2,25 @@ baseURL = "http://example.org/"
 title = "vector-hugo-skin example site"
 
 # Workspace-as-theme per docs/ARCHITECTURE.md §3:
-# `theme = ""` makes Hugo treat the parent directory (the workspace root) as the
-# theme directly, which sidesteps the <themesDir>/<theme-name>/ path resolution that
-# the "workspace IS the theme" layout is incompatible with. Phase 5 may switch to a
-# sibling-dir layout or Hugo Modules for a more idiomatic Phase 9+ setup.
+# The theme lives at the parent directory (the workspace root). Hugo's CLI
+# resolves it via `themesDir = "../.."` + `theme = "vector-hugo-skin"` — this
+# is the safest syntax across Hugo versions that don't honour `theme = ""` for
+# direct-parent lookup (Phase 6 verified this on v0.163.3). The npm scripts in
+# package.json pass these flags explicitly.
+
+theme = "vector-hugo-skin"
+themesDir = "../.."
 
 [params]
   description = "Example site used to test the vector-hugo-theme."
+
+# Build-time JSON search index, Phase 6 (`docs/ARCHITECTURE.md` §5).
+# The home page additionally emits `index.json` (a flat array of every regular
+# page's {title, summary, url}) for `assets/js/modules/search.ts` to fetch and
+# filter client-side. Hugo's output-formats feature does the work; the actual
+# template lives at `layouts/_default/home.json`.
+[outputs]
+  home = ["HTML", "JSON"]
 
 [[menu.main]]
   name = "Home"
