@@ -1,0 +1,134 @@
+// Derived from mediawiki-skins-Vector @ 7c224883 (REL1_42, 2025-06-12),
+// file: resources/skins.vector.styles/components/ReferenceList.less
+// Original (c) Wikimedia Foundation and contributors, GPL-2.0-or-later.
+// This file: GPL-2.0-or-later.
+// Header per docs/PORT-MAP-CONVENTIONS.md §A.
+// References list — the Wikipedia-style footer block that pairs with
+// the `{{< ref "key" >}}` inline citation shortcode. Visual contract
+// mirrors the Vector `mw-references-wrap` + `<ol class="references">`
+// pattern: small hanging list, each entry prefixed with an up-arrow
+// backlink, the section heading carrying an [edit] affordance to match
+// every other body section in MediaWiki.
+
+.mw-references-wrap {
+  margin: var(--space-xl) 0 var(--space-lg);
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--color-divider);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-base);
+  color: var(--color-text);
+}
+
+.mw-references-heading {
+  margin: 0 0 var(--space-sm);
+  padding-bottom: var(--space-xs);
+  border-bottom: 1px solid var(--color-divider);
+  font-family: var(--font-serif);
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-tight);
+}
+
+.mw-editsection {
+  margin-left: var(--space-sm);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-normal);
+  color: var(--color-link);
+}
+
+.mw-editsection a {
+  text-decoration: none;
+}
+
+.mw-editsection a:hover {
+  text-decoration: underline;
+}
+
+.references {
+  margin: 0;
+  padding-left: 2.5em;
+  list-style: none;
+  counter-reset: ref-counter;
+}
+
+// Anchor-offset fix: when a user clicks the `↑` jump-up link in the body,
+// the browser scrolls so the target `<li id="cite_note-…">` sits flush
+// with the top of the viewport. The sticky `.page-header` (height
+// `--header-height`) and, on scroll, the sticky-header (height
+// `--sticky-header-height`) both overlay the top edge and hide the
+// citation text. `scroll-margin-top` tells the browser to leave that
+// much breathing room above the anchor target. We pick the larger of
+// the two header heights plus a small gutter so the entry is fully
+// visible without depending on which sticky state is active.
+.references > li,
+.mw-references-heading {
+  scroll-margin-top: calc(var(--header-height) + var(--sticky-header-height) + var(--space-md));
+}
+
+.references > li {
+  position: relative;
+  margin-bottom: var(--space-xs);
+  padding-left: var(--space-sm);
+  counter-increment: ref-counter;
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-base);
+}
+
+.mw-cite-backlink {
+  position: absolute;
+  left: -1.5em;
+  top: 0;
+  display: inline-block;
+  width: 1em;
+  text-align: right;
+  color: var(--color-link);
+  text-decoration: none;
+  font-size: var(--font-size-sm);
+}
+
+.mw-cite-backlink a {
+  text-decoration: none;
+}
+
+.mw-cite-backlink a:hover {
+  text-decoration: underline;
+}
+
+.mw-cite-text {
+  display: inline;
+}
+
+.mw-cite-text a {
+  color: var(--color-link);
+  text-decoration: none;
+}
+
+.mw-cite-text a:hover {
+  text-decoration: underline;
+}
+
+.mw-cite-text a:visited {
+  color: var(--color-link-visited);
+}
+
+.references .mw-cite-missing .mw-cite-text {
+  color: var(--color-text-muted);
+}
+
+// Inline citation markers in the body. The `<sup class="reference">`
+// element emitted by the `ref` shortcode carries a small numeric link
+// in Wikipedia's house style.
+.reference {
+  font-size: var(--font-size-xs);
+  line-height: 1;
+  color: var(--color-link);
+}
+
+.reference a {
+  text-decoration: none;
+}
+
+.reference a:hover {
+  text-decoration: underline;
+}

@@ -1,0 +1,71 @@
+{{/*
+References list — the Wikipedia-style footer block. Pairs with
+`{{< ref "key" >}}` markers in the article body. Renders the
+`[^key]: text` footnote definitions discovered in the article body
+(in first-cite document order) using the same markup MediaWiki emits
+for `<ol class="references">`: a `<section class="mw-references-wrap">`
+with a "References" heading (carrying the matching `[edit]`
+affordance), followed by a numbered list whose first character is an
+up-arrow backlink.
+
+Usage:
+  {{< references >}}
+
+Mark-up per entry:
+  <li id="cite_note-{key}-{n}">
+    <span class="mw-cite-backlink">
+      <a href="#cite_ref-{key}-{n}">↑</a>
+    </span>
+    <span class="mw-cite-text">{citation text, markdownified}</span>
+  </li>
+
+No front-matter requirement. The keys and their texts come from the
+Markdown footnote block at the bottom of the article body —
+`[^key]: text` — the same syntax the Markdown Guide describes. Goldmark's
+own `<section class="footnotes">` block is suppressed via
+`[markup.goldmark.extensions.footnote] enable = false` in
+`hugo.toml`, so this output is the only references block the page emits.
+*/}}
+{{ $page := .Page }}
+{{ $order := $page.Scratch.Get "refFootnoteOrder" | default (slice) }}
+{{ $defs := $page.Scratch.Get "refFootnoteDefs" }}
+{{ if not $defs }}
+  {{ $raw := $page.RawContent }}
+  {{ $lines := split $raw "\n" }}
+  {{ $defs = dict }}
+  {{ range $lines }}
+    {{ $line := trim . " \r" }}
+    {{ $matches := findRE `^\[\^([A-Za-z0-9_-]+)\]:[[:space:]]+(.+)$` $line }}
+    {{ if $matches }}
+      {{ $keyName := replaceRE `^\[\^([A-Za-z0-9_-]+)\]:.*` "$1" (index $matches 0) }}
+      {{ $body := replaceRE `^\[\^[A-Za-z0-9_-]+\]:[[:space:]]+` "" (index $matches 0) }}
+      {{ $defs = merge $defs (dict $keyName $body) }}
+    {{ end }}
+  {{ end }}
+  {{ $page.Scratch.Set "refFootnoteDefs" $defs }}
+{{ end }}
+<section class="mw-references-wrap" aria-labelledby="references-heading">
+  <h2 id="references-heading" class="mw-references-heading">
+    References
+    <span class="mw-editsection"><a href="#" role="button" aria-label="Edit section: References">[edit]</a></span>
+  </h2>
+  <div class="mw-references-list">
+    <ol class="references">
+      {{ range $idx, $key := $order }}
+        {{ $n := add $idx 1 }}
+        {{ $text := index $defs $key }}
+        {{ if $text }}
+          <li id="cite_note-{{ $key }}-{{ $n }}">
+            <span class="mw-cite-backlink"><a href="#cite_ref-{{ $key }}-{{ $n }}" aria-label="Jump up to: {{ $key }}">↑</a></span>
+            <span class="mw-cite-text">{{ $text | markdownify }}</span>
+          </li>
+        {{ else }}
+          <li id="cite_note-{{ $key }}-{{ $n }}" class="mw-cite-missing">
+            <span class="mw-cite-backlink"><a href="#cite_ref-{{ $key }}-{{ $n }}">↑</a></span>
+            <span class="mw-cite-text"><em>Citation for "{{ $key }}" not found. Add a `[^{{ $key }}]: text` line below the body.</em></span>
+          </li>
+        {{ end }}
+      {{ end }}
+    </ol>
+  </div>
+</section>

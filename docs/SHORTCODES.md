@@ -411,12 +411,15 @@ new runtime dependency.
 Items that are **deliberately deferred** from v1 to a follow-on phase,
 with the trigger condition for picking them up:
 
-- **`{{< ref >}}` / `{{< reflist >}}` citation shortcodes.** Mimicking
-  Wikipedia's footnote / references-list pattern. Already noted in
-  `.plans/first-plan/08-infobox-shortcode-spec.md` §7 as a stretch goal.
-  Only attempt after Phase 13's DoD is fully green for the infobox family
-  and the rest of the theme. Trigger condition: a concrete site author
-  need for inline citation rendering.
+- **`{{< cite-ref >}}` / `{{< references >}}` citation shortcodes.** ~~Mimicking
+  Wikipedia's footnote / references-list pattern.~~ **Shipped, no
+  front matter required.** The shortcodes drive off the Markdown
+  footnote block (`[^key]: text`) at the bottom of the article body —
+  see `layouts/_shortcodes/cite-ref.html` and
+  `layouts/_shortcodes/references.html`. Goldmark's auto-footnote
+  renderer is suppressed via `[markup.goldmark.extensions.footnote]
+  enable = false` in `hugo.toml`. Worked example in
+  `exampleSite/content/articles/long-article-with-toc.md`.
 - **Nested shortcodes as param values.** See §8 last bullet. Trigger
   condition: a follow-on phase adopts a Hugo version that supports
   evaluating shortcodes inside param values, or the theme moves to a
@@ -458,6 +461,40 @@ companion.
 > valid Hugo and matches what the Markdown author writes for the named
 > infobox family. The inner-primitive escape hatch (e.g. `{{< infobox-row … >}}`)
 > supports both forms because each primitive template reads `.Get` only.
+
+### `{{< cite-ref "key" >}}`
+**Intent:** Inline citation marker. Pairs with `{{< references >}}` to
+produce the Wikipedia "References" footer pattern. Each marker renders
+as a small bracketed superscript that links down to the matching entry
+in the references list and back.
+**Parameters:** The first positional argument is the citation key; it
+must match a `[^key]: text` Markdown footnote definition somewhere in
+the article body. The Markdown footnote syntax is exactly what
+[markdownguide.org/extended-syntax/#footnotes](https://www.markdownguide.org/extended-syntax/#footnotes)
+documents.
+**Worked example:**
+
+```go
+… and the figures corroborate this {{< cite-ref "smith2026" >}} …
+
+{{< references >}}
+
+[^smith2026]: J. Smith, *A History of Footnotes*. Publisher, 2026.
+```
+
+The shortcode is named `cite-ref` to avoid colliding with Hugo's
+built-in `{{< ref >}}` (page-relative URL helper, used throughout the
+example site to link from the home page to article demos).
+
+### `{{< references >}}`
+**Intent:** Renders the Wikipedia-style `<section class="mw-references-wrap">`
+footer block from the Markdown footnote definitions (`[^key]: text`) at
+the bottom of the article body, in the order each citation was first
+used. Goldmark's auto-footnote renderer is suppressed via
+`[markup.goldmark.extensions.footnote] enable = false` in `hugo.toml`
+so this shortcode is the only references block the page emits.
+**Parameters:** None.
+**Worked example:** see `{{< cite-ref >}}` above.
 
 ### `{{< settlement >}}`
 **Intent:** Settlement / city / town / village infobox — replicates `Template:Infobox settlement` from Wikipedia.

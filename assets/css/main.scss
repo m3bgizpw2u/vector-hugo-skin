@@ -35,7 +35,6 @@
 @use 'components/header-companions';
 @use 'components/search-box';
 @use 'components/sidebar';
-@use 'components/sticky-header';
 @use 'components/toc';
 @use 'components/tabs';
 @use 'components/infobox';
@@ -43,6 +42,8 @@
 @use 'components/page-titlebar';
 @use 'components/article-categories';
 @use 'components/article-body' as components-article-body;
+@use 'components/section-list';
+@use 'components/references';
 @use 'components/footer';
 @use 'components/theme-toggle';
 

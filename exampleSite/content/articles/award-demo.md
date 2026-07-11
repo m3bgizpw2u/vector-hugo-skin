@@ -4,6 +4,7 @@ date: 2026-07-10
 draft: false
 summary: "Demonstrates the {{< award >}} infobox shortcode."
 categories: ["Infobox demos"]
+tags: ["award", "demo", "infobox", "recognition"]
 ---
 
 Lead paragraph introducing the Award demo. This page exercises the award shortcode with representative parameters for a prize or recognition infobox.

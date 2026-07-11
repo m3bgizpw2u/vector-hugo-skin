@@ -4,6 +4,7 @@ date: 2026-07-10
 draft: false
 summary: "Demonstrates the {{< film >}} infobox shortcode."
 categories: ["Infobox demos"]
+tags: ["film", "demo", "infobox", "entertainment"]
 ---
 
 Lead paragraph introducing the Film demo. This page exercises the film shortcode with representative parameters for a movie infobox.

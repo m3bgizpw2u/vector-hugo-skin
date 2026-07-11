@@ -1,5 +1,7 @@
 {{/*
-  Section list layout — fills baseof.html's `main` block with a list of section pages.
+  Section / taxonomy list layout — fills baseof.html's `main` block with a
+  flat alphabetical list of pages. The Articles section overrides this via
+  `layouts/section/articles.html` to render letter-grouped entries.
 */}}
 {{ define "title" }}{{ .Title }} — {{ .Site.Title }}{{ end }}
 {{ define "main" }}
@@ -7,7 +9,7 @@
   <h1>{{ .Title }}</h1>
   {{ with .Content }}<div class="section-intro">{{ . }}</div>{{ end }}
   <ul class="section-items">
-    {{ range .Pages }}
+    {{ range .Pages.ByTitle }}
     <li><a href="{{ .Permalink }}">{{ .Title }}</a>{{ with .Description }}<p>{{ . }}</p>{{ end }}</li>
     {{ end }}
   </ul>

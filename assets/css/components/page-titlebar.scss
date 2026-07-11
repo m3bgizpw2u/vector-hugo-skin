@@ -115,6 +115,17 @@
   outline-offset: 2px;
 }
 
+// Hide the titlebar dropdown affordance on wide viewports where the
+// right-column `<aside class="toc-panel">` is already visible. Mirrors
+// the 1024px breakpoint in `assets/css/layout/page-grid.scss` and the
+// single-surface pattern Wikipedia itself follows: at ≥1025px the user
+// has a dedicated ToC column, so a parallel dropdown is redundant.
+@media (min-width: 1025px) {
+  .page-titlebar-toc-landmark {
+    display: none;
+  }
+}
+
 // The panel — absolute-positioned drop-down beneath the toggle. Hidden
 // by default; the `:checked` sibling selector (Vector's choice per
 // Dropdown.less) reveals it without any JS state machine.

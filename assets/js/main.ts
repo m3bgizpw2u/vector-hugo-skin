@@ -11,7 +11,6 @@
 // the module, not here.
 import { init as initSidebar } from './modules/sidebar-toggle';
 import { init as initToc } from './modules/toc';
-import { init as initStickyHeader } from './modules/sticky-header';
 import { init as initTabs } from './modules/tabs';
 import { init as initThemeToggle } from './modules/theme-toggle';
 import { init as initSearch } from './modules/search';
@@ -19,7 +18,6 @@ import { init as initSearch } from './modules/search';
 function bootstrap(): void {
   initSidebar();
   initToc();
-  initStickyHeader();
   initTabs();
   initThemeToggle();
   initSearch();

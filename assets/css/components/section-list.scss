@@ -1,0 +1,63 @@
+// Derived from mediawiki-skins-Vector @ 7c224883 (REL1_42, 2025-06-12),
+// file: resources/skins.vector.styles/components/contentBody.less
+// Original (c) Wikimedia Foundation and contributors, GPL-2.0-or-later.
+// This file: GPL-2.0-or-later.
+// Header per docs/PORT-MAP-CONVENTIONS.md §A.
+// Section-list component — styles the `<section.section-list>` rendered
+// by `layouts/_default/list.html`. The default list is a flat
+// `.section-items` <ul>; the Articles index (`layouts/section/articles.html`)
+// uses `.section-items--lettered` to wrap entries in `<li>` groups headed
+// by an upper-case letter, the way Wikipedia indexes group articles.
+
+.section-list {
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-text);
+}
+
+.section-list > * + * {
+  margin-top: var(--space-md);
+}
+
+.section-list h1 {
+  font-family: var(--font-serif);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-tight);
+}
+
+.section-list .section-items {
+  list-style: none;
+  padding-left: 0;
+}
+
+.section-list .section-items li {
+  margin-bottom: var(--space-xs);
+}
+
+.section-list .section-items--lettered {
+  display: grid;
+  gap: var(--space-lg);
+}
+
+.section-list .section-items__group {
+  list-style: none;
+}
+
+.section-list .section-items__heading {
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-tight);
+  border-bottom: 1px solid var(--color-divider);
+  padding-bottom: var(--space-xs);
+  margin-bottom: var(--space-sm);
+}
+
+.section-list .section-items__group-items {
+  list-style: none;
+  padding-left: 0;
+}
+
+.section-list .section-items__group-items li {
+  margin-bottom: var(--space-xs);
+}

@@ -1,0 +1,68 @@
+{{/*
+Inline citation marker — emits a small bracketed superscript that links
+to the matching entry in the references list. Pairs with
+`{{< references >}}` to produce the Wikipedia "References" footer
+pattern. The two shortcodes share definitions parsed from the body's
+Markdown footnote block (`[^key]: text` lines in the source).
+
+Usage:
+  {{< cite-ref "key" >}}
+
+The shortcode is named `cite-ref` to avoid colliding with Hugo's
+built-in `{{< ref >}}` (the page-relative URL helper). The Markdown
+footnote syntax in the body of the article is exactly what
+markdownguide.org's extended-syntax page documents — `[^key]` markers
+in the body plus `[^key]: text` definition lines at the bottom of
+the article — so the author can keep using the syntax they would in
+any other Markdown renderer.
+
+Parameters:
+  The first positional argument is the citation key. It must match a
+  Markdown footnote definition (`[^key]: text`) somewhere later in
+  the article body. The number assigned to each key is the order of
+  first appearance in document order — same rule MediaWiki applies to
+  its `<ref>` counters.
+
+No front matter required. Goldmark's own `<section class="footnotes">`
+block is suppressed via `[markup.goldmark.extensions.footnote]
+enable = false` in `hugo.toml` so that the custom `references`
+shortcode is the only references block the page emits.
+
+Per-page state is held in `.Page.Scratch` under the keys
+  `refFootnoteDefs`   dict( key → text )
+  `refFootnoteOrder`  slice of keys in document order of first citation
+so that body markers and the footer list always agree. Each entry of
+`RawContent` is split on its terminating newline; each line beginning
+with `[^…]` is treated as a separate definition (matches MediaWiki's
+own line-orientation when authors keep definitions terse).
+*/}}
+{{ $key := .Get 0 }}
+{{ $page := .Page }}
+{{ if $key }}
+  {{ $defs := $page.Scratch.Get "refFootnoteDefs" }}
+  {{ if not $defs }}
+    {{ $raw := $page.RawContent }}
+    {{ $lines := split $raw "\n" }}
+    {{ $defs = dict }}
+    {{ range $lines }}
+      {{ $line := trim . " \r" }}
+      {{ $matches := findRE `^\[\^([A-Za-z0-9_-]+)\]:[[:space:]]+(.+)$` $line }}
+      {{ if $matches }}
+        {{ $keyName := replaceRE `^\[\^([A-Za-z0-9_-]+)\]:.*` "$1" (index $matches 0) }}
+        {{ $body := replaceRE `^\[\^[A-Za-z0-9_-]+\]:[[:space:]]+` "" (index $matches 0) }}
+        {{ $defs = merge $defs (dict $keyName $body) }}
+      {{ end }}
+    {{ end }}
+    {{ $page.Scratch.Set "refFootnoteDefs" $defs }}
+  {{ end }}
+  {{ $order := $page.Scratch.Get "refFootnoteOrder" | default (slice) }}
+  {{ $knownIndex := -1 }}
+  {{ range $i, $k := $order }}{{ if eq $k $key }}{{ $knownIndex = $i }}{{ end }}{{ end }}
+  {{ if eq $knownIndex -1 }}
+    {{ $order = $order | append $key }}
+    {{ $page.Scratch.Set "refFootnoteOrder" $order }}
+    {{ $knownIndex = sub (len $order) 1 }}
+  {{ end }}
+  {{ $n := add $knownIndex 1 }}
+<sup class="reference" id="cite_ref-{{ $key }}-{{ $n }}"><a href="#cite_note-{{ $key }}-{{ $n }}">[{{ $n }}]</a></sup>
+{{ end }}

@@ -1,0 +1,43 @@
+{{/*
+  Articles section list — full layout that overrides `_default/list.html`.
+  Pages are grouped by their first letter under an `<h2>` heading so a
+  long index renders A, B, C ... the way Wikipedia's category indexes do.
+  Grouping buckets non-ASCII letters under `#`. The page list comes
+  from `.Pages.ByTitle` filtered to the article-kind content type.
+*/}}
+{{ define "title" }}{{ .Title }} — {{ .Site.Title }}{{ end }}
+{{ define "main" }}
+<section class="section-list">
+  <h1>{{ .Title }}</h1>
+  {{ with .Content }}<div class="section-intro">{{ . }}</div>{{ end }}
+  {{ $pages := where .Pages.ByTitle "Kind" "page" }}
+  {{ $buckets := dict }}
+  {{ $keys := slice }}
+  {{ range $pages }}
+    {{ $first := lower (slicestr .Title 0 1) }}
+    {{ $key := cond (in (slice "a" "b" "c" "d" "e" "f" "g" "h" "i" "j" "k" "l" "m" "n" "o" "p" "q" "r" "s" "t" "u" "v" "w" "x" "y" "z") $first) $first "#" }}
+    {{ $existing := index $buckets $key }}
+    {{ if $existing }}
+      {{ $buckets = merge $buckets (dict $key ($existing | append .)) }}
+    {{ else }}
+      {{ $buckets = merge $buckets (dict $key (slice .)) }}
+      {{ $keys = $keys | append $key }}
+    {{ end }}
+  {{ end }}
+  {{ $sortedKeys := sort $keys }}
+  <ul class="section-items section-items--lettered">
+    {{ range $sortedKeys }}
+      {{ $key := . }}
+      {{ $entries := index $buckets $key }}
+      <li class="section-items__group" data-letter="{{ $key }}">
+        <h2 class="section-items__heading">{{ $key | upper }}</h2>
+        <ul class="section-items__group-items">
+          {{ range $entries }}
+          <li><a href="{{ .Permalink }}">{{ .Title }}</a>{{ with .Description }}<p>{{ . }}</p>{{ end }}</li>
+          {{ end }}
+        </ul>
+      </li>
+    {{ end }}
+  </ul>
+</section>
+{{ end }}

@@ -52,3 +52,12 @@
   border-color: var(--color-link);
   text-decoration: none;
 }
+
+// Prevent the categories footer from visually colliding with the
+// article body above it. The `.article` wrapper is emitted by
+// `layouts/_default/single.html`; this direct-child rule keeps the
+// spacing local to the article layout and does not affect other
+// page regions.
+.article > * + * {
+  margin-top: var(--space-md);
+}

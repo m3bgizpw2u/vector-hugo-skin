@@ -4,6 +4,7 @@ date: 2026-07-10
 draft: false
 summary: "Demonstrates the {{< album >}} infobox shortcode."
 categories: ["Infobox demos"]
+tags: ["music", "demo", "infobox"]
 ---
 
 Lead paragraph introducing the Album demo. This page exercises the album infobox shortcode with representative parameters for a music album infobox.

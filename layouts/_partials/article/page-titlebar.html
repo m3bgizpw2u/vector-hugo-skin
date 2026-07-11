@@ -45,7 +45,9 @@ Header per docs/PORT-MAP-CONVENTIONS.md §A.
 <header class="page-titlebar">
   <h1 class="page-titlebar__title article-title">{{ .Title }}</h1>
   {{ with .Description }}<p class="page-titlebar__subtitle article-subtitle">{{ . }}</p>{{ end }}
-  {{ with .TableOfContents }}
+  {{ $toc := .TableOfContents }}
+  {{ $entryCount := len (findRE "<li>" $toc) }}
+  {{ if and (eq .Kind "page") (gt $entryCount 0) }}
   <nav class="page-titlebar-toc-landmark" aria-label="{{ i18n "tocLabel" | default "Contents" }}">
     <input
       type="checkbox"

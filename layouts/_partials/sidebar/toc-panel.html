@@ -21,13 +21,17 @@ Header per docs/PORT-MAP-CONVENTIONS.md §A.
   expect. The `#toc-panel` id is the aria-controls target used by the
   sticky-header's ToC-toggle button (layouts/_partials/header/sticky-header.html).
 
-  If the page has no headings, Hugo emits an empty `.TableOfContents`;
-  we suppress the whole panel via the `with` guard so pages like the
-  home index and section lists don't render a half-empty ToC.
+  Only article pages (`Kind: page`) get the right-column ToC — listing
+  pages (home, section indexes, taxonomy listings) skip it entirely.
+  Even on article pages, a page that has zero headings collapses to an
+  empty `<nav id="TableOfContents"></nav>`; we count entries and skip
+  the whole panel if the count is zero, so a half-empty ToC never ships.
 */}}
-{{ with .TableOfContents }}
+{{ $toc := .TableOfContents }}
+{{ $entryCount := len (findRE "<li>" $toc) }}
+{{ if and (eq .Kind "page") (gt $entryCount 0) }}
 <aside class="toc-panel" id="toc-panel" aria-label="{{ i18n "tocLabel" | default "Contents" }}">
   <h2 class="toc-panel__heading">{{ i18n "tocLabel" | default "Contents" }}</h2>
-  {{ . }}
+  {{ $toc }}
 </aside>
 {{ end }}

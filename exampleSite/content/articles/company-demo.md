@@ -4,6 +4,7 @@ date: 2026-07-10
 draft: false
 summary: "Demonstrates the {{< company >}} infobox shortcode."
 categories: ["Infobox demos"]
+tags: ["company", "demo", "infobox", "business"]
 ---
 
 Lead paragraph introducing the Company demo. This page exercises the company shortcode with representative parameters for a corporate entity infobox.
