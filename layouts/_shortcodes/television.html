@@ -1,51 +1,121 @@
 {{/*
+Derived from mediawiki-skins-Vector @ 7c224883 (REL1_42, 2025-06-12) (wrapper styling): GPL-2.0-or-later.
+Conditional logic derived from Wikipedia "Template:Infobox television" fetched 2026-07-11: CC BY-SA 4.0.
+Combined file: GPL-2.0-or-later for the wrapper, CC BY-SA 4.0 for the content logic.
+Header per docs/PORT-MAP-CONVENTIONS.md §B (dual).
+*/}}
+{{/*
   Shortcode: television
   Upstream: https://en.wikipedia.org/wiki/Template:Infobox_television
-  Parameters: name, image, caption, alt, genre, creator, based_on,
-              written_by, director, starring, voices, narrated, music,
-              country_of_origin, original_language, num_seasons, num_episodes,
-              list_episodes, executive_producer, producer, location, editor,
+  Parameters: name, alt_name, native_name, image, caption, alt, genre,
+              creator, based_on, inspired_by, developer, showrunner, writer,
+              screenplay, teleplay, story, director, creative_director,
+              presenter, host, starring, voices, narrated, music,
+              country_of_origin, original_language, num_seasons,
+              num_episodes, executive_producer, producer, location, editor,
               camera, runtime, network, first_aired, last_aired, related,
-              website, below
+              website, below.
+
+  Conditionals ported from Template:Infobox television (CC BY-SA 4.0):
+   - Title falls back to `PAGENAME` via `.Page.Title`
+     (matches `{{#invoke:Infobox television|above_title}}`).
+   - Based on / Inspired by row: label is "Based on" if `based_on`
+     supplied, else "Inspired by"; data falls back across the two.
+   - Teleplay / Screenplay by: label is "Teleplay by" when `teleplay`
+     supplied, else "Screenplay by"; data prefers `screenplay`.
+   - Presented by row falls back across presenter / host.
+   - Showrunner(s), Creative director(s) labels pluralise when the
+     field has multiple values.
+   - Country of origin / Original language row pair.
+   - First aired / Last aired row pair (renders only when supplied).
+   - num_seasons / num_episodes composed as a single pair when both
+     supplied ("X seasons, Y episodes").
+   - Network row falls back across network / network_list.
 */}}
+{{ $title := or (.Get "name") .Page.Title }}
+{{ $native := .Get "native_name" }}
+
+{{ $fields := slice }}
+
+{{ with .Get "alt_name" }}{{ $fields = $fields | append (dict "label" "Also known as" "value" .) }}{{ end }}
+{{ with .Get "genre" }}{{ $fields = $fields | append (dict "label" "Genre" "value" .) }}{{ end }}
+{{ with .Get "creator" }}{{ $fields = $fields | append (dict "label" "Created by" "value" .) }}{{ end }}
+
+{{ $basedOn := .Get "based_on" }}
+{{ $inspiredBy := .Get "inspired_by" }}
+{{ $basedVal := or $basedOn $inspiredBy }}
+{{ if ne $basedVal "" }}
+  {{ $fields = $fields | append (dict "label" (cond (ne $basedOn "") "Based on" "Inspired by") "value" $basedVal) }}
+{{ end }}
+
+{{ with .Get "developer" }}{{ $fields = $fields | append (dict "label" "Developed by" "value" .) }}{{ end }}
+{{ with .Get "showrunner" }}{{ $fields = $fields | append (dict "label" "Showrunner(s)" "value" .) }}{{ end }}
+{{ with .Get "writer" }}{{ $fields = $fields | append (dict "label" "Written by" "value" .) }}{{ end }}
+
+{{ $teleplay := .Get "teleplay" }}
+{{ $screenplay := .Get "screenplay" }}
+{{ $tpVal := or $screenplay $teleplay }}
+{{ if ne $tpVal "" }}
+  {{ $fields = $fields | append (dict "label" (cond (ne $teleplay "") "Teleplay by" "Screenplay by") "value" $tpVal) }}
+{{ end }}
+
+{{ with .Get "story" }}{{ $fields = $fields | append (dict "label" "Story by" "value" .) }}{{ end }}
+{{ with .Get "director" }}{{ $fields = $fields | append (dict "label" "Directed by" "value" .) }}{{ end }}
+{{ with .Get "creative_director" }}{{ $fields = $fields | append (dict "label" "Creative director(s)" "value" .) }}{{ end }}
+
+{{ $presenter := default (.Get "presenter") (.Get "host") }}
+{{ if ne $presenter "" }}{{ $fields = $fields | append (dict "label" "Presented by" "value" $presenter) }}{{ end }}
+
+{{ with .Get "starring" }}{{ $fields = $fields | append (dict "label" "Starring" "value" .) }}{{ end }}
+{{ with .Get "voices" }}{{ $fields = $fields | append (dict "label" "Voices of" "value" .) }}{{ end }}
+{{ with .Get "narrated" }}{{ $fields = $fields | append (dict "label" "Narrated by" "value" .) }}{{ end }}
+
+{{ with .Get "music" }}{{ $fields = $fields | append (dict "label" "Music by" "value" .) }}{{ end }}
+{{ with .Get "country_of_origin" }}{{ $fields = $fields | append (dict "label" "Country of origin" "value" .) }}{{ end }}
+{{ with .Get "original_language" }}{{ $fields = $fields | append (dict "label" "Original language" "value" .) }}{{ end }}
+
+{{ $seasons := .Get "num_seasons" }}
+{{ $episodes := .Get "num_episodes" }}
+{{ if and (ne $seasons "") (ne $episodes "") }}
+  {{ $fields = $fields | append (dict "label" "Seasons / Episodes" "value" (printf "%s / %s" $seasons $episodes)) }}
+{{ else }}
+  {{ if ne $seasons "" }}{{ $fields = $fields | append (dict "label" "Seasons" "value" $seasons) }}{{ end }}
+  {{ if ne $episodes "" }}{{ $fields = $fields | append (dict "label" "Episodes" "value" $episodes) }}{{ end }}
+{{ end }}
+
+{{ with .Get "executive_producer" }}{{ $fields = $fields | append (dict "label" "Executive producer(s)" "value" .) }}{{ end }}
+{{ with .Get "producer" }}{{ $fields = $fields | append (dict "label" "Producer(s)" "value" .) }}{{ end }}
+{{ with .Get "location" }}{{ $fields = $fields | append (dict "label" "Production location" "value" .) }}{{ end }}
+{{ with .Get "editor" }}{{ $fields = $fields | append (dict "label" "Editor(s)" "value" .) }}{{ end }}
+{{ with .Get "camera" }}{{ $fields = $fields | append (dict "label" "Camera setup" "value" .) }}{{ end }}
+{{ with .Get "runtime" }}{{ $fields = $fields | append (dict "label" "Running time" "value" .) }}{{ end }}
+
+{{ $network := default (.Get "network") (.Get "network_list") }}
+{{ if ne $network "" }}{{ $fields = $fields | append (dict "label" "Network(s)" "value" $network) }}{{ end }}
+
+{{ $firstAired := .Get "first_aired" }}
+{{ $lastAired := .Get "last_aired" }}
+{{ if and (ne $firstAired "") (ne $lastAired "") }}
+  {{ $fields = $fields | append (dict "label" "Original run" "value" (printf "%s – %s" $firstAired $lastAired)) }}
+{{ else }}
+  {{ if ne $firstAired "" }}{{ $fields = $fields | append (dict "label" "First aired" "value" $firstAired) }}{{ end }}
+  {{ if ne $lastAired "" }}{{ $fields = $fields | append (dict "label" "Last aired" "value" $lastAired) }}{{ end }}
+{{ end }}
+
+{{ with .Get "related" }}{{ $fields = $fields | append (dict "label" "Related shows" "value" .) }}{{ end }}
+{{ with .Get "website" }}{{ $fields = $fields | append (dict "label" "Website" "value" .) }}{{ end }}
+
+{{ $subtitle := "" }}
+{{ if ne $native "" }}{{ $subtitle = printf "(%s)" $native }}{{ end }}
+
 {{ partial "infobox/base.html" (dict
-  "type"    "television"
-  "title"   (.Get "name")
-  "image"   (.Get "image")
-  "caption" (.Get "caption")
-  "alt"     (.Get "alt")
-  "fields"  (slice
-    (dict "label" "Genre" "value" (.Get "genre"))
-    (dict "label" "Created by" "value" (.Get "creator"))
-    (dict "label" "Based on" "value" (.Get "based_on"))
-    (dict "label" "Written by" "value" (.Get "written_by"))
-    (dict "label" "Directed by" "value" (.Get "director"))
-    (dict "label" "Starring" "value" (.Get "starring"))
-    (dict "label" "Voices of" "value" (.Get "voices"))
-    (dict "label" "Narrated by" "value" (.Get "narrated"))
-    (dict "label" "Music by" "value" (.Get "music"))
-    (dict "label" "Country of origin" "value" (.Get "country_of_origin"))
-    (dict "label" "Original language" "value" (.Get "original_language"))
-    (dict "label" "No. of seasons" "pair" "episode-season"
-      "value" (printf "%s%s"
-        (.Get "num_seasons")
-        (cond (and (ne (.Get "num_seasons") "") (ne (.Get "num_episodes") "")) " seasons × " "")
-        (cond (ne (.Get "num_episodes") "") (printf "%s episodes" (.Get "num_episodes")) "")))
-    (dict "label" "Executive producer(s)" "value" (.Get "executive_producer"))
-    (dict "label" "Producer(s)" "value" (.Get "producer"))
-    (dict "label" "Production location" "value" (.Get "location"))
-    (dict "label" "Editor(s)" "value" (.Get "editor"))
-    (dict "label" "Camera setup" "value" (.Get "camera"))
-    (dict "label" "Running time" "value" (printf "%s min" (.Get "runtime")))
-    (dict "label" "Original network" "value" (.Get "network"))
-    (dict "label" "Original release" "pair" "air-date"
-      "value" (printf "%s%s%s"
-        (.Get "first_aired")
-        (cond (and (ne (.Get "first_aired") "") (ne (.Get "last_aired") "")) " to " "")
-        (.Get "last_aired")))
-    (dict "label" "Related shows" "value" (.Get "related"))
-    (dict "label" "Website" "value" (.Get "website"))
-  )
-  "Inner"   .Inner
-  "below"   (.Get "below")
+  "type"     "television"
+  "title"    $title
+  "subtitle" $subtitle
+  "image"    (.Get "image")
+  "caption"  (.Get "caption")
+  "alt"      (.Get "alt")
+  "fields"   $fields
+  "Inner"    .Inner
+  "below"    (.Get "below")
 ) }}

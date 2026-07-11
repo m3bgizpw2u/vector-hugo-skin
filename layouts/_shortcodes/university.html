@@ -1,52 +1,159 @@
 {{/*
+Derived from mediawiki-skins-Vector @ 7c224883 (REL1_42, 2025-06-12) (wrapper styling): GPL-2.0-or-later.
+Conditional logic derived from Wikipedia "Template:Infobox university" fetched 2026-07-11: CC BY-SA 4.0.
+Combined file: GPL-2.0-or-later for the wrapper, CC BY-SA 4.0 for the content logic.
+Header per docs/PORT-MAP-CONVENTIONS.md §B (dual).
+*/}}
+{{/*
   Shortcode: university
   Upstream: https://en.wikipedia.org/wiki/Template:Infobox_university
-  Parameters: name, image, caption, alt, motto, motto_language, established,
-              closed, type, affiliation, endowment, budget, president,
-              vice_president, chancellor, rector, principal, dean, head,
-              faculty, students, undergrad, postgrad, doctoral, city,
-              state, country, campus, colors, mascot, nickname, sporting_affiliations,
-              website, below
+  Parameters: name, native_name, latin_name, motto, motto_eng, motto_lang,
+              image, caption, alt, type, established, closed, founders,
+              parent, accreditation, affiliations, religious_affiliation,
+              academic_affiliations, endowment, budget, officer_in_charge,
+              chair, chairman, chairperson, visitor, chancellor, president,
+              vice_president, superintendent, vice_chancellor, provost,
+              rector, dean, faculty, students, undergrad, postgrad, doctoral,
+              city, state, country, campus, colors, colours, mascot, nickname,
+              sporting_affiliations, website, below.
+
+  Conditionals ported from Template:Infobox university (CC BY-SA 4.0):
+   - Title falls back to `PAGENAMEBASE` via `.Page.Title`
+     (matches `{{if empty|{{{name|}}}|{{PAGENAMEBASE}}}}`).
+   - Native name rendered as `<div class="nickname">` subtitle.
+   - Latin name rendered as a separate row only when supplied.
+   - "Established / Active" row label switches to "Active" when
+     `closed` is supplied, with date range "established–closed".
+   - Founder(s) plural label.
+   - Officer / Chair / Chancellor / President / Vice-Chancellor / Provost
+     / Rector / Dean rows each emit only when supplied.
+   - students / undergrad / postgrad / doctoral row: composed as
+     a single "Total students (X undergrad, Y postgrad, Z doctoral)"
+     when multiple supplied, else as separate rows.
+   - city / state / country row triplet composed as one Location row
+     when two or more supplied.
+   - colors / colours fallback; mascot / nickname rows.
 */}}
+{{ $title := or (.Get "name") .Page.Title }}
+{{ $native := .Get "native_name" }}
+{{ $latin := .Get "latin_name" }}
+
+{{ $fields := slice }}
+
+{{ with $latin }}{{ $fields = $fields | append (dict "label" "Latin name" "value" .) }}{{ end }}
+{{ with .Get "other_names" }}{{ $fields = $fields | append (dict "label" "Other name(s)" "value" .) }}{{ end }}
+{{ with .Get "former_names" }}{{ $fields = $fields | append (dict "label" "Former name(s)" "value" .) }}{{ end }}
+
+{{ $motto := .Get "motto" }}
+{{ if ne $motto "" }}
+  {{ $v := $motto }}
+  {{ with .Get "motto_eng" }}{{ $v = printf "%s — \"%s\"" $v . }}{{ end }}
+  {{ $fields = $fields | append (dict "label" "Motto" "value" $v) }}
+{{ end }}
+{{ with .Get "motto_eng" }}
+  {{ if eq $motto "" }}{{ $fields = $fields | append (dict "label" "Motto (English)" "value" .) }}{{ end }}
+{{ end }}
+
+{{ with .Get "type" }}{{ $fields = $fields | append (dict "label" "Type" "value" .) }}{{ end }}
+
+{{ $estDate := .Get "established" }}
+{{ $closedDate := .Get "closed" }}
+{{ if ne $estDate "" }}
+  {{ $v := $estDate }}
+  {{ $label := "Established" }}
+  {{ if ne $closedDate "" }}
+    {{ $v = printf "%s – %s" $v $closedDate }}
+    {{ $label = "Active" }}
+  {{ end }}
+  {{ $fields = $fields | append (dict "label" $label "value" $v) }}
+{{ else if ne $closedDate "" }}
+  {{ $fields = $fields | append (dict "label" "Closed" "value" $closedDate) }}
+{{ end }}
+
+{{ $founders := .Get "founders" }}
+{{ if ne $founders "" }}{{ $fields = $fields | append (dict "label" "Founder(s)" "value" $founders) }}{{ end }}
+{{ with .Get "parent" }}{{ $fields = $fields | append (dict "label" "Parent institution" "value" .) }}{{ end }}
+{{ with .Get "accreditation" }}{{ $fields = $fields | append (dict "label" "Accreditation" "value" .) }}{{ end }}
+{{ with .Get "affiliations" }}{{ $fields = $fields | append (dict "label" "Affiliations" "value" .) }}{{ end }}
+{{ with .Get "religious_affiliation" }}{{ $fields = $fields | append (dict "label" "Religious affiliation" "value" .) }}{{ end }}
+{{ with .Get "academic_affiliations" }}{{ $fields = $fields | append (dict "label" "Academic affiliations" "value" .) }}{{ end }}
+{{ with .Get "endowment" }}{{ $fields = $fields | append (dict "label" "Endowment" "value" .) }}{{ end }}
+{{ with .Get "budget" }}{{ $fields = $fields | append (dict "label" "Budget" "value" .) }}{{ end }}
+
+{{/* Personnel rows */}}
+{{ $heads := slice
+  (dict "label" "Officer in charge" "value" (.Get "officer_in_charge"))
+  (dict "label" "Chair" "value" (.Get "chair"))
+  (dict "label" "Chairman" "value" (.Get "chairman"))
+  (dict "label" "Chairperson" "value" (.Get "chairperson"))
+  (dict "label" "Visitor" "value" (.Get "visitor"))
+  (dict "label" "Chancellor" "value" (.Get "chancellor"))
+  (dict "label" "President" "value" (.Get "president"))
+  (dict "label" "Vice-president" "value" (.Get "vice_president"))
+  (dict "label" "Superintendent" "value" (.Get "superintendent"))
+  (dict "label" "Vice-Chancellor" "value" (.Get "vice_chancellor"))
+  (dict "label" "Provost" "value" (.Get "provost"))
+  (dict "label" "Rector" "value" (.Get "rector"))
+  (dict "label" "Dean" "value" (.Get "dean"))
+}}
+{{ range $h := $heads }}
+  {{ with $h.value }}
+    {{ $fields = $fields | append (dict "label" $h.label "value" .) }}
+  {{ end }}
+{{ end }}
+
+{{ with .Get "faculty" }}{{ $fields = $fields | append (dict "label" "Faculty" "value" .) }}{{ end }}
+
+{{/* Students block */}}
+{{ $students := .Get "students" }}
+{{ $undergrad := .Get "undergrad" }}
+{{ $postgrad := .Get "postgrad" }}
+{{ $doctoral := .Get "doctoral" }}
+{{ $hasAnyStudent := or (ne $students "") (ne $undergrad "") (ne $postgrad "") (ne $doctoral "") }}
+{{ if $hasAnyStudent }}
+  {{ $parts := slice }}
+  {{ if ne $undergrad "" }}{{ $parts = $parts | append (printf "%s undergrad" $undergrad) }}{{ end }}
+  {{ if ne $postgrad "" }}{{ $parts = $parts | append (printf "%s postgrad" $postgrad) }}{{ end }}
+  {{ if ne $doctoral "" }}{{ $parts = $parts | append (printf "%s doctoral" $doctoral) }}{{ end }}
+  {{ if and (ne $students "") (gt (len $parts) 0) }}
+    {{ $fields = $fields | append (dict "label" "Students" "value" (printf "%s (%s)" $students (delimit $parts ", "))) }}
+  {{ else if ne $students "" }}
+    {{ $fields = $fields | append (dict "label" "Students" "value" $students) }}
+  {{ else }}
+    {{ $fields = $fields | append (dict "label" "Students" "value" (delimit $parts ", ")) }}
+  {{ end }}
+{{ end }}
+
+{{/* Location */}}
+{{ $locParts := slice }}
+{{ with .Get "city" }}{{ $locParts = $locParts | append . }}{{ end }}
+{{ with .Get "state" }}{{ $locParts = $locParts | append . }}{{ end }}
+{{ with .Get "country" }}{{ $locParts = $locParts | append . }}{{ end }}
+{{ if gt (len $locParts) 0 }}
+  {{ $fields = $fields | append (dict "label" "Location" "value" (delimit $locParts ", ")) }}
+{{ end }}
+
+{{ with .Get "campus" }}{{ $fields = $fields | append (dict "label" "Campus" "value" .) }}{{ end }}
+
+{{ $colors := default (.Get "colors") (.Get "colours") }}
+{{ if ne $colors "" }}{{ $fields = $fields | append (dict "label" "Colors" "value" $colors) }}{{ end }}
+{{ with .Get "mascot" }}{{ $fields = $fields | append (dict "label" "Mascot" "value" .) }}{{ end }}
+{{ with .Get "nickname" }}{{ $fields = $fields | append (dict "label" "Nickname" "value" .) }}{{ end }}
+
+{{ with .Get "sporting_affiliations" }}{{ $fields = $fields | append (dict "label" "Sporting affiliations" "value" .) }}{{ end }}
+{{ with .Get "website" }}{{ $fields = $fields | append (dict "label" "Website" "value" .) }}{{ end }}
+
+{{ $subtitle := "" }}
+{{ if ne $native "" }}{{ $subtitle = printf "(%s)" $native }}{{ end }}
+
 {{ partial "infobox/base.html" (dict
-  "type"    "university"
-  "title"   (.Get "name")
-  "image"   (.Get "image")
-  "caption" (.Get "caption")
-  "alt"     (.Get "alt")
-  "fields"  (slice
-    (dict "label" "Motto" "value" (printf "%s%s"
-        (.Get "motto")
-        (cond (ne (.Get "motto_language") "") (printf " (%s)" (.Get "motto_language")) "")))
-    (dict "label" "Established" "value" (.Get "established"))
-    (dict "label" "Closed" "value" (.Get "closed"))
-    (dict "label" "Type" "value" (.Get "type"))
-    (dict "label" "Affiliation" "value" (.Get "affiliation"))
-    (dict "label" "Endowment" "value" (.Get "endowment"))
-    (dict "label" "Budget" "value" (.Get "budget"))
-    (dict "label" "President" "value" (.Get "president"))
-    (dict "label" "Vice-president" "value" (.Get "vice_president"))
-    (dict "label" "Chancellor" "value" (.Get "chancellor"))
-    (dict "label" "Rector" "value" (.Get "rector"))
-    (dict "label" "Principal" "value" (.Get "principal"))
-    (dict "label" "Dean" "value" (.Get "dean"))
-    (dict "label" "Head" "value" (.Get "head"))
-    (dict "label" "Faculty" "value" (.Get "faculty"))
-    (dict "label" "Students" "value" (.Get "students"))
-    (dict "label" "Undergraduates" "value" (.Get "undergrad"))
-    (dict "label" "Postgraduates" "value" (.Get "postgrad"))
-    (dict "label" "Doctoral students" "value" (.Get "doctoral"))
-    (dict "label" "Location" "value" (printf "%s%s%s"
-        (.Get "city")
-        (cond (ne (.Get "state") "") (printf ", %s" (.Get "state")) "")
-        (cond (ne (.Get "country") "") (printf ", %s" (.Get "country")) "")))
-    (dict "label" "Campus" "value" (.Get "campus"))
-    (dict "label" "Colors" "value" (.Get "colors"))
-    (dict "label" "Mascot" "value" (.Get "mascot"))
-    (dict "label" "Nickname" "value" (.Get "nickname"))
-    (dict "label" "Sporting affiliations" "value" (.Get "sporting_affiliations"))
-    (dict "label" "Website" "value" (.Get "website"))
-  )
-  "Inner"   .Inner
-  "below"   (.Get "below")
+  "type"     "university"
+  "title"    $title
+  "subtitle" $subtitle
+  "image"    (.Get "image")
+  "caption"  (.Get "caption")
+  "alt"      (.Get "alt")
+  "fields"   $fields
+  "Inner"    .Inner
+  "below"    (.Get "below")
 ) }}

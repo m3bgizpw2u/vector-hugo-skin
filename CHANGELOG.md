@@ -945,3 +945,31 @@ build-green verification target.
     passengers row appends `(year, ranked N)` when both pass_year
     and pass_rank supplied.
 - `hugo --quiet` in `exampleSite/` exits 0.
+
+### Changed (third plan, phase 7c — Infobox topic shortcodes)
+- Four `Infobox <topic>` shortcodes under `layouts/_shortcodes/`
+  gain the dual-license header + extracted conditionals:
+  - `television.html` — title fallback; based_on / inspired_by
+    label and data precedence; teleplay / screenplay by label
+    switching on `teleplay`; presenter / host fallback; native
+    name subtitle; seasons / episodes composed as a single pair;
+    first_aired – last_aired composed as an "Original run" row;
+    network / network_list fallback.
+  - `television-episode.html` — series/season/episode "Episode
+    placement" triplet row; teleplay / screenplay label switching;
+    guests / guest fallback; airdate / production_code / runtime
+    composed as a single "Aired / Code / Runtime" row; previous /
+    next episode pair row.
+  - `television-season.html` — title fallback (`name` →
+    `series_name` → `PAGENAME`); series_name + season_number
+    composed as "Series — Season N"; num_episodes / episode_count
+    fallback; first_aired – last_aired composed as "Original run";
+    prev_season / next_season pair row.
+  - `university.html` — title fallback; native / latin name rows;
+    motto / motto_eng combined row; established–closed "Active"
+    date range; founder(s) plural; multiple personnel rows
+    (officer, chair, chancellor, president, vice-chancellor,
+    provost, rector, dean); students composed with undergrad /
+    postgrad / doctoral breakdown; city / state / country
+    composed into one "Location" row; colors / colours fallback.
+- `hugo --quiet` in `exampleSite/` exits 0.

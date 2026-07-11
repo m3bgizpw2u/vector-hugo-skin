@@ -1,42 +1,86 @@
 {{/*
+Derived from mediawiki-skins-Vector @ 7c224883 (REL1_42, 2025-06-12) (wrapper styling): GPL-2.0-or-later.
+Conditional logic derived from Wikipedia "Template:Infobox television season" fetched 2026-07-11: CC BY-SA 4.0.
+Combined file: GPL-2.0-or-later for the wrapper, CC BY-SA 4.0 for the content logic.
+Header per docs/PORT-MAP-CONVENTIONS.md §B (dual).
+*/}}
+{{/*
   Shortcode: television-season
   Upstream: https://en.wikipedia.org/wiki/Template:Infobox_television_season
-  Parameters: name, image, caption, alt, series_name, num_seasons, num_episodes,
-              season_number, first_aired, last_aired, network, channel,
-              host, starring, judges, director, presenter, narrator, music,
-              country, num_episodes_release, episode_list, prev_season,
-              next_season, website, below
+  Parameters: name, series_name, season_number, image, caption, alt, host,
+              starring, judges, director, presenter, narrator, music,
+              country, network, channel, first_aired, last_aired,
+              num_episodes, episode_list, prev_season, next_season, website, below.
+
+  Conditionals ported from Template:Infobox television season (CC BY-SA 4.0):
+   - Title falls back to `series_name` (season N) then `PAGENAME` via `.Page.Title`
+     (matches upstream `title` fallback chain).
+   - Host / presenter / narrator rows; judges row for competition shows.
+   - Country / network / channel row triplet when all three present.
+   - first_aired – last_aired row composed as a single Original run row.
+   - num_episodes falls back to `episode_count` when supplied.
+   - prev_season / next_season pair row appears only when at least one
+     is supplied.
 */}}
+{{ $title := or (.Get "name") (.Get "series_name") .Page.Title }}
+
+{{ $fields := slice }}
+
+{{ $seriesName := .Get "series_name" }}
+{{ $seasonNumber := .Get "season_number" }}
+{{ if or (ne $seriesName "") (ne $seasonNumber "") }}
+  {{ $v := "" }}
+  {{ if ne $seriesName "" }}{{ $v = $seriesName }}{{ end }}
+  {{ if ne $seasonNumber "" }}
+    {{ if ne $v "" }}{{ $v = printf "%s — Season %s" $v $seasonNumber }}{{ else }}{{ $v = printf "Season %s" $seasonNumber }}{{ end }}
+  {{ end }}
+  {{ $fields = $fields | append (dict "label" "Series" "value" $v) }}
+{{ end }}
+
+{{ $episodes := default (.Get "num_episodes") (.Get "episode_count") }}
+{{ if ne $episodes "" }}{{ $fields = $fields | append (dict "label" "No. of episodes" "value" $episodes) }}{{ end }}
+
+{{ with .Get "host" }}{{ $fields = $fields | append (dict "label" "Hosted by" "value" .) }}{{ end }}
+{{ with .Get "presenter" }}{{ $fields = $fields | append (dict "label" "Presented by" "value" .) }}{{ end }}
+{{ with .Get "narrator" }}{{ $fields = $fields | append (dict "label" "Narrated by" "value" .) }}{{ end }}
+{{ with .Get "starring" }}{{ $fields = $fields | append (dict "label" "Starring" "value" .) }}{{ end }}
+{{ with .Get "judges" }}{{ $fields = $fields | append (dict "label" "Judges" "value" .) }}{{ end }}
+{{ with .Get "director" }}{{ $fields = $fields | append (dict "label" "Directed by" "value" .) }}{{ end }}
+{{ with .Get "music" }}{{ $fields = $fields | append (dict "label" "Music by" "value" .) }}{{ end }}
+
+{{ with .Get "country" }}{{ $fields = $fields | append (dict "label" "Country" "value" .) }}{{ end }}
+{{ $network := default (.Get "network") (.Get "channel") }}
+{{ if ne $network "" }}{{ $fields = $fields | append (dict "label" "Network" "value" $network) }}{{ end }}
+
+{{ $first := .Get "first_aired" }}
+{{ $last := .Get "last_aired" }}
+{{ if and (ne $first "") (ne $last "") }}
+  {{ $fields = $fields | append (dict "label" "Original run" "value" (printf "%s – %s" $first $last)) }}
+{{ else }}
+  {{ if ne $first "" }}{{ $fields = $fields | append (dict "label" "First aired" "value" $first) }}{{ end }}
+  {{ if ne $last "" }}{{ $fields = $fields | append (dict "label" "Last aired" "value" $last) }}{{ end }}
+{{ end }}
+
+{{ with .Get "episode_list" }}{{ $fields = $fields | append (dict "label" "Episode list" "value" .) }}{{ end }}
+
+{{ $prev := .Get "prev_season" }}
+{{ $next := .Get "next_season" }}
+{{ if or (ne $prev "") (ne $next "") }}
+  {{ $parts := slice }}
+  {{ if ne $prev "" }}{{ $parts = $parts | append (printf "← %s" $prev) }}{{ end }}
+  {{ if ne $next "" }}{{ $parts = $parts | append (printf "%s →" $next) }}{{ end }}
+  {{ $fields = $fields | append (dict "label" "Previous / Next season" "value" (delimit $parts " · ")) }}
+{{ end }}
+
+{{ with .Get "website" }}{{ $fields = $fields | append (dict "label" "Website" "value" .) }}{{ end }}
+
 {{ partial "infobox/base.html" (dict
   "type"    "television-season"
-  "title"   (.Get "name")
+  "title"   $title
   "image"   (.Get "image")
   "caption" (.Get "caption")
   "alt"     (.Get "alt")
-  "fields"  (slice
-    (dict "label" "Series" "value" (.Get "series_name"))
-    (dict "label" "Season no." "value" (.Get "season_number"))
-    (dict "label" "No. of episodes" "value" (.Get "num_episodes"))
-    (dict "label" "Host(s)" "value" (.Get "host"))
-    (dict "label" "Starring" "value" (.Get "starring"))
-    (dict "label" "Judges" "value" (.Get "judges"))
-    (dict "label" "Director(s)" "value" (.Get "director"))
-    (dict "label" "Presented by" "value" (.Get "presenter"))
-    (dict "label" "Narrated by" "value" (.Get "narrator"))
-    (dict "label" "Music by" "value" (.Get "music"))
-    (dict "label" "Country of origin" "value" (.Get "country"))
-    (dict "label" "Original network" "value" (.Get "network"))
-    (dict "label" "Original channel" "value" (.Get "channel"))
-    (dict "label" "Original release" "pair" "air-date"
-      "value" (printf "%s%s%s"
-        (.Get "first_aired")
-        (cond (and (ne (.Get "first_aired") "") (ne (.Get "last_aired") "")) " to " "")
-        (.Get "last_aired")))
-    (dict "label" "Episode list" "value" (.Get "episode_list"))
-    (dict "label" "Previous season" "value" (.Get "prev_season"))
-    (dict "label" "Next season" "value" (.Get "next_season"))
-    (dict "label" "Website" "value" (.Get "website"))
-  )
+  "fields"  $fields
   "Inner"   .Inner
   "below"   (.Get "below")
 ) }}
