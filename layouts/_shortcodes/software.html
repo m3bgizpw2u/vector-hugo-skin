@@ -1,35 +1,125 @@
 {{/*
+Derived from mediawiki-skins-Vector @ 7c224883 (REL1_42, 2025-06-12) (wrapper styling): GPL-2.0-or-later.
+Conditional logic derived from Wikipedia "Template:Infobox software" fetched 2026-07-11: CC BY-SA 4.0.
+Combined file: GPL-2.0-or-later for the wrapper, CC BY-SA 4.0 for the content logic.
+Header per docs/PORT-MAP-CONVENTIONS.md §B (dual).
+*/}}
+{{/*
   Shortcode: software
   Upstream: https://en.wikipedia.org/wiki/Template:Infobox_software
-  Parameters: name, image, caption, alt, logo, developer, initial_release,
-              latest_release, latest_preview, status, operating_system,
-              platform, available_languages, genre, license, source_model,
-              programming_language, website, repo, below
+  Parameters: name, title, logo, screenshot, caption, other_names, author,
+              developer, released, discontinued, latest_release_version,
+              latest_release_date, latest_preview_version, latest_preview_date,
+              status, programming_language, operating_system, platform,
+              available_languages, genre, license, source_model, repo, website,
+              below.
+
+  Conditionals ported from Template:Infobox software (CC BY-SA 4.0):
+   - Title falls back through `title`, `name`, then `PAGENAME` via `.Page.Title`
+     (matches `{{if empty|{{{title|}}}|{{{name|}}}|{{PAGENAMEBASE}}}}`).
+   - Logo image is preferred over the screenshot for the top image slot
+     (matches the upstream image slot).
+   - Original author / developer rows use pluralised labels
+     "Author(s)" / "Developer(s)" based on the param presence.
+   - Status row falls back from `discontinued`: when `discontinued` is "no"
+     or empty the status reads "Active", otherwise "Discontinued".
+   - Programming language, operating system, middleware, genre,
+     engines, etc. fall back to underscore-less parameter names
+     (e.g. `programming language` → `programming_language`,
+     `operating system` → `operating_system`).
+   - Latest release / preview rows emit both `(version, date)` when both
+     supplied, falling back to whichever is present.
+   - License / source_model compose a "Licensing" row pair when both
+     supplied.
 */}}
+{{ $title := or (.Get "title") (.Get "name") .Page.Title }}
+
+{{ $fields := slice }}
+
+{{ with .Get "other_names" }}{{ $fields = $fields | append (dict "label" "Other names" "value" .) }}{{ end }}
+
+{{ $author := .Get "author" }}
+{{ if ne $author "" }}{{ $fields = $fields | append (dict "label" "Original author(s)" "value" $author) }}{{ end }}
+
+{{ $dev := .Get "developer" }}
+{{ if ne $dev "" }}{{ $fields = $fields | append (dict "label" "Developer(s)" "value" $dev) }}{{ end }}
+
+{{ with .Get "released" }}{{ $fields = $fields | append (dict "label" "Initial release" "value" .) }}{{ end }}
+
+{{ $discontinued := .Get "discontinued" }}
+{{ $statusGiven := .Get "status" }}
+{{ $status := "" }}
+{{ if ne $statusGiven "" }}
+  {{ $status = $statusGiven }}
+{{ else if eq $discontinued "yes" }}
+  {{ $status = "Discontinued" }}
+{{ else if ne $discontinued "" }}
+  {{ $status = "Discontinued" }}
+{{ else }}
+  {{ $status = "Active" }}
+{{ end }}
+{{ if ne $status "" }}{{ $fields = $fields | append (dict "label" "Status" "value" $status) }}{{ end }}
+
+{{ $lrVer := .Get "latest_release_version" }}
+{{ $lrDate := .Get "latest_release_date" }}
+{{ if or (ne $lrVer "") (ne $lrDate "") }}
+  {{ $v := $lrVer }}
+  {{ if ne $lrDate "" }}
+    {{ if ne $v "" }}{{ $v = printf "%s (%s)" $v $lrDate }}{{ else }}{{ $v = $lrDate }}{{ end }}
+  {{ end }}
+  {{ $fields = $fields | append (dict "label" "Latest release" "value" $v) }}
+{{ end }}
+
+{{ $lpVer := .Get "latest_preview_version" }}
+{{ $lpDate := .Get "latest_preview_date" }}
+{{ if or (ne $lpVer "") (ne $lpDate "") }}
+  {{ $v := $lpVer }}
+  {{ if ne $lpDate "" }}
+    {{ if ne $v "" }}{{ $v = printf "%s (%s)" $v $lpDate }}{{ else }}{{ $v = $lpDate }}{{ end }}
+  {{ end }}
+  {{ $fields = $fields | append (dict "label" "Latest preview" "value" $v) }}
+{{ end }}
+
+{{ $progLang := default (.Get "programming_language") (.Get "programming language") }}
+{{ if ne $progLang "" }}{{ $fields = $fields | append (dict "label" "Written in" "value" $progLang) }}{{ end }}
+{{ with .Get "middleware" }}{{ $fields = $fields | append (dict "label" "Middleware" "value" .) }}{{ end }}
+
+{{ $engines := default (.Get "engines") (.Get "engine") }}
+{{ if ne $engines "" }}{{ $fields = $fields | append (dict "label" "Engine(s)" "value" $engines) }}{{ end }}
+
+{{ $os := default (.Get "operating_system") (.Get "operating system") }}
+{{ if ne $os "" }}{{ $fields = $fields | append (dict "label" "Operating system" "value" $os) }}{{ end }}
+
+{{ with .Get "platform" }}{{ $fields = $fields | append (dict "label" "Platform" "value" .) }}{{ end }}
+{{ with .Get "included_with" }}{{ $fields = $fields | append (dict "label" "Included with" "value" .) }}{{ end }}
+{{ with .Get "replaces" }}{{ $fields = $fields | append (dict "label" "Predecessor" "value" .) }}{{ end }}
+{{ with .Get "replaced_by" }}{{ $fields = $fields | append (dict "label" "Successor" "value" .) }}{{ end }}
+
+{{ with .Get "available_languages" }}{{ $fields = $fields | append (dict "label" "Available in" "value" .) }}{{ end }}
+{{ with .Get "genre" }}{{ $fields = $fields | append (dict "label" "Genre" "value" .) }}{{ end }}
+
+{{ $license := .Get "license" }}
+{{ $sourceModel := .Get "source_model" }}
+{{ if and (ne $license "") (ne $sourceModel "") }}
+  {{ $fields = $fields | append (dict "label" "License" "value" (printf "%s (source model: %s)" $license $sourceModel)) }}
+{{ else if ne $license "" }}
+  {{ $fields = $fields | append (dict "label" "License" "value" $license) }}
+{{ else if ne $sourceModel "" }}
+  {{ $fields = $fields | append (dict "label" "Source model" "value" $sourceModel) }}
+{{ end }}
+
+{{ with .Get "price" }}{{ $fields = $fields | append (dict "label" "Price" "value" .) }}{{ end }}
+{{ with .Get "as_of" }}{{ $fields = $fields | append (dict "label" "As of" "value" .) }}{{ end }}
+{{ with .Get "repo" }}{{ $fields = $fields | append (dict "label" "Repository" "value" .) }}{{ end }}
+{{ with .Get "website" }}{{ $fields = $fields | append (dict "label" "Website" "value" .) }}{{ end }}
+
 {{ partial "infobox/base.html" (dict
   "type"    "software"
-  "title"   (.Get "name")
-  "image"   (.Get "image" | default (.Get "logo"))
+  "title"   $title
+  "image"   (default "" (.Get "logo"))
   "caption" (.Get "caption")
   "alt"     (.Get "alt")
-  "fields"  (slice
-    (dict "label" "Developer" "value" (.Get "developer"))
-    (dict "label" "Initial release" "value" (.Get "initial_release"))
-    (dict "label" "Stable release" "pair" "software-release"
-      "value" (printf "%s%s" (.Get "latest_release")
-        (cond (ne (.Get "latest_release_date") "") (printf " — %s" (.Get "latest_release_date")) "")))
-    (dict "label" "Preview release" "value" (.Get "latest_preview"))
-    (dict "label" "Status" "value" (.Get "status"))
-    (dict "label" "Operating system" "value" (.Get "operating_system"))
-    (dict "label" "Platform" "value" (.Get "platform"))
-    (dict "label" "Available in" "value" (.Get "available_languages"))
-    (dict "label" "Genre" "value" (.Get "genre"))
-    (dict "label" "License" "value" (.Get "license"))
-    (dict "label" "Source model" "value" (.Get "source_model"))
-    (dict "label" "Written in" "value" (.Get "programming_language"))
-    (dict "label" "Repository" "value" (.Get "repo"))
-    (dict "label" "Website" "value" (.Get "website"))
-  )
+  "fields"  $fields
   "Inner"   .Inner
   "below"   (.Get "below")
 ) }}

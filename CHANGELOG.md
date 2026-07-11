@@ -916,3 +916,32 @@ build-green verification target.
   `settlement.html`.
 - `hugo --quiet` in `exampleSite/` exits 0; build still produces
   45 pages with the new conditionals in place.
+
+### Changed (third plan, phase 7b — Infobox topic shortcodes)
+- Three `Infobox <topic>` shortcodes under `layouts/_shortcodes/`
+  gain the dual-license header + extracted conditionals:
+  - `school.html` — title fallback to page name; native / latin name
+    rendered as `<nickname>` subtitle; established / founded / opened
+    fallback chain with label switching to "Established" / "Founded" /
+    "Opened"; founder(s) plural; type vs schooltype vs fundingtype
+    cascading; enrolment vs enrollment, "(YYYY)" as-of suffix; age
+    range falls back to lower–upper with "+" when upper missing;
+    colors/colours, rival/rivals, accreditation/accreditations
+    fallback pairs; multiple headship rows (principal, head,
+    headmaster, chair, dean, rector, etc.).
+  - `software.html` — title fallback (`title` → `name` →
+    `PAGENAME`); original author / developer rows pluralised;
+    "Status" derived from `discontinued` (`yes` → "Discontinued",
+    else "Active") unless overridden; latest release / preview rows
+    combine version + date; programming_language / operating_system
+    underscore vs space variants; engines / engine, line / lines
+    fallback; license + source_model combined row.
+  - `station.html` — title fallback to page name; native name
+    subtitle; location composed from address / borough / country
+    joined with ", "; system uses `type` then `system`; owner /
+    owned, line / lines, platforms / platform, code /
+    station_code, grid_position / gridref, connections / other,
+    bicycle / cyclepark, bus_routes / routes fallback pairs;
+    passengers row appends `(year, ranked N)` when both pass_year
+    and pass_rank supplied.
+- `hugo --quiet` in `exampleSite/` exits 0.

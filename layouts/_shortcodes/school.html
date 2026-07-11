@@ -1,50 +1,210 @@
 {{/*
+Derived from mediawiki-skins-Vector @ 7c224883 (REL1_42, 2025-06-12) (wrapper styling): GPL-2.0-or-later.
+Conditional logic derived from Wikipedia "Template:Infobox school" fetched 2026-07-11: CC BY-SA 4.0.
+Combined file: GPL-2.0-or-later for the wrapper, CC BY-SA 4.0 for the content logic.
+Header per docs/PORT-MAP-CONVENTIONS.md §B (dual).
+*/}}
+{{/*
   Shortcode: school
   Upstream: https://en.wikipedia.org/wiki/Template:Infobox_school
-  Parameters: name, image, caption, alt, motto, established, closed, type,
-              affiliation, religion, president, principal, dean, head,
-              faculty, staff, students, grades, gender, age_range, enrolment,
-              campus, campus_size, area, colors, nickname, mascot,
-              accreditation, publication, newspaper, yearbook, affiliation2,
-              website, below
+  Parameters: name, native_name, latin_name, logo, seal_image, image,
+              caption, address, location, city, town, state, province,
+              country, country1, coordinates, established, founded, opened,
+              closed, status, motto, motto_translation, mottoes, type,
+              schooltype, fundingtype, religion, denomination, religious_affiliation,
+              patron, principal, headmaster, head_teacher, head, students,
+              enrollment, enrolment, capacity, grades, gender, age_range,
+              lower_age, upper_age, campus, colors, colours, mascot, nickname,
+              rival, rivals, accreditation, accreditations, website, below.
+
+  Conditionals ported from Template:Infobox school (CC BY-SA 4.0):
+   - Title falls back to `PAGENAMEBASE` via `.Page.Title`
+     (matches `{{If empty|{{{name|}}}|<includeonly>{{PAGENAMEBASE}}</includeonly>}}`).
+   - Native / latin name rendered as `<div class="nickname">` subtitle.
+   - Established/founded/opened fallback chain
+     (matches `{{if empty|{{{established|}}}|{{{founded|}}}|{{{opened}}}}}`).
+   - Founder(s) plural: data uses first non-empty across
+     founder/founders; label pluralises when `founders` is non-empty.
+   - Specialist(s) plural: data uses first non-empty
+     across specialist/specialists.
+   - Type row uses fundingtype when type is empty, in turn chaining
+     schooltype (matches the upstream `{{#if:{{{schooltype|}}}|{{...}}|
+     {{if empty|{{{fundingtype|}}}|{{{type|}}}}}}`).
+   - Enrollment vs enrolment fallback; "(YYYY)" suffix when
+     enrollment_as_of/enrolment_as_of is set.
+   - Colors vs colours fallback; rival vs rivals; accreditation vs
+     accreditations.
+   - Age range row: when `age_range` empty, falls back to
+     `lower_age`–`upper_age` ("lower+" when upper missing).
+   - Motto / motto_translation combined as "Motto (translation)".
 */}}
+{{ $title := or (.Get "name") .Page.Title }}
+{{ $native := .Get "native_name" }}
+{{ $latin := .Get "latin_name" }}
+
+{{ $fields := slice }}
+
+{{ $country := default (.Get "country") (.Get "country1") }}
+{{ $city := default (.Get "city") (.Get "town") }}
+{{ with .Get "address" }}{{ $fields = $fields | append (dict "label" "Address" "value" .) }}{{ end }}
+{{ with .Get "location" }}{{ $fields = $fields | append (dict "label" "Location" "value" .) }}{{ end }}
+{{ with $city }}{{ $fields = $fields | append (dict "label" "City/Town" "value" .) }}{{ end }}
+{{ with .Get "state" }}{{ $fields = $fields | append (dict "label" "State" "value" .) }}{{ end }}
+{{ with .Get "province" }}{{ $fields = $fields | append (dict "label" "Province" "value" .) }}{{ end }}
+{{ if ne $country "" }}{{ $fields = $fields | append (dict "label" "Country" "value" $country) }}{{ end }}
+{{ with .Get "coordinates" }}{{ $fields = $fields | append (dict "label" "Coordinates" "value" .) }}{{ end }}
+
+{{ with .Get "other_name" }}{{ $fields = $fields | append (dict "label" "Other name(s)" "value" .) }}{{ end }}
+{{ $former := default (.Get "former_name") (.Get "former_names") }}
+{{ if ne $former "" }}{{ $fields = $fields | append (dict "label" "Former name(s)" "value" $former) }}{{ end }}
+
+{{ $typeVal := "" }}
+{{ $typeLabel := "Type" }}
+{{ with .Get "schooltype" }}
+  {{ $typeVal = . }}
+  {{ $typeLabel = "School type" }}
+{{ else }}
+  {{ with .Get "fundingtype" }}
+    {{ $typeVal = . }}
+    {{ $typeLabel = "Funding type" }}
+  {{ else }}
+    {{ $typeVal = $.Get "type" }}
+  {{ end }}
+{{ end }}
+{{ if ne $typeVal "" }}{{ $fields = $fields | append (dict "label" $typeLabel "value" $typeVal) }}{{ end }}
+
+{{ $motto := default (.Get "motto") (.Get "mottoes") }}
+{{ if ne $motto "" }}
+  {{ $v := $motto }}
+  {{ with .Get "motto_translation" }}{{ $v = printf "%s (%s)" $v . }}{{ end }}
+  {{ $fields = $fields | append (dict "label" "Motto" "value" $v) }}
+{{ end }}
+
+{{ with .Get "religious_affiliation" }}{{ $fields = $fields | append (dict "label" "Religious affiliation" "value" .) }}{{ end }}
+{{ with .Get "denomination" }}{{ $fields = $fields | append (dict "label" "Denomination" "value" .) }}{{ end }}
+{{ with .Get "patron" }}{{ $fields = $fields | append (dict "label" "Patron saint(s)" "value" .) }}{{ end }}
+
+{{ $estDate := default (.Get "established") (.Get "founded") (.Get "opened") }}
+{{ $estLabel := "Opened" }}
+{{ with .Get "established" }}
+  {{ $estLabel = "Established" }}
+{{ else }}
+  {{ with .Get "founded" }}
+    {{ $estLabel = "Founded" }}
+  {{ end }}
+{{ end }}
+{{ if ne $estDate "" }}{{ $fields = $fields | append (dict "label" $estLabel "value" $estDate) }}{{ end }}
+
+{{ $founderLabel := "Founder" }}
+{{ $founders := .Get "founders" }}
+{{ if ne $founders "" }}{{ $founderLabel = "Founders" }}{{ end }}
+{{ $founderVal := or $founders (.Get "founder") }}
+{{ if ne $founderVal "" }}{{ $fields = $fields | append (dict "label" $founderLabel "value" $founderVal) }}{{ end }}
+
+{{ with .Get "status" }}{{ $fields = $fields | append (dict "label" "Status" "value" .) }}{{ end }}
+{{ with .Get "closed" }}{{ $fields = $fields | append (dict "label" "Closed" "value" .) }}{{ end }}
+
+{{/* Headship rows */}}
+{{ $heads := slice
+  (dict "label" (default "Principal" (.Get "principal_label")) "value" (.Get "principal"))
+  (dict "label" (default "Head teacher" (.Get "head_label")) "value" (.Get "head"))
+  (dict "label" "Headmaster" "value" (.Get "headmaster"))
+  (dict "label" "Headmistress" "value" (.Get "headmistress"))
+  (dict "label" "Head of school" "value" (.Get "head_of_school"))
+  (dict "label" "Head teacher" "value" (.Get "head_teacher"))
+  (dict "label" "Chaplain" "value" (.Get "chaplain"))
+  (dict "label" "Chair" "value" (.Get "chair"))
+  (dict "label" "Chairman" "value" (.Get "chairman"))
+  (dict "label" "Chairperson" "value" (.Get "chairperson"))
+  (dict "label" "President" "value" (.Get "president"))
+  (dict "label" "Dean" "value" (.Get "dean"))
+  (dict "label" "Rector" "value" (.Get "rector"))
+  (dict "label" "Director" "value" (.Get "director"))
+  (dict "label" "Administrator" "value" (.Get "administrator"))
+}}
+{{ range $h := $heads }}
+  {{ with $h.value }}
+    {{ $fields = $fields | append (dict "label" $h.label "value" .) }}
+  {{ end }}
+{{ end }}
+
+{{ with .Get "staff" }}{{ $fields = $fields | append (dict "label" "Staff" "value" .) }}{{ end }}
+{{ with .Get "faculty" }}{{ $fields = $fields | append (dict "label" "Faculty" "value" .) }}{{ end }}
+{{ with .Get "teaching_staff" }}{{ $fields = $fields | append (dict "label" "Teaching staff" "value" .) }}{{ end }}
+{{ with .Get "key_people" }}{{ $fields = $fields | append (dict "label" "Key people" "value" .) }}{{ end }}
+
+{{ with .Get "grades" }}{{ $fields = $fields | append (dict "label" "Grades" "value" .) }}{{ end }}
+{{ with .Get "gender" }}{{ $fields = $fields | append (dict "label" "Gender" "value" .) }}{{ end }}
+
+{{ $ageRange := .Get "age_range" }}
+{{ if ne $ageRange "" }}
+  {{ $fields = $fields | append (dict "label" "Age range" "value" $ageRange) }}
+{{ else }}
+  {{ $lo := .Get "lower_age" }}
+  {{ $hi := .Get "upper_age" }}
+  {{ if ne $lo "" }}
+    {{ $v := $lo }}
+    {{ if ne $hi "" }}{{ $v = printf "%s to %s" $v $hi }}{{ else }}{{ $v = printf "%s+" $v }}{{ end }}
+    {{ $fields = $fields | append (dict "label" "Age range" "value" $v) }}
+  {{ end }}
+{{ end }}
+
+{{ $enroll := default (.Get "enrollment") (.Get "enrolment") }}
+{{ if ne $enroll "" }}
+  {{ $v := $enroll }}
+  {{ $asof := default (.Get "enrollment_as_of") (.Get "enrolment_as_of") }}
+  {{ if ne $asof "" }}{{ $v = printf "%s (%s)" $v $asof }}{{ end }}
+  {{ $fields = $fields | append (dict "label" "Enrollment" "value" $v) }}
+{{ end }}
+
+{{ with .Get "capacity" }}{{ $fields = $fields | append (dict "label" "Capacity" "value" .) }}{{ end }}
+{{ with .Get "international_students" }}{{ $fields = $fields | append (dict "label" "International students" "value" .) }}{{ end }}
+{{ with .Get "ratio" }}{{ $fields = $fields | append (dict "label" "Student-teacher ratio" "value" .) }}{{ end }}
+{{ with .Get "system" }}{{ $fields = $fields | append (dict "label" "Education system" "value" .) }}{{ end }}
+{{ with .Get "language" }}{{ $fields = $fields | append (dict "label" "Language" "value" .) }}{{ end }}
+
+{{ with .Get "campus" }}{{ $fields = $fields | append (dict "label" "Campus" "value" .) }}{{ end }}
+{{ with .Get "campus_size" }}{{ $fields = $fields | append (dict "label" "Campus size" "value" .) }}{{ end }}
+{{ with .Get "area" }}{{ $fields = $fields | append (dict "label" "Area" "value" .) }}{{ end }}
+
+{{ $colors := default (.Get "colors") (.Get "colours") }}
+{{ if ne $colors "" }}{{ $fields = $fields | append (dict "label" "School colors" "value" $colors) }}{{ end }}
+{{ with .Get "slogan" }}{{ $fields = $fields | append (dict "label" "Slogan" "value" .) }}{{ end }}
+{{ with .Get "mascot" }}{{ $fields = $fields | append (dict "label" "Mascot" "value" .) }}{{ end }}
+{{ with .Get "nickname" }}{{ $fields = $fields | append (dict "label" "Athletic nickname" "value" .) }}{{ end }}
+{{ with .Get "team_name" }}{{ $fields = $fields | append (dict "label" "Team name" "value" .) }}{{ end }}
+
+{{ $rival := default (.Get "rival") (.Get "rivals") }}
+{{ if ne $rival "" }}{{ $fields = $fields | append (dict "label" "Rival(s)" "value" $rival) }}{{ end }}
+
+{{ $accred := default (.Get "accreditation") (.Get "accreditations") }}
+{{ if ne $accred "" }}{{ $fields = $fields | append (dict "label" "Accreditation(s)" "value" $accred) }}{{ end }}
+
+{{ with .Get "national_ranking" }}{{ $fields = $fields | append (dict "label" "National ranking" "value" .) }}{{ end }}
+{{ with .Get "USNWR_ranking" }}{{ $fields = $fields | append (dict "label" "USNWR ranking" "value" .) }}{{ end }}
+{{ with .Get "endowment" }}{{ $fields = $fields | append (dict "label" "Endowment" "value" .) }}{{ end }}
+{{ with .Get "budget" }}{{ $fields = $fields | append (dict "label" "Budget" "value" .) }}{{ end }}
+{{ with .Get "tuition" }}{{ $fields = $fields | append (dict "label" "Tuition" "value" .) }}{{ end }}
+{{ with .Get "alumni" }}{{ $fields = $fields | append (dict "label" "Alumni" "value" .) }}{{ end }}
+{{ $aff := default (.Get "affiliation") (.Get "affiliations") }}
+{{ if ne $aff "" }}{{ $fields = $fields | append (dict "label" "Affiliation(s)" "value" $aff) }}{{ end }}
+
+{{ with .Get "website" }}{{ $fields = $fields | append (dict "label" "Website" "value" .) }}{{ end }}
+
+{{ $subtitle := "" }}
+{{ if ne $native "" }}{{ $subtitle = printf "(%s)" $native }}{{ end }}
+{{ if ne $latin "" }}
+  {{ if ne $subtitle "" }}{{ $subtitle = printf "%s / %s" $subtitle $latin }}{{ else }}{{ $subtitle = printf "(%s)" $latin }}{{ end }}
+{{ end }}
+
 {{ partial "infobox/base.html" (dict
-  "type"    "school"
-  "title"   (.Get "name")
-  "image"   (.Get "image")
-  "caption" (.Get "caption")
-  "alt"     (.Get "alt")
-  "fields"  (slice
-    (dict "label" "Motto" "value" (.Get "motto"))
-    (dict "label" "Established" "value" (.Get "established"))
-    (dict "label" "Closed" "value" (.Get "closed"))
-    (dict "label" "Type" "value" (.Get "type"))
-    (dict "label" "Affiliation" "value" (.Get "affiliation"))
-    (dict "label" "Religious affiliation" "value" (.Get "religion"))
-    (dict "label" "President" "value" (.Get "president"))
-    (dict "label" "Principal" "value" (.Get "principal"))
-    (dict "label" "Dean" "value" (.Get "dean"))
-    (dict "label" "Head teacher" "value" (.Get "head"))
-    (dict "label" "Faculty" "value" (.Get "faculty"))
-    (dict "label" "Staff" "value" (.Get "staff"))
-    (dict "label" "Students" "value" (.Get "students"))
-    (dict "label" "Grades" "value" (.Get "grades"))
-    (dict "label" "Gender" "value" (.Get "gender"))
-    (dict "label" "Age range" "value" (.Get "age_range"))
-    (dict "label" "Enrolment" "value" (.Get "enrolment"))
-    (dict "label" "Campus" "value" (.Get "campus"))
-    (dict "label" "Campus size" "value" (.Get "campus_size"))
-    (dict "label" "Area" "value" (.Get "area"))
-    (dict "label" "Colors" "value" (.Get "colors"))
-    (dict "label" "Nickname" "value" (.Get "nickname"))
-    (dict "label" "Mascot" "value" (.Get "mascot"))
-    (dict "label" "Accreditation" "value" (.Get "accreditation"))
-    (dict "label" "Publication" "value" (.Get "publication"))
-    (dict "label" "Newspaper" "value" (.Get "newspaper"))
-    (dict "label" "Yearbook" "value" (.Get "yearbook"))
-    (dict "label" "Affiliations" "value" (.Get "affiliation2"))
-    (dict "label" "Website" "value" (.Get "website"))
-  )
-  "Inner"   .Inner
-  "below"   (.Get "below")
+  "type"     "school"
+  "title"    $title
+  "subtitle" $subtitle
+  "image"    (default "" (.Get "image"))
+  "caption"  (.Get "caption")
+  "alt"      (.Get "alt")
+  "fields"   $fields
+  "Inner"    .Inner
+  "below"    (.Get "below")
 ) }}

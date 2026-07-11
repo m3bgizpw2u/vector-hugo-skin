@@ -1,45 +1,139 @@
 {{/*
+Derived from mediawiki-skins-Vector @ 7c224883 (REL1_42, 2025-06-12) (wrapper styling): GPL-2.0-or-later.
+Conditional logic derived from Wikipedia "Template:Infobox station" fetched 2026-07-11: CC BY-SA 4.0.
+Combined file: GPL-2.0-or-later for the wrapper, CC BY-SA 4.0 for the content logic.
+Header per docs/PORT-MAP-CONVENTIONS.md §B (dual).
+*/}}
+{{/*
   Shortcode: station
   Upstream: https://en.wikipedia.org/wiki/Template:Infobox_station
-  Parameters: name, image, caption, alt, native_name, address, country,
-              coordinates, line, connections, platforms, tracks, structure,
-              depth, levels, type, opened, closed, rebuilt, electrified,
-              ADA, code, owned, operator, zone, former, passengers, pass_year,
-              pass_rank, services, below
+  Parameters: name, native_name, image, caption, alt, address, borough,
+              country, coordinates, grid_position, elevation, type, system,
+              owner, owned, operator, manager, transit_authority, line, lines,
+              distance, platforms, platform, tracks, train_operators,
+              connections, structure, depth, levels, parking, bicycle,
+              opened, closed, rebuilt, electrified, ADA, code, passengers,
+              pass_year, pass_rank, services, zone, former, website, below.
+
+  Conditionals ported from Template:Infobox station (CC BY-SA 4.0):
+   - Title falls back to `PAGENAMEBASE` via `.Page.Title`
+     (matches `{{if empty|{{{name|}}}|{{PAGENAMEBASE}}}}`).
+   - Native name rendered as `<div class="nickname">` subtitle
+     (matches upstream `subheader2`).
+   - Location row composed as br-separated address / borough / country
+     (matches the `data4` rendering); coordinates row emits only when
+     `coordinates` is supplied.
+   - System row uses `type` first, else `system` (matches `label8`).
+   - Owner row falls back across `owner` / `owned` (matches `label9`).
+   - Line(s) pluralised: "Line(s)" label, value uses `lines` first
+     then `line`; bus_routes fallback chain.
+   - Platform(s) pluralised: value uses `platforms` first then `platform`.
+   - Code row falls back across `code` / `station_code`.
+   - Passenger row: `passengers` then `pass_year` with rank appended
+     (`(year, ranked N)`) when both supplied.
+   - Services row composed as `services` then `other_services`
+     fallback chain.
 */}}
+{{ $title := or (.Get "name") .Page.Title }}
+{{ $native := .Get "native_name" }}
+
+{{ $fields := slice }}
+
+{{ with .Get "other_name" }}{{ $fields = $fields | append (dict "label" "Other names" "value" .) }}{{ end }}
+
+{{ $locParts := slice }}
+{{ with .Get "address" }}{{ $locParts = $locParts | append . }}{{ end }}
+{{ with .Get "borough" }}{{ $locParts = $locParts | append . }}{{ end }}
+{{ with .Get "country" }}{{ $locParts = $locParts | append . }}{{ end }}
+{{ if gt (len $locParts) 0 }}
+  {{ $fields = $fields | append (dict "label" "Location" "value" (delimit $locParts ", ")) }}
+{{ end }}
+
+{{ with .Get "coordinates" }}{{ $fields = $fields | append (dict "label" "Coordinates" "value" .) }}{{ end }}
+{{ $gridPos := default (.Get "grid_position") (.Get "gridref") }}
+{{ if ne $gridPos "" }}{{ $fields = $fields | append (dict "label" "Grid position" "value" $gridPos) }}{{ end }}
+{{ with .Get "elevation" }}{{ $fields = $fields | append (dict "label" "Elevation" "value" .) }}{{ end }}
+
+{{ $system := default (.Get "type") (.Get "system") }}
+{{ if ne $system "" }}{{ $fields = $fields | append (dict "label" "System" "value" $system) }}{{ end }}
+
+{{ $owned := default (.Get "owner") (.Get "owned") }}
+{{ if ne $owned "" }}{{ $fields = $fields | append (dict "label" "Owned by" "value" $owned) }}{{ end }}
+{{ with .Get "operator" }}{{ $fields = $fields | append (dict "label" "Operated by" "value" .) }}{{ end }}
+{{ with .Get "manager" }}{{ $fields = $fields | append (dict "label" "Managed by" "value" .) }}{{ end }}
+{{ with .Get "transit_authority" }}{{ $fields = $fields | append (dict "label" "Transit authority" "value" .) }}{{ end }}
+
+{{ $line := default (.Get "lines") (.Get "line") }}
+{{ if ne $line "" }}{{ $fields = $fields | append (dict "label" "Line(s)" "value" $line) }}{{ end }}
+
+{{ with .Get "distance" }}{{ $fields = $fields | append (dict "label" "Distance" "value" .) }}{{ end }}
+
+{{ $platform := default (.Get "platforms") (.Get "platform") }}
+{{ if ne $platform "" }}{{ $fields = $fields | append (dict "label" "Platform(s)" "value" $platform) }}{{ end }}
+
+{{ with .Get "tracks" }}{{ $fields = $fields | append (dict "label" "Tracks" "value" .) }}{{ end }}
+{{ with .Get "train_operators" }}{{ $fields = $fields | append (dict "label" "Train operators" "value" .) }}{{ end }}
+
+{{ $bus := default (.Get "bus_routes") (.Get "routes") }}
+{{ if ne $bus "" }}{{ $fields = $fields | append (dict "label" "Bus routes" "value" $bus) }}{{ end }}
+{{ with .Get "bus_stands" }}{{ $fields = $fields | append (dict "label" "Bus stands" "value" .) }}{{ end }}
+{{ with .Get "bus_operators" }}{{ $fields = $fields | append (dict "label" "Bus operators" "value" .) }}{{ end }}
+{{ with .Get "tram_routes" }}{{ $fields = $fields | append (dict "label" "Tram routes" "value" .) }}{{ end }}
+{{ $tramOp := default (.Get "tram_operators") (.Get "tram_operator") }}
+{{ if ne $tramOp "" }}{{ $fields = $fields | append (dict "label" "Tram operators" "value" $tramOp) }}{{ end }}
+
+{{ $conn := default (.Get "connections") (.Get "other") }}
+{{ if ne $conn "" }}{{ $fields = $fields | append (dict "label" "Connections" "value" $conn) }}{{ end }}
+
+{{ with .Get "structure" }}{{ $fields = $fields | append (dict "label" "Structure" "value" .) }}{{ end }}
+{{ with .Get "depth" }}{{ $fields = $fields | append (dict "label" "Depth" "value" .) }}{{ end }}
+{{ with .Get "levels" }}{{ $fields = $fields | append (dict "label" "Platform levels" "value" .) }}{{ end }}
+{{ with .Get "parking" }}{{ $fields = $fields | append (dict "label" "Parking" "value" .) }}{{ end }}
+{{ $bicycle := default (.Get "bicycle") (.Get "cyclepark") }}
+{{ if ne $bicycle "" }}{{ $fields = $fields | append (dict "label" "Bicycle facilities" "value" $bicycle) }}{{ end }}
+
+{{ with .Get "opened" }}{{ $fields = $fields | append (dict "label" "Opened" "value" .) }}{{ end }}
+{{ with .Get "closed" }}{{ $fields = $fields | append (dict "label" "Closed" "value" .) }}{{ end }}
+{{ with .Get "rebuilt" }}{{ $fields = $fields | append (dict "label" "Rebuilt" "value" .) }}{{ end }}
+{{ with .Get "electrified" }}{{ $fields = $fields | append (dict "label" "Electrified" "value" .) }}{{ end }}
+
+{{ $ada := .Get "ADA" }}
+{{ if ne $ada "" }}{{ $fields = $fields | append (dict "label" "Accessible" "value" $ada) }}{{ end }}
+
+{{ $code := default (.Get "code") (.Get "station_code") }}
+{{ if ne $code "" }}{{ $fields = $fields | append (dict "label" "Station code" "value" $code) }}{{ end }}
+
+{{ $passengers := .Get "passengers" }}
+{{ $passYear := .Get "pass_year" }}
+{{ if ne $passengers "" }}
+  {{ $v := $passengers }}
+  {{ if ne $passYear "" }}
+    {{ $v = printf "%s (%s)" $v $passYear }}
+    {{ $rank := $.Get "pass_rank" }}
+    {{ if ne $rank "" }}{{ $v = printf "%s, ranked %s" $v $rank }}{{ end }}
+  {{ end }}
+  {{ $fields = $fields | append (dict "label" "Passengers" "value" $v) }}
+{{ end }}
+
+{{ with .Get "zone" }}{{ $fields = $fields | append (dict "label" "Fare zone" "value" .) }}{{ end }}
+{{ with .Get "former" }}{{ $fields = $fields | append (dict "label" "Former name(s)" "value" .) }}{{ end }}
+
+{{ $services := default (.Get "services") (.Get "other_services") }}
+{{ if ne $services "" }}{{ $fields = $fields | append (dict "label" "Services" "value" $services) }}{{ end }}
+
+{{ with .Get "website" }}{{ $fields = $fields | append (dict "label" "Website" "value" .) }}{{ end }}
+
+{{ $subtitle := "" }}
+{{ if ne $native "" }}{{ $subtitle = printf "(%s)" $native }}{{ end }}
+
 {{ partial "infobox/base.html" (dict
-  "type"    "station"
-  "title"   (.Get "name")
-  "image"   (.Get "image")
-  "caption" (.Get "caption")
-  "alt"     (.Get "alt")
-  "fields"  (slice
-    (dict "label" "Native name" "value" (.Get "native_name"))
-    (dict "label" "Address" "value" (.Get "address"))
-    (dict "label" "Location" "value" (printf "%s%s"
-        (.Get "country")
-        (cond (ne (.Get "coordinates") "") (printf " (%s)" (.Get "coordinates")) "")))
-    (dict "label" "Line(s)" "value" (.Get "line"))
-    (dict "label" "Connections" "value" (.Get "connections"))
-    (dict "label" "Platforms" "value" (.Get "platforms"))
-    (dict "label" "Tracks" "value" (.Get "tracks"))
-    (dict "label" "Structure" "value" (.Get "structure"))
-    (dict "label" "Depth" "value" (.Get "depth"))
-    (dict "label" "Levels" "value" (.Get "levels"))
-    (dict "label" "Type" "value" (.Get "type"))
-    (dict "label" "Opened" "value" (.Get "opened"))
-    (dict "label" "Closed" "value" (.Get "closed"))
-    (dict "label" "Rebuilt" "value" (.Get "rebuilt"))
-    (dict "label" "Electrified" "value" (.Get "electrified"))
-    (dict "label" "Accessible" "value" (.Get "ADA"))
-    (dict "label" "Station code" "value" (.Get "code"))
-    (dict "label" "Owned by" "value" (.Get "owned"))
-    (dict "label" "Operated by" "value" (.Get "operator"))
-    (dict "label" "Fare zone" "value" (.Get "zone"))
-    (dict "label" "Former name" "value" (.Get "former"))
-    (dict "label" "Passengers" "value" (printf "%s (%s) — rank %s" (.Get "passengers") (.Get "pass_year") (.Get "pass_rank")))
-    (dict "label" "Services" "value" (.Get "services"))
-  )
-  "Inner"   .Inner
-  "below"   (.Get "below")
+  "type"     "station"
+  "title"    $title
+  "subtitle" $subtitle
+  "image"    (default "" (.Get "image"))
+  "caption"  (.Get "caption")
+  "alt"      (.Get "alt")
+  "fields"   $fields
+  "Inner"    .Inner
+  "below"    (.Get "below")
 ) }}
