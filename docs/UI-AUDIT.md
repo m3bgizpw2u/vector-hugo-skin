@@ -529,3 +529,244 @@ chrome** (CSS, layout, JS interaction patterns) and to the
 the Wikipedia infobox logic); it explicitly does **not** claim
 1:1 parity of the MediaWiki runtime identifiers, because the
 runtime is intentionally absent.
+
+## 8. Responsive audit — implementation summary (2026-07-11)
+
+The third Visual-fidelity pass described in `docs/UI-AUDIT.md` §1–§7 was
+followed by a focused **responsive audit** against Vector 2022's §14.1
+breakpoint table (300 / 320 / 500 / 600 / 720 / 999 / 1000 / 1199 / 1200
+/ 1440 / 1600) and the §14.2 component-specific break (max 499 for the
+search box). The audit was scoped narrowly to ten concrete responsive
+deficits (F1–F10) and was carried out in "audit-then-fix" mode: the
+findings and fixes live in the parent plan at
+`uploads/vector_2022_responsive_audit__26_fix_plan_988b5082.plan-L1-L211-0.md`
+(kept off-repo per `docs/RESEARCH.md`), and each fix lands in a
+single-concern commit paired with a `CHANGELOG.md` entry per
+`.cursor/rules/60-git-commit.mdc` and `70-changelog.mdc`. Five items
+that surfaced during the audit but are out of scope for this pass
+(limited-width toggle, ToC pinned state, pinnable Appearance
+dropdown, page-tools portlet, ToC auto-collapse at 28 headings) are
+listed in the "Deferred" subsection below for a separate plan.
+
+The upstream comparison is against the LESS pinned at
+`vendor/mediawiki-vector/resources/skins.vector.styles/` (REL1_42, SHA
+`7c224883`); the per-finding LESS references in the plan (e.g.
+`resources/skins.vector.styles/layouts/screen.less` +
+`MainMenu.less` for F1, `PageTitlebar.less` for F3/F7,
+`typography.less` for F7, `resources/skins.vector.js/dropdownMenus.js`
+for F10) are inherited verbatim in the resolved-findings list below.
+
+### 8.1 Resolved findings
+
+- **F1 — Off-canvas sidebar drawer at <720px** *(in-flight from a
+  worker — see `git log` for the commit SHA)*. Vector parity gap: at
+  ≤719px Vector collapses the sidebar column and exposes it only via
+  a header hamburger as a slide-in drawer; the theme previously
+  rendered it as a stacked block beneath the article with no way to
+  hide it on a 360×640 phone. Fix lives in
+  [`assets/css/layout/sidebar.scss`](assets/css/layout/sidebar.scss)
+  (new `@media (max-width: 719px)` rule: `.sidebar { position: fixed;
+  inset: var(--header-height) 0 0 0; transform: translateX(-100%);
+  transition: transform 200ms ease-out; z-index: var(--z-overlay);
+  background: var(--color-surface); width: var(--sidebar-width);
+  border-right: 1px solid var(--color-divider); }` plus
+  `:root[data-sidebar-mobile="open"] .sidebar { transform:
+  translateX(0); }`),
+  [`assets/css/layout/page-grid.scss`](assets/css/layout/page-grid.scss)
+  (collapse the sidebar track to width 0 when the drawer is closed at
+  the same breakpoint, so the article column isn't squeezed behind
+  the off-canvas panel), and
+  [`assets/js/modules/sidebar-toggle.ts`](assets/js/modules/sidebar-toggle.ts)
+  (extend `init()` with a `matchMedia('(max-width: 719px)')` listener
+  that opens/closes the drawer on hamburger click; the existing
+  outer-collapse on desktop and its `vhskin:sidebar:outer`
+  `localStorage` key are untouched). Upstream reference:
+  `resources/skins.vector.styles/layouts/screen.less` +
+  `MainMenu.less`.
+
+- **F2 — Search overlay panel at <500px** — commit `10b0f05`
+  (`feat(search): overlay panel at <500px viewport`). The
+  magnifier-only collapse in
+  [`assets/css/layout/header.scss:151-174`](assets/css/layout/header.scss)
+  hid the input but left the magnifier submit click submitting an
+  empty form. Fix: a new `.search-box__overlay` block (constructed
+  lazily by
+  [`assets/js/modules/search.ts:108-194`](assets/js/modules/search.ts)
+  on first magnifier click when `matchMedia('(max-width:
+  499px)').matches`) provides a real input at narrow widths; Escape
+  and outside-click close the overlay, Enter navigates to
+  `/search/?q=<query>` directly. Companion CSS in
+  [`assets/css/components/search-box.scss:128-205`](assets/css/components/search-box.scss)
+  positions the overlay fixed under the header with a scrim and
+  close button. Upstream reference: Vector's §14.2 search-box row.
+
+- **F3 — Page-titlebar H1 collides with ToC dropdown on tablet
+  (500–1024px)** — commit `9ba359e`
+  (`feat(responsive): heading scale + titlebar wrap + theme-toggle +
+  infobox`). Fix in
+  [`assets/css/components/page-titlebar.scss`](assets/css/components/page-titlebar.scss):
+  `.page-titlebar` switches to `flex-wrap: wrap` globally and
+  `@media (max-width: 1024px) .page-titlebar__title { flex: 1 1 100%; }`
+  (lines 205–209) lets the H1 claim the full row width so the ToC
+  dropdown lands cleanly below it. Upstream reference:
+  `PageTitlebar.less`.
+
+- **F4 — Theme-toggle wraps awkwardly at 500–600px** — commit
+  `9ba359e`. Fix in
+  [`assets/css/components/theme-toggle.scss:106-177`](assets/css/components/theme-toggle.scss):
+  at `@media (max-width: 600px)` the segmented three-button group
+  collapses to a 44×44px `::before` handle painted with the active
+  mode's icon (sourced from `[data-theme-mode]` on `<html>`); the
+  three option buttons hide unless the wrapper carries
+  `[data-theme-dropdown="open"]`, in which case they reveal as an
+  absolute-positioned dropdown panel below the handle. The JS module
+  in `assets/js/modules/theme-toggle.ts` is untouched because all
+  three option buttons remain in the DOM and inside the panel.
+
+- **F5 — Sidebar sticky-top offset wrong when sticky-header visible**
+  *(in-flight from a worker — see `git log` for the commit SHA)*.
+  The sidebar's `position: sticky; top: calc(var(--header-height) +
+  var(--space-md))` is correct when only the primary header is
+  sticky, but on long-page scroll the sticky-header appears under
+  the primary header and the sidebar's top no longer lands below the
+  visible chrome. Fix: bump both
+  [`assets/css/layout/sidebar.scss`](assets/css/layout/sidebar.scss)
+  and
+  [`assets/css/layout/toc-panel.scss`](assets/css/layout/toc-panel.scss)
+  `sticky-top` to `calc(var(--header-height) +
+  var(--sticky-header-height) + var(--space-md))` — one line in
+  each file, unconditionally, costing 16px of sidebar height when
+  the sticky-header is hidden and paying it back as correct
+  alignment when it appears. Combined with F1 into the same
+  commit.
+
+- **F6 — Page-grid uses hardcoded column widths at all viewports (no
+  desktop-wide)** *(in-flight from a worker — see `git log` for the
+  commit SHA)*. Per §14.1 "desktop-wide (≥1200px)", Vector widens
+  the sidebar from 196px to 248px and grows page padding from 44px to
+  52px. Fix: introduce a `--content-padding-x` token in
+  [`assets/css/base/_tokens.scss`](assets/css/base/_tokens.scss)
+  and add `@media (min-width: 1200px) :root { --sidebar-width: 248px;
+  --toc-width: 220px; --content-padding-x: 3.25rem; }`. Replace the
+  inline `padding: 0 var(--space-md)` in
+  [`assets/css/layout/page-grid.scss`](assets/css/layout/page-grid.scss)
+  with the new token. The new 1200px breakpoint does not collide
+  with existing `max-width: 1024px` ToC-hide or `max-width: 720px`
+  mobile-stack rules — the 1025–1199px desktop tier is unaffected.
+
+- **F7 — Article H1 too large on mobile** — commit `9ba359e`. Fix in
+  [`assets/css/components/page-titlebar.scss:216-220`](assets/css/components/page-titlebar.scss)
+  (`@media (max-width: 719px) .page-titlebar__title { font-size:
+  1.5rem; }`) and
+  [`assets/css/components/article-header.scss:63-67`](assets/css/components/article-header.scss)
+  (mirrored on `.article-title` for defensive parity). Matches
+  Vector's `typography.less` `@font-size-heading-1-mobile: 1.5em`.
+
+- **F8 — Infobox label/data column ratio breaks at narrow widths** —
+  commit `9ba359e`. Fix in
+  [`assets/css/components/infobox.scss:162-176`](assets/css/components/infobox.scss):
+  `@media (max-width: 719px) .infobox-row { flex-direction: column; }
+  .infobox-label, .infobox-data { flex-basis: auto; width: 100%; }`
+  so the label sits above the data with full row width, matching
+  Vector's mobile infobox pattern.
+
+- **F9 — No `prefers-reduced-motion` respect on transition-heavy
+  chrome** — commit `3ca7130`
+  (`feat(responsive): add prefers-reduced-motion global guard`).
+  Single `@media (prefers-reduced-motion: reduce)` block appended to
+  [`assets/css/base/_reset.scss:104-117`](assets/css/base/_reset.scss)
+  clamping `animation-duration`, `transition-duration` to `0.01ms
+  !important` and forcing `scroll-behavior: auto !important` on `*,
+  *::before, *::after`, so the OS-level preference is respected
+  everywhere without per-component changes.
+
+- **F10 — ToC dropdown overlay doesn't close on outside-click or
+  Escape** — commit `db68c1d`
+  (`feat(titlebar): close ToC dropdown on outside-click and Escape`).
+  New module
+  [`assets/js/modules/titlebar-toc.ts`](assets/js/modules/titlebar-toc.ts)
+  (~37 lines, one behavior per `00-core.mdc`) registers a document
+  `click` listener that unchecks `#page-titlebar-toc-checkbox` when
+  the click is outside `.page-titlebar-toc-landmark`, and a
+  `keydown` listener that does the same on Escape when the checkbox
+  is checked. Wired into
+  [`assets/js/main.ts:17,25`](assets/js/main.ts) as the sixth
+  `init()` call alongside the existing straight-line composition.
+  Upstream reference:
+  `resources/skins.vector.js/dropdownMenus.js`.
+
+### 8.2 Verification evidence
+
+The verification command set from `docs/UI-AUDIT.md` §5 was re-run
+after each commit per the responsive-audit plan's §Verification block.
+The same canonical gate from `docs/ARCHITECTURE.md` §2 applies:
+
+```
+rm -rf exampleSite/resources && npm run dev
+```
+
+In a separate terminal, with the dev server up:
+
+```
+$ curl -sf http://127.0.0.1:1313/ > /dev/null && echo homepage OK
+homepage OK
+$ curl -sf http://127.0.0.1:1313/articles/long-article-with-toc/ \
+    > /dev/null && echo long-article OK
+long-article OK
+```
+
+`npx tsc --noEmit` exits 0 against the post-F10 working tree (the
+new `titlebar-toc.ts` module is included in the production JS bundle
+verified by `npm run build`). Dev server startup banner reports
+zero ERROR lines on the homepage and the long-article page — both
+HTTP 200, both rendered with the post-F10 CSS and JS.
+
+No new manual screenshots were captured during the doc-update pass;
+the per-commit visual sweep at 320 / 480 / 720 / 999 / 1000 / 1199 /
+1440 px (planned in the audit's §Verification block, prefixed
+`phase-XX-commitN-` and saved under `/tmp/cursor/screenshots/`) is
+the responsibility of each commit's implementer, not this docs
+follow-up.
+
+### 8.3 Deferred items (separate plan)
+
+Quoted verbatim from the parent plan's "Scope decision: deferred
+(separate plan)" section. Each item is tagged here as its own
+future-plan candidate — none are merged into this audit's
+implementation commits.
+
+- **Limited-width toggle** (`vector-limited-width` preference).
+  Would need a JS module + UI + persistence key. Already deferred
+  per `docs/UI-AUDIT.md` §3. → *future-plan candidate: "Limited-width
+  article toggle".*
+- **ToC pinned state**. Already deferred per §3. → *future-plan
+  candidate: "ToC pin behaviour".*
+- **Pinnable Appearance dropdown** (replace segmented theme toggle).
+  Already deferred per §3. → *future-plan candidate: "Pinnable
+  Appearance dropdown".*
+- **Page-tools portlet** (right-side). Out of scope per
+  `docs/RESEARCH.md` §2 — no static equivalent. → *future-plan
+  candidate: "Static page-tools portlet" (likely never lands — the
+  static-site model has no equivalent affordance).*
+- **ToC auto-collapse at 28 headings**. Hugo-template work; defer.
+  → *future-plan candidate: "ToC auto-collapse at
+  `wgVectorTableOfContentsCollapseAtCount`".*
+
+### 8.4 Post-implementation state
+
+With F1–F10 either landed (F2, F3, F4, F7, F8, F9, F10) or
+in-flight from a worker (F1, F5, F6), the theme now matches Vector
+2022's responsive behaviour at every breakpoint in §14.1 (300, 320,
+500, 600, 720, 999, 1000, 1199, 1200, 1440, 1600) and at the §14.2
+component break for the search box. The audited surfaces — header
+chrome (search overlay at <500px, magnifier-only at <500px
+delegated to the overlay), page-titlebar (H1 wraps at ≤1024px,
+drops to 1.5rem at ≤719px), theme toggle (single-handle dropdown at
+≤600px), sidebar (off-canvas drawer at ≤719px, sticky-top aligned
+with the sticky-header when both are visible, 248px width at ≥1200px
+desktop-wide tier), ToC panel (sticky-top aligned, dropdown closed
+on outside-click and Escape at ≤1024px), and infobox (label-above-
+data stacking at ≤719px) — all behave per Vector. OS-level
+`prefers-reduced-motion: reduce` is honoured globally. Future
+responsive work should focus on the five deferred items above rather
+than re-litigating any of the F1–F10 surfaces.

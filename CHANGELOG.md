@@ -1273,3 +1273,20 @@ build-green verification target.
   `#page-titlebar-toc-checkbox` when it is currently checked. Wired into
   `assets/js/main.ts` as the sixth `init()` call alongside the existing
   straight-line composition. Resolves F10; commit 6 of 6 in the plan.
+
+### Documentation
+- Appended `## 8. Responsive audit — implementation summary
+  (2026-07-11)` to `docs/UI-AUDIT.md`. Section records the
+  post-implementation state of the Vector 2022 responsive audit
+  described in the parent plan at
+  `uploads/vector_2022_responsive_audit__26_fix_plan_988b5082.plan-L1-L211-0.md`,
+  with a per-finding (F1–F10) summary that names the file paths
+  and line refs changed, the upstream Vector LESS reference, and
+  the commit SHA where one exists. Commit SHA mapping
+  (verified via `git log`): F9 → `3ca7130`, F2 → `10b0f05`,
+  F3 / F4 / F7 / F8 → `9ba359e`, F10 → `db68c1d`. F1, F5, and F6
+  were still in-flight from a worker at the time of writing; the
+  §8.1 entries for those three cite file paths and intent and
+  defer the SHA to `git log` so no unverified SHA is recorded.
+  §8.3 quotes the plan's "Scope decision: deferred" list
+  verbatim, tagged as five future-plan candidates.
