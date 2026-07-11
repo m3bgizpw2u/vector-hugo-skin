@@ -1090,3 +1090,52 @@ build-green verification target.
   cross-breakpoint computed-style parity via the Playwright spec
   above — replaces it. Intentional, documented deviations are
   enumerated per surface.
+
+### Fixed (third plan, phase 10 — final gate)
+- Three Hugo template syntax bugs surfaced by `npm run dev`:
+  `default A B C` is not valid — Hugo's `default` is a two-arg
+  function. The three shortcodes that used the three-way form
+  (`school.html`, `video-game.html`, `political-party.html`) have
+  been rewritten to chain nested `default` calls. All three demo
+  articles now build and serve (HTTP 200) with their infobox
+  rendered.
+
+### Done — full literal Vector 2022 port (third plan complete)
+- Phase 0: relicense to GPL-2.0-or-later to match upstream at the
+  pinned SHA `7c224883fd6ee166950aaa690381fbc769838071` (REL1_42,
+  2025-06-12). Methodology: literal 1:1 port.
+- Phase 1: vendor `wikimedia/mediawiki-skins-Vector` at the pinned
+  SHA under `vendor/mediawiki-vector/` with `PROVENANCE.md`.
+- Phase 2: per-file upstream provenance table at
+  `docs/PORT-MAP.md`, every file resolved.
+- Phase 3: LESS → SCSS literal port with per-file GPL headers.
+- Phase 4: Mustache → Go templates literal port with per-file GPL
+  headers.
+- Phase 5: ES6 → TypeScript literal port with per-file GPL headers.
+- Phase 6: MediaWiki-feature exclusions + search decision documented.
+- Phase 7: 30 `Infobox <topic>` shortcodes under
+  `layouts/_shortcodes/<topic>.html`, each with the dual-license
+  header (GPL-2.0-or-later for the wrapper, CC BY-SA 4.0 for the
+  content logic), a "Conditionals ported from Template:Infobox
+  <topic>" bullet list, and Go template logic that maps parameters
+  to fields for `infobox/base.html`. Per-topic provenance recorded
+  in `docs/SHORTCODES.md` §11.
+- Phase 8: `LICENSE` restored to the canonical FSF GPL-2.0 text
+  (no longer wrapped in a Hugo template comment); `NOTICE.md`
+  documents the three-tier license model with the Wikimedia
+  Trademark Policy compliance statement and non-affiliation
+  disclaimer.
+- Phase 9: six Playwright E2E specs (`computed-style.spec.ts` +
+  five interaction specs) covering the four-viewport × two-theme
+  computed-style matrix and the major Vector interactions; 10-file
+  source-line traceability spot-check appended to
+  `docs/RESEARCH.md` §15; static-only DOM diff replacing the live
+  MediaWiki DOM diff (which would conflate intentional static-site
+  omissions with port regressions) appended to `docs/UI-AUDIT.md`
+  §5.
+- Phase 10: three-way `default` chaining bug fixed in
+  `school.html`, `video-game.html`, `political-party.html`;
+  `hugo --quiet` exits 0 across all 33 demo articles;
+  `npm install && npm run dev` smoke-tested — root and four
+  per-shortcode demo URLs return HTTP 200 with their infobox root
+  element present.
