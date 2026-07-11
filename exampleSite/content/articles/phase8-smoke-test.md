@@ -32,6 +32,8 @@ it is a build-time smoke test.
     area_code       = "217"
     website         = "springfield.il.us" >}}{{< /settlement >}}
 
+{{< break >}}
+
 ## Person
 
 {{< person
@@ -47,6 +49,8 @@ it is a build-time smoke test.
     occupation    = "Mathematician, writer"
     notable_works = "*Notes on the Analytical Engine*"
     website       = "findingada.com" >}}{{< /person >}}
+
+{{< break >}}
 
 ## Film
 
@@ -67,6 +71,8 @@ it is a build-time smoke test.
     gross       = "836,836,967"
     currency    = "USD" >}}{{< /film >}}
 
+{{< break >}}
+
 ## Company
 
 {{< company
@@ -84,6 +90,8 @@ it is a build-time smoke test.
     owner          = "Public shareholders"
     website        = "acme.example" >}}{{< /company >}}
 
+{{< break >}}
+
 ## Software
 
 {{< software
@@ -99,6 +107,8 @@ it is a build-time smoke test.
     source_model      = "Open-source"
     programming_language = "Go"
     website           = "gohugo.io" >}}{{< /software >}}
+
+{{< break >}}
 
 ## Football biography
 
@@ -117,6 +127,8 @@ it is a build-time smoke test.
     nationalcaps = "179"
     nationalgoals = "115" >}}{{< /football-biography >}}
 
+{{< break >}}
+
 ## Station
 
 {{< station
@@ -132,6 +144,8 @@ it is a build-time smoke test.
     code        = "WAT"
     operator    = "Network Rail" >}}{{< /station >}}
 
+{{< break >}}
+
 ## Historic site (NRHP)
 
 {{< historic-site
@@ -143,6 +157,8 @@ it is a build-time smoke test.
     architecture = "Art Deco"
     added       = "23 June 1986"
     NRHP_ref    = "86001256" >}}{{< /historic-site >}}
+
+{{< break >}}
 
 ## Television
 
@@ -158,6 +174,8 @@ it is a build-time smoke test.
     network          = "Apple TV+"
     first_aired      = "18 February 2022"
     last_aired       = "present" >}}{{< /television >}}
+
+{{< break >}}
 
 ## Military person
 
@@ -175,6 +193,8 @@ it is a build-time smoke test.
     battles       = "World War I, World War II"
     awards        = "Distinguished Service Cross, Legion of Merit" >}}{{< /military-person >}}
 
+{{< break >}}
+
 ## School
 
 {{< school
@@ -191,6 +211,8 @@ it is a build-time smoke test.
     colors      = "Orange and black"
     website     = "springfieldhigh.example" >}}{{< /school >}}
 
+{{< break >}}
+
 ## Video game
 
 {{< video-game
@@ -206,6 +228,8 @@ it is a build-time smoke test.
     genre     = "Roguelike"
     modes     = "Single-player"
     status    = "Released" >}}{{< /video-game >}}
+
+{{< break >}}
 
 ## University
 
@@ -227,6 +251,8 @@ it is a build-time smoke test.
     nickname    = "MIT"
     website     = "mit.edu" >}}{{< /university >}}
 
+{{< break >}}
+
 ## Military unit
 
 {{< military-unit
@@ -241,6 +267,8 @@ it is a build-time smoke test.
     nickname    = "Screaming Eagles"
     motto       = "Rendezvous with Destiny"
     commander   = "Major General Andrew C. Hilmes" >}}{{< /military-unit >}}
+
+{{< break >}}
 
 ## Basketball biography
 
@@ -260,6 +288,8 @@ it is a build-time smoke test.
     career_end  = "2009"
     hall_of_fame = "Inducted 2015" >}}{{< /basketball-biography >}}
 
+{{< break >}}
+
 ## Baseball biography
 
 {{< baseball-biography
@@ -274,6 +304,8 @@ it is a build-time smoke test.
     team      = "New York Yankees"
     teams     = "Boston Red Sox, New York Yankees, Boston Braves"
     hall_of_fame = "Inducted 1936" >}}{{< /baseball-biography >}}
+
+{{< break >}}
 
 ## Football club
 
@@ -290,6 +322,8 @@ it is a build-time smoke test.
     league      = "Premier League"
     season      = "2024–25"
     website     = "manutd.com" >}}{{< /football-club >}}
+
+{{< break >}}
 
 ## Ice hockey biography
 
@@ -309,6 +343,8 @@ it is a build-time smoke test.
     draft_team  = "Edmonton Oilers"
     career_start = "2015" >}}{{< /ice-hockey-biography >}}
 
+{{< break >}}
+
 ## Military conflict
 
 {{< military-conflict
@@ -324,6 +360,8 @@ it is a build-time smoke test.
     commander2  = "Robert E. Lee"
     casualties1 = "23,049"
     casualties2 = "28,063" >}}{{< /military-conflict >}}
+
+{{< break >}}
 
 ## Tennis tournament event
 
@@ -341,6 +379,8 @@ it is a build-time smoke test.
     score     = "6–2, 6–2, 7–6(7–4)"
     prize_money = "£2,700,000" >}}{{< /tennis-tournament-event >}}
 
+{{< break >}}
+
 ## Organization
 
 {{< organization
@@ -356,6 +396,8 @@ it is a build-time smoke test.
     key_people     = "Maryana Iskander (CEO)"
     website        = "wikimediafoundation.org" >}}{{< /organization >}}
 
+{{< break >}}
+
 ## Award
 
 {{< award
@@ -366,6 +408,8 @@ it is a build-time smoke test.
     established   = "16 May 1929"
     first_awarded = "1929"
     website       = "oscars.org" >}}{{< /award >}}
+
+{{< break >}}
 
 ## Television episode
 
@@ -381,6 +425,8 @@ it is a build-time smoke test.
     production_code = "S05E14"
     runtime     = "47"
     network     = "AMC" >}}{{< /television-episode >}}
+
+{{< break >}}
 
 ## Church
 
@@ -398,6 +444,8 @@ it is a build-time smoke test.
     length      = "120 m"
     website     = "stpatrickscathedral.org" >}}{{< /church >}}
 
+{{< break >}}
+
 ## Television season
 
 {{< television-season
@@ -408,6 +456,10 @@ it is a build-time smoke test.
     network      = "AMC"
     first_aired  = "15 July 2012"
     last_aired   = "29 September 2013" >}}{{< /television-season >}}
+
+{{< break >}}
+
+{{< break >}}
 
 ## Political party
 
@@ -425,6 +477,8 @@ it is a build-time smoke test.
     seats2      = "Various regional"
     website     = "greenparty.org.uk" >}}{{< /political-party >}}
 
+{{< break >}}
+
 ## Protected area
 
 {{< protected-area
@@ -437,6 +491,8 @@ it is a build-time smoke test.
     iucn_category = "II (national park)"
     designation = "National park, World Heritage Site"
     world_heritage_site = "Yes (1978)" >}}{{< /protected-area >}}
+
+{{< break >}}
 
 ## Election
 
@@ -458,6 +514,8 @@ it is a build-time smoke test.
     party2          = "Democratic"
     leader2         = "Kamala Harris"
     seats_won2      = "226 electoral votes" >}}{{< /election >}}
+
+{{< break >}}
 
 ## Country
 
@@ -497,6 +555,8 @@ it is a build-time smoke test.
     drives_on          = "Right"
     calling_code       = "+33"
     website            = "gouvernement.fr" >}}{{< /country >}}
+
+{{< break >}}
 
 ## Album
 
