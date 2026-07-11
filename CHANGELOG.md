@@ -161,6 +161,20 @@ full pass.
   span. At <500px the search input collapses to a magnifier icon
   (matching Vector's mobile behaviour — at narrower widths Vector
   surfaces search via the sidebar instead of letting the header wrap).
+- Article / footer responsive leakage at narrow widths (user-reported
+  Bug B): the `.main-content` grid cell inside the page-grid did not
+  carry `min-width: 0`, so an over-wide infobox caption or `<pre>`
+  block forced the track to expand past its declared `minmax(0, 1fr)`
+  and pushed the article horizontally into the column containing the
+  footer. The previous `.page-grid__main` selector in
+  `assets/css/layout/page-grid.scss` was a contract miss — no element
+  ever carried that class; the actual inner div is `.main-content`
+  (emitted by `layouts/_default/baseof.html`). The fix adds
+  `.main-content { grid-area: main; min-width: 0; }` so the cell can
+  shrink below its content's intrinsic min-content width. The footer
+  is also pinned to its own stacking context
+  (`position: relative; z-index: 0;`) so the sticky-header can never
+  bleed into its visual area at narrow widths.
 
 ### Changed
 - Article-body heading rhythm brought in line with Vector 2022's

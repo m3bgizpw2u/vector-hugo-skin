@@ -2,8 +2,19 @@
 // the footer is a single page region per .cursor/rules/00-core.mdc
 // (one page region per partial → one file for its visual styling).
 // Layout-positioning of the region lives in layout/footer.scss.
+//
+// Phase 16 Bug B (responsive leakage): the footer is emitted as a
+// block-level sibling of <main class="page-grid"> rather than as a
+// grid item inside it. `position: relative` + `z-index: 0` defensively
+// establish a fresh stacking context below the page chrome — without
+// it, an absolutely-positioned ancestor (sticky-header, search-box
+// suggestions dropdown) could in principle bleed into the footer's
+// visual area at narrow widths. With it, the footer paints cleanly on
+// its own stacking layer.
 
 .site-footer {
+  position: relative;
+  z-index: 0;
   background-color: var(--color-surface-alt);
   border-top: 1px solid var(--color-divider);
   padding: var(--space-xl) var(--space-md);

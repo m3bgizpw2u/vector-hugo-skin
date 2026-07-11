@@ -5,6 +5,18 @@
 // (sidebar, toc-panel) handle their own internal state when stacked.
 // Token-driven so theme overrides can shift column widths without
 // re-authoring the layout.
+//
+// Phase 16 Bug B (responsive leakage): the `.main-content` grid cell
+// must carry `min-width: 0` so its article / table / infobox content
+// can shrink below its intrinsic min-content width. Without it, an
+// infobox caption or wide <pre> block forces the grid track to expand
+// past its declared `minmax(0, 1fr)` — the article then overflows the
+// viewport horizontally and, at narrow widths, the overflow visually
+// bleeds into the column containing the footer. The earlier
+// `.page-grid__main` selector was dead (no element ever carried that
+// class; the inner div is `.main-content`), so the bug was a contract
+// miss rather than a missing value. The `.main-content` rule below is
+// what actually does the work.
 
 .page-grid {
   display: grid;
@@ -26,6 +38,15 @@
 .page-grid__main { grid-area: main; min-width: 0; }
 .page-grid__toc { grid-area: toc; }
 .page-grid__footer { grid-area: footer; }
+
+// Actual class emitted by layouts/_default/baseof.html. The previous
+// .page-grid__main rule above is dead (no element carries that class)
+// but kept as a hint for future contract alignment; this rule below
+// is the one that actually prevents the responsive overflow.
+.main-content {
+  grid-area: main;
+  min-width: 0;
+}
 
 // ---- Outer sidebar collapse (user-triggered via the header button) ----
 // When [data-sidebar="collapsed"] is set on the root, the sidebar column
