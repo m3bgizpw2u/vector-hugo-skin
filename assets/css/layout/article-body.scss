@@ -13,7 +13,24 @@
 // max-width on wide displays. The `min(100%, <reading-width>)` form is
 // intentionally responsive: on mobile the container fills the available
 // width, on desktop it stops growing past a comfortable line length.
+//
+// `display: flow-root` establishes a new block formatting context so the
+// `.infobox` float (rendered inside `.Content`) is contained by the
+// article body — without it, the float visually extends past
+// `.article-body`'s content edge and into the area occupied by the
+// sibling `<footer class="site-footer">`, which paints over the float's
+// bottom rows because the footer is `position: relative` with an
+// explicit `z-index` (creating a stacking context above the un-z-indexed
+// float). The bug surfaces most clearly on desktop viewports where the
+// `.infobox` is taller than the 1fr page-grid main row (e.g. company-
+// demo's 12+ rows at a 1024×713 viewport) and the page is scrolled to
+// the bottom: the footer's `border-top`, `site-footer__legal`
+// `border-top`, and `.article-categories` `border-top` all draw on top
+// of the bottom infobox rows. `flow-root` is preferred over
+// `overflow: hidden` because it doesn't risk clipping absolutely-
+// positioned descendants (tooltips, dropdowns).
 .article-body {
+  display: flow-root;
   width: 100%;
   max-width: min(100%, var(--article-max-width));
   margin-left: auto;
