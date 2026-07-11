@@ -9,6 +9,21 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Fixed
+- Page-grid reserved a 220px column on the right of every article page even
+  when no headings existed to populate the table of contents. CSS Grid does
+  not auto-collapse declared column tracks when a named area is unoccupied,
+  so `grid-template-columns: var(--sidebar-width) minmax(0, 1fr) var(--toc-width)`
+  always reserved the toc track. The `layouts/_partials/sidebar/toc-panel.html`
+  partial already omits `<aside class="toc-panel">` when the article has zero
+  h2/h3 entries, but the grid template did not react. Added a
+  `:root:not(:has(aside.toc-panel)) .page-grid` rule that re-declares the
+  template-areas and template-columns in the two-track form (sidebar | main,
+  no toc), so the article column absorbs the freed space on empty-TOC pages.
+  Mirrors the shape of the existing `@media (max-width: 1024px)` block that
+  collapses the toc track for viewport reasons; the new rule does the same
+  for DOM-absence reasons. One file touched: `assets/css/layout/page-grid.scss`.
+
 ### Changed
 - Page-grid padding moved from the outer `.page-grid` shell onto the
   inner `.main-content` column so the sidebar sits flush against the
