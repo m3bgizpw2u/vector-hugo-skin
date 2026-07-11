@@ -226,6 +226,28 @@ full pass.
   the Phase 1 research-philosophy contract) or derived independently
   from the Codex public token list.
 
+### Changed
+- Token palette brought in line with the live Vector 2022 stylesheet
+  bundle and matching §11.2/§11.3 values. Specific moves: light
+  `--color-link-visited: #6b4ba1 → #6a60b0`, light `--color-link-hover:
+  #447ff5 → #3056a9` (Vector's `--color-progressive--hover` is the
+  canonical hover value for both link and progressive surfaces);
+  dark `--color-surface: #101922 → #101418`, `--color-surface-alt:
+  #1f2a38 → #27292d`, `--color-link-visited: #b08fe6 → #a799cd`,
+  `--color-link-hover: #b6c4f4 → #a6bbf5`, `--color-border: #54595d →
+  #72777d`, `--color-divider: #404448 → #54595d`, `--color-code-bg:
+  #1f2a38 → #27292d`. The dark infobox header/label background pair
+  now matches the live Vector dark values (`#27292d` / `#202122`) and
+  its border (`#54595d`). All three theme blocks (`themes/light.scss`,
+  `themes/dark.scss`, `themes/auto.scss`) are aligned with the new
+  palette so the auto-theme's `prefers-color-scheme: dark` cascade
+  emits exactly the same values as the explicit dark mode — matching
+  Vector's identical `.cdx-mode-dark()` output for both cases.
+  No render-layer change — the dual-mode contract (`--color-link`
+  ↔ `--color-progressive` aliasing, `--color-link--hover` ↔
+  `--color-progressive--hover` aliasing) already works in the new
+  palette, no template or TS module touches required.
+
 ## [1.0.1] - 2026-07-11
 
 Hotfix patch: three build errors surfaced by `npm run dev` immediately after the

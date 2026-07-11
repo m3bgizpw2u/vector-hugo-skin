@@ -1353,16 +1353,23 @@ later: a future Codex-aligned variant could pick these over Vector's.
 **Open questions.**
 - (none blocking) Headings h2/h3/h4 tightening is already a documented
   fidelity gap from `docs/UI-AUDIT.md` §1.5; closes in Phase 8 alongside
-  the article-body width work.
+  the article-body width work. **Status: closed by commit `91e61bb`
+  ("fix(typography): repair article-title CSS contract and heading
+  rhythm") on 2026-07-11 — H2 at 1.5rem, H3 at 1.2rem, H4 at 1rem, with
+  H2 alone underlined.** See `assets/css/components/article-body.scss`.
 - (non-blocking) The visited-link colour for light mode is `#6a60b0` per
   Vector; our existing `--color-link-visited: #6b4ba1` is the
   *historically older* Vector value. Phase 10's theme-switching pass
   brings dark-mode visited colour to `#a799cd` and corrects the light
   side to match the live data in §11.2 (single commit, includes a
-  CHANGELOG note).
+  CHANGELOG note). **Status: closed by the second-plan token refresh
+  (this commit) — light `#6a60b0`, dark `#a799cd`.**
 - (non-blocking) `--color-surface` in dark mode is `#101418` per the
   live bundle, not `#101922` as currently shipped. Phase 10 token
-  refresh closes this gap.
+  refresh closes this gap. **Status: closed by the second-plan token
+  refresh — `--color-surface: #101418` in dark + auto; `--color-border`
+  `#72777d`, `--color-divider` `#54595d`, infobox header/label/background
+  separators also brought to the live-bundle values per §11.3.**
 
 ---
 
