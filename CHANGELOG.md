@@ -9,6 +9,26 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Changed
+- Page-grid padding moved from the outer `.page-grid` shell onto the
+  inner `.main-content` column so the sidebar sits flush against the
+  viewport's left edge at desktop widths and the article column gains
+  the horizontal real-estate the shell was eating. Mirrors Vector
+  2022's pattern: `.vector-body` has no horizontal padding and the
+  article's `.mw-body` carries the gutter instead. Before the change
+  the sidebar was 16px from the viewport edge (the value of
+  `--content-padding-x: 1rem` at desktop); after the change it is
+  flush at `left: 0`. The article column at a 1024px viewport grew
+  from ~511px to ~713px (+40%) with no other layout change. The
+  desktop-wide `@media (min-width: 1200px)` block in
+  `assets/css/base/_tokens.scss` continues to grow the
+  `--content-padding-x` token to `3.25rem`, but now that value lands
+  on `.main-content` instead of the outer shell, so the article
+  column widens its gutter at ≥1200px the same way Vector does. The
+  mobile breakpoint (`≤720px`) keeps its `var(--space-sm)` gutter,
+  now applied to `.main-content` rather than `.page-grid`. One file
+  touched: `assets/css/layout/page-grid.scss`.
+
 ### Relicensed (third plan, phase 0)
 - Theme re-licensed from MIT to **GPL-2.0-or-later** to match the upstream
   `wikimedia/mediawiki-skins-Vector` license at the pinned SHA

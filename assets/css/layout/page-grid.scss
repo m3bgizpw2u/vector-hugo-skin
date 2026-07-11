@@ -34,7 +34,6 @@
   gap: 0 var(--space-lg);
   max-width: var(--content-max-width);
   margin: 0 auto;
-  padding: 0 var(--content-padding-x);
   min-height: 100vh;
 }
 
@@ -58,6 +57,15 @@
   grid-area: main;
   width: 100%;
   min-width: 0;
+  // F1 follow-up: page-padding moves from the outer shell onto the
+  // article column itself so the sidebar sits flush against the
+  // viewport's left edge at desktop widths (Vector pattern: `.vector-body`
+  // has no horizontal padding, the article's `.mw-body` carries it
+  // instead). The token keeps its single source of truth: at desktop
+  // it is 1rem; the desktop-wide `@media (min-width: 1200px)` block in
+  // base/_tokens.scss grows it to 3.25rem; the mobile rule below
+  // overrides with var(--space-sm).
+  padding: 0 var(--content-padding-x);
 }
 
 // ---- Outer sidebar collapse (user-triggered via the header button) ----
@@ -111,12 +119,19 @@
       "footer";
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: auto minmax(0, 1fr) auto auto auto;
-    padding: 0 var(--space-sm);
     gap: 0;
   }
 
   .page-grid__toc {
     display: block;
+  }
+
+  // Page-padding moves with the single-column layout: at mobile the
+  // outer shell has no padding (see the rule above) so we hand the
+  // gutter to .main-content directly. var(--space-sm) is the existing
+  // mobile gutter token used by the previous outer-shell rule.
+  .main-content {
+    padding: 0 var(--space-sm);
   }
 
   // F1: collapse the sidebar grid cell when the off-canvas drawer is
