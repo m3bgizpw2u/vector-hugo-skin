@@ -312,6 +312,75 @@ runtime weight. The upgrade path is documented but deferred — for the v1
 shortcode-family scope and the typical personal-wiki or documentation-site use
 case, the build-time JSON approach is the right floor.
 
+## 7. Theming mechanism (second-plan Phase 10 contract)
+
+The theme-switcher uses three states (light / dark / auto) and three
+attribute values:
+
+- `<html data-theme="…">` — the concrete applied theme (light or dark).
+  Read by every component's CSS via `var(--color-*)` lookups; never set
+  manually by site authors.
+- `<html data-theme-mode="…">` — the user's *selected* mode (light,
+  dark, or `auto`). The `theme-toggle.ts` module re-applies the
+  concrete `data-theme` whenever the user picks an explicit value or
+  the `prefers-color-scheme` media-query state changes while mode is
+  `auto`.
+- `localStorage['theme']` — the persisted choice, set whenever the
+  user actively picks a mode.
+
+The mechanism intentionally diverges from Vector's own
+`html.skin-theme-clientpref-night` class-on-html pattern — see
+`docs/RESEARCH.md` §11.4 for the full reasoning. The `data-theme`
+attribute keeps DevTools clear of the MediaWiki-specific class names,
+matches W3C custom-data-attribute conventions, and reads naturally
+against the `themes/{light,dark,auto}.scss` cascade blocks.
+
+To eliminate the flash-of-wrong-theme for returning users, a small
+synchronous asset (`static/js/theme-early.js`) reads `localStorage.theme`
+and sets both attributes before the stylesheet bundle paints. It is
+loaded via `<script src>` rather than as inline `<script>` content to
+honor the `no inline script in templates` rule
+(`.cursor/rules/30-scripts.mdc`); the attribute contract with
+`theme-toggle.ts` (`data-theme` + `data-theme-mode`) is preserved
+exactly so the runtime module does not need to change.
+
+## 8. Visual & behavioral parity contract
+
+Per the second-plan §§10–§14, every component shipped in this theme
+has been reimplemented from a sourced understanding of Vector 2022.
+Every concrete value (color, spacing, breakpoint, layout dimension)
+traces back to one of three research surfaces documented in §11 of
+`docs/RESEARCH.md`:
+
+1. The live Vector 2022 stylesheet bundle fetched from
+   `https://en.wikipedia.org/w/load.php?...&only=styles&skin=vector-2022`.
+2. The pinned upstream clone at `reference/vector/` (HEAD
+   `dd9a26f9`, 2026-07-02).
+3. The Codex public token list (Wikimedia's shared design system).
+
+The five named breakpoints (§14.1) are the single source of truth
+for every `@media` rule and `matchMedia` listener in the theme.
+Adding a new breakpoint requires editing that table first; adding
+a new component must declare which breakpoints it responds to
+following the §13.3 binding pattern.
+
+## 9. File-size and LOC discipline
+
+Per §1's `500–1000 LOC` ceiling, no file may grow past the 1000-line
+hard wall. Current observed maxima (as of 2026-07-11):
+
+| Layer | Largest file | LOC |
+|---|---|---|
+| SCSS | `assets/css/components/infobox.scss` | 201 |
+| TypeScript | `assets/js/modules/search.ts` | 167 |
+| Go template | `layouts/_shortcodes/album.html` (longest infobox named wrapper) | 34 |
+| Docs | `docs/RESEARCH.md` | ~1700 (research log — exempt from per-concern rule) |
+
+No file in the runtime tree exceeds 200 lines. If a future contribution
+pushes a file above 500 lines, the rule is to **split first**, not retro-fit
+— the 500 end of the range is a "think about splitting" signal, and the
+1000 end is a hard wall.
+
 ---
 
 *Phase 3 captures the constraints and module boundaries. Phase 12 will expand

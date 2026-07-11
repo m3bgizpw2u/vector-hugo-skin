@@ -63,6 +63,14 @@ Read these before opening a change:
   and stack rationale.
 - **`docs/SHORTCODES.md`** — author-facing reference for the infobox shortcode
   family, with the per-template parameter tables in §10.
+- **`docs/RESEARCH.md` §§10–§14** — the second-plan (visual & behavioral parity)
+  research record: design-token inventory (light + dark, every value sourced
+  from the live Vector 2022 stylesheet bundle and the upstream LESS files
+  pinned at clone SHA `dd9a26f9`), layout/grid/StickyHeader mechanics,
+  component catalog carry-forward with breakpoint bindings, and the unified
+  breakpoint table. §14.1 is the single-source-of-truth for the project's
+  five named breakpoints (mobile ≤ 719 / tablet 720–999 / desktop ≥ 1000 /
+  desktop-wide ≥ 1200) — read it before adding any new `@media` rule.
 - **`CHANGELOG.md`** + **`.cursor/rules/70-changelog.mdc`** — every commit that
   changes user-facing or developer-facing behavior gets a matching entry in the
   same commit, in Keep-a-Changelog style.
