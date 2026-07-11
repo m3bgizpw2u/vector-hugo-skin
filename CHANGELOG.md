@@ -9,6 +9,26 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Relicensed (third plan, phase 0)
+- Theme re-licensed from MIT to **GPL-2.0-or-later** to match the upstream
+  `wikimedia/mediawiki-skins-Vector` license at the pinned SHA
+  `7c224883fd6ee166950aaa690381fbc769838071` (REL1_42, 2025-06-12). The
+  methodology switches from "independent reimplementation, no verbatim
+  upstream source" to **literal 1:1 port** of Vector's LESS / Mustache /
+  ES6 sources into SCSS / Go templates / TypeScript. See
+  `docs/PORT-MAP.md` for the per-file upstream provenance,
+  `docs/PORT-MAP-CONVENTIONS.md` for the per-file header convention,
+  and `vendor/mediawiki-vector/PROVENANCE.md` for the pin-point record.
+- `README.md` lead paragraph rewritten to describe the theme as a
+  derivative port of Vector (and to retain the Wikimedia non-affiliation
+  / non-trademark disclaimer). The previous "does not redistribute the
+  GPL-2.0-or-later MediaWiki Vector skin source code" line is removed.
+- `LICENSE` replaced with the full text of GPL-2.0-or-later (the
+  previous MIT text is removed).
+- New `docs/PORT-MAP-CONVENTIONS.md` cataloguing the per-file header
+  formats that phases 3–7 of the third plan apply. The full per-file
+  upstream provenance itself lands in phase 2 (`docs/PORT-MAP.md`).
+
 Vector 2022 visual-fidelity pass — see `docs/UI-AUDIT.md` for the full
 surface-by-surface gap analysis. Five commits; this section collects their
 entries in commit order.

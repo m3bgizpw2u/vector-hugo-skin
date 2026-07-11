@@ -1,14 +1,20 @@
 # vector-hugo-skin
 
-Static Hugo reimplementation of Wikipedia's Vector 2022 skin, plus a MediaWiki-style
+Static Hugo port of Wikipedia's Vector 2022 skin, plus a MediaWiki-style
 Infobox shortcode family. **No PHP, no MediaWiki server, no database.**
 
-> **Independent reimplementation.** This project is not affiliated with the Wikimedia
-> Foundation, is not an official Wikimedia project, and does not redistribute the
-> GPL-2.0-or-later MediaWiki Vector skin source code. All CSS and JS is written from
-> a behavioral study of Vector; the upstream source clone lives in `./reference/`
-> (gitignored) for study only. See `docs/RESEARCH.md` and
-> `.plans/first-plan/14-licensing-and-scope-notes.md` for the licensing boundary.
+> **Derivative port of `wikimedia/mediawiki-skins-Vector`** — pinned in this
+> repo at SHA `7c224883fd6ee166950aaa690381fbc769838071` (REL1_42,
+> 2025-06-12) under `vendor/mediawiki-vector/`. This theme is a literal,
+> line-for-line translation of Vector's LESS, Mustache, and ES6 sources into
+> SCSS, Go templates, and TypeScript, respectively. Licensed under
+> **GPL-2.0-or-later** (see [`LICENSE`](LICENSE)). **Not affiliated with,
+> endorsed by, or sponsored by the Wikimedia Foundation.** MediaWiki and
+> Vector are trademarks of the Wikimedia Foundation; they are referenced
+> here only for compatibility, never for redistribution of any
+> trademark-bearing asset. See `docs/PORT-MAP.md` for the per-file
+> upstream provenance and `vendor/mediawiki-vector/PROVENANCE.md` for
+> the pin-point record.
 
 ## Quickstart
 
@@ -81,20 +87,25 @@ narrowly to one logical unit of work, and never sweep in unrelated edits via
 
 ## License
 
-Licensed under the **MIT License** — see [`LICENSE`](LICENSE) at the repository
-root. Copyright (c) 2026 vector-hugo-skin contributors.
+Licensed under **GPL-2.0-or-later** — see the full text at
+[`LICENSE`](LICENSE) in the repository root.
 
-> **Independent reimplementation (restated).** This project is an independent
-> reimplementation of the visual conventions of MediaWiki's Vector 2022 skin.
-> It is **not affiliated with, endorsed by, or sponsored by the Wikimedia
-> Foundation**. MediaWiki and Vector are trademarks of the Wikimedia Foundation;
-> this project makes fair-use reference to those conventions for the purpose of
-> compatibility, not redistribution of any Wikimedia source code or assets.
-> See `docs/RESEARCH.md`, `docs/SHORTCODES.md`, and
-> `.plans/first-plan/14-licensing-and-scope-notes.md` for the licensing
-> boundary around the Phase 1 research notes, the Phase 2 infobox research,
-> the per-template reference entries in `docs/SHORTCODES.md` §10, and the
-> demo articles under `exampleSite/content/articles/` (all original
-> prose invented for this theme — never Wikipedia verbatim). The upstream
-> source clone at `./reference/` is gitignored and never tracked; see
-> `docs/RESEARCH.md` for the file-level scope notes.
+This is a derivative port of [`wikimedia/mediawiki-skins-Vector`][upstream],
+which is itself distributed under GPL-2.0-or-later (per
+`vendor/mediawiki-vector/COPYING`). The upstream copyright holder is the
+Wikimedia Foundation and contributors; the port copyright is held by the
+vector-hugo-skin contributors.
+
+Infobox shortcode logic (the 30 topic shortcodes under `layouts/_shortcodes/` and
+their supporting `infobox-pair-*` primitives) is **additionally derived from
+Wikipedia's `Template:Infobox <topic>` wikitext** under the **CC BY-SA 4.0**
+license. That attribution statement is reproduced at the top of each affected
+shortcode file and catalogued in `docs/SHORTCODES.md` §11 and `NOTICE.md`.
+
+This project is **not affiliated with, endorsed by, or sponsored by the
+Wikimedia Foundation.** "MediaWiki" and "Vector" are trademarks of the
+Wikimedia Foundation and are referenced here only to indicate
+upstream-compatibility intent, never to redistribute any Wikimedia-owned
+logo, wordmark, or asset.
+
+[upstream]: https://github.com/wikimedia/mediawiki-skins-Vector
