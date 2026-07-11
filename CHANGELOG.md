@@ -1050,3 +1050,43 @@ build-green verification target.
   the example site content under `exampleSite/content/` (Tier 3,
   original demo material), `.gitkeep` placeholders, and test
   fixtures. No missing-header gaps remain.
+
+### Added (third plan, phase 9 — verification)
+- Six Playwright E2E specs in `tests/e2e/specs/`:
+  - `computed-style.spec.ts` — cross-breakpoint × cross-theme matrix
+    (4 viewports × 2 themes) asserting `getComputedStyle` parity
+    against Vector tokens for the header, sidebar, ToC, article
+    body, infobox, and the root CSS custom-property surface.
+  - `interactions.sticky-header.spec.ts` — condensed bar appears
+    on scroll past threshold and disappears at top, mirroring
+    Vector's IntersectionObserver pattern.
+  - `interactions.sidebar.spec.ts` — toggle button visibility,
+    class flip, and localStorage persistence across reload.
+  - `interactions.toc.spec.ts` — ToC visibility breakpoint
+    (≥1024px) and scroll-spy active-state behaviour.
+  - `interactions.tabs.spec.ts` — tablist presence and
+    active-state swap (skips if the fixture has no tabs).
+  - `interactions.theme-toggle.spec.ts` — toggle visibility,
+    `data-theme` flip, persistence, and auto-mode preference
+    parity.
+  All specs follow `.cursor/rules/50-testing.mdc`: Chromium only
+  via `/usr/bin/chromium`, Playwright `webServer` config starts
+  Hugo automatically, fixtures are `exampleSite/content/articles/`
+  only.
+- Three demo articles built locally and verified: `person-demo`,
+  `settlement-demo`, `organization-demo`. Each renders the infobox
+  table; `hugo --quiet` exits 0.
+- `docs/RESEARCH.md` gains §15 "Source-line traceability spot-check
+  (third plan, phase 9)" — 10 sampled ported files (3 SCSS, 3 TS,
+  2 templates, 2 shortcodes) traced to specific lines in
+  `vendor/mediawiki-vector/` at the pinned SHA. The check is what
+  distinguishes this plan from the prior "inspired by"
+  reimplementation.
+- `docs/UI-AUDIT.md` gains §5 "Phase 9 rendered-DOM diff audit".
+  Live DOM diff is documented as not-applicable to a static-only
+  project (no `mw-*` namespace, no `data-mw-*` attributes, no
+  MediaWiki runtime). The static-only DOM diff — per-template
+  structural presence, selector-class parity, token coverage,
+  cross-breakpoint computed-style parity via the Playwright spec
+  above — replaces it. Intentional, documented deviations are
+  enumerated per surface.

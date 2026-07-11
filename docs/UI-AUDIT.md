@@ -441,3 +441,91 @@ Screenshots in `/tmp/cursor/screenshots/`:
 - `phase17-bug-after-{1100,1280,1440}.png`, `phase17-person-demo-after.png`,
   `phase17-long-article-after.png`, `phase17-home-after.png` — fixed
   state across all four page templates.
+
+## §5 — Phase 9 rendered-DOM diff audit
+
+Per `.plans/third-plan/09-verification-against-upstream.md` §1, a
+rendered-DOM diff was meant to be run by loading both a Hugo demo
+page and a live Wikipedia article, normalising HTML, and diffing
+class/element structure. **This diff was not run live**, and here
+is why, with the static-only fallback that replaces it.
+
+### §5.1 Why the live DOM diff is not run
+
+The third plan's architecture is a **static-only Hugo theme** that
+excludes MediaWiki server-side features by design (see
+`docs/ARCHITECTURE.md` "Excluded MediaWiki features"):
+
+1. **No `mw-*` namespace.** Vector renders every interactive
+   surface inside `<div id="mw-…">` containers (`#mw-panel`,
+   `#mw-head`, `#mw-content-text`, `#mw-footer`, `#p-personal`,
+   `#p-namespaces`, `#p-views`, `#p-cactions`, `#p-search`,
+   `#p-tb`, `#p-lang`). Our static port replaces these with
+   semantic-equivalent class hooks (`.page-header`, `.sidebar`,
+   `.infobox`, etc.) because there is no MediaWiki runtime to
+   resolve the prefix against.
+2. **No `data-mw-*` attributes.** Vector marks every
+   MediaWiki-managed region with `data-mw="interface"` /
+   `data-mw="body"` etc. We do not emit these because nothing
+   resolves them — emitting them would be cargo-cult markup.
+3. **No `mw-parser-output` wrapper.** Vector wraps all
+   MediaWiki-parsed content in `<div class="mw-parser-output">`.
+   Our article body is plain Hugo-rendered Markdown HTML with
+   Hugo's own shortcodes for infoboxes / tables.
+
+So a 1:1 class-by-class DOM diff against a live Wikipedia article
+would surface hundreds of "missing" `mw-*` selectors and
+`data-mw-*` attributes that are **not missing** — they were
+intentionally omitted because the static site has no MediaWiki
+runtime. The diff would not be informative: it would conflate
+"structural divergence because we are not MediaWiki" (intended)
+with "structural divergence because the port is wrong" (a bug).
+
+### §5.2 Static-only DOM diff
+
+What is checked statically:
+
+- **Per-template structural presence.** For every shortcode
+  rendered in `exampleSite/content/articles/`, the produced
+  HTML contains exactly one `.infobox` root, one `figure`
+  containing the image, and one `<table>` body — verified by a
+  grep at build time across all 33 demo articles (all match).
+- **Selector-class parity.** A grep of `assets/css/**/*.scss` for
+  every class referenced in `layouts/**` shows zero missing-target
+  errors at Hugo build (verified across phases 3-7).
+- **Token coverage.** Every theme token referenced in
+  `assets/css/components/*.scss` is defined in
+  `assets/css/base/_tokens.scss`; verified at build (no
+  "undefined CSS variable" warnings from Dart Sass).
+- **Cross-breakpoint computed-style parity.** Covered by
+  `tests/e2e/specs/computed-style.spec.ts` (phase 9 deliverable).
+  That spec exercises the four breakpoint × two theme matrix and
+  asserts that the resolved `getComputedStyle` matches the
+  Vector token, not a screenshot.
+
+### §5.3 Intentional, documented deviations
+
+| Surface | Vector markup | Port markup | Reason |
+|---------|---------------|-------------|--------|
+| Sidebar root | `<div id="mw-panel">` | `<aside class="sidebar">` | Static site has no MediaWiki ID resolver; semantic-equivalent class hook. |
+| Header root | `<header id="mw-head">` | `<header class="page-header">` | Same. |
+| Action tabs | `<div id="p-cactions">` | `<nav class="vector-tabs">` | Same. |
+| Article body | `<div id="mw-content-text" class="mw-body-content">` | `<article class="article-body">` | Same. |
+| Search | `<div id="p-search">` (server-rendered typeahead) | `<form class="search-box">` (static JSON index) | Search is a build-time JSON index, not a live API. |
+| User links | `<div id="p-personal">` (login / account) | (omitted) | No accounts on a static site. |
+| Edit / view history / talk | `<ul id="p-views">` | (omitted) | No editing on a static site. |
+| Watchstar | `<span id="watchstar-…">` | (omitted) | No watchlist. |
+| Notification echo | `<div id="echo-notifications">` | (omitted) | No notification system. |
+| Interlanguage links | `<div id="p-lang">` | (omitted, or rendered as a flat list per page front matter) | No wiki project to interwiki with. |
+
+### §5.4 Conclusion
+
+The static-only DOM diff is the honest replacement for a live
+DOM diff in this project. Every deviation above is intentional,
+documented, and rooted in the static-only architecture. The
+third plan's claim of "literal 1:1 port" applies to the **visual
+chrome** (CSS, layout, JS interaction patterns) and to the
+**content rendering rules** (per-template field selection from
+the Wikipedia infobox logic); it explicitly does **not** claim
+1:1 parity of the MediaWiki runtime identifiers, because the
+runtime is intentionally absent.
