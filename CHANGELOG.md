@@ -1139,3 +1139,24 @@ build-green verification target.
   `npm install && npm run dev` smoke-tested — root and four
   per-shortcode demo URLs return HTTP 200 with their infobox root
   element present.
+
+### Fixed (post-phase-10 — sticky header overlap)
+- `assets/js/modules/sticky-header.ts` no longer makes the condensed
+  sticky header visible at the top of every page. Root cause: the module
+  appended a 1px sentinel at `top: 0` *inside* `.page-header`, but
+  `.page-header` itself is `position: sticky; top: 0` — so the sentinel
+  was pinned to the viewport top and the IntersectionObserver reported
+  `isIntersecting: true` permanently, revealing the sticky bar on top
+  of the primary header. Fix: observe `.page-header` directly with no
+  sentinel. Any non-zero intersection means the primary bar is still
+  in view and the sticky should stay hidden. Also dropped the inline
+  `primary.style.position = 'relative'` override that was silently
+  downgrading the primary header's own `position: sticky` to
+  `position: relative`. New `tests/e2e/specs/sticky-header-overlap.spec.ts`
+  pins the four observable behaviours (hidden at top, visible after
+  scroll, hidden again on return to top, primary header still
+  `position: sticky` after the JS module has run) — these would have
+  caught the overlap on the first scroll, where the existing
+  `interactions.sticky-header.spec.ts` targeted a selector class
+  (`.sticky-header-condensed` / `[data-sticky-header-condensed]`) that
+  the rendered HTML never actually carries.

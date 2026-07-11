@@ -12,25 +12,32 @@
  * primary `.page-header`'s bottom edge rather than a fixed-scroll-
  * position threshold: Vector 2022's actual mechanism is
  * IntersectionObserver-based, which avoids the rAF/scroll-throttle
- * thrash on long pages (the previous scroll-direction delta
- * implementation accumulated a 200px "no-op zone" at the top of every
- * page, then jittered on the first real scroll event).
+ * thrash on long pages.
  *
  * The module's contract:
- *  - When the bottom edge of `.page-header` exits the viewport top, the
- *    `.sticky-header` becomes visible (added `.is-visible`,
- *    removed `.is-hidden`).
- *  - When the primary header is fully back in view (its bottom edge is
- *    at or below the viewport top), the condensed header is removed
- *    again.
- *  - At very top / very bottom of the page, the condensed header is
- *    visible so the chrome is reachable from anywhere except the first
- *    screenful (where the primary header already covers the same area).
- *    The SCSS default keeps the bar off-screen (`translateY(-100%)` /
- *    `opacity: 0`) until the IntersectionObserver scroll handler
- *    explicitly reveals it — unconditionally calling `setVisible(true)`
- *    on init used to stack the bar on top of the sticky primary header
- *    and create a visible overlap on first paint.
+ *  - When `.page-header` exits the viewport (its bottom edge crosses the
+ *    top of the viewport), the `.sticky-header` becomes visible
+ *    (`.is-visible` / no `.is-hidden`).
+ *  - When the primary header is back in view (any pixel of it intersects
+ *    the viewport), the condensed header is removed again.
+ *  - At the very top and very bottom of the page, the condensed header
+ *    is visible so the chrome is reachable from anywhere except the
+ *    first screenful (where the primary header already covers the same
+ *    area).
+ *
+ * The SCSS default keeps the bar off-screen (`translateY(-100%)` /
+ * `opacity: 0`) until this module's IntersectionObserver scroll handler
+ * explicitly reveals it.
+ *
+ * Earlier revisions placed a 1px sentinel inside `.page-header` at
+ * `top: 0`, but because `.page-header` itself is `position: sticky;
+ * top: 0`, the sentinel was glued to the viewport top forever —
+ * `isIntersecting` was permanently `true` and the sticky bar was
+ * revealed even when the primary header was fully visible, producing a
+ * visible overlap on every page. The fix observes `.page-header`
+ * directly: any non-zero intersection means the primary bar is in
+ * viewport, so the sticky should be hidden. No sentinel element, no
+ * inline `style.position` override on the primary header.
  *
  * The module is a quiet no-op if either element is missing (the
  * primary header is always present, but `.sticky-header` is optional —
@@ -54,50 +61,31 @@ export const init = (): void => {
     }
   };
 
-  // Sentinel: a 1px tall line placed at the bottom of the primary header.
-  // Trigger the sticky once this sentinel leaves the top of the viewport;
-  // collapse it back the moment the sentinel re-enters. Using a sentinel
-  // element rather than observing the header itself avoids layout
-  // observation limits when the header's height changes (e.g. wrapping
-  // at sub-500px widths) and matches Vector's `ScrollObserver` pattern.
-  const sentinel = document.createElement('div');
-  sentinel.setAttribute('aria-hidden', 'true');
-  sentinel.style.position = 'absolute';
-  sentinel.style.top = '0';
-  sentinel.style.left = '0';
-  sentinel.style.width = '1px';
-  sentinel.style.height = '100%';
-  sentinel.style.pointerEvents = 'none';
-  sentinel.style.visibility = 'hidden';
-  primary.style.position = 'relative';
-  primary.appendChild(sentinel);
-
-  let observer: IntersectionObserver | null = null;
+  let observerState: 'intersecting' | 'above' = 'intersecting';
   let viewportState: 'top' | 'middle' | 'bottom' = 'top';
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        observerState = entry.isIntersecting ? 'intersecting' : 'above';
+      }
+      recompute();
+    },
+    { rootMargin: '0px', threshold: 0 },
+  );
+  observer.observe(primary);
 
   const recompute = (): void => {
     if (viewportState === 'bottom') {
       setVisible(true);
       return;
     }
-    const entry = observerState;
-    setVisible(entry === 'intersecting');
+    if (viewportState === 'top') {
+      setVisible(false);
+      return;
+    }
+    setVisible(observerState === 'above');
   };
-
-  let observerState: 'intersecting' | 'above' = 'intersecting';
-
-  observer = new IntersectionObserver(
-    (entries) => {
-      for (const entry of entries) {
-        observerState = entry.isIntersecting
-          ? 'intersecting'
-          : 'above';
-      }
-      recompute();
-    },
-    { rootMargin: '0px', threshold: 0 },
-  );
-  observer.observe(sentinel);
 
   // Track document-level scroll position for top/bottom edge cases the
   // observer doesn't see (e.g. very-short pages where the bottom edge
