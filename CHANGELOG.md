@@ -313,6 +313,28 @@ full pass.
   staging URL can replay the §12.1 manual walkthrough against the
   live site.
 
+### Documents (second-plan Phase 13)
+- `README.md` Contributors list now points to `docs/RESEARCH.md`
+  §§10–§14 (with §14.1 named as the single-source-of-truth for
+  breakpoints) and to `docs/ARCHITECTURE.md` §§7-9 (theming
+  mechanism, parity contract, file-size audit).
+- `docs/ARCHITECTURE.md` extends with §7 theming mechanism
+  (data-theme + data-theme-mode + localStorage contract, FOIT
+  guard via `static/js/theme-early.js`), §8 visual & behavioral
+  parity contract (three research surfaces, no fixed values from
+  the plan source), and §9 file-size audit (largest runtime file
+  is `infobox.scss` at 201 lines, well under the 500-line split
+  threshold; `search.ts` is the longest TS module at 167 lines).
+- `docs/RESEARCH.md` §11.9 closes the three open questions carried
+  out of Phase 3 (heading rhythm — closed by the existing v1.0.0+
+  audit-pass commit `91e61bb`; light/dark visited-link palette —
+  closed by `9d86526`; dark-mode `--color-surface` and
+  infobox-separator triad — closed by `9d86526`).
+- `docs/UI-AUDIT.md` carries forward unchanged — the second-plan
+  pass did not introduce new fidelity gaps beyond §11's table, and
+  the existing audit's §1.5 heading-rhythm entry refers to the same
+  tightening that the closed-question entry now references.
+
 ## [1.0.1] - 2026-07-11
 
 Hotfix patch: three build errors surfaced by `npm run dev` immediately after the
