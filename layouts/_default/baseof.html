@@ -32,6 +32,12 @@
   {{- with .Site.Home.OutputFormats.Get "rss" }}
   <link rel="alternate" type="application/rss+xml" href="{{ .Permalink }}">
   {{- end }}
+  {{- /* Early theme application — must run BEFORE the CSS bundle paints so
+        the page does not flash light-then-dark for returning dark-mode
+        users or vice versa. Lives as a separate asset under `static/js/`
+        (not as inline `<script>` in the template) per the project's "no
+        inline script in templates" rule. See static/js/theme-early.js. */}}
+  <script src="{{ "js/theme-early.js" | relURL }}"></script>
   {{- /* CSS bundle — Dart Sass via Hugo Pipes (css.Sass namespace). */}}
   {{- $cssOpts := dict "transpiler" "dartsass" "targetPath" "css/main.css" }}
   {{- $css := resources.Get "css/main.scss" | css.Sass $cssOpts | resources.Minify | resources.Fingerprint "sha256" }}

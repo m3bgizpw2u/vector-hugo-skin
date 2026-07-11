@@ -267,6 +267,24 @@ full pass.
   states); no template or SCSS changes; the sidebar-toggle, theme-
   toggle, and ToC scroll-spy modules are unaffected.
 
+### Added (theme-switch FOIT guard)
+- New asset `static/js/theme-early.js`: a small synchronous script
+  (~30 lines) that reads `localStorage.theme` and sets
+  `data-theme` + `data-theme-mode` on `<html>` before the stylesheet
+  bundle paints, eliminating the flash-of-wrong-theme that would
+  otherwise occur for returning users on a stored non-default theme.
+  Loaded directly from `layouts/_default/baseof.html` via
+  `<script src>` (not as inline `<script>` content in the template)
+  to honor `.cursor/rules/30-scripts.mdc` (`no inline script in
+  templates`) while still blocking the FOIT. The data-theme-mode
+  attribute is preserved so `theme-toggle.ts`'s auto-mode handler
+  (which keys off `getAttribute('data-theme-mode')`) does not need
+  any changes — the early script and the toggle agree on the
+  attribute contract. Storage failures (private mode, disabled
+  cookies) are caught silently: the page falls back to
+  `themes/auto.scss`'s `prefers-color-scheme` media query and no
+  attribute is set, matching the previous behavior.
+
 ## [1.0.1] - 2026-07-11
 
 Hotfix patch: three build errors surfaced by `npm run dev` immediately after the
