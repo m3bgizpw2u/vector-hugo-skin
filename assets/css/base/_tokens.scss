@@ -94,6 +94,7 @@
   --sticky-header-height: 2.5rem;
   --infobox-max-width: 22rem;
   --infobox-gap: 1.5rem;
+  --content-padding-x: 1rem;
 
   // ---- Radii ----
   --radius-sm: 2px;
@@ -122,4 +123,21 @@
   //   Mobile: < 720px
   //   Tablet: 720px – 1024px
   //   Desktop: > 1024px
+  //   Desktop-wide: ≥ 1200px (Vector's wider column tier per §14.1)
+}
+
+// ---- Desktop-wide tier (F6 from docs/UI-AUDIT.md §6) ----
+// At viewport widths ≥1200px Vector widens the sidebar column from
+// 196px to 248px and grows the page padding from 44px to 52px. Our
+// base tokens target the narrower desktop range; this media query
+// kicks in only when the viewport is wide enough that the larger
+// column widths leave the article column comfortably above its
+// --article-max-width cap. No collision with the existing tablet
+// (max-width: 1024px) and mobile (max-width: 720px) rules.
+@media (min-width: 1200px) {
+  :root {
+    --sidebar-width: 248px;
+    --toc-width: 220px;
+    --content-padding-x: 3.25rem;
+  }
 }

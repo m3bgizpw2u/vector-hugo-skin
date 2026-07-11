@@ -1290,6 +1290,20 @@ build-green verification target.
   column. Resolves F1 + F5 from the responsive audit
   (`docs/UI-AUDIT.md` §6 follow-up); commit 2 of 6 in the plan.
 
+### Added (responsive audit — desktop-wide tier at ≥1200px)
+- New `--content-padding-x` token (base value `1rem`, matching the
+  previous inline `--space-md`) added to `assets/css/base/_tokens.scss`
+  and a `@media (min-width: 1200px) :root { --sidebar-width: 248px;
+  --toc-width: 220px; --content-padding-x: 3.25rem; }` block appended
+  to the same file. `assets/css/layout/page-grid.scss` line 37 now
+  uses `padding: 0 var(--content-padding-x)` instead of the inline
+  `var(--space-md)` so the desktop-wide media query is the single
+  source of truth for the wider padding value. No collision with the
+  tablet / mobile rules: the 1025–1199px gap has neither the tablet
+  collapse nor the desktop-wide widening, matching Vector's tier
+  boundaries. Resolves F6 from the responsive audit
+  (`docs/UI-AUDIT.md` §6 follow-up); commit 4 of 6 in the plan.
+
 ### Documentation
 - Appended `## 8. Responsive audit — implementation summary
   (2026-07-11)` to `docs/UI-AUDIT.md`. Section records the
