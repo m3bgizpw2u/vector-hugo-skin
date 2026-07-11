@@ -1,0 +1,72 @@
+{{/*
+Derived from mediawiki-skins-Vector @ 7c224883 (REL1_42, 2025-06-12),
+file: includes/templates/PageTitlebar.mustache
+Original (c) Wikimedia Foundation and contributors, GPL-2.0-or-later.
+This file: GPL-2.0-or-later.
+Header per docs/PORT-MAP-CONVENTIONS.md §A.
+*/}}
+{{/*
+  Page titlebar — Vector 2022's dedicated article-header chrome strip
+  that sits between the primary site header and the article body. On
+  Wikipedia it hosts the H1 (rendered below) plus a dropdown ToC
+  affordance that's the primary navigation surface on narrow viewports
+  (where the right-column `.toc-panel` is hidden by
+  `assets/css/layout/page-grid.scss`'s `max-width: 1024px` rule) and a
+  parallel shortcut on wide viewports (Vector keeps both).
+
+  Composition (per docs/ARCHITECTURE.md §3, one concern per partial):
+    <header class="page-titlebar">
+      <h1 class="page-titlebar__title">{{ .Title }}</h1>
+      <nav class="page-titlebar-toc-landmark">
+        <input type="checkbox" id="page-titlebar-toc-checkbox" ...>
+        <label for="page-titlebar-toc-checkbox" ...>...</label>
+        <div id="page-titlebar-toc" class="page-titlebar-toc">...</div>
+      </nav>
+    </header>
+
+  The dropdown uses the checkbox-hack pattern Vector chose (per
+  `resources/skins.vector.styles/components/Dropdown.less`): a
+  visually-hidden `<input type="checkbox" role="button">` + a
+  sibling `<label>` + a sibling panel whose visibility is toggled via
+  the `:checked ~` adjacent-sibling selector. No JS required, no
+  inline `<script>` (per .cursor/rules/00-core.mdc).
+
+  Pages with no `.TableOfContents` skip the dropdown entirely (same
+  guard `layouts/_partials/sidebar/toc-panel.html` uses), so the home
+  index and section lists don't render a half-empty trigger.
+
+  The H1 carries `class="page-titlebar__title"` (not `.article-title`)
+  so the new chrome strip is the title's true home; `article-header.html`
+  still owns the article-title visual via `.article-title` for whatever
+  surfaces the titlebar partial does *not* render (currently none — the
+  titlebar is always present, but the class split keeps the SCSS
+  contract precise if a non-article page ever needs an H1).
+*/}}
+<header class="page-titlebar">
+  <h1 class="page-titlebar__title article-title">{{ .Title }}</h1>
+  {{ with .Description }}<p class="page-titlebar__subtitle article-subtitle">{{ . }}</p>{{ end }}
+  {{ with .TableOfContents }}
+  <nav class="page-titlebar-toc-landmark" aria-label="{{ i18n "tocLabel" | default "Contents" }}">
+    <input
+      type="checkbox"
+      id="page-titlebar-toc-checkbox"
+      class="page-titlebar-toc-checkbox"
+      role="button"
+      aria-haspopup="true"
+      aria-label="Toggle the table of contents"
+      aria-expanded="false"
+      aria-controls="page-titlebar-toc"
+    />
+    <label for="page-titlebar-toc-checkbox" class="page-titlebar-toc-toggle" aria-hidden="true">
+      <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false">
+        <path d="M2 3 H14 M2 8 H14 M2 13 H14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <span class="page-titlebar-toc-toggle-text">{{ i18n "tocLabel" | default "Contents" }}</span>
+    </label>
+    <div id="page-titlebar-toc" class="page-titlebar-toc" role="region" aria-label="{{ i18n "tocLabel" | default "Contents" }}">
+      <h2 class="page-titlebar-toc-heading">{{ i18n "tocLabel" | default "Contents" }}</h2>
+      {{ . }}
+    </div>
+  </nav>
+  {{ end }}
+</header>

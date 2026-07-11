@@ -1,0 +1,185 @@
+// Derived from mediawiki-skins-Vector @ 7c224883 (REL1_42, 2025-06-12),
+// file: resources/skins.vector.styles/components/PageTitlebar.less
+// Original (c) Wikimedia Foundation and contributors, GPL-2.0-or-later.
+// This file: GPL-2.0-or-later.
+// Header per docs/PORT-MAP-CONVENTIONS.md §A.
+// Page titlebar — Vector 2022's dedicated chrome strip between the
+// primary site header and the article body. Hosts the H1 plus a
+// checkbox-driven ToC dropdown affordance (the same mechanism used by
+// Vector's other dropdowns, see components/Dropdown.less).
+//
+// Visual styling only. The checkbox → panel opening is pure CSS (the
+// `:checked ~` sibling selector), so no JS module ships with this
+// component; the optional `assets/js/modules/titlebar-toc.ts` only
+// keeps `aria-expanded` honest for screen readers.
+//
+// Selectors key off the classes emitted by
+// `layouts/_partials/article/page-titlebar.html`.
+//
+// Layout: a single flex row holding the H1 (left, growing) and the ToC
+// landmark (right, fixed-size). Position becomes `sticky; top:
+// var(--header-height)` once the user scrolls so the title stays
+// reachable without scrolling all the way back up — matches the way
+// Vector 2022 docks `.vector-page-titlebar` at `top: 197px` on the
+// Cat article (primary header + condensed sticky header together).
+
+.page-titlebar {
+  position: sticky;
+  top: var(--header-height);
+  z-index: calc(var(--z-sticky) - 1);
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-md);
+  padding: var(--space-sm) 0;
+  background-color: var(--color-surface);
+  border-bottom: 1px solid var(--color-divider);
+}
+
+.page-titlebar__title {
+  flex: 1 1 auto;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  font-family: var(--font-serif);
+  font-size: var(--font-size-h1);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-tight);
+  color: var(--color-text);
+  word-wrap: break-word;
+}
+
+.page-titlebar__subtitle {
+  flex: 1 1 100%;
+  margin: var(--space-xs) 0 0;
+  font-size: var(--font-size-lg);
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-base);
+}
+
+// ---- ToC dropdown landmark ----
+// Vector's `.vector-toc-landmark` wraps an invisible checkbox + label
+// + sibling panel. The checkbox covers the label button area so the
+// whole 44×44 target is clickable; the panel is absolutely positioned
+// beneath it and revealed only while the checkbox is :checked.
+.page-titlebar-toc-landmark {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+// Hide the checkbox visually but keep it focusable. Position it
+// absolutely over the label so clicks / focus land on it directly,
+// even though aria-hidden=true hides the label itself from AT (Vector
+// does this for the same reason: input carries the button semantics,
+// label is purely visual).
+.page-titlebar-toc-checkbox {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  opacity: 0;
+  cursor: pointer;
+  z-index: var(--z-raised);
+}
+
+.page-titlebar-toc-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-xs) var(--space-sm);
+  min-width: 44px;
+  min-height: 44px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  user-select: none;
+  transition: background-color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.page-titlebar-toc-toggle:hover {
+  background-color: var(--color-surface-alt);
+  border-color: var(--color-divider);
+}
+
+.page-titlebar-toc-checkbox:focus-visible ~ .page-titlebar-toc-toggle {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+// The panel — absolute-positioned drop-down beneath the toggle. Hidden
+// by default; the `:checked` sibling selector (Vector's choice per
+// Dropdown.less) reveals it without any JS state machine.
+.page-titlebar-toc {
+  display: none;
+  position: absolute;
+  top: calc(100% + var(--space-xs));
+  right: 0;
+  width: min(22rem, calc(100vw - var(--space-md) * 2));
+  max-height: 75vh;
+  overflow-y: auto;
+  background-color: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-sm) var(--space-md);
+  z-index: var(--z-overlay);
+}
+
+.page-titlebar-toc-checkbox:checked ~ .page-titlebar-toc {
+  display: block;
+}
+
+// Visual cue that the dropdown is open.
+.page-titlebar-toc-checkbox:checked ~ .page-titlebar-toc-toggle {
+  background-color: var(--color-surface-alt);
+  border-color: var(--color-accent);
+}
+
+.page-titlebar-toc-heading {
+  margin: 0 0 var(--space-xs);
+  padding-bottom: var(--space-xs);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--color-divider);
+}
+
+// Tighten the inner Hugo-generated `.toc` so it fits the dropdown's
+// narrow card without horizontal scroll. Selectors are shared with
+// `assets/css/components/toc.scss` — re-asserting them here would
+// double-source the same value, so we leave them and only reset the
+// list-style / padding that the dropdown chrome wants.
+//
+// (Pure component-isolation per `.cursor/rules/20-styles.mdc`: this
+// file styles its own subtree only; if a future change needs to tweak
+// the inner ToC visual for the dropdown context specifically, it
+// belongs in `components/toc.scss`, not here.)
+
+// ---- Narrow viewports: stack the title over the toggle, hide text label ----
+@media (max-width: 720px) {
+  .page-titlebar {
+    flex-wrap: wrap;
+  }
+  .page-titlebar-toc-toggle-text {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+}

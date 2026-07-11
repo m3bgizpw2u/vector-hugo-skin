@@ -6,12 +6,16 @@ This file: GPL-2.0-or-later.
 Header per docs/PORT-MAP-CONVENTIONS.md §A.
 */}}
 {{/*
-  Article header — title, optional subtitle (page description), and a byline slot.
-  The byline sub-partial will land in a later phase; rendering it through the
-  safe pipeline is a no-op until then.
+  Article header — the page-titlebar chrome strip immediately above the
+  article body. The wrapper keeps the `article-header` class so the
+  long-standing selectors in `assets/css/components/article-body.scss`
+  (`.article-header h1`) and any external callers keep working; the
+  inner Vector-faithful chrome lives in the page-titlebar partial.
+
+  The byline sub-partial stays available as a slot — it renders the
+  author / lastmod row below the titlebar.
 */}}
 <header class="article-header">
-  <h1 class="article-title">{{ .Title }}</h1>
-  {{ with .Description }}<p class="article-subtitle">{{ . }}</p>{{ end }}
+  {{ partial "article/page-titlebar.html" . }}
   {{ partial "article/byline.html" . | default "" | safeHTML }}
 </header>

@@ -67,11 +67,27 @@ entries in commit order.
   `[[menu.footer]]` block in `exampleSite/hugo.toml`.
 
 ### Added
+- New Vector-faithful article-header chrome strip: `layouts/_partials/article/page-titlebar.html`
+  renders the article titlebar (`<header class="page-titlebar">`) hosting the
+  H1 plus a checkbox-driven ToC dropdown (`<input
+  id="page-titlebar-toc-checkbox">` + sibling panel), styled by
+  `assets/css/components/page-titlebar.scss`. Pure-CSS disclosure (Vector's
+  own `:checked ~` mechanism from `Dropdown.less`, ported verbatim) — no JS
+  state machine, no new TS module. On viewports ≤1024px the right-column
+  `.toc-panel` is hidden by `assets/css/layout/page-grid.scss`, so this
+  dropdown becomes the sole ToC affordance; on wider viewports both remain
+  available, matching Vector's behaviour on the Cat article. Pages with no
+  `.TableOfContents` skip the dropdown via the same `with` guard
+  `layouts/_partials/sidebar/toc-panel.html` already uses.
 - `.skip-link` styling in `assets/css/base/_reset.scss`. The skip link
   itself was emitted by `layouts/_default/baseof.html` already, but had
   no CSS so it rendered inline. The new rule hides it until focused,
   then anchors it top-left with a focus-ring border — Vector's
   `.mw-jump-link` equivalent.
+  - `layouts/_partials/article/article-header.html` now delegates to the
+    new page-titlebar partial; the outer `article-header` class is
+    preserved so `assets/css/components/article-body.scss`'s
+    `.article-header h1` selector keeps applying.
 - `[[menu.footer]]` config block in `exampleSite/hugo.toml` with four
   entries (About / Privacy / Terms / Code of conduct) mirroring Vector
   2022's `Footer.mustache` link shape. Downstream sites can replace
