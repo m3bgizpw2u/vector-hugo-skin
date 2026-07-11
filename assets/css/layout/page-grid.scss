@@ -93,6 +93,25 @@
   }
 }
 
+// ---- Empty ToC + sidebar collapsed: collapse sidebar track to 0 ----
+// The `[data-sidebar="collapsed"]` rule above loses to the empty-TOC rule
+// below on specificity when the page lacks a toc-panel (the empty-TOC rule
+// carries two `:has()` clauses, each contributing `.page-grid` + an
+// `aside.*` class to its specificity, so the empty-TOC rule totals
+// (0,0,5,1) vs the collapse rule's (0,0,2,1)). The cascade then re-reserves
+// a `var(--sidebar-width)` column for the now-collapsed aside and the
+// header toggle stops working on no-TOC pages. Mirror the empty-TOC
+// selector chain verbatim with `[data-sidebar="collapsed"]` added so the
+// combined selector totals (0,0,6,1) and wins the cascade in this single
+// matrix cell. Scoped to `@media (min-width: 721px)` for the same reason
+// the empty-TOC rule is — so the mobile single-column rule keeps its
+// (0,0,1,0) specificity.
+@media (min-width: 721px) {
+  :root[data-sidebar="collapsed"]:not(:has(.page-grid aside.toc-panel)):has(.page-grid aside.sidebar) .page-grid {
+    grid-template-columns: 0 minmax(0, 1fr);
+  }
+}
+
 // ---- Empty ToC: collapse the toc column when no headings exist ----
 // `layouts/_partials/sidebar/toc-panel.html` omits the `<aside class="toc-panel">`
 // element entirely when the article has zero h2/h3 entries, and
