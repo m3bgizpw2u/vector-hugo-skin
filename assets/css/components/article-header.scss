@@ -53,3 +53,15 @@
 .article-header__byline-separator {
   color: var(--color-divider);
 }
+
+// ---- Mobile: smaller H1 ----
+// Defensive parity with `.page-titlebar__title`. The `.article-title`
+// selector is the historical class on the article's H1; today the
+// titlebar partial emits it via `<h1 class="article-title">`, so this
+// rule is a duplicate of the page-titlebar's mobile-typography override
+// on the same element. Keeps both component files self-contained.
+@media (max-width: 719px) {
+  .article-title {
+    font-size: 1.5rem;
+  }
+}

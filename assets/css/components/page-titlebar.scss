@@ -28,7 +28,7 @@
   top: var(--header-height);
   z-index: calc(var(--z-sticky) - 1);
   display: flex;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: flex-end;
   gap: var(--space-md);
@@ -192,5 +192,29 @@
     clip: rect(0, 0, 0, 0);
     white-space: nowrap;
     border: 0;
+  }
+}
+
+// ---- Tablet: H1 claims full row width ----
+// At ≤1024px the right-column `.toc-panel` is hidden by
+// `assets/css/layout/page-grid.scss`, so the dropdown inside this titlebar
+// becomes the sole ToC affordance. The H1 then competes with the dropdown
+// for horizontal space; giving it `flex: 1 1 100%` lets it wrap onto its own
+// row and lets the toggle drop below cleanly, matching Vector 2022's
+// `PageTitlebar.less` pattern.
+@media (max-width: 1024px) {
+  .page-titlebar__title {
+    flex: 1 1 100%;
+  }
+}
+
+// ---- Mobile: smaller H1 ----
+// Vector's `typography.less` drops the article H1 to `1.5em` at its mobile
+// breakpoint (≤719px). At 360px viewport the default `2rem` H1 with a long
+// title wraps to four lines and crowds the ToC dropdown — the mobile value
+// keeps the title legible without dominating the chrome strip.
+@media (max-width: 719px) {
+  .page-titlebar__title {
+    font-size: 1.5rem;
   }
 }

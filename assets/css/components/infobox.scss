@@ -153,6 +153,26 @@
   }
 }
 
+// ---- Mobile: stack label above data ----
+// At narrow viewports the `flex: 0 0 40%` / `flex: 1 1 60%` split leaves
+// only ~140px for data, unreadable for non-trivial values. Vector's
+// mobile infobox pattern: label sits above its data cell, full row width.
+// Stacking row to column drops the per-row horizontal real-estate split
+// and matches Wikipedia's mobile article view.
+@media (max-width: 719px) {
+  .infobox-row {
+    flex-direction: column;
+  }
+  .infobox-label {
+    flex-basis: auto;
+    width: 100%;
+  }
+  .infobox-data {
+    flex-basis: auto;
+    width: 100%;
+  }
+}
+
 // ---- Print: keep the infobox visible but tighten borders ----
 @media print {
   .infobox {

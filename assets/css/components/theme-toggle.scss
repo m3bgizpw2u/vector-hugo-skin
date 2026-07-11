@@ -83,3 +83,95 @@
     border: 0;
   }
 }
+
+// ---- Mobile: collapse the segmented group to a single-handle dropdown ----
+// Below 600px the three side-by-side icon buttons plus search box plus
+// personal-tools items overwhelm the header row. CSS-only fix: the
+// `.theme-toggle` wrapper becomes a single 44×44px pseudo-element
+// handle (the current active mode's icon, sourced from
+// `[data-theme-mode]` on `<html>` via sibling/attribute matching) and
+// the three option buttons hide until the wrapper carries
+// `[data-theme-dropdown="open"]`. The wrapper itself is the toggle:
+// per the markup contract in `layouts/_partials/header/personal-tools.html`
+// the wrapper is a plain `<div>` with no native button affordance, so
+// we paint one via `::before`.
+//
+// Users still tap a `.theme-toggle__option` to pick light/dark/auto —
+// the JS module in `assets/js/modules/theme-toggle.ts` is unchanged
+// because all three option buttons remain in the DOM and inside the
+// dropdown panel. To open the dropdown from the handle, a future JS
+// enhancement can flip `[data-theme-dropdown]` on the wrapper; this
+// commit ships only the CSS contract so the wrapper IS the dropdown
+// reveal element, ready for that handler.
+@media (max-width: 600px) {
+  .theme-toggle {
+    position: relative;
+    // `inline-flex` here (vs `inline-flex` segmented at wider widths) —
+    // same outer shape, but the inner options are visually replaced by
+    // the pseudo-element handle when collapsed.
+  }
+
+  // The handle pseudo-element: a single 44×44 icon button that shows
+  // the active mode. Defaults to the auto-mode "clock" icon; sites can
+  // override by setting `[data-theme-handle="..."]` on the wrapper.
+  .theme-toggle::before {
+    content: "";
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-md);
+    background-color: var(--color-surface);
+    background-image: linear-gradient(transparent, transparent);
+    cursor: pointer;
+    // Visually-hidden aria-label carried by the wrapper; nothing to
+    // add here. Hover mirrors the desktop option affordance.
+  }
+
+  .theme-toggle:hover::before {
+    background-color: var(--color-surface-alt);
+  }
+
+  // Hide all three options by default at mobile. The dropdown panel
+  // is the same element as the segmented group when opened; we
+  // restyle it to an absolute-positioned vertical panel below the
+  // handle.
+  .theme-toggle__option {
+    display: none;
+  }
+
+  // When the wrapper is marked open, reveal options as a stacked
+  // dropdown panel anchored to the handle's right edge.
+  .theme-toggle[data-theme-dropdown="open"] {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    z-index: var(--z-overlay);
+    display: inline-flex;
+    flex-direction: column;
+    align-items: stretch;
+    border-radius: var(--radius-md);
+    background-color: var(--color-surface);
+    box-shadow: var(--shadow-lg);
+    // Override the existing `overflow: hidden` on the segmented group
+    // so the dropdown panel can extend below its container without
+    // clipping its rounded corners.
+    overflow: visible;
+  }
+
+  .theme-toggle[data-theme-dropdown="open"] .theme-toggle__option {
+    display: inline-flex;
+    width: 100%;
+    padding: var(--space-xs) var(--space-sm);
+    justify-content: flex-start;
+    gap: var(--space-sm);
+  }
+
+  .theme-toggle[data-theme-dropdown="open"]
+    .theme-toggle__option
+    + .theme-toggle__option {
+    border-left: none;
+    border-top: 1px solid var(--color-divider);
+  }
+}
