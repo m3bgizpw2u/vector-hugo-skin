@@ -788,3 +788,31 @@ build-green verification target.
   `npm run dev` against the example site — see `docs/ARCHITECTURE.md` §2
   "Verification (replaces the Phase 10 Playwright suite)" and the
   `README.md` Quickstart.
+
+### Changed (third plan, phase 1 — pinned Vector source)
+- Vendored a copy of `wikimedia/mediawiki-skins-Vector` at
+  `vendor/mediawiki-vector/` pinned to **REL1_42** /
+  `7c224883fd6ee166950aaa690381fbc769838071` (annotated tag
+  `2bdf4bf`, committed 2025-06-12, "SECURITY: Insert portlet labels
+  as text instead of HTML"). The upstream `.git/` directory was
+  stripped; the rest of the tree is committed verbatim.
+- `vendor/mediawiki-vector/PROVENANCE.md` records the pin point,
+  rationale for full-tree vendoring (GPL-2.0-or-later §2(a)(b)
+  compliance), and the procedure for refreshing the pin.
+- `.gitignore`: dropped the obsolete `/reference/` scratch-clone
+  carve-out (the prior `dd9a26f9` clone stays on disk but is no
+  longer authoritative); replaced with a defensive
+  `/vendor/mediawiki-vector/.git/` ignore so a future copy step
+  cannot accidentally re-commit upstream history.
+- `docs/RESEARCH.md` gains a "Pinned Vector source (third plan,
+  phase 1)" sub-section with both tag SHAs and the pin-point date.
+
+### Added (third plan, phase 2 — port map)
+- `docs/PORT-MAP.md`: a 14-section, ~140-row table naming the
+  specific upstream Vector file (or Wikipedia template page) that
+  every file in this repo is derived from, or marking it
+  Hugo-native. This is the work order for phases 3 through 7; no
+  `TBD`s remain, and infobox rows are visibly flagged
+  `CC-BY-SA-4.0` (or `dual` where Vector wrapper styling and
+  Wikipedia template logic share a file), distinct from the GPL
+  Vector rows.
