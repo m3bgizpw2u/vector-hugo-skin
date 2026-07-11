@@ -95,27 +95,25 @@
 
 // ---- Empty ToC: collapse the toc column when no headings exist ----
 // `layouts/_partials/sidebar/toc-panel.html` omits the `<aside class="toc-panel">`
-// element entirely when the article has zero h2/h3 entries. CSS Grid named
-// areas do not auto-collapse declared column tracks when the named cell
-// has no occupant — the area goes empty but `var(--toc-width)` (220px) is
-// still reserved, leaving a dead gutter on the right edge of short articles.
-// The `:root:not(:has(.page-grid aside.toc-panel))` selector matches exactly
-// when that element is absent from the page-grid and lets the article column
-// absorb the freed track. Scoped to `@media (min-width: 721px)` so it cannot
-// override the single-column mobile layout below. Mirrors the shape of the
+// element entirely when the article has zero h2/h3 entries, and
+// `layouts/_partials/sidebar/sidebar.html` omits `<aside class="sidebar">` when
+// `Site.Menus.main` is empty. CSS Grid named areas do not auto-collapse declared
+// column tracks when the named cell has no occupant — the area goes empty but
+// `var(--toc-width)` (220px) and `var(--sidebar-width)` (240px desktop, 248px
+// desktop-wide) are still reserved, leaving a dead gutter. The two conditional
+// partials make element-presence a sufficient signal for the collapse rules:
+// `:has(.page-grid aside.toc-panel)` matches when the toc IS in DOM,
+// `:not(:has(.page-grid aside.toc-panel))` when it ISN'T — no emptiness check
+// required. Scoped to `@media (min-width: 721px)` so it cannot override the
+// single-column mobile layout below. Mirrors the shape of the
 // `@media (max-width: 1024px)` block (also drops the toc track, but for
 // viewport width instead of DOM absence) so the two rules stay consistent.
 //
-// The selector also requires `:has(.page-grid aside.sidebar .sidebar-list__link)`
-// so this rule is only the "toc empty, sidebar present" case. The sidebar-
-// empty and both-empty branches below carry the other two states; without
-// the extra `:has()` guard the present-sidebar case would still match the
-// bare `:not(:has(aside.toc-panel))` rule (since the empty-toc selector
-// alone doesn't care whether the sidebar is populated), which would then
-// leave the toc column reserved for the both-empty case and overlap with
-// the sidebar-empty rule below.
+// Requires `:has(.page-grid aside.sidebar)` to scope this to the toc-empty-
+// sidebar-present case; the both-empty branch below owns the case where the
+// sidebar is also absent.
 @media (min-width: 721px) {
-  :root:not(:has(.page-grid aside.toc-panel)):has(.page-grid aside.sidebar .sidebar-list__link) .page-grid {
+  :root:not(:has(.page-grid aside.toc-panel)):has(.page-grid aside.sidebar) .page-grid {
     grid-template-areas:
       "header header"
       "sidebar main"
@@ -125,18 +123,17 @@
 }
 
 // ---- Empty sidebar: collapse the sidebar column when no menu links exist ----
-// Symmetric to the empty-toc rule above. The sidebar partial always emits
-// `<aside class="sidebar">` even when `Site.Menus.main` is empty (the
-// `range` produces no `<li>` items but the wrapper `<nav>`, heading, and
-// empty `<ul>` remain), so the `var(--sidebar-width)` (240px) track is
-// reserved for a column that has nothing to show. Test for presence of
-// `.sidebar-list__link` (the per-item `<a>` rendered once per menu entry)
-// — when zero of those exist, the menu is empty and the sidebar track
-// drops out. Requires `:has(.page-grid aside.toc-panel)` to scope this to
-// the sidebar-empty-only case; the both-empty branch below owns the case
-// where the ToC is also absent.
+// Symmetric to the empty-toc rule above. `layouts/_partials/sidebar/sidebar.html`
+// omits the entire `<aside class="sidebar">` element when `Site.Menus.main` is
+// empty, so the `var(--sidebar-width)` track would otherwise be reserved for a
+// column that has nothing to show. Keying on the presence of the element itself
+// (`:has(.page-grid aside.sidebar)` / `:not(:has(.page-grid aside.sidebar))`)
+// is sufficient — the partial never emits an empty wrapper, so checking for
+// emptiness inside the wrapper is no longer needed. Requires
+// `:has(.page-grid aside.toc-panel)` to scope this to the sidebar-empty-only
+// case; the both-empty branch below owns the case where the ToC is also absent.
 @media (min-width: 721px) {
-  :root:has(.page-grid aside.toc-panel):not(:has(.page-grid aside.sidebar .sidebar-list__link)) .page-grid {
+  :root:has(.page-grid aside.toc-panel):not(:has(.page-grid aside.sidebar)) .page-grid {
     grid-template-areas:
       "header header"
       "main toc"
@@ -154,7 +151,7 @@
 // with Vector's `.vector-body` grid — the grid should never reserve a
 // dead track.
 @media (min-width: 721px) {
-  :root:not(:has(.page-grid aside.toc-panel)):not(:has(.page-grid aside.sidebar .sidebar-list__link)) .page-grid {
+  :root:not(:has(.page-grid aside.toc-panel)):not(:has(.page-grid aside.sidebar)) .page-grid {
     grid-template-areas:
       "header"
       "main"

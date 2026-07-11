@@ -10,35 +10,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [Unreleased]
 
 ### Fixed
-- Page-grid collapses the sidebar AND/OR the toc column when the corresponding
-  region is empty (sidebar absent, toc-panel absent from DOM, or both). The
-  earlier empty-toc fix only covered the toc-absent case and used a bare
-  `:not(:has(.page-grid aside.toc-panel))` selector that didn't track sidebar
-  state. Three problems remained: when the article had no headings AND no menu,
-  the sidebar track (240px at desktop, 248px at desktop-wide) was still reserved,
-  leaving a dead column on the left; when the article had headings but no menu,
-  the sidebar track was still reserved; the bare selector would have collided
-  with a future empty-sidebar rule because the toc-absent case would always
-  match it. Reshaped into three mutually exclusive `@media (min-width: 721px)`
-  rules keyed on the presence of `<aside class="toc-panel">` and on
-  `.sidebar-list__link` (the per-item `<a>` rendered once per main-menu entry).
-  The empty-toc rule gains the extra `:has(.page-grid aside.sidebar
-  .sidebar-list__link)` guard so it only handles the toc-empty-sidebar-present
-  case; two new sibling rules cover sidebar-empty-toc-present
-  (`:has(...toc-panel):not(:has(...sidebar .sidebar-list__link))`) and
-  both-empty (the highest-specificity combination, two `:not(:has())` clauses,
-  wins over the single-empty rules when both conditions hold). All three are
-  scoped to `min-width: 721px` so the single-column mobile layout
-  (`@media (max-width: 720px)`) keeps its existing `(0,0,1,0)` specificity and
-  is not overridden. The empty-toc rule's selector is also scoped further to
-  `.page-grid aside.toc-panel` to defend against a future component using
-  `<aside class="toc-panel">` outside the page-grid accidentally disabling the
-  collapse. At a 1280px viewport on the short-article demo, the article column
-  grew from 580px (both tracks still reserved) to 824px (toc track collapsed)
-  on toc-empty, 852px (sidebar track collapsed) on sidebar-empty, and 1096px
-  (both tracks collapsed) on both-empty — matching Vector 2022's "article
-  expands to fill the freed horizontal space" behaviour. One file touched:
-  `assets/css/layout/page-grid.scss`.
+- `layouts/_partials/sidebar/sidebar.html` wrapped in a `{{ if .Site.Menus.main }}` guard so the empty `<aside class="sidebar">` is no longer emitted when the main menu has no entries — matches the precedent set by `layouts/_partials/sidebar/toc-panel.html` (which already wraps in `{{ if and (eq .Kind "page") (gt $entryCount 0) }}`). The previous worker fixed the visible symptom (a dead sidebar column reserved for an empty menu) by extending the page-grid `:has()` collapse rules in `assets/css/layout/page-grid.scss` to key off the absence of `.sidebar-list__link`, but the wrapper was still in the DOM with a `Navigation` heading and an empty `<ul>` — visible on the example site at the 1280px viewport sitting in the article column. This commit removes the wrapper entirely. `Site.Menus.main` is the single source of truth for the guard: an empty menu ⇒ empty sidebar, downstream sites with no main menu collapse to a single-column layout. Three files touched: `layouts/_partials/sidebar/sidebar.html` (added the wrap), `assets/css/layout/page-grid.scss` (the three empty-region `:has()` rules now key off the bare presence of the two aside elements — `:has(.page-grid aside.sidebar)` / `:has(.page-grid aside.toc-panel)` — rather than emptiness, so the prior `.sidebar-list__link` qualifier inside the empty-sidebar / both-empty selectors is no longer needed), and the page-padding layout comment block (no behavioural change). The previous CHANGELOG entry from `4bb2bf1` describing the three-way `:has()` collapse grid is amended in place to record that the original emptiness-test selectors have since been replaced with element-presence selectors, and that the underlying sidebar partial was also conditionalised (this entry replaces the prior `### Fixed` block under the page-grid collapse, which is folded into a single coherent record of the empty-region layout fix).
 - Page-grid reserved a 220px column on the right of every article page even
   when no headings existed to populate the table of contents. CSS Grid does
   not auto-collapse declared column tracks when a named area is unoccupied,

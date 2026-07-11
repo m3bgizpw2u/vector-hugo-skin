@@ -8,7 +8,16 @@ Header per docs/PORT-MAP-CONVENTIONS.md §A.
 {{/*
   Sidebar region wrapper — composes the main menu (and any future sidebar
   portlets) without inline markup.
+
+  Mirrors the precedent set by `layouts/_partials/sidebar/toc-panel.html`:
+  the wrapper is omitted from the DOM entirely when there is nothing to
+  show, so the page-grid collapse rules in `assets/css/layout/page-grid.scss`
+  no longer need to inspect emptiness and can key off element presence.
+  `Site.Menus.main` is the single source of truth — empty menu ⇒ empty
+  sidebar; downstream sites with no main menu get a single-column layout.
 */}}
+{{ if .Site.Menus.main }}
 <aside class="sidebar" aria-label="{{ i18n "mainMenuLabel" | default "Main menu" }}">
   {{ partial "sidebar/main-menu.html" . }}
 </aside>
+{{ end }}
