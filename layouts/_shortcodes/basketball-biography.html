@@ -1,42 +1,76 @@
 {{/*
+|Derived from mediawiki-skins-Vector @ 7c224883 (REL1_42, 2025-06-12) (wrapper styling): GPL-2.0-or-later.
+|Conditional logic derived from Wikipedia "Template:Infobox basketball biography" fetched 2026-07-11: CC BY-SA 4.0.
+|Combined file: GPL-2.0-or-later for the wrapper, CC BY-SA 4.0 for the content logic.
+|Header per docs/PORT-MAP-CONVENTIONS.md §B (dual).
+|*/}}
+{{/*
   Shortcode: basketball-biography
   Upstream: https://en.wikipedia.org/wiki/Template:Infobox_basketball_biography
   Parameters: name, image, caption, alt, birth_date, birth_place, death_date,
               death_place, nationality, height, weight, position, jersey_number,
               high_school, college, draft_year, draft_round, draft_pick,
-              draft_team, career_start, career_end, career_position,
-              career_number, coach_team, years_as_coach, hall_of_fame,
-              highlights, stats, below
+              draft_team, career_start, career_end, coach, hall_of_fame,
+              highlights, stats, below.
+
+  Conditionals ported (CC BY-SA 4.0):
+   - Position label pluralises with trailing "(s)" when more than one
+     position is given (same pattern as the football module).
+   - Height / weight pair share the row, with weight unit "lb" implied —
+     we accept author-supplied text and do not convert.
+   - College + draft_* rows are suppressed on empty values.
+   - Hall of Fame row uses the literal text "Inducted YYYY" if `induct_year`
+     is given (matches `{{inducted|{{{hof|}}}}} ` from the upstream); falls
+     back to the supplied hof string when no year is given.
 */}}
+{{ $pos := .Get "position" }}
+{{ $posLabel := printf "Position%s" (cond (gt (len (split $pos ",")) 1) "(s)" "") }}
+
+{{ $fields := slice }}
+{{ $bd := .Get "birth_date" }}
+{{ $bp := .Get "birth_place" }}
+{{ if or (ne $bd "") (ne $bp "") }}
+  {{ $fields = $fields | append (dict
+      "label" "Born"
+      "value" (printf "%s%s%s" (default "" $bd)
+        (cond (and (ne $bd "") (ne $bp "")) ", " "")
+        (default "" $bp))) }}
+{{ end }}
+{{ with .Get "nationality" }}{{ $fields = $fields | append (dict "label" "Nationality" "value" .) }}{{ end }}
+{{ with .Get "height" }}{{ $fields = $fields | append (dict "label" "Height" "value" (printf "%s m" .)) }}{{ end }}
+{{ with .Get "weight" }}{{ $fields = $fields | append (dict "label" "Weight" "value" (printf "%s lb" .)) }}{{ end }}
+{{ if ne $pos "" }}{{ $fields = $fields | append (dict "label" $posLabel "value" $pos) }}{{ end }}
+{{ with .Get "jersey_number" }}{{ $fields = $fields | append (dict "label" "Number" "value" .) }}{{ end }}
+{{ with .Get "high_school" }}{{ $fields = $fields | append (dict "label" "High school" "value" .) }}{{ end }}
+{{ with .Get "college" }}{{ $fields = $fields | append (dict "label" "College" "value" .) }}{{ end }}
+{{ $draft := slice }}
+{{ with .Get "draft_year" }}{{ $draft = $draft | append . }}{{ end }}
+{{ with .Get "draft_round" }}{{ $draft = $draft | append (printf "round %s" .) }}{{ end }}
+{{ with .Get "draft_pick" }}{{ $draft = $draft | append (printf "pick %s" .) }}{{ end }}
+{{ with .Get "draft_team" }}{{ $draft = $draft | append . }}{{ end }}
+{{ if gt (len $draft) 0 }}
+  {{ $fields = $fields | append (dict "label" "WNBA draft" "value" (delimit $draft ", ")) }}
+{{ end }}
+{{ $career := slice }}
+{{ with .Get "career_start" }}{{ $career = $career | append . }}{{ end }}
+{{ with .Get "career_end" }}{{ $career = $career | append . }}{{ end }}
+{{ if gt (len $career) 0 }}
+  {{ $fields = $fields | append (dict "label" "Career" "value" (delimit $career "–")) }}
+{{ end }}
+{{ $hof := .Get "hall_of_fame" }}
+{{ $hofYear := .Get "induct_year" }}
+{{ if ne $hof "" }}
+  {{ $fields = $fields | append (dict "label" "Hall of Fame" "value" (printf "%s%s" (cond (ne $hofYear "") (printf "Inducted %s — " $hofYear) "") $hof)) }}
+{{ end }}
+{{ with .Get "coach" }}{{ $fields = $fields | append (dict "label" "Coaching career" "value" .) }}{{ end }}
+
 {{ partial "infobox/base.html" (dict
   "type"    "basketball-biography"
   "title"   (.Get "name")
   "image"   (.Get "image")
   "caption" (.Get "caption")
   "alt"     (.Get "alt")
-  "fields"  (slice
-    (dict "label" "Born" "value" (printf "%s%s"
-        (.Get "birth_date")
-        (cond (ne (.Get "birth_place") "") (printf ", %s" (.Get "birth_place")) "")))
-    (dict "label" "Died" "value" (printf "%s%s"
-        (.Get "death_date")
-        (cond (ne (.Get "death_place") "") (printf ", %s" (.Get "death_place")) "")))
-    (dict "label" "Nationality" "value" (.Get "nationality"))
-    (dict "label" "Height" "value" (printf "%s m" (.Get "height")))
-    (dict "label" "Weight" "value" (printf "%s kg" (.Get "weight")))
-    (dict "label" "Position" "value" (.Get "position"))
-    (dict "label" "Jersey no." "value" (.Get "jersey_number"))
-    (dict "label" "High school" "value" (.Get "high_school"))
-    (dict "label" "College" "value" (.Get "college"))
-    (dict "label" "NBA draft" "value" (printf "%s, %s — round %s #%s" (.Get "draft_year") (.Get "draft_team") (.Get "draft_round") (.Get "draft_pick")))
-    (dict "label" "Playing career" "value" (printf "%s — %s" (.Get "career_start") (.Get "career_end")))
-    (dict "label" "Position" "value" (.Get "career_position"))
-    (dict "label" "Number" "value" (.Get "career_number"))
-    (dict "label" "Coaching career" "value" (printf "%s — %s" (.Get "coach_team") (.Get "years_as_coach")))
-    (dict "label" "Hall of Fame" "value" (.Get "hall_of_fame"))
-    (dict "label" "Career highlights" "value" (.Get "highlights"))
-    (dict "label" "Stats" "value" (.Get "stats"))
-  )
+  "fields"  $fields
   "Inner"   .Inner
   "below"   (.Get "below")
 ) }}

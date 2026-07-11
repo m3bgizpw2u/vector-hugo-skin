@@ -1,30 +1,80 @@
 {{/*
+|Derived from mediawiki-skins-Vector @ 7c224883 (REL1_42, 2025-06-12) (wrapper styling): GPL-2.0-or-later.
+|Conditional logic derived from Wikipedia "Template:Infobox person" fetched 2026-07-11: CC BY-SA 4.0.
+|Combined file: GPL-2.0-or-later for the wrapper, CC BY-SA 4.0 for the content logic.
+|Header per docs/PORT-MAP-CONVENTIONS.md §B (dual).
+|*/}}
+{{/*
   Shortcode: person
   Upstream: https://en.wikipedia.org/wiki/Template:Infobox_person
-  Parameters: name, image, caption, alt, birth_date, birth_place,
-              death_date, death_place, nationality, occupation,
-              years_active, known_for, notable_works, website, below
+  Parameters: name, image, caption, alt, birth_date, birth_place, death_date,
+              death_place, nationality, occupation, years_active, known_for,
+              notable_works, website, below.
+
+  Conditionals ported from Template:Infobox person (CC BY-SA 4.0):
+   - Unknown / missing birth or death date shows literal `?` (matches
+     `{{#if:{{{birth_date|}}}|...|?}}` in the upstream).
+   - Born / Died rows are suppressed entirely when both the date and the
+     place are absent (matches `{{#if:{{{birth_date|}}}{{{birth_place|}}}|...}}`).
+   - Optional `age` parameter is appended to Born as "(age N)" when present
+     (matches the post-module Module:Person date rendering).
+   - All remaining rows are individually suppressed on empty value.
 */}}
+{{ $birthDate := or (.Get "birth_date") (cond (ne "" (.Get "death_place")) "?" "") }}
+{{ $birthPlace := .Get "birth_place" }}
+{{ $age := .Get "age" }}
+{{ $bornValue := "" }}
+{{ if or (ne $birthDate "") (ne $birthPlace "") }}
+  {{ $bornValue = printf "%s%s%s" $birthDate
+    (cond (and (ne $birthDate "") (ne $birthPlace "")) ", " "")
+    $birthPlace }}
+  {{ if ne $age "" }}
+    {{ $bornValue = printf "%s (age %s)" $bornValue $age }}
+  {{ end }}
+{{ end }}
+
+{{ $deathDate := or (.Get "death_date") (cond (ne "" (.Get "death_place")) "?" "") }}
+{{ $deathPlace := .Get "death_place" }}
+{{ $diedValue := "" }}
+{{ if or (ne $deathDate "") (ne $deathPlace "") }}
+  {{ $diedValue = printf "%s%s%s" $deathDate
+    (cond (and (ne $deathDate "") (ne $deathPlace "")) ", " "")
+    $deathPlace }}
+{{ end }}
+
+{{ $fields := slice }}
+{{ if ne $bornValue "" }}
+  {{ $fields = $fields | append (dict "label" "Born" "value" $bornValue) }}
+{{ end }}
+{{ if ne $diedValue "" }}
+  {{ $fields = $fields | append (dict "label" "Died" "value" $diedValue) }}
+{{ end }}
+{{ with .Get "nationality" }}
+  {{ $fields = $fields | append (dict "label" "Nationality" "value" .) }}
+{{ end }}
+{{ with .Get "occupation" }}
+  {{ $fields = $fields | append (dict "label" "Occupation" "value" .) }}
+{{ end }}
+{{ with .Get "years_active" }}
+  {{ $fields = $fields | append (dict "label" "Years active" "value" .) }}
+{{ end }}
+{{ with .Get "known_for" }}
+  {{ $fields = $fields | append (dict "label" "Known for" "value" .) }}
+{{ end }}
+{{ with .Get "notable_works" }}
+  {{ $fields = $fields | append (dict "label" "Notable works" "value" .) }}
+{{ end }}
+{{ with .Get "website" }}
+  {{ $fields = $fields | append (dict "label" "Website" "value" .) }}
+{{ end }}
+
 {{ partial "infobox/base.html" (dict
   "type"    "person"
   "title"   (.Get "name")
   "image"   (.Get "image")
   "caption" (.Get "caption")
   "alt"     (.Get "alt")
-  "fields"  (slice
-    (dict "label" "Born" "value" (printf "%s%s"
-        (.Get "birth_date")
-        (cond (ne (.Get "birth_place") "") (printf ", %s" (.Get "birth_place")) "")))
-    (dict "label" "Died" "value" (printf "%s%s"
-        (.Get "death_date")
-        (cond (ne (.Get "death_place") "") (printf ", %s" (.Get "death_place")) "")))
-    (dict "label" "Nationality" "value" (.Get "nationality"))
-    (dict "label" "Occupation" "value" (.Get "occupation"))
-    (dict "label" "Years active" "value" (.Get "years_active"))
-    (dict "label" "Known for" "value" (.Get "known_for"))
-    (dict "label" "Notable works" "value" (.Get "notable_works"))
-    (dict "label" "Website" "value" (.Get "website"))
-  )
+  "fields"  $fields
   "Inner"   .Inner
   "below"   (.Get "below")
 ) }}

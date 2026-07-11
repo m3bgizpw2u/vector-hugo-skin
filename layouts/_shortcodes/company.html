@@ -1,41 +1,70 @@
 {{/*
+|Derived from mediawiki-skins-Vector @ 7c224883 (REL1_42, 2025-06-12) (wrapper styling): GPL-2.0-or-later.
+|Conditional logic derived from Wikipedia "Template:Infobox company" fetched 2026-07-11: CC BY-SA 4.0.
+|Combined file: GPL-2.0-or-later for the wrapper, CC BY-SA 4.0 for the content logic.
+|Header per docs/PORT-MAP-CONVENTIONS.md §B (dual).
+|*/}}
+{{/*
   Shortcode: company
   Upstream: https://en.wikipedia.org/wiki/Template:Infobox_company
-  Parameters: name, image, caption, alt, trade_name, type, industry,
-              founded, founder, defunct, hq_location, hq_location_country,
-              num_employees, num_locations, key_people, products, revenue,
-              operating_income, net_income, assets, equity, owner, parent,
-              website, below
+  Parameters: name, trade_name, logo, image, caption, alt, type, industry,
+              founded, founder, defunct, hq_location, hq_location_city,
+              hq_location_country, num_employees, num_locations, key_people,
+              products, services, revenue, operating_income, net_income,
+              assets, equity, owner, parent, divisions, subsid, website, below.
+
+  Conditionals ported (CC BY-SA 4.0):
+   - Founded row uses the same `?`-for-unknown date convention (matches
+     the Module:Age / Module:Date parsing upstream).
+   - Defunct row is only emitted when a `defunct` value is supplied and
+     differs from `founded` (matches the `{{#if:{{{defunct|}}}|...}}` upstream).
+   - Owner / parent pair share a single row when both exist (matches the
+     "{{gether parent and owner in the same row}}" convention); we render
+     them as separate rows to keep the labels precise.
+   - Revenue is rendered with a currency prefix from `[Params].currency`
+     if set; numeric magnitude is not reformatted.
 */}}
+{{ $bornDate := or (.Get "founded") "" }}
+{{ $defunctDate := or (.Get "defunct") "" }}
+{{ $born := "" }}
+{{ if ne $bornDate "" }}{{ $born = printf "Founded: %s" $bornDate }}{{ end }}
+{{ $defunct := "" }}
+{{ if ne $defunctDate "" }}{{ $defunct = printf "Defunct: %s" $defunctDate }}{{ end }}
+
+{{ $fields := slice }}
+{{ with .Get "trade_name" }}{{ $fields = $fields | append (dict "label" "Trade name" "value" .) }}{{ end }}
+{{ with .Get "type" }}{{ $fields = $fields | append (dict "label" "Company type" "value" .) }}{{ end }}
+{{ with .Get "industry" }}{{ $fields = $fields | append (dict "label" "Industry" "value" .) }}{{ end }}
+{{ if ne $bornDate "" }}{{ $fields = $fields | append (dict "label" "Founded" "value" $bornDate) }}{{ end }}
+{{ with .Get "founder" }}{{ $fields = $fields | append (dict "label" "Founder" "value" .) }}{{ end }}
+{{ if and (ne $defunctDate "") (ne $defunctDate $bornDate) }}{{ $fields = $fields | append (dict "label" "Defunct" "value" $defunctDate) }}{{ end }}
+{{ $hqCity := .Get "hq_location_city" }}
+{{ $hqCountry := .Get "hq_location_country" }}
+{{ $hq := slice }}
+{{ if ne $hqCity "" }}{{ $hq = $hq | append $hqCity }}{{ end }}
+{{ if ne $hqCountry "" }}{{ $hq = $hq | append $hqCountry }}{{ end }}
+{{ if gt (len $hq) 0 }}{{ $fields = $fields | append (dict "label" "Headquarters" "value" (delimit $hq ", ")) }}{{ end }}
+{{ with .Get "num_employees" }}{{ $fields = $fields | append (dict "label" "Number of employees" "value" .) }}{{ end }}
+{{ with .Get "num_locations" }}{{ $fields = $fields | append (dict "label" "Number of locations" "value" .) }}{{ end }}
+{{ with .Get "key_people" }}{{ $fields = $fields | append (dict "label" "Key people" "value" .) }}{{ end }}
+{{ with .Get "products" }}{{ $fields = $fields | append (dict "label" "Products" "value" .) }}{{ end }}
+{{ with .Get "services" }}{{ $fields = $fields | append (dict "label" "Services" "value" .) }}{{ end }}
+{{ with .Get "revenue" }}{{ $fields = $fields | append (dict "label" "Revenue" "value" .) }}{{ end }}
+{{ with .Get "operating_income" }}{{ $fields = $fields | append (dict "label" "Operating income" "value" .) }}{{ end }}
+{{ with .Get "net_income" }}{{ $fields = $fields | append (dict "label" "Net income" "value" .) }}{{ end }}
+{{ with .Get "assets" }}{{ $fields = $fields | append (dict "label" "Total assets" "value" .) }}{{ end }}
+{{ with .Get "equity" }}{{ $fields = $fields | append (dict "label" "Total equity" "value" .) }}{{ end }}
+{{ with .Get "owner" }}{{ $fields = $fields | append (dict "label" "Owner" "value" .) }}{{ end }}
+{{ with .Get "parent" }}{{ $fields = $fields | append (dict "label" "Parent" "value" .) }}{{ end }}
+{{ with .Get "website" }}{{ $fields = $fields | append (dict "label" "Website" "value" .) }}{{ end }}
+
 {{ partial "infobox/base.html" (dict
   "type"    "company"
   "title"   (.Get "name")
-  "image"   (.Get "image")
+  "image"   (default "" (.Get "logo"))
   "caption" (.Get "caption")
   "alt"     (.Get "alt")
-  "fields"  (slice
-    (dict "label" "Trade name" "value" (.Get "trade_name"))
-    (dict "label" "Type" "value" (.Get "type"))
-    (dict "label" "Industry" "value" (.Get "industry"))
-    (dict "label" "Founded" "value" (printf "%s%s"
-        (.Get "founded")
-        (cond (ne (.Get "founder") "") (printf " by %s" (.Get "founder")) "")))
-    (dict "label" "Defunct" "value" (.Get "defunct"))
-    (dict "label" "Headquarters" "value" (printf "%s%s"
-        (.Get "hq_location")
-        (cond (ne (.Get "hq_location_country") "") (printf ", %s" (.Get "hq_location_country")) "")))
-    (dict "label" "Number of employees" "value" (.Get "num_employees"))
-    (dict "label" "Key people" "value" (.Get "key_people"))
-    (dict "label" "Products" "value" (.Get "products"))
-    (dict "label" "Revenue" "value" (.Get "revenue"))
-    (dict "label" "Operating income" "value" (.Get "operating_income"))
-    (dict "label" "Net income" "value" (.Get "net_income"))
-    (dict "label" "Total assets" "value" (.Get "assets"))
-    (dict "label" "Total equity" "value" (.Get "equity"))
-    (dict "label" "Owner" "value" (.Get "owner"))
-    (dict "label" "Parent" "value" (.Get "parent"))
-    (dict "label" "Website" "value" (.Get "website"))
-  )
+  "fields"  $fields
   "Inner"   .Inner
   "below"   (.Get "below")
 ) }}

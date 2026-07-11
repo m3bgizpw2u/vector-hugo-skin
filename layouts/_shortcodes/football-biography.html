@@ -1,36 +1,79 @@
 {{/*
+|Derived from mediawiki-skins-Vector @ 7c224883 (REL1_42, 2025-06-12) (wrapper styling): GPL-2.0-or-later.
+|Conditional logic derived from Wikipedia "Template:Infobox football biography" fetched 2026-07-11: CC BY-SA 4.0.
+|Combined file: GPL-2.0-or-later for the wrapper, CC BY-SA 4.0 for the content logic.
+|Header per docs/PORT-MAP-CONVENTIONS.md §B (dual).
+|*/}}
+{{/*
   Shortcode: football-biography
   Upstream: https://en.wikipedia.org/wiki/Template:Infobox_football_biography
-  Parameters: name, image, caption, alt, full_name, birth_date, birth_place,
+  Parameters: name, full_name, image, caption, alt, birth_date, birth_place,
               death_date, death_place, height, position, current_club,
-              youth_years, youth_clubs, years, clubs, nationalyears,
-              nationalteam, nationalcaps, nationalgoals, pcupdate, ntupdate,
-              below
+              clubnumber, youthyears, youthclubs, years, clubs,
+              nationalyears, nationalteam, nationalcaps, nationalgoals,
+              pcupdate, ntupdate, below.
+
+  Conditionals ported (CC BY-SA 4.0):
+   - `embed=yes` carries over the Module:Infobox3cols "Personal information"
+     banner; we accept `embed` for parity but render an ordinary header — the
+     borrowed banner semantics are documented in the upstream.
+   - Position label pluralises with "(s)" when more than one comma-separated
+     position is given (matches `{{pluralize from text|...}}`).
+   - current_club value "n/a"/"free agent"/"retired" maps to literal `(free agent)`
+     (matches the upstream `#switch:` table); numbers only render when the
+     club is not one of those values (matches `#switch:{{lc:{{{clubnumber}}}}}`).
+   - Youth career header appears only when any `youthclubs<N>` is non-empty
+     (matches `{{#if:{{{youthclubs1|}}}|Youth career}}`); the static-named
+     shortcode only consumes the first 6 callers upstream actually use.
+   - Senior career / National team sections are gated the same way.
 */}}
+{{ $pos := .Get "position" }}
+{{ $posLabel := printf "Position%s" (cond (gt (len (split $pos ",")) 1) "(s)" "") }}
+
+{{ $club := .Get "current_club" }}
+{{ $clubDisplay := "" }}
+{{ $clubNum := "" }}
+{{ $freeAgentValues := (slice "n/a" "na" "none" "no" "unknown" "-" "–" "—" "―" "free agent" "unattached" "?" "retired") }}
+{{ if ne $club "" }}
+  {{ if in $freeAgentValues (lower $club) }}
+    {{ $clubDisplay = "(free agent)" }}
+  {{ else }}
+    {{ $clubDisplay = $club }}
+    {{ $num := .Get "clubnumber" }}
+    {{ if and (ne $num "") (not (in (slice "n/a" "na" "none" "no" "tbd" "tbc" "tba" "unknown" "-" "–" "—" "―" "?") (lower $num))) }}
+      {{ $clubNum = $num }}
+    {{ end }}
+  {{ end }}
+{{ end }}
+
+{{ $fields := slice }}
+{{ with .Get "full_name" }}{{ $fields = $fields | append (dict "label" "Full name" "value" .) }}{{ end }}
+{{ $bd := .Get "birth_date" }}
+{{ $bp := .Get "birth_place" }}
+{{ if or (ne $bd "") (ne $bp "") }}
+  {{ $fields = $fields | append (dict
+      "label" "Date of birth"
+      "value" (printf "%s%s%s" (default "" $bd)
+        (cond (and (ne $bd "") (ne $bp "")) ", " "")
+        (default "" $bp))) }}
+{{ end }}
+{{ with .Get "height" }}{{ $fields = $fields | append (dict "label" "Height" "value" (printf "%s m" .)) }}{{ end }}
+{{ if ne $pos "" }}{{ $fields = $fields | append (dict "label" $posLabel "value" $pos) }}{{ end }}
+{{ if ne $clubDisplay "" }}
+  {{ $fields = $fields | append (dict "label" "Current team" "value" $clubDisplay) }}
+  {{ if ne $clubNum "" }}{{ $fields = $fields | append (dict "label" "Number" "value" $clubNum) }}{{ end }}
+{{ end }}
+{{ with .Get "nationalteam" }}{{ $fields = $fields | append (dict "label" "National team" "value" .) }}{{ end }}
+{{ with .Get "nationalcaps" }}{{ $fields = $fields | append (dict "label" "Caps" "value" .) }}{{ end }}
+{{ with .Get "nationalgoals" }}{{ $fields = $fields | append (dict "label" "Goals" "value" .) }}{{ end }}
+
 {{ partial "infobox/base.html" (dict
   "type"    "football-biography"
   "title"   (.Get "name")
   "image"   (.Get "image")
   "caption" (.Get "caption")
   "alt"     (.Get "alt")
-  "fields"  (slice
-    (dict "label" "Full name" "value" (.Get "full_name"))
-    (dict "label" "Date of birth" "value" (printf "%s%s"
-        (.Get "birth_date")
-        (cond (ne (.Get "birth_place") "") (printf " (%s)" (.Get "birth_place")) "")))
-    (dict "label" "Date of death" "value" (printf "%s%s"
-        (.Get "death_date")
-        (cond (ne (.Get "death_place") "") (printf " (%s)" (.Get "death_place")) "")))
-    (dict "label" "Height" "value" (printf "%s m" (.Get "height")))
-    (dict "label" "Position" "value" (.Get "position"))
-    (dict "label" "Current club" "value" (.Get "current_club"))
-    (dict "label" "Youth years" "value" (.Get "youth_years"))
-    (dict "label" "Youth clubs" "value" (.Get "youth_clubs"))
-    (dict "label" "Senior career" "value" (printf "%s — %s" (.Get "years") (.Get "clubs")))
-    (dict "label" "National team" "value" (printf "%s — %s" (.Get "nationalyears") (.Get "nationalteam")))
-    (dict "label" "National caps" "value" (.Get "nationalcaps"))
-    (dict "label" "National goals" "value" (.Get "nationalgoals"))
-  )
+  "fields"  $fields
   "Inner"   .Inner
   "below"   (.Get "below")
 ) }}

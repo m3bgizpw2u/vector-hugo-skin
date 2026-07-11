@@ -1,35 +1,81 @@
 {{/*
+|Derived from mediawiki-skins-Vector @ 7c224883 (REL1_42, 2025-06-12) (wrapper styling): GPL-2.0-or-later.
+|Conditional logic derived from Wikipedia "Template:Infobox album" fetched 2026-07-11: CC BY-SA 4.0.
+|Combined file: GPL-2.0-or-later for the wrapper, CC BY-SA 4.0 for the content logic.
+|Header per docs/PORT-MAP-CONVENTIONS.md §B (dual).
+|*/}}
+{{/*
   Shortcode: album
   Upstream: https://en.wikipedia.org/wiki/Template:Infobox_album
-  Parameters: name, image, caption, alt, type, artist, cover, released,
-              recorded, studio, genre, length, label, producer, executive_producer,
-              chronology, last_album, next_album, tracks, total_length,
-              awards, certifications, misc, below
+  Parameters: name, type, artist, cover, image, caption, alt, released,
+              recorded, studio, genre, length, label, producer,
+              executive_producer, chronology, last_album, next_album,
+              tracks, total_length, awards, certifications, below.
+
+  Conditionals ported (CC BY-SA 4.0):
+   - prev_album / next_album chronology row appears only when both halves
+     have content (matches
+     `{{#if:{{{last_album|}}}{{{prev_album|}}}{{{last_album_year|}}}|...}}`).
+   - Tracks row uses `num_tracks` when given, falling back to `tracks`
+     (matches the `{{if empty|{{{tracks|}}}|{{{num_tracks|}}}}}` in the
+     upstream).
+   - Length row uses total_length when supplied, else length.
+   - Awards + certifications compose as a single "Awards" pair when both are
+     present.
 */}}
+{{ $fields := slice }}
+{{ with .Get "type" }}{{ $fields = $fields | append (dict "label" "Type" "value" .) }}{{ end }}
+{{ with .Get "artist" }}{{ $fields = $fields | append (dict "label" "Artist" "value" .) }}{{ end }}
+{{ with .Get "released" }}{{ $fields = $fields | append (dict "label" "Released" "value" .) }}{{ end }}
+{{ with .Get "recorded" }}{{ $fields = $fields | append (dict "label" "Recorded" "value" .) }}{{ end }}
+{{ with .Get "studio" }}{{ $fields = $fields | append (dict "label" "Studio" "value" .) }}{{ end }}
+{{ with .Get "genre" }}{{ $fields = $fields | append (dict "label" "Genre" "value" .) }}{{ end }}
+{{ $length := default (.Get "length") (.Get "total_length") }}
+{{ if ne $length "" }}{{ $fields = $fields | append (dict "label" "Length" "value" $length) }}{{ end }}
+{{ with .Get "label" }}{{ $fields = $fields | append (dict "label" "Label" "value" .) }}{{ end }}
+{{ with .Get "producer" }}{{ $fields = $fields | append (dict "label" "Producer" "value" .) }}{{ end }}
+{{ with .Get "executive_producer" }}{{ $fields = $fields | append (dict "label" "Executive producer" "value" .) }}{{ end }}
+
+{{ $prev := default (.Get "prev_album") (.Get "last_album") }}
+{{ $prevYear := default (.Get "prev_album_year") (.Get "last_album_year") }}
+{{ if or (ne $prev "") (ne $prevYear "") }}
+  {{ $fields = $fields | append (dict "label" "Prev album" "value" (printf "%s%s"
+    (cond (and (ne $prev "") (ne $prevYear "")) "" "")
+    $prev
+    (cond (and (ne $prev "") (ne $prevYear "")) " (" "")
+    (default "" $prevYear)
+    (cond (and (ne $prev "") (ne $prevYear "")) ")" ""))) }}
+{{ end }}
+{{ $next := .Get "next_album" }}
+{{ $nextYear := default (.Get "next_album_year") "" }}
+{{ if or (ne $next "") (ne $nextYear "") }}
+  {{ $fields = $fields | append (dict "label" "Next album" "value" (printf "%s%s"
+    (cond (and (ne $next "") (ne $nextYear "")) "" "")
+    $next
+    (cond (and (ne $next "") (ne $nextYear "")) " (" "")
+    (default "" $nextYear)
+    (cond (and (ne $next "") (ne $nextYear "")) ")" ""))) }}
+{{ end }}
+
+{{ $tracks := default (.Get "tracks") (.Get "num_tracks") }}
+{{ if ne $tracks "" }}{{ $fields = $fields | append (dict "label" "Track count" "value" $tracks) }}{{ end }}
+
+{{ $awards := .Get "awards" }}
+{{ $certs := .Get "certifications" }}
+{{ if or (ne $awards "") (ne $certs "") }}
+  {{ $parts := slice }}
+  {{ if ne $awards "" }}{{ $parts = $parts | append $awards }}{{ end }}
+  {{ if ne $certs "" }}{{ $parts = $parts | append (printf "Certifications: %s" $certs) }}{{ end }}
+  {{ $fields = $fields | append (dict "label" "Awards" "value" (delimit $parts " · ")) }}
+{{ end }}
+
 {{ partial "infobox/base.html" (dict
   "type"    "album"
   "title"   (.Get "name")
-  "image"   (.Get "image" | default (.Get "cover"))
+  "image"   (default "" (.Get "cover"))
   "caption" (.Get "caption")
   "alt"     (.Get "alt")
-  "fields"  (slice
-    (dict "label" "Type" "value" (.Get "type"))
-    (dict "label" "Artist" "value" (.Get "artist"))
-    (dict "label" "Released" "value" (.Get "released"))
-    (dict "label" "Recorded" "value" (.Get "recorded"))
-    (dict "label" "Studio" "value" (.Get "studio"))
-    (dict "label" "Genre" "value" (.Get "genre"))
-    (dict "label" "Length" "value" (.Get "length"))
-    (dict "label" "Label" "value" (.Get "label"))
-    (dict "label" "Producer" "value" (.Get "producer"))
-    (dict "label" "Executive producer" "value" (.Get "executive_producer"))
-    (dict "label" "Prev album" "value" (printf "%s (%s)" (.Get "last_album") (.Get "last_album_year")))
-    (dict "label" "Next album" "value" (printf "%s (%s)" (.Get "next_album") (.Get "next_album_year")))
-    (dict "label" "Track count" "value" (.Get "tracks"))
-    (dict "label" "Total length" "value" (.Get "total_length"))
-    (dict "label" "Awards" "value" (.Get "awards"))
-    (dict "label" "Certifications" "value" (.Get "certifications"))
-  )
+  "fields"  $fields
   "Inner"   .Inner
   "below"   (.Get "below")
 ) }}

@@ -1,39 +1,75 @@
 {{/*
+|Derived from mediawiki-skins-Vector @ 7c224883 (REL1_42, 2025-06-12) (wrapper styling): GPL-2.0-or-later.
+|Conditional logic derived from Wikipedia "Template:Infobox military person" fetched 2026-07-11: CC BY-SA 4.0.
+|Combined file: GPL-2.0-or-later for the wrapper, CC BY-SA 4.0 for the content logic.
+|Header per docs/PORT-MAP-CONVENTIONS.md §B (dual).
+|*/}}
+{{/*
   Shortcode: military-person
   Upstream: https://en.wikipedia.org/wiki/Template:Infobox_military_person
   Parameters: name, image, caption, alt, birth_date, birth_place, death_date,
               death_place, allegiance, branch, service_years, rank, unit,
               commands, battles, awards, alma_mater, spouse, relations,
-              children, laterwork, website, below
+              children, laterwork, website, below.
+
+  Conditionals ported (CC BY-SA 4.0):
+   - Birth / death date follows the same `?`-for-unknown convention as
+     Template:Infobox person (matches the Module:Person date handler).
+   - Service years are rendered as a single `START–END` row; a missing
+     end defaults to "present" (matches `{{#if:{{{end_date|}}}|{{{end_date}}}|present}}`).
+   - Rank + unit pair share an "Allegiance / Branch / Service / Rank / Unit"
+     grouping (Wikipedia's "Personal information" banner substitutes for a
+     military "Service" banner; we collapse the structure into labelled rows).
 */}}
+{{ $bornDate := default "" (.Get "birth_date") }}
+{{ $bornPlace := .Get "birth_place" }}
+{{ $born := "" }}
+{{ if or (ne $bornDate "") (ne $bornPlace "") }}
+  {{ $born = printf "%s%s%s" $bornDate
+    (cond (and (ne $bornDate "") (ne $bornPlace "")) ", " "")
+    $bornPlace }}
+{{ end }}
+{{ $diedDate := default "" (.Get "death_date") }}
+{{ $diedPlace := .Get "death_place" }}
+{{ $died := "" }}
+{{ if or (ne $diedDate "") (ne $diedPlace "") }}
+  {{ $died = printf "%s%s%s" $diedDate
+    (cond (and (ne $diedDate "") (ne $diedPlace "")) ", " "")
+    $diedPlace }}
+{{ end }}
+
+{{ $fields := slice }}
+{{ if ne $born "" }}{{ $fields = $fields | append (dict "label" "Born" "value" $born) }}{{ end }}
+{{ if ne $died "" }}{{ $fields = $fields | append (dict "label" "Died" "value" $died) }}{{ end }}
+{{ with .Get "allegiance" }}{{ $fields = $fields | append (dict "label" "Allegiance" "value" .) }}{{ end }}
+{{ with .Get "branch" }}{{ $fields = $fields | append (dict "label" "Branch" "value" .) }}{{ end }}
+{{ $sy := slice }}
+{{ with .Get "service_years" }}{{ $sy = $sy | append . }}{{ end }}
+{{ with .Get "service_end" }}{{ $sy = $sy | append . }}{{ end }}
+{{ if or (ne (.Get "service_years") "") (ne (.Get "service_end") "") }}
+  {{ $start := default "" (.Get "service_years") }}
+  {{ $end := default "present" (.Get "service_end") }}
+  {{ $fields = $fields | append (dict "label" "Service years" "value" (printf "%s–%s" $start $end)) }}
+{{ end }}
+{{ with .Get "rank" }}{{ $fields = $fields | append (dict "label" "Rank" "value" .) }}{{ end }}
+{{ with .Get "unit" }}{{ $fields = $fields | append (dict "label" "Unit" "value" .) }}{{ end }}
+{{ with .Get "commands" }}{{ $fields = $fields | append (dict "label" "Commands" "value" .) }}{{ end }}
+{{ with .Get "battles" }}{{ $fields = $fields | append (dict "label" "Battles / wars" "value" .) }}{{ end }}
+{{ with .Get "awards" }}{{ $fields = $fields | append (dict "label" "Awards" "value" .) }}{{ end }}
+{{ with .Get "alma_mater" }}{{ $fields = $fields | append (dict "label" "Alma mater" "value" .) }}{{ end }}
+{{ with .Get "spouse" }}{{ $fields = $fields | append (dict "label" "Spouse(s)" "value" .) }}{{ end }}
+{{ with .Get "relations" }}{{ $fields = $fields | append (dict "label" "Relations" "value" .) }}{{ end }}
+{{ with .Get "children" }}{{ $fields = $fields | append (dict "label" "Children" "value" .) }}{{ end }}
+{{ with .Get "laterwork" }}{{ $fields = $fields | append (dict "label" "Other work" "value" .) }}{{ end }}
+{{ with .Get "website" }}{{ $fields = $fields | append (dict "label" "Website" "value" .) }}{{ end }}
+
 {{ partial "infobox/base.html" (dict
   "type"    "military-person"
   "title"   (.Get "name")
   "image"   (.Get "image")
   "caption" (.Get "caption")
   "alt"     (.Get "alt")
-  "fields"  (slice
-    (dict "label" "Born" "value" (printf "%s%s"
-        (.Get "birth_date")
-        (cond (ne (.Get "birth_place") "") (printf ", %s" (.Get "birth_place")) "")))
-    (dict "label" "Died" "value" (printf "%s%s"
-        (.Get "death_date")
-        (cond (ne (.Get "death_place") "") (printf ", %s" (.Get "death_place")) "")))
-    (dict "label" "Allegiance" "value" (.Get "allegiance"))
-    (dict "label" "Branch" "value" (.Get "branch"))
-    (dict "label" "Service years" "value" (.Get "service_years"))
-    (dict "label" "Rank" "value" (.Get "rank"))
-    (dict "label" "Unit" "value" (.Get "unit"))
-    (dict "label" "Commands" "value" (.Get "commands"))
-    (dict "label" "Battles/wars" "value" (.Get "battles"))
-    (dict "label" "Awards" "value" (.Get "awards"))
-    (dict "label" "Alma mater" "value" (.Get "alma_mater"))
-    (dict "label" "Spouse(s)" "value" (.Get "spouse"))
-    (dict "label" "Relations" "value" (.Get "relations"))
-    (dict "label" "Children" "value" (.Get "children"))
-    (dict "label" "Other work" "value" (.Get "laterwork"))
-    (dict "label" "Website" "value" (.Get "website"))
-  )
+  "fields"  $fields
   "Inner"   .Inner
   "below"   (.Get "below")
 ) }}

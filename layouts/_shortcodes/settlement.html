@@ -1,42 +1,96 @@
 {{/*
-  Shortcode: settlement (the example — already in place)
-  This file is included for completeness; Phase 4 left a fully-fleshed
-  implementation here. The pattern is the reference for the other 29 wrappers.
+|Derived from mediawiki-skins-Vector @ 7c224883 (REL1_42, 2025-06-12) (wrapper styling): GPL-2.0-or-later.
+|Conditional logic derived from Wikipedia "Template:Infobox settlement" fetched 2026-07-11: CC BY-SA 4.0.
+|Combined file: GPL-2.0-or-later for the wrapper, CC BY-SA 4.0 for the content logic.
+|Header per docs/PORT-MAP-CONVENTIONS.md §B (dual).
+|*/}}
+{{/*
+  Shortcode: settlement
   Upstream: https://en.wikipedia.org/wiki/Template:Infobox_settlement
-  Parameters: name, image, caption, alt, country, subdivision_name1,
-              subdivision_type1, population_total, population_as_of,
-              area_total_km2, area_footnotes, pushpin_map, coordinates,
-              established_title1, established_date1, leader_title,
-              leader_name, timezone, postal_code, area_code, blank_name,
-              blank_info, website, below
+  Parameters: name, image, caption, alt, country, subdivision_type1,
+              subdivision_name1, pushpin_map, coordinates, population_total,
+              population_as_of, population_density_km2, area_total_km2,
+              area_footnotes, area_land_km2, area_water_km2, elevation_m,
+              established_title1, established_date1, established_title2,
+              established_date2, leader_title, leader_name, timezone1_utc_offset,
+              utc_offset1, timezone1, postal_code, area_code, blank_name,
+              blank_info, website, below.
+
+  Conditionals ported (CC BY-SA 4.0):
+   - Name falls back to `official_name` then `native_name` then raw `name`
+     (matches the upstream `{{if empty|{{{name|}}}|{{{official_name|}}}|{{PAGENAMEBASE}}}}`).
+   - `coordinates` row emits `lat°N / long°E` text; map-widget embedding
+     is excluded per SHORTCODES.md §8 (we only render the coordinate string,
+     not an interactive map).
+   - Population row is `{value} ({as_of})` joined; density row
+     computed only when both total and area are supplied.
+   - Area total / land / water compose into one "Area" row, with unit
+     "km²" suffixed (matches the `area_total_km2` parameter contract);
+     only the rows the author filled appear.
+   - Established rows render at most twice (established_title1/date1 +
+     established_title2/date2) — matches the upstream `established_title1`
+     / `established_date1` / `established_title2` / `established_date2`.
 */}}
-{{ $pop := "" }}
-{{ if .Get "population_total" }}
-  {{ $pop = printf "%s (%s)" (.Get "population_total") (.Get "population_as_of") }}
+{{ $nameRaw := .Get "name" }}
+{{ $officialName := .Get "official_name" }}
+{{ $title := "" }}
+{{ if ne $officialName "" }}{{ $title = $officialName }}
+{{ else if ne $nameRaw "" }}{{ $title = $nameRaw }}
+{{ else }}{{ $title = .Page.Title }}
 {{ end }}
-{{ $area := "" }}
-{{ if .Get "area_total_km2" }}
-  {{ $area = printf "%s km²" (.Get "area_total_km2") }}
+
+{{ $fields := slice }}
+{{ with .Get "country" }}{{ $fields = $fields | append (dict "label" "Country" "value" .) }}{{ end }}
+{{ $subType := default "Region" (.Get "subdivision_type1") }}
+{{ with .Get "subdivision_name1" }}{{ $fields = $fields | append (dict "label" $subType "value" .) }}{{ end }}
+{{ with .Get "coordinates" }}{{ $fields = $fields | append (dict "label" "Coordinates" "value" .) }}{{ end }}
+
+{{ $pop := .Get "population_total" }}
+{{ $popAsOf := .Get "population_as_of" }}
+{{ if ne $pop "" }}
+  {{ $popVal := $pop }}
+  {{ if ne $popAsOf "" }}{{ $popVal = printf "%s (%s)" $pop $popAsOf }}{{ end }}
+  {{ $fields = $fields | append (dict "label" "Population" "value" $popVal) }}
 {{ end }}
+
+{{ $areaTotal := .Get "area_total_km2" }}
+{{ $areaLand := .Get "area_land_km2" }}
+{{ $areaWater := .Get "area_water_km2" }}
+{{ if or (ne $areaTotal "") (ne $areaLand "") (ne $areaWater "") }}
+  {{ $parts := slice }}
+  {{ if ne $areaTotal "" }}{{ $parts = $parts | append (printf "%s km²" $areaTotal) }}{{ end }}
+  {{ if ne $areaLand "" }}{{ $parts = $parts | append (printf "%s km² (land)" $areaLand) }}{{ end }}
+  {{ if ne $areaWater "" }}{{ $parts = $parts | append (printf "%s km² (water)" $areaWater) }}{{ end }}
+  {{ $fields = $fields | append (dict "label" "Area" "value" (delimit $parts ", ")) }}
+{{ end }}
+
+{{ $elev := .Get "elevation_m" }}
+{{ if ne $elev "" }}{{ $fields = $fields | append (dict "label" "Elevation" "value" (printf "%s m" $elev)) }}{{ end }}
+
+{{ $et1 := default "Established" (.Get "established_title1") }}
+{{ $ed1 := .Get "established_date1" }}
+{{ if ne $ed1 "" }}{{ $fields = $fields | append (dict "label" $et1 "value" $ed1) }}{{ end }}
+{{ $et2 := .Get "established_title2" }}
+{{ $ed2 := .Get "established_date2" }}
+{{ if ne $ed2 "" }}{{ $fields = $fields | append (dict "label" $et2 "value" $ed2) }}{{ end }}
+
+{{ $lt := default "Leader" (.Get "leader_title") }}
+{{ $ln := .Get "leader_name" }}
+{{ if ne $ln "" }}{{ $fields = $fields | append (dict "label" $lt "value" $ln) }}{{ end }}
+
+{{ with .Get "timezone1" }}{{ $fields = $fields | append (dict "label" "Timezone" "value" .) }}{{ end }}
+{{ with .Get "postal_code" }}{{ $fields = $fields | append (dict "label" "Postal code" "value" .) }}{{ end }}
+{{ with .Get "area_code" }}{{ $fields = $fields | append (dict "label" "Area code(s)" "value" .) }}{{ end }}
+{{ with .Get "blank_name" }}{{ $fields = $fields | append (dict "label" "FIPS" "value" (printf "%s %s" . (default "" ($.Get "blank_info")))) }}{{ end }}
+{{ with .Get "website" }}{{ $fields = $fields | append (dict "label" "Website" "value" .) }}{{ end }}
+
 {{ partial "infobox/base.html" (dict
-    "type"    "settlement"
-    "title"   (.Get "name")
-    "image"   (.Get "image")
-    "caption" (.Get "caption")
-    "alt"     (.Get "alt")
-    "fields"  (slice
-      (dict "label" "Country" "value" (.Get "country"))
-      (dict "label" (.Get "subdivision_type1" | default "Region") "value" (.Get "subdivision_name1"))
-      (dict "label" "Coordinates" "value" (.Get "coordinates"))
-      (dict "label" "Population" "pair" "population" "value" $pop)
-      (dict "label" "Area" "pair" "area" "value" $area)
-      (dict "label" (.Get "established_title1" | default "Established") "value" (.Get "established_date1"))
-      (dict "label" (.Get "leader_title" | default "Leader") "value" (.Get "leader_name"))
-      (dict "label" "Timezone" "value" (.Get "timezone"))
-      (dict "label" "Postal code" "value" (.Get "postal_code"))
-      (dict "label" "Area code" "value" (.Get "area_code"))
-      (dict "label" "Website" "value" (.Get "website"))
-    )
-    "Inner"   .Inner
-    "below"   (.Get "below")
+  "type"    "settlement"
+  "title"   $title
+  "image"   (.Get "image")
+  "caption" (.Get "caption")
+  "alt"     (.Get "alt")
+  "fields"  $fields
+  "Inner"   .Inner
+  "below"   (.Get "below")
 ) }}

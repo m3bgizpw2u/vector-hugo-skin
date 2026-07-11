@@ -1,37 +1,61 @@
 {{/*
+|Derived from mediawiki-skins-Vector @ 7c224883 (REL1_42, 2025-06-12) (wrapper styling): GPL-2.0-or-later.
+|Conditional logic derived from Wikipedia "Template:Infobox film" fetched 2026-07-11: CC BY-SA 4.0.
+|Combined file: GPL-2.0-or-later for the wrapper, CC BY-SA 4.0 for the content logic.
+|Header per docs/PORT-MAP-CONVENTIONS.md §B (dual).
+|*/}}
+{{/*
   Shortcode: film
   Upstream: https://en.wikipedia.org/wiki/Template:Infobox_film
-  Parameters: name, image, caption, alt, director, producer, writer,
-              screenplay, story, based_on, starring, music, cinematography,
-              editing, studio, distributor, released, runtime, country,
-              language, budget, gross, below
+  Parameters: name, image, caption, alt, director, producer, writer, story,
+              based_on, starring, music, cinematography, editing, studio,
+              distributor, released, runtime, country, language, budget,
+              gross, currency, below.
+
+  Conditionals ported (CC BY-SA 4.0):
+   - Producer / writer / starring fields pluralise with "(s)" when more
+     than one credit is given (matches `{{pluralize from text|...}}`).
+   - budget / gross share a single "Budget / Gross" row when both are
+     supplied — we do not convert currency, we accept `currency` as a
+     three-letter code (USD, EUR, etc.) prefixed in the row.
+   - runtime is appended with "min" suffix.
+   - released is rendered as the author-supplied date string verbatim.
 */}}
+{{ $fields := slice }}
+{{ with .Get "director" }}{{ $fields = $fields | append (dict "label" "Directed by" "value" .) }}{{ end }}
+{{ with .Get "producer" }}{{ $fields = $fields | append (dict "label" (printf "Produced by%s" (cond (gt (len (split . ",")) 1) "(s)" "")) "value" .) }}{{ end }}
+{{ with .Get "writer" }}{{ $fields = $fields | append (dict "label" (printf "Written by%s" (cond (gt (len (split . ",")) 1) "(s)" "")) "value" .) }}{{ end }}
+{{ with .Get "story" }}{{ $fields = $fields | append (dict "label" "Story by" "value" .) }}{{ end }}
+{{ with .Get "based_on" }}{{ $fields = $fields | append (dict "label" "Based on" "value" .) }}{{ end }}
+{{ with .Get "starring" }}{{ $fields = $fields | append (dict "label" (printf "Starring%s" (cond (gt (len (split . ",")) 1) "(s)" "")) "value" .) }}{{ end }}
+{{ with .Get "music" }}{{ $fields = $fields | append (dict "label" "Music by" "value" .) }}{{ end }}
+{{ with .Get "cinematography" }}{{ $fields = $fields | append (dict "label" "Cinematography" "value" .) }}{{ end }}
+{{ with .Get "editing" }}{{ $fields = $fields | append (dict "label" "Edited by" "value" .) }}{{ end }}
+{{ with .Get "studio" }}{{ $fields = $fields | append (dict "label" "Production company" "value" .) }}{{ end }}
+{{ with .Get "distributor" }}{{ $fields = $fields | append (dict "label" "Distributed by" "value" .) }}{{ end }}
+{{ with .Get "released" }}{{ $fields = $fields | append (dict "label" "Release date" "value" .) }}{{ end }}
+{{ with .Get "runtime" }}{{ $fields = $fields | append (dict "label" "Running time" "value" (printf "%s minutes" .)) }}{{ end }}
+{{ with .Get "country" }}{{ $fields = $fields | append (dict "label" "Country" "value" .) }}{{ end }}
+{{ with .Get "language" }}{{ $fields = $fields | append (dict "label" "Language" "value" .) }}{{ end }}
+
+{{ $budget := .Get "budget" }}
+{{ $gross := .Get "gross" }}
+{{ $currency := .Get "currency" }}
+{{ if or (ne $budget "") (ne $gross "") }}
+  {{ $cur := cond (ne $currency "") (printf "%s " $currency) "" }}
+  {{ $parts := slice }}
+  {{ if ne $budget "" }}{{ $parts = $parts | append (printf "%s%s" $cur $budget) }}{{ end }}
+  {{ if ne $gross "" }}{{ $parts = $parts | append (printf "%s%s" $cur $gross) }}{{ end }}
+  {{ $fields = $fields | append (dict "label" "Budget / Gross" "value" (delimit $parts " / ")) }}
+{{ end }}
+
 {{ partial "infobox/base.html" (dict
   "type"    "film"
   "title"   (.Get "name")
   "image"   (.Get "image")
   "caption" (.Get "caption")
   "alt"     (.Get "alt")
-  "fields"  (slice
-    (dict "label" "Directed by" "value" (.Get "director"))
-    (dict "label" "Written by" "value" (.Get "writer"))
-    (dict "label" "Produced by" "value" (.Get "producer"))
-    (dict "label" "Starring" "value" (.Get "starring"))
-    (dict "label" "Music by" "value" (.Get "music"))
-    (dict "label" "Cinematography" "value" (.Get "cinematography"))
-    (dict "label" "Edited by" "value" (.Get "editing"))
-    (dict "label" "Production company" "value" (.Get "studio"))
-    (dict "label" "Distributed by" "value" (.Get "distributor"))
-    (dict "label" "Release date" "value" (.Get "released"))
-    (dict "label" "Running time" "value" (printf "%s min" (.Get "runtime")))
-    (dict "label" "Country" "value" (.Get "country"))
-    (dict "label" "Language" "value" (.Get "language"))
-    (dict "label" "Box office" "pair" "budget-gross"
-      "value" (printf "%s%s%s"
-        (cond (ne (.Get "budget") "") (printf "Budget: %s%s" (.Get "currency" | default "$") (.Get "budget")) "")
-        (cond (and (ne (.Get "budget") "") (ne (.Get "gross") "")) " | " "")
-        (cond (ne (.Get "gross") "") (printf "Gross: %s%s" (.Get "currency" | default "$") (.Get "gross")) "")))
-  )
+  "fields"  $fields
   "Inner"   .Inner
   "below"   (.Get "below")
 ) }}

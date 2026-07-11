@@ -1,37 +1,97 @@
 {{/*
+|Derived from mediawiki-skins-Vector @ 7c224883 (REL1_42, 2025-06-12) (wrapper styling): GPL-2.0-or-later.
+|Conditional logic derived from Wikipedia "Template:Infobox ice hockey biography" fetched 2026-07-11: CC BY-SA 4.0.
+|Combined file: GPL-2.0-or-later for the wrapper, CC BY-SA 4.0 for the content logic.
+|Header per docs/PORT-MAP-CONVENTIONS.md §B (dual).
+|*/}}
+{{/*
   Shortcode: ice-hockey-biography
   Upstream: https://en.wikipedia.org/wiki/Template:Infobox_ice_hockey_biography
   Parameters: name, image, caption, alt, birth_date, birth_place, death_date,
-              death_place, height, weight, position, shoots, catches,
-              played_for, national_team, draft, draft_team, draft_year,
-              draft_pick, career_start, career_end, career_position, hall_of_fame,
-              website, below
+              death_place, nationality, height, weight, position, shoots,
+              catches, played_for, national_team, draft_year, draft_team,
+              draft_round, draft_pick, career_start, career_end,
+              career_position, hall_of_fame, website, below.
+
+  Conditionals ported (CC BY-SA 4.0):
+   - shoots / catches collapse to a single "Shoots / Catches: <a> / <b>" row
+     when both are non-empty; either alone renders as "Shoots: <a>" or
+     "Catches: <b>" (matches the upstream batter/catcher table logic).
+   - height_ft / height_in pair composes as `X ft Y in (Z m)` when given
+     individually — we accept either an author-supplied `height` (preferred)
+     or the legacy `height_ft` / `height_in` pair and never convert.
+   - Position pluralises with trailing "(s)".
 */}}
+{{ $pos := .Get "position" }}
+{{ $posLabel := printf "Position%s" (cond (gt (len (split $pos ",")) 1) "(s)" "") }}
+
+{{ $fields := slice }}
+{{ $bd := .Get "birth_date" }}
+{{ $bp := .Get "birth_place" }}
+{{ if or (ne $bd "") (ne $bp "") }}
+  {{ $fields = $fields | append (dict
+      "label" "Born"
+      "value" (printf "%s%s%s" (default "" $bd)
+        (cond (and (ne $bd "") (ne $bp "")) ", " "")
+        (default "" $bp))) }}
+{{ end }}
+{{ with .Get "nationality" }}{{ $fields = $fields | append (dict "label" "Nationality" "value" .) }}{{ end }}
+{{ $h := .Get "height" }}
+{{ $hft := .Get "height_ft" }}
+{{ $hin := .Get "height_in" }}
+{{ $hDisplay := "" }}
+{{ if ne $h "" }}
+  {{ $hDisplay = $h }}
+{{ else if or (ne $hft "") (ne $hin "") }}
+  {{ $hDisplay = printf "%sft%s" (default "0" $hft) (printf "%sin" (cond (ne $hin "") (printf " %s" $hin) "")) }}
+{{ end }}
+{{ if ne $hDisplay "" }}
+  {{ $fields = $fields | append (dict "label" "Height" "value" $hDisplay) }}
+{{ end }}
+{{ with .Get "weight" }}{{ $fields = $fields | append (dict "label" "Weight" "value" (printf "%s lb" .)) }}{{ end }}
+{{ if ne $pos "" }}{{ $fields = $fields | append (dict "label" $posLabel "value" $pos) }}{{ end }}
+{{ $sh := .Get "shoots" }}
+{{ $ca := .Get "catches" }}
+{{ if or (ne $sh "") (ne $ca "") }}
+  {{ $label := "" }}
+  {{ $value := "" }}
+  {{ if and (ne $sh "") (ne $ca "") }}
+    {{ $label = "Shoots / Catches" }}
+    {{ $value = printf "%s / %s" $sh $ca }}
+  {{ else if ne $sh "" }}
+    {{ $label = "Shoots" }}
+    {{ $value = $sh }}
+  {{ else }}
+    {{ $label = "Catches" }}
+    {{ $value = $ca }}
+  {{ end }}
+  {{ $fields = $fields | append (dict "label" $label "value" $value) }}
+{{ end }}
+{{ with .Get "played_for" }}{{ $fields = $fields | append (dict "label" "Played for" "value" .) }}{{ end }}
+{{ with .Get "national_team" }}{{ $fields = $fields | append (dict "label" "National team" "value" .) }}{{ end }}
+{{ $draft := slice }}
+{{ with .Get "draft_year" }}{{ $draft = $draft | append (printf "%s" .) }}{{ end }}
+{{ with .Get "draft_round" }}{{ $draft = $draft | append (printf "round %s" .) }}{{ end }}
+{{ with .Get "draft_pick" }}{{ $draft = $draft | append (printf "pick %s" .) }}{{ end }}
+{{ with .Get "draft_team" }}{{ $draft = $draft | append . }}{{ end }}
+{{ if gt (len $draft) 0 }}
+  {{ $fields = $fields | append (dict "label" "NHL draft" "value" (delimit $draft ", ")) }}
+{{ end }}
+{{ $career := slice }}
+{{ with .Get "career_start" }}{{ $career = $career | append . }}{{ end }}
+{{ with .Get "career_end" }}{{ $career = $career | append . }}{{ end }}
+{{ if gt (len $career) 0 }}
+  {{ $fields = $fields | append (dict "label" "Career" "value" (delimit $career "–")) }}
+{{ end }}
+{{ with .Get "hall_of_fame" }}{{ $fields = $fields | append (dict "label" "Hall of Fame" "value" .) }}{{ end }}
+
 {{ partial "infobox/base.html" (dict
   "type"    "ice-hockey-biography"
   "title"   (.Get "name")
   "image"   (.Get "image")
   "caption" (.Get "caption")
   "alt"     (.Get "alt")
-  "fields"  (slice
-    (dict "label" "Born" "value" (printf "%s%s"
-        (.Get "birth_date")
-        (cond (ne (.Get "birth_place") "") (printf ", %s" (.Get "birth_place")) "")))
-    (dict "label" "Died" "value" (printf "%s%s"
-        (.Get "death_date")
-        (cond (ne (.Get "death_place") "") (printf ", %s" (.Get "death_place")) "")))
-    (dict "label" "Height" "value" (printf "%s cm" (.Get "height")))
-    (dict "label" "Weight" "value" (printf "%s kg" (.Get "weight")))
-    (dict "label" "Position" "value" (.Get "position"))
-    (dict "label" "Shoots" "value" (.Get "shoots"))
-    (dict "label" "Catches" "value" (.Get "catches"))
-    (dict "label" "Played for" "value" (.Get "played_for"))
-    (dict "label" "National team" "value" (.Get "national_team"))
-    (dict "label" "NHL draft" "value" (printf "%s, %s — round %s #%s" (.Get "draft_year") (.Get "draft_team") (.Get "draft_round") (.Get "draft_pick")))
-    (dict "label" "Playing career" "value" (printf "%s — %s" (.Get "career_start") (.Get "career_end")))
-    (dict "label" "Hall of Fame" "value" (.Get "hall_of_fame"))
-    (dict "label" "Website" "value" (.Get "website"))
-  )
+  "fields"  $fields
   "Inner"   .Inner
   "below"   (.Get "below")
 ) }}

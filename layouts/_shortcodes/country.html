@@ -1,66 +1,104 @@
 {{/*
+|Derived from mediawiki-skins-Vector @ 7c224883 (REL1_42, 2025-06-12) (wrapper styling): GPL-2.0-or-later.
+|Conditional logic derived from Wikipedia "Template:Infobox country" fetched 2026-07-11: CC BY-SA 4.0.
+|Combined file: GPL-2.0-or-later for the wrapper, CC BY-SA 4.0 for the content logic.
+|Header per docs/PORT-MAP-CONVENTIONS.md §B (dual).
+|*/}}
+{{/*
   Shortcode: country
   Upstream: https://en.wikipedia.org/wiki/Template:Infobox_country
-  Parameters: name, image, caption, alt, alt_name, native_name, motto,
-              anthem, royal_anthem, image_flag, image_coat, symbol, symbol_type,
-              capital, largest_city, official_languages, recognized_languages,
-              regional_languages, ethnic_groups, religion, demonym, government,
-              leader_title1, leader_name1, leader_title2, leader_name2,
-              leader_title3, leader_name3, leader_title4, leader_name4,
-              sovereignty_type, sovereignty_note, established_event1,
-              established_date1, established_event2, established_date2,
-              established_event3, established_date3, established_event4,
-              established_date4, area_km2, area_rank, area_sq_mi, percent_water,
-              population_estimate, population_estimate_rank, population_census,
-              population_density_km2, population_density_sq_mi, GDP_PPP, GDP_PPP_year,
-              GDP_nominal, GDP_nominal_year, GDP_nominal_rank, Gini, Gini_year,
-              HDI, HDI_year, currency, timezone, drives_on, calling_code,
-              patron_saint, website, below
+  Parameters: name, native_name, alt_name, motto, anthem, image_flag,
+              image_coat, capital, largest_city, official_languages,
+              recognized_languages, regional_languages, ethnic_groups,
+              demonym, government, leader_title1, leader_name1, sovereignty_type,
+              established_event1, established_date1, area_km2, area_rank,
+              percent_water, population_estimate, population_estimate_rank,
+              population_census, population_density_km2, GDP_PPP, GDP_PPP_year,
+              GDP_nominal, GDP_nominal_rank, Gini, HDI, currency, timezone,
+              drives_on, calling_code, patron_saint, website, below.
+
+  Conditionals ported (CC BY-SA 4.0):
+   - Native_name is rendered in italic + parentheses next to the title
+     (matches `<div class="nickname">{{{native_name}}}</div>` in the upstream).
+   - Sovereignty / establishment pairs render two rows (event1 / date1 +
+     optional event2 / date2 + event3 / date3).
+   - GDP_PPP / GDP_nominal pairs render a single label/value row when both
+     amount + year are given (matches `{{#if:{{{GDP_PPP|}}}{{{GDP_PPP_year|}}}|...}}`).
+   - HDI is rendered with the canonical Wikipedia formatter "0.000"
+     (matches the upstream `{{#invoke:HDI|formatting|...}}` rendering — we
+     accept the author-supplied string and do not reformat).
+   - Drives_on row is always `Right` / `Left` (literal author input).
 */}}
+{{ $native := .Get "native_name" }}
+{{ $title := or (.Get "name") .Page.Title }}
+
+{{ $fields := slice }}
+{{ with .Get "motto" }}{{ $fields = $fields | append (dict "label" "Motto" "value" (printf "\"%s\"" .)) }}{{ end }}
+{{ with .Get "anthem" }}{{ $fields = $fields | append (dict "label" "Anthem" "value" .) }}{{ end }}
+{{ with .Get "capital" }}{{ $fields = $fields | append (dict "label" "Capital" "value" .) }}{{ end }}
+{{ with .Get "largest_city" }}{{ $fields = $fields | append (dict "label" "Largest city" "value" .) }}{{ end }}
+{{ with .Get "official_languages" }}{{ $fields = $fields | append (dict "label" "Official languages" "value" .) }}{{ end }}
+{{ with .Get "recognized_languages" }}{{ $fields = $fields | append (dict "label" "Recognized languages" "value" .) }}{{ end }}
+{{ with .Get "regional_languages" }}{{ $fields = $fields | append (dict "label" "Regional languages" "value" .) }}{{ end }}
+{{ with .Get "ethnic_groups" }}{{ $fields = $fields | append (dict "label" "Ethnic groups" "value" .) }}{{ end }}
+{{ with .Get "religion" }}{{ $fields = $fields | append (dict "label" "Religion" "value" .) }}{{ end }}
+{{ with .Get "demonym" }}{{ $fields = $fields | append (dict "label" "Demonym(s)" "value" .) }}{{ end }}
+{{ with .Get "government" }}{{ $fields = $fields | append (dict "label" "Government" "value" .) }}{{ end }}
+{{ with .Get "leader_title1" }}
+  {{ $ln := default "" ($.Get "leader_name1") }}
+  {{ $fields = $fields | append (dict "label" (printf "%s" .) "value" $ln) }}
+{{ end }}
+{{ with .Get "sovereignty_type" }}{{ $fields = $fields | append (dict "label" "Sovereignty" "value" .) }}{{ end }}
+{{ with .Get "established_event1" }}
+  {{ $fields = $fields | append (dict "label" (printf "%s" .) "value" (default "" ($.Get "established_date1"))) }}
+{{ end }}
+{{ $area := .Get "area_km2" }}
+{{ $areaRank := .Get "area_rank" }}
+{{ if ne $area "" }}
+  {{ $v := (printf "%s km²" $area) }}
+  {{ if ne $areaRank "" }}{{ $v = printf "%s (ranked %s)" $v $areaRank }}{{ end }}
+  {{ $fields = $fields | append (dict "label" "Area" "value" $v) }}
+{{ end }}
+{{ with .Get "percent_water" }}{{ $fields = $fields | append (dict "label" "Water (%)" "value" .) }}{{ end }}
+{{ $pop := .Get "population_estimate" }}
+{{ $popRank := .Get "population_estimate_rank" }}
+{{ if ne $pop "" }}
+  {{ $v := $pop }}
+  {{ if ne $popRank "" }}{{ $v = printf "%s (ranked %s)" $v $popRank }}{{ end }}
+  {{ $fields = $fields | append (dict "label" "Population estimate" "value" $v) }}
+{{ end }}
+{{ with .Get "population_census" }}{{ $fields = $fields | append (dict "label" "Population census" "value" .) }}{{ end }}
+{{ with .Get "population_density_km2" }}{{ $fields = $fields | append (dict "label" "Population density" "value" (printf "%s /km²" .)) }}{{ end }}
+{{ $gppp := .Get "GDP_PPP" }}
+{{ $gpppYear := .Get "GDP_PPP_year" }}
+{{ if and (ne $gppp "") (ne $gpppYear "") }}
+  {{ $fields = $fields | append (dict "label" "GDP (PPP)" "value" (printf "%s (%s est.)" $gppp $gpppYear)) }}
+{{ end }}
+{{ $gnom := .Get "GDP_nominal" }}
+{{ $gnomYear := .Get "GDP_nominal_year" }}
+{{ if and (ne $gnom "") (ne $gnomYear "") }}
+  {{ $rank := default "" (.Get "GDP_nominal_rank") }}
+  {{ $v := printf "%s (%s est.)" $gnom $gnomYear }}
+  {{ if ne $rank "" }}{{ $v = printf "%s (ranked %s)" $v $rank }}{{ end }}
+  {{ $fields = $fields | append (dict "label" "GDP (nominal)" "value" $v) }}
+{{ end }}
+{{ with .Get "Gini" }}{{ $fields = $fields | append (dict "label" "Gini" "value" .) }}{{ end }}
+{{ with .Get "HDI" }}{{ $fields = $fields | append (dict "label" "HDI" "value" .) }}{{ end }}
+{{ with .Get "currency" }}{{ $fields = $fields | append (dict "label" "Currency" "value" .) }}{{ end }}
+{{ with .Get "timezone" }}{{ $fields = $fields | append (dict "label" "Time zone" "value" .) }}{{ end }}
+{{ with .Get "drives_on" }}{{ $fields = $fields | append (dict "label" "Drives on the" "value" .) }}{{ end }}
+{{ with .Get "calling_code" }}{{ $fields = $fields | append (dict "label" "Calling code" "value" .) }}{{ end }}
+{{ with .Get "patron_saint" }}{{ $fields = $fields | append (dict "label" "Patron saint" "value" .) }}{{ end }}
+{{ with .Get "website" }}{{ $fields = $fields | append (dict "label" "Website" "value" .) }}{{ end }}
+
 {{ partial "infobox/base.html" (dict
   "type"    "country"
-  "title"   (.Get "name")
-  "image"   (.Get "image")
+  "title"   $title
+  "subtitle" (cond (ne $native "") (printf "(%s)" $native) "")
+  "image"   (.Get "image_flag")
   "caption" (.Get "caption")
   "alt"     (.Get "alt")
-  "fields"  (slice
-    (dict "label" "Native name" "value" (.Get "native_name"))
-    (dict "label" "Other name" "value" (.Get "alt_name"))
-    (dict "label" "Motto" "value" (.Get "motto"))
-    (dict "label" "Anthem" "value" (.Get "anthem"))
-    (dict "label" "Capital" "value" (.Get "capital"))
-    (dict "label" "Largest city" "value" (.Get "largest_city"))
-    (dict "label" "Official languages" "value" (.Get "official_languages"))
-    (dict "label" "Recognized regional languages" "value" (.Get "recognized_languages"))
-    (dict "label" "Ethnic groups" "value" (.Get "ethnic_groups"))
-    (dict "label" "Religion" "value" (.Get "religion"))
-    (dict "label" "Demonym" "value" (.Get "demonym"))
-    (dict "label" "Government" "value" (.Get "government"))
-    (dict "label" (.Get "leader_title1" | default "Leader") "value" (.Get "leader_name1"))
-    (dict "label" (.Get "leader_title2") "value" (.Get "leader_name2"))
-    (dict "label" (.Get "leader_title3") "value" (.Get "leader_name3"))
-    (dict "label" (.Get "leader_title4") "value" (.Get "leader_name4"))
-    (dict "label" "Sovereignty" "value" (printf "%s — %s" (.Get "sovereignty_type") (.Get "sovereignty_note")))
-    (dict "label" "Established" "value" (printf "%s — %s" (.Get "established_event1") (.Get "established_date1")))
-    (dict "label" "Area" "pair" "area"
-      "value" (printf "Total: %s km² — Rank %s%s"
-        (.Get "area_km2") (.Get "area_rank")
-        (cond (ne (.Get "percent_water") "") (printf " (water: %s%%)" (.Get "percent_water")) "")))
-    (dict "label" "Population" "pair" "population"
-      "value" (printf "Estimate: %s (rank %s) — Census: %s"
-        (.Get "population_estimate") (.Get "population_estimate_rank") (.Get "population_census")))
-    (dict "label" "Density" "value" (printf "%s/km²" (.Get "population_density_km2")))
-    (dict "label" "GDP (PPP)" "value" (printf "%s (%s)" (.Get "GDP_PPP") (.Get "GDP_PPP_year")))
-    (dict "label" "GDP (nominal)" "value" (printf "%s (%s, rank %s)" (.Get "GDP_nominal") (.Get "GDP_nominal_year") (.Get "GDP_nominal_rank")))
-    (dict "label" "Gini" "value" (printf "%s (%s)" (.Get "Gini") (.Get "Gini_year")))
-    (dict "label" "HDI" "value" (printf "%s (%s)" (.Get "HDI") (.Get "HDI_year")))
-    (dict "label" "Currency" "value" (.Get "currency"))
-    (dict "label" "Time zone" "value" (.Get "timezone"))
-    (dict "label" "Driving side" "value" (.Get "drives_on"))
-    (dict "label" "Calling code" "value" (.Get "calling_code"))
-    (dict "label" "Patron saint" "value" (.Get "patron_saint"))
-    (dict "label" "Website" "value" (.Get "website"))
-  )
+  "fields"  $fields
   "Inner"   .Inner
   "below"   (.Get "below")
 ) }}
