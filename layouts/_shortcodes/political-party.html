@@ -1,41 +1,105 @@
 {{/*
+Derived from mediawiki-skins-Vector @ 7c224883 (REL1_42, 2025-06-12) (wrapper styling): GPL-2.0-or-later.
+Conditional logic derived from Wikipedia "Template:Infobox political party" fetched 2026-07-11: CC BY-SA 4.0.
+Combined file: GPL-2.0-or-later for the wrapper, CC BY-SA 4.0 for the content logic.
+Header per docs/PORT-MAP-CONVENTIONS.md §B (dual).
+*/}}
+{{/*
   Shortcode: political-party
   Upstream: https://en.wikipedia.org/wiki/Template:Infobox_political_party
-  Parameters: name, image, caption, alt, logo, abbreviation, leader, founder,
-              founder2, founded, dissolved, split, merged, headquarters,
-              country, ideology, position, european, international, youth_wing,
-              wing, membership, slogan, anthem, colors, seats1_title, seats1,
-              seats2_title, seats2, website, below
+  Parameters: name, native_name, logo, abbreviation, abbr, leader, founder,
+              founders, founder2, founded, dissolved, split, merged,
+              headquarters, country, ideology, position, european,
+              international, youth_wing, wing, membership, slogan, anthem,
+              colors, colours, seats1_title, seats1, seats2_title, seats2,
+              website, below.
+
+  Conditionals ported from Template:Infobox political party (CC BY-SA 4.0):
+   - Title falls back to `PAGENAMEBASE` via `.Page.Title`
+     (matches `{{if empty|{{{name|}}}|{{PAGENAMEBASE}}}}`).
+   - Native name rendered as a `<div class="nickname">` subtitle.
+   - Abbreviation row falls back from `abbreviation` to `abbr`.
+   - Founder(s) row: data uses `founders` first then `founder` /
+     `founder2` (matches upstream pluralisation).
+   - Spokesperson row falls back from `spokesperson` to `spokesman`.
+   - Color(s) / Colour(s) pluralisation matching the supplied value.
+   - seats1 / seats2 rows composed as "<seats1_title>: <seats1>" pair
+     rows for each house of parliament.
 */}}
+{{ $title := or (.Get "name") .Page.Title }}
+{{ $native := .Get "native_name" }}
+
+{{ $fields := slice }}
+
+{{ $abbr := default (.Get "abbreviation") (.Get "abbr") }}
+{{ if ne $abbr "" }}{{ $fields = $fields | append (dict "label" "Abbreviation" "value" $abbr) }}{{ end }}
+
+{{ with .Get "leader" }}{{ $fields = $fields | append (dict "label" "Leader" "value" .) }}{{ end }}
+{{ with .Get "president" }}{{ $fields = $fields | append (dict "label" "President" "value" .) }}{{ end }}
+
+{{ $chair := default (.Get "chairperson") (.Get "chairman") (.Get "chairwoman") }}
+{{ if ne $chair "" }}{{ $fields = $fields | append (dict "label" "Chairperson" "value" $chair) }}{{ end }}
+
+{{ with .Get "secretary" }}{{ $fields = $fields | append (dict "label" "Secretary" "value" .) }}{{ end }}
+{{ with .Get "general_secretary" }}{{ $fields = $fields | append (dict "label" "General Secretary" "value" .) }}{{ end }}
+{{ with .Get "first_secretary" }}{{ $fields = $fields | append (dict "label" "First Secretary" "value" .) }}{{ end }}
+{{ with .Get "secretary_general" }}{{ $fields = $fields | append (dict "label" "Secretary-General" "value" .) }}{{ end }}
+
+{{ $spokes := default (.Get "spokesperson") (.Get "spokesman") }}
+{{ if ne $spokes "" }}{{ $fields = $fields | append (dict "label" "Spokesperson" "value" $spokes) }}{{ end }}
+
+{{ with .Get "presidium" }}{{ $fields = $fields | append (dict "label" "Presidium" "value" .) }}{{ end }}
+{{ with .Get "governing_body" }}{{ $fields = $fields | append (dict "label" "Governing body" "value" .) }}{{ end }}
+{{ with .Get "standing_committee" }}{{ $fields = $fields | append (dict "label" "Standing Committee" "value" .) }}{{ end }}
+
+{{ $founders := default (.Get "founders") (.Get "founder") }}
+{{ if ne $founders "" }}{{ $fields = $fields | append (dict "label" "Founder(s)" "value" $founders) }}{{ end }}
+{{ with .Get "founder2" }}{{ $fields = $fields | append (dict "label" "Other founder" "value" .) }}{{ end }}
+
+{{ with .Get "founded" }}{{ $fields = $fields | append (dict "label" "Founded" "value" .) }}{{ end }}
+{{ with .Get "dissolved" }}{{ $fields = $fields | append (dict "label" "Dissolved" "value" .) }}{{ end }}
+{{ with .Get "split" }}{{ $fields = $fields | append (dict "label" "Split from" "value" .) }}{{ end }}
+{{ with .Get "merged" }}{{ $fields = $fields | append (dict "label" "Merged into" "value" .) }}{{ end }}
+{{ with .Get "headquarters" }}{{ $fields = $fields | append (dict "label" "Headquarters" "value" .) }}{{ end }}
+{{ with .Get "country" }}{{ $fields = $fields | append (dict "label" "Country" "value" .) }}{{ end }}
+
+{{ with .Get "ideology" }}{{ $fields = $fields | append (dict "label" "Ideology" "value" .) }}{{ end }}
+{{ with .Get "position" }}{{ $fields = $fields | append (dict "label" "Political position" "value" .) }}{{ end }}
+{{ with .Get "european" }}{{ $fields = $fields | append (dict "label" "European affiliation" "value" .) }}{{ end }}
+{{ with .Get "international" }}{{ $fields = $fields | append (dict "label" "International affiliation" "value" .) }}{{ end }}
+{{ with .Get "youth_wing" }}{{ $fields = $fields | append (dict "label" "Youth wing" "value" .) }}{{ end }}
+{{ with .Get "wing" }}{{ $fields = $fields | append (dict "label" "Wing" "value" .) }}{{ end }}
+{{ with .Get "membership" }}{{ $fields = $fields | append (dict "label" "Membership" "value" .) }}{{ end }}
+{{ with .Get "slogan" }}{{ $fields = $fields | append (dict "label" "Slogan" "value" .) }}{{ end }}
+{{ with .Get "anthem" }}{{ $fields = $fields | append (dict "label" "Anthem" "value" .) }}{{ end }}
+
+{{ $colors := default (.Get "colors") (.Get "colours") }}
+{{ if ne $colors "" }}{{ $fields = $fields | append (dict "label" "Colors" "value" $colors) }}{{ end }}
+
+{{ $seats1Title := default (.Get "seats1_title") "Seats" }}
+{{ $seats1 := .Get "seats1" }}
+{{ if ne $seats1 "" }}{{ $fields = $fields | append (dict "label" $seats1Title "value" $seats1) }}{{ end }}
+
+{{ $seats2Title := .Get "seats2_title" }}
+{{ $seats2 := .Get "seats2" }}
+{{ if ne $seats2 "" }}
+  {{ $label := or $seats2Title "Seats (lower)" }}
+  {{ $fields = $fields | append (dict "label" $label "value" $seats2) }}
+{{ end }}
+
+{{ with .Get "website" }}{{ $fields = $fields | append (dict "label" "Website" "value" .) }}{{ end }}
+
+{{ $subtitle := "" }}
+{{ if ne $native "" }}{{ $subtitle = printf "(%s)" $native }}{{ end }}
+
 {{ partial "infobox/base.html" (dict
-  "type"    "political-party"
-  "title"   (.Get "name")
-  "image"   (.Get "image" | default (.Get "logo"))
-  "caption" (.Get "caption")
-  "alt"     (.Get "alt")
-  "fields"  (slice
-    (dict "label" "Abbreviation" "value" (.Get "abbreviation"))
-    (dict "label" "Leader" "value" (.Get "leader"))
-    (dict "label" "Founder(s)" "value" (printf "%s, %s" (.Get "founder") (.Get "founder2")))
-    (dict "label" "Founded" "value" (.Get "founded"))
-    (dict "label" "Dissolved" "value" (.Get "dissolved"))
-    (dict "label" "Split from" "value" (.Get "split"))
-    (dict "label" "Merged into" "value" (.Get "merged"))
-    (dict "label" "Headquarters" "value" (printf "%s, %s" (.Get "headquarters") (.Get "country")))
-    (dict "label" "Ideology" "value" (.Get "ideology"))
-    (dict "label" "Political position" "value" (.Get "position"))
-    (dict "label" "European affiliation" "value" (.Get "european"))
-    (dict "label" "International affiliation" "value" (.Get "international"))
-    (dict "label" "Youth wing" "value" (.Get "youth_wing"))
-    (dict "label" "Wing" "value" (.Get "wing"))
-    (dict "label" "Membership" "value" (.Get "membership"))
-    (dict "label" "Slogan" "value" (.Get "slogan"))
-    (dict "label" "Anthem" "value" (.Get "anthem"))
-    (dict "label" "Colors" "value" (.Get "colors"))
-    (dict "label" (.Get "seats1_title" | default "Seats") "value" (.Get "seats1"))
-    (dict "label" (.Get "seats2_title" | default "Seats (upper house)") "value" (.Get "seats2"))
-    (dict "label" "Website" "value" (.Get "website"))
-  )
-  "Inner"   .Inner
-  "below"   (.Get "below")
+  "type"     "political-party"
+  "title"    $title
+  "subtitle" $subtitle
+  "image"    (default "" (.Get "logo"))
+  "caption"  (.Get "caption")
+  "alt"      (.Get "logo_alt")
+  "fields"   $fields
+  "Inner"    .Inner
+  "below"    (.Get "below")
 ) }}

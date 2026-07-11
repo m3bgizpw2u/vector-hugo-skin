@@ -998,3 +998,31 @@ build-green verification target.
     battles_label / battle_honours_label overrides;
     nickname(s) / motto(es) / mascot(s) pluralisation.
 - `hugo --quiet` in `exampleSite/` exits 0.
+
+### Changed (third plan, phase 7e — Infobox topic shortcodes)
+- Four `Infobox <topic>` shortcodes under `layouts/_shortcodes/`
+  gain the dual-license header + extracted conditionals:
+  - `political-party.html` — title fallback; native name
+    subtitle; abbreviation / abbr fallback; chairperson /
+    chairman / chairwoman fallback; spokesperson / spokesman
+    fallback; founder(s) plural; seats1 / seats2 rows with
+    optional custom titles.
+  - `protected-area.html` — title fallback; alt_name subtitle;
+    nearest_city / nearest_town fallback with label switching;
+    area fallback chain (area_km2 / area_sqmi / area_acre /
+    area_ha / area); elevation / elevation_avg label switching;
+    elevation_min / elevation_max rows; designation / authorized
+    / created / established / designated rows.
+  - `tennis-tournament-event.html` — title fallback; tour ·
+    type · category composed triplet; venue composed from
+    location / place / venue; start_date–end_date composed as
+    "Dates" row; Final section (champion(s) / runner(s)-up /
+    score); Draw section (draw size / seeds / players / main
+    draw); prize_money / attendance.
+  - `video-game.html` — title fallback; cover_art / image
+    fallback; released / release / initial_release_date
+    fallback chain; pluralised developer(s) / publisher(s) /
+    director(s) / producer(s) / designer(s) / programmer(s) /
+    artist(s) / writer(s) / composer(s); platform / platforms
+    fallback; mode(s) pluralisation.
+- `hugo --quiet` in `exampleSite/` exits 0.

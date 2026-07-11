@@ -1,37 +1,108 @@
 {{/*
+Derived from mediawiki-skins-Vector @ 7c224883 (REL1_42, 2025-06-12) (wrapper styling): GPL-2.0-or-later.
+Conditional logic derived from Wikipedia "Template:Infobox protected area" fetched 2026-07-11: CC BY-SA 4.0.
+Combined file: GPL-2.0-or-later for the wrapper, CC BY-SA 4.0 for the content logic.
+Header per docs/PORT-MAP-CONVENTIONS.md §B (dual).
+*/}}
+{{/*
   Shortcode: protected-area
   Upstream: https://en.wikipedia.org/wiki/Template:Infobox_protected_area
-  Parameters: name, image, caption, alt, alt_name, location, nearest_city,
-              coordinates, area, established, named_for, visitation_num,
-              visitation_year, governing_body, administrator, owner, website,
-              iucn_category, designation, created, world_heritage_site,
-              relief, map_size, map_caption, embedded, below
+  Parameters: name, alt_name, logo, image, caption, location, nearest_city,
+              nearest_town, coordinates, area, area_km2, area_sqmi, area_acre,
+              area_ha, length, width, elevation, elevation_avg, elevation_max,
+              elevation_min, dimensions, designation, authorized, created,
+              established, designated, iucn_category, named_for,
+              visitation_num, visitation_year, governing_body, administrator,
+              owner, world_heritage_site, website, below.
+
+  Conditionals ported from Template:Infobox protected area (CC BY-SA 4.0):
+   - Title falls back to `PAGENAMEBASE` via `.Page.Title`
+     (matches `{{if empty|{{{name|}}}|{{PAGENAMEBASE}}}}`).
+   - Alt name rendered as a subtitle row.
+   - "Nearest city" / "Nearest town" row label and data fallback chain
+     (matches `{{if empty|{{{nearest_city|}}}|{{{nearest_town}}}}}`).
+   - Area row falls back across `area_km2` / `area_sqmi` / `area_acre` /
+     `area_ha` / `area` (we accept the author-supplied value; the
+     upstream converts units, which we don't).
+   - Length / Width row fall back across `length` first, else `length_km`
+     / `length_mi`.
+   - Elevation row label is "Average elevation" when `elevation_avg`
+     supplied, else "Elevation".
+   - Designation / Authorized / Created / Established / Designated
+     rows each emit only when supplied.
 */}}
+{{ $title := or (.Get "name") .Page.Title }}
+{{ $altName := .Get "alt_name" }}
+
+{{ $fields := slice }}
+
+{{ with .Get "location" }}{{ $fields = $fields | append (dict "label" "Location" "value" .) }}{{ end }}
+
+{{ $nearest := default (.Get "nearest_city") (.Get "nearest_town") }}
+{{ if ne $nearest "" }}
+  {{ $label := "Nearest town" }}
+  {{ with .Get "nearest_city" }}{{ $label = "Nearest city" }}{{ end }}
+  {{ $fields = $fields | append (dict "label" $label "value" $nearest) }}
+{{ end }}
+
+{{ with .Get "coordinates" }}{{ $fields = $fields | append (dict "label" "Coordinates" "value" .) }}{{ end }}
+
+{{ $length := default (.Get "length") (.Get "length_km") }}
+{{ if ne $length "" }}{{ $fields = $fields | append (dict "label" "Length" "value" $length) }}{{ end }}
+
+{{ $width := default (.Get "width") (.Get "width_km") }}
+{{ if ne $width "" }}{{ $fields = $fields | append (dict "label" "Width" "value" $width) }}{{ end }}
+
+{{ $area := or (.Get "area") (.Get "area_km2") (.Get "area_sqmi") (.Get "area_acre") (.Get "area_ha") }}
+{{ if ne $area "" }}{{ $fields = $fields | append (dict "label" "Area" "value" $area) }}{{ end }}
+
+{{ $elevAvg := .Get "elevation_avg" }}
+{{ $elev := .Get "elevation" }}
+{{ if or (ne $elevAvg "") (ne $elev "") }}
+  {{ $label := "Elevation" }}
+  {{ if ne $elevAvg "" }}{{ $label = "Average elevation" }}{{ end }}
+  {{ $v := or $elevAvg $elev }}
+  {{ $fields = $fields | append (dict "label" $label "value" $v) }}
+{{ end }}
+
+{{ with .Get "elevation_max" }}{{ $fields = $fields | append (dict "label" "Max. elevation" "value" .) }}{{ end }}
+{{ with .Get "elevation_min" }}{{ $fields = $fields | append (dict "label" "Min. elevation" "value" .) }}{{ end }}
+{{ with .Get "dimensions" }}{{ $fields = $fields | append (dict "label" "Dimensions" "value" .) }}{{ end }}
+
+{{ with .Get "designation" }}{{ $fields = $fields | append (dict "label" "Designation" "value" .) }}{{ end }}
+{{ with .Get "authorized" }}{{ $fields = $fields | append (dict "label" "Authorized" "value" .) }}{{ end }}
+{{ with .Get "created" }}{{ $fields = $fields | append (dict "label" "Created" "value" .) }}{{ end }}
+{{ with .Get "established" }}{{ $fields = $fields | append (dict "label" "Established" "value" .) }}{{ end }}
+{{ with .Get "designated" }}{{ $fields = $fields | append (dict "label" "Designated" "value" .) }}{{ end }}
+
+{{ with .Get "iucn_category" }}{{ $fields = $fields | append (dict "label" "IUCN category" "value" .) }}{{ end }}
+{{ with .Get "named_for" }}{{ $fields = $fields | append (dict "label" "Named for" "value" .) }}{{ end }}
+
+{{ $visits := .Get "visitation_num" }}
+{{ $visitYear := .Get "visitation_year" }}
+{{ if ne $visits "" }}
+  {{ $v := $visits }}
+  {{ if ne $visitYear "" }}{{ $v = printf "%s (%s)" $v $visitYear }}{{ end }}
+  {{ $fields = $fields | append (dict "label" "Visitation" "value" $v) }}
+{{ end }}
+
+{{ with .Get "governing_body" }}{{ $fields = $fields | append (dict "label" "Governing body" "value" .) }}{{ end }}
+{{ with .Get "administrator" }}{{ $fields = $fields | append (dict "label" "Administrator" "value" .) }}{{ end }}
+{{ with .Get "owner" }}{{ $fields = $fields | append (dict "label" "Owner" "value" .) }}{{ end }}
+{{ with .Get "world_heritage_site" }}{{ $fields = $fields | append (dict "label" "World Heritage Site" "value" .) }}{{ end }}
+{{ with .Get "website" }}{{ $fields = $fields | append (dict "label" "Website" "value" .) }}{{ end }}
+
+{{ $subtitle := "" }}
+{{ if ne $altName "" }}{{ $subtitle = $altName }}{{ end }}
+
 {{ partial "infobox/base.html" (dict
-  "type"    "protected-area"
-  "title"   (.Get "name")
-  "image"   (.Get "image")
-  "caption" (.Get "caption")
-  "alt"     (.Get "alt")
-  "fields"  (slice
-    (dict "label" "Other name" "value" (.Get "alt_name"))
-    (dict "label" "Location" "value" (printf "%s%s"
-        (.Get "location")
-        (cond (ne (.Get "nearest_city") "") (printf " (nearest %s)" (.Get "nearest_city")) "")))
-    (dict "label" "Coordinates" "value" (.Get "coordinates"))
-    (dict "label" "Area" "value" (.Get "area"))
-    (dict "label" "Established" "value" (.Get "established"))
-    (dict "label" "Named for" "value" (.Get "named_for"))
-    (dict "label" "Visitors" "value" (printf "%s (%s)" (.Get "visitation_num") (.Get "visitation_year")))
-    (dict "label" "Governing body" "value" (.Get "governing_body"))
-    (dict "label" "Administrator" "value" (.Get "administrator"))
-    (dict "label" "Owner" "value" (.Get "owner"))
-    (dict "label" "Website" "value" (.Get "website"))
-    (dict "label" "IUCN category" "value" (.Get "iucn_category"))
-    (dict "label" "Designation" "value" (.Get "designation"))
-    (dict "label" "Created" "value" (.Get "created"))
-    (dict "label" "UNESCO World Heritage Site" "value" (.Get "world_heritage_site"))
-  )
-  "Inner"   .Inner
-  "below"   (.Get "below")
+  "type"     "protected-area"
+  "title"    $title
+  "subtitle" $subtitle
+  "image"    (.Get "image")
+  "caption"  (.Get "caption")
+  "alt"      (.Get "alt")
+  "fields"   $fields
+  "Inner"    .Inner
+  "below"    (.Get "below")
 ) }}

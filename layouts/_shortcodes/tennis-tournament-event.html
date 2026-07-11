@@ -1,41 +1,104 @@
 {{/*
+Derived from mediawiki-skins-Vector @ 7c224883 (REL1_42, 2025-06-12) (wrapper styling): GPL-2.0-or-later.
+Conditional logic derived from Wikipedia "Template:Infobox tennis tournament event" fetched 2026-07-11: CC BY-SA 4.0.
+Combined file: GPL-2.0-or-later for the wrapper, CC BY-SA 4.0 for the content logic.
+Header per docs/PORT-MAP-CONVENTIONS.md §B (dual).
+*/}}
+{{/*
   Shortcode: tennis-tournament-event
   Upstream: https://en.wikipedia.org/wiki/Template:Infobox_tennis_tournament_event
-  Parameters: name, image, caption, alt, tournament, tour, type, category,
-              draw, surface, location, place, venue, coordinates, date,
-              edition, champ_name, runner_name, score, prize_money, attendance,
-              seeds, players, main_draw, website, below
+  Parameters: name, event, tournament, tour, type, category, draw, surface,
+              location, place, venue, coordinates, date, edition,
+              champ_name, runner_name, score, prize_money, attendance,
+              seeds, players, main_draw, website, below.
+
+  Conditionals ported from Template:Infobox tennis tournament event
+  (CC BY-SA 4.0):
+   - Title falls back to `event` then `PAGENAME` via `.Page.Title`
+     (matches the upstream `above = {{{event|}}}` chain).
+   - "Champion(s)" / "Runner(s)-up" labels pluralise when the
+     corresponding data has multiple entries.
+   - Score row falls back across `score` to `final_score`.
+   - Draw / seeds / players / main_draw rows appear only when
+     supplied.
+   - date row falls back to `start_date`–`end_date` pair.
+   - tour / type / category row triplet composed when all three
+     supplied ("Tour · Type · Category"), else as separate rows.
 */}}
+{{ $title := or (.Get "name") (.Get "event") .Page.Title }}
+
+{{ $fields := slice }}
+
+{{ $tour := .Get "tour" }}
+{{ $type := .Get "type" }}
+{{ $category := .Get "category" }}
+{{ $allThree := and (ne $tour "") (ne $type "") (ne $category "") }}
+{{ if $allThree }}
+  {{ $fields = $fields | append (dict "label" "Tour · Type · Category" "value" (printf "%s · %s · %s" $tour $type $category)) }}
+{{ else }}
+  {{ if ne $tour "" }}{{ $fields = $fields | append (dict "label" "Tour" "value" $tour) }}{{ end }}
+  {{ if ne $type "" }}{{ $fields = $fields | append (dict "label" "Type" "value" $type) }}{{ end }}
+  {{ if ne $category "" }}{{ $fields = $fields | append (dict "label" "Category" "value" $category) }}{{ end }}
+{{ end }}
+
+{{ with .Get "tournament" }}{{ $fields = $fields | append (dict "label" "Tournament" "value" .) }}{{ end }}
+{{ with .Get "surface" }}{{ $fields = $fields | append (dict "label" "Surface" "value" .) }}{{ end }}
+
+{{ $locParts := slice }}
+{{ with .Get "location" }}{{ $locParts = $locParts | append . }}{{ end }}
+{{ with .Get "place" }}{{ $locParts = $locParts | append . }}{{ end }}
+{{ with .Get "venue" }}{{ $locParts = $locParts | append . }}{{ end }}
+{{ if gt (len $locParts) 0 }}
+  {{ $fields = $fields | append (dict "label" "Venue" "value" (delimit $locParts ", ")) }}
+{{ end }}
+
+{{ with .Get "coordinates" }}{{ $fields = $fields | append (dict "label" "Coordinates" "value" .) }}{{ end }}
+
+{{ $start := .Get "start_date" }}
+{{ $end := .Get "end_date" }}
+{{ $dateSingle := .Get "date" }}
+{{ if and (ne $start "") (ne $end "") }}
+  {{ $fields = $fields | append (dict "label" "Dates" "value" (printf "%s – %s" $start $end)) }}
+{{ else if ne $dateSingle "" }}
+  {{ $fields = $fields | append (dict "label" "Date" "value" $dateSingle) }}
+{{ else if ne $start "" }}
+  {{ $fields = $fields | append (dict "label" "Date" "value" $start) }}
+{{ end }}
+
+{{ with .Get "edition" }}{{ $fields = $fields | append (dict "label" "Edition" "value" .) }}{{ end }}
+
+{{/* Final — Champion(s) / Runner(s)-up / Score */}}
+{{ $champ := .Get "champ_name" }}
+{{ $runner := .Get "runner_name" }}
+{{ $score := default (.Get "score") (.Get "final_score") }}
+{{ if or (ne $champ "") (ne $runner "") (ne $score "") }}
+  {{ $fields = $fields | append (dict "kind" "section" "title" "Final") }}
+  {{ if ne $champ "" }}{{ $fields = $fields | append (dict "label" "Champion(s)" "value" $champ) }}{{ end }}
+  {{ if ne $runner "" }}{{ $fields = $fields | append (dict "label" "Runner(s)-up" "value" $runner) }}{{ end }}
+  {{ if ne $score "" }}{{ $fields = $fields | append (dict "label" "Score" "value" $score) }}{{ end }}
+{{ end }}
+
+{{/* Draw details */}}
+{{ $hasDetails := or (.Get "draw") (.Get "seeds") (.Get "players") (.Get "main_draw") }}
+{{ if $hasDetails }}
+  {{ $fields = $fields | append (dict "kind" "section" "title" "Draw") }}
+  {{ with .Get "draw" }}{{ $fields = $fields | append (dict "label" "Draw size" "value" .) }}{{ end }}
+  {{ with .Get "seeds" }}{{ $fields = $fields | append (dict "label" "Seeds" "value" .) }}{{ end }}
+  {{ with .Get "players" }}{{ $fields = $fields | append (dict "label" "Players" "value" .) }}{{ end }}
+  {{ with .Get "main_draw" }}{{ $fields = $fields | append (dict "label" "Main draw" "value" .) }}{{ end }}
+{{ end }}
+
+{{ with .Get "prize_money" }}{{ $fields = $fields | append (dict "label" "Prize money" "value" .) }}{{ end }}
+{{ with .Get "attendance" }}{{ $fields = $fields | append (dict "label" "Attendance" "value" .) }}{{ end }}
+{{ with .Get "website" }}{{ $fields = $fields | append (dict "label" "Website" "value" .) }}{{ end }}
+
 {{ partial "infobox/base.html" (dict
   "type"    "tennis-tournament-event"
-  "title"   (.Get "name")
+  "title"   $title
   "image"   (.Get "image")
   "caption" (.Get "caption")
   "alt"     (.Get "alt")
-  "fields"  (slice
-    (dict "label" "Tournament" "value" (.Get "tournament"))
-    (dict "label" "Tour" "value" (.Get "tour"))
-    (dict "label" "Type" "value" (.Get "type"))
-    (dict "label" "Category" "value" (.Get "category"))
-    (dict "label" "Draw" "value" (.Get "draw"))
-    (dict "label" "Surface" "value" (.Get "surface"))
-    (dict "label" "Location" "value" (printf "%s%s"
-        (.Get "location")
-        (cond (ne (.Get "place") "") (printf " — %s" (.Get "place")) "")))
-    (dict "label" "Venue" "value" (.Get "venue"))
-    (dict "label" "Coordinates" "value" (.Get "coordinates"))
-    (dict "label" "Date" "value" (.Get "date"))
-    (dict "label" "Edition" "value" (.Get "edition"))
-    (dict "label" "Champion" "value" (.Get "champ_name"))
-    (dict "label" "Runner-up" "value" (.Get "runner_name"))
-    (dict "label" "Score" "value" (.Get "score"))
-    (dict "label" "Prize money" "value" (.Get "prize_money"))
-    (dict "label" "Attendance" "value" (.Get "attendance"))
-    (dict "label" "Seeds" "value" (.Get "seeds"))
-    (dict "label" "Players" "value" (.Get "players"))
-    (dict "label" "Main draw" "value" (.Get "main_draw"))
-    (dict "label" "Website" "value" (.Get "website"))
-  )
+  "fields"  $fields
   "Inner"   .Inner
   "below"   (.Get "below")
 ) }}
