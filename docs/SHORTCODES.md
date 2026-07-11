@@ -17,6 +17,48 @@ until then, the Authoring Guide below is the whole document.
 > see `docs/RESEARCH.md` header and
 > `.plans/first-plan/14-licensing-and-scope-notes.md` §3 for the boundary.
 
+## §0. Licensing & attribution (third plan, phase 7+)
+
+Every named `Infobox <topic>` shortcode under `layouts/_shortcodes/<topic>.html`
+is a **dual-license derivative work**:
+
+- **GPL-2.0-or-later** for the surrounding skin chrome and table-style
+  layout, inherited from `wikimedia/mediawiki-skins-Vector` at the
+  pinned SHA `7c224883fd6ee166950aaa690381fbc769838071`
+  (REL1_42, 2025-06-12; vendor copy under `vendor/mediawiki-vector/`).
+- **CC BY-SA 4.0** for the per-topic conditional logic, ported from the
+  corresponding `Template:Infobox <topic>` (and its backing Lua module,
+  where present) on `en.wikipedia.org`. The Wikipedia contributors are
+  the joint authors of that conditional logic; the upstream is licensed
+  CC BY-SA 4.0, and any downstream redistribution must retain both
+  license notices.
+
+Both notices are kept in the file header of each named shortcode per
+`docs/PORT-MAP-CONVENTIONS.md` §B (dual). A per-shortcode provenance
+table — fetched URL, byte size, and the conditionals extracted from
+the source — is included at the bottom of this file (§§11-12 below
+and in §10 worked-example entries as the canonical quick-reference).
+
+The base rendering partial (`layouts/_partials/infobox/base.html`) and
+the inner primitive shortcodes (`layouts/_shortcodes/infobox/`) are
+under the same dual license; everything else in the theme (the
+header / sidebar / footer / article chrome) is the standard
+GPL-2.0-or-later Vector derivative.
+
+### Non-affiliation & non-trademark
+
+This theme is **not affiliated with, endorsed by, or sponsored by the
+Wikimedia Foundation**. "Wikipedia" and the Wikipedia logo are
+registered trademarks of the Wikimedia Foundation; this theme does not
+redistribute Wikimedia Foundation trademarks or logos and is not a
+replacement for the live `en.wikipedia.org` rendering pipeline. Use of
+this theme's infobox shortcodes does not imply any relationship with
+the Wikimedia Foundation. See `NOTICE.md` for the full Wikimedia
+Trademark Policy compliance statement and the three-tier license
+breakdown (skin chrome GPL-2.0-or-later, infobox content CC BY-SA 4.0,
+Hugo-native example content / build / fixtures MIT or Apache-2.0 /
+original).
+
 ---
 
 ## §1. Overview
@@ -1063,3 +1105,52 @@ companion.
 ```
 
 **See also:** <https://en.wikipedia.org/wiki/Template:Infobox_country>
+
+## §11. Provenance table (third plan, phase 7+)
+
+The 30 named `Infobox <topic>` shortcodes under `layouts/_shortcodes/`
+are all derived from Wikipedia's `Template:Infobox <topic>` (or its
+backing Lua module). The per-template dual-header cites the upstream
+fetch date and license; the table below records the URL used to fetch
+each template, the fetched byte size, and the date of fetch. All
+templates fetched 2026-07-11 are stored under `/tmp/wiki-templates/`
+during the port and the byte sizes are from those local copies.
+
+| Shortcode | URL | Bytes | License |
+|---|---|---|---|
+| `album` | <https://en.wikipedia.org/wiki/Template:Infobox_album?action=raw> | 7,242 | CC BY-SA 4.0 |
+| `award` | <https://en.wikipedia.org/wiki/Template:Infobox_award?action=raw> | 9,606 | CC BY-SA 4.0 |
+| `baseball-biography` | <https://en.wikipedia.org/wiki/Template:Infobox_baseball_biography?action=raw> | 15,689 | CC BY-SA 4.0 |
+| `basketball-biography` | <https://en.wikipedia.org/wiki/Template:Infobox_basketball_biography?action=raw> | 16,125 | CC BY-SA 4.0 |
+| `church` | <https://en.wikipedia.org/wiki/Template:Infobox_church?action=raw> | 9,628 | CC BY-SA 4.0 |
+| `company` | <https://en.wikipedia.org/wiki/Template:Infobox_company?action=raw> | 12,900 | CC BY-SA 4.0 |
+| `country` | <https://en.wikipedia.org/wiki/Template:Infobox_country?action=raw> | 50,951 | CC BY-SA 4.0 |
+| `election` | <https://en.wikipedia.org/wiki/Template:Infobox_election?action=raw> | 27,785 | CC BY-SA 4.0 |
+| `film` | <https://en.wikipedia.org/wiki/Template:Infobox_film?action=raw> | 4,224 | CC BY-SA 4.0 |
+| `football-biography` | <https://en.wikipedia.org/wiki/Template:Infobox_football_biography?action=raw> | 36,036 | CC BY-SA 4.0 |
+| `football-club` | <https://en.wikipedia.org/wiki/Template:Infobox_football_club?action=raw> | 6,545 | CC BY-SA 4.0 |
+| `historic-site` | <https://en.wikipedia.org/wiki/Template:Infobox_NRHP?action=raw> | 15,509 | CC BY-SA 4.0 |
+| `ice-hockey-biography` | <https://en.wikipedia.org/wiki/Template:Infobox_ice_hockey_biography?action=raw> | 8,217 | CC BY-SA 4.0 |
+| `military-conflict` | <https://en.wikipedia.org/wiki/Template:Infobox_military_conflict?action=raw> + `Module:Infobox_military_conflict` | 1,011 + 9,027 | CC BY-SA 4.0 |
+| `military-person` | <https://en.wikipedia.org/wiki/Template:Infobox_military_person?action=raw> | 6,760 | CC BY-SA 4.0 |
+| `military-unit` | <https://en.wikipedia.org/wiki/Template:Infobox_military_unit?action=raw> | 9,791 | CC BY-SA 4.0 |
+| `organization` | <https://en.wikipedia.org/wiki/Template:Infobox_organization?action=raw> | 11,064 | CC BY-SA 4.0 |
+| `person` | <https://en.wikipedia.org/wiki/Template:Infobox_person?action=raw> | 12,531 | CC BY-SA 4.0 |
+| `political-party` | <https://en.wikipedia.org/wiki/Template:Infobox_political_party?action=raw> | 12,664 | CC BY-SA 4.0 |
+| `protected-area` | <https://en.wikipedia.org/wiki/Template:Infobox_protected_area?action=raw> | 6,581 | CC BY-SA 4.0 |
+| `school` | <https://en.wikipedia.org/wiki/Template:Infobox_school?action=raw> | 23,469 | CC BY-SA 4.0 |
+| `settlement` | <https://en.wikipedia.org/wiki/Template:Infobox_settlement?action=raw> | 61,925 | CC BY-SA 4.0 |
+| `software` | <https://en.wikipedia.org/wiki/Template:Infobox_software?action=raw> | 9,310 | CC BY-SA 4.0 |
+| `station` | <https://en.wikipedia.org/wiki/Template:Infobox_station?action=raw> | 15,185 | CC BY-SA 4.0 |
+| `television` | <https://en.wikipedia.org/wiki/Template:Infobox_television?action=raw> | 9,366 | CC BY-SA 4.0 |
+| `television-episode` | <https://en.wikipedia.org/wiki/Template:Infobox_television_episode?action=raw> | 5,806 | CC BY-SA 4.0 |
+| `television-season` | <https://en.wikipedia.org/wiki/Template:Infobox_television_season?action=raw> | 6,019 | CC BY-SA 4.0 |
+| `tennis-tournament-event` | <https://en.wikipedia.org/wiki/Template:Infobox_tennis_tournament_event?action=raw> | 6,928 | CC BY-SA 4.0 |
+| `university` | <https://en.wikipedia.org/wiki/Template:Infobox_university?action=raw> | 9,391 | CC BY-SA 4.0 |
+| `video-game` | <https://en.wikipedia.org/wiki/Template:Infobox_video_game?action=raw> | 11,210 | CC BY-SA 4.0 |
+
+All fetches completed successfully on 2026-07-11 against the live
+`en.wikipedia.org` wiki using the `?action=raw` API. The conditional
+logic extracted from each source is documented inline in the file
+header of each named shortcode — see the "Conditionals ported from
+..." block at the top of each `layouts/_shortcodes/<topic>.html`.
