@@ -6,8 +6,6 @@ summary: "Exercises the ToC scroll-spy, sticky header, and sidebar persistence."
 categories: ["Articles"]
 ---
 
-# Long article with table of contents
-
 This fixture exercises every scrolling, sticky, and persistence behavior in the theme. It is intentionally long enough to require vertical scrolling on a desktop viewport, so the sticky header can show and hide, the table-of-contents scroll-spy can update, and the sidebar collapse state can be observed across reloads.
 
 ## Section A — Overview

@@ -4,8 +4,6 @@ date: 2026-07-10
 draft: false
 ---
 
-# Phase 8 infobox smoke test
-
 This fixture exercises every shipped named shortcode with at least the most-used
 parameters. It exists so `hugo --source exampleSite` produces real `<aside
 class="infobox">` output for each of the 30 wrappers. It is not a docs example;

@@ -13,6 +13,18 @@ Vector 2022 visual-fidelity pass — see `docs/UI-AUDIT.md` for the full
 surface-by-surface gap analysis. Five commits; this section collects their
 entries in commit order.
 
+### Fixed
+- Three demo articles emitted a duplicate H1 because `single.html`'s
+  `article-header.html` partial emits `<h1 class="article-title">{{ .Title }}</h1>`
+  from front matter **and** each Markdown body re-declared the title as a
+  `# Heading` line. Removed the `# Title` line from
+  `exampleSite/content/articles/{long-article-with-toc,short-article,phase8-smoke-test}.md`
+  so the title lives in exactly one slot — the article-header chrome —
+  and the ToC + scroll-spy start cleanly from the first section heading.
+  Behaviour equivalent for the H1 case; reduces `<h1>` count on those
+  three pages from 2 to 1, matching Vector 2022's one-page-title
+  contract.
+
 ### Changed
 - Selection background colour moved from `--color-divider` (`#c8ccd1`) to a
   Vector-faithful blue-tinted value (`#bbd5f1` in light / `#2a4365` in
