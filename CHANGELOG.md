@@ -248,6 +248,25 @@ full pass.
   `--color-progressive--hover` aliasing) already works in the new
   palette, no template or TS module touches required.
 
+### Changed (sticky-header behavior)
+- `assets/js/modules/sticky-header.ts` rewritten to use an
+  `IntersectionObserver` on the bottom edge of the primary
+  `.page-header` (rather than a fixed 200 px scroll-direction delta)
+  per `docs/RESEARCH.md` §12.2 (second-plan Phase 4 layout findings).
+  Vector 2022's own `stickyHeader.js` uses the same observer pattern,
+  and the previous scroll-position approach accumulated a 200 px
+  no-op zone at the top of every page plus jitter on the first real
+  scroll event. Sentinel element appended to the primary header:
+  when the sentinel stops intersecting the viewport, the condensed
+  `.sticky-header` becomes visible; when it intersects again, the
+  condensed header collapses. Top/bottom-of-page edge cases (where
+  the observer alone misses state) are still handled via a passive
+  `scroll` listener that flips the condensed header back on at the
+  document bounds. Behavior contract unchanged for end users
+  (`.is-visible` / `.is-hidden` toggle still drives the same CSS
+  states); no template or SCSS changes; the sidebar-toggle, theme-
+  toggle, and ToC scroll-spy modules are unaffected.
+
 ## [1.0.1] - 2026-07-11
 
 Hotfix patch: three build errors surfaced by `npm run dev` immediately after the

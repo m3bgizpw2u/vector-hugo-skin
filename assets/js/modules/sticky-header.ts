@@ -1,59 +1,111 @@
 /**
- * Sticky header — show/hide on scroll direction.
+ * Sticky header — condensed chrome shown once the user scrolls past the
+ * primary header. Per docs/RESEARCH.md §12.2 (second-plan Phase 4
+ * layout findings), the trigger is an IntersectionObserver on the
+ * primary `.page-header`'s bottom edge rather than a fixed-scroll-
+ * position threshold: Vector 2022's actual mechanism is
+ * IntersectionObserver-based, which avoids the rAF/scroll-throttle
+ * thrash on long pages (the previous scroll-direction delta
+ * implementation accumulated a 200px "no-op zone" at the top of every
+ * page, then jittered on the first real scroll event).
  *
- * One behavior only: the condensed header docks in once the user scrolls past
- * a small threshold and tucks back up on scroll-down, snaps back in view on
- * scroll-up. Edge cases:
- *  - At the very top of the page, always visible regardless of last direction.
- *  - At the very bottom of the page, always visible (so the user can still
- *    reach it after reading).
+ * The module's contract:
+ *  - When the bottom edge of `.page-header` exits the viewport top, the
+ *    `.sticky-header` becomes visible (added `.is-visible`,
+ *    removed `.is-hidden`).
+ *  - When the primary header is fully back in view (its bottom edge is
+ *    at or below the viewport top), the condensed header is removed
+ *    again.
+ *  - At very top / very bottom of the page, the condensed header is
+ *    always visible regardless of observer state (the user must be
+ *    able to reach the chrome from anywhere).
  *
- * Scroll handling is throttled via `utils/debounce.throttle` to avoid layout
- * thrash on every scroll event.
+ * The module is a quiet no-op if either element is missing (the
+ * primary header is always present, but `.sticky-header` is optional —
+ * some templates may not include it).
  */
 
 import { addClass, q, removeClass } from '../utils/dom';
-import { throttle } from '../utils/debounce';
-
-const REVEAL_THRESHOLD_PX = 200;
-const SCROLL_THROTTLE_MS = 100;
 
 export const init = (): void => {
-  const header = q<HTMLElement>('.sticky-header');
-  if (!header) return;
+  const sticky = q<HTMLElement>('.sticky-header');
+  const primary = q<HTMLElement>('.page-header');
+  if (!sticky || !primary) return;
 
-  let lastY = window.scrollY;
-
-  const atTop = (): boolean => window.scrollY <= REVEAL_THRESHOLD_PX;
-  const atBottom = (): boolean =>
-    window.innerHeight + window.scrollY >=
-    document.documentElement.scrollHeight - 4;
-
-  const update = (): void => {
-    const currentY = window.scrollY;
-
-    if (atTop() || atBottom()) {
-      addClass(header, 'is-visible');
-      removeClass(header, 'is-hidden');
-      lastY = currentY;
-      return;
+  const setVisible = (visible: boolean): void => {
+    if (visible) {
+      addClass(sticky, 'is-visible');
+      removeClass(sticky, 'is-hidden');
+    } else {
+      removeClass(sticky, 'is-visible');
+      addClass(sticky, 'is-hidden');
     }
-
-    if (currentY > lastY) {
-      removeClass(header, 'is-visible');
-      addClass(header, 'is-hidden');
-    } else if (currentY < lastY) {
-      addClass(header, 'is-visible');
-      removeClass(header, 'is-hidden');
-    }
-
-    lastY = currentY;
   };
 
-  const onScroll = throttle(() => update(), SCROLL_THROTTLE_MS);
+  // Sentinel: a 1px tall line placed at the bottom of the primary header.
+  // Trigger the sticky once this sentinel leaves the top of the viewport;
+  // collapse it back the moment the sentinel re-enters. Using a sentinel
+  // element rather than observing the header itself avoids layout
+  // observation limits when the header's height changes (e.g. wrapping
+  // at sub-500px widths) and matches Vector's `ScrollObserver` pattern.
+  const sentinel = document.createElement('div');
+  sentinel.setAttribute('aria-hidden', 'true');
+  sentinel.style.position = 'absolute';
+  sentinel.style.top = '0';
+  sentinel.style.left = '0';
+  sentinel.style.width = '1px';
+  sentinel.style.height = '100%';
+  sentinel.style.pointerEvents = 'none';
+  sentinel.style.visibility = 'hidden';
+  primary.style.position = 'relative';
+  primary.appendChild(sentinel);
+
+  let observer: IntersectionObserver | null = null;
+  let viewportState: 'top' | 'middle' | 'bottom' = 'top';
+
+  const recompute = (): void => {
+    if (viewportState === 'top' || viewportState === 'bottom') {
+      setVisible(true);
+      return;
+    }
+    const entry = observerState;
+    setVisible(entry === 'intersecting');
+  };
+
+  let observerState: 'intersecting' | 'above' = 'intersecting';
+
+  observer = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        observerState = entry.isIntersecting
+          ? 'intersecting'
+          : 'above';
+      }
+      recompute();
+    },
+    { rootMargin: '0px', threshold: 0 },
+  );
+  observer.observe(sentinel);
+
+  // Track document-level scroll position for top/bottom edge cases the
+  // observer doesn't see (e.g. very-short pages where the bottom edge
+  // arrives before the sentinel ever crosses the threshold).
+  let frame = 0;
+  const onScroll = (): void => {
+    if (frame) return;
+    frame = window.requestAnimationFrame(() => {
+      frame = 0;
+      const doc = document.documentElement;
+      const atTop = window.scrollY <= 4;
+      const atBottom =
+        window.innerHeight + window.scrollY >= doc.scrollHeight - 4;
+      viewportState = atTop ? 'top' : atBottom ? 'bottom' : 'middle';
+      recompute();
+    });
+  };
 
   window.addEventListener('scroll', onScroll, { passive: true });
   window.addEventListener('resize', onScroll, { passive: true });
 
-  addClass(header, 'is-visible');
+  setVisible(true);
 };
