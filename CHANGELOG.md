@@ -285,6 +285,34 @@ full pass.
   `themes/auto.scss`'s `prefers-color-scheme` media query and no
   attribute is set, matching the previous behavior.
 
+### Verification (second-plan Phase 12)
+- `npm run build` runs clean against the example site: 45 pages, 0
+  errors, 0 unexpected warnings (the two `no template for json` info-
+  level warnings for page and section layouts are pre-existing first-
+  plan noise; the home page JSON output the search index depends on
+  is still emitted via `home.json`, and the index.json search index
+  is built as documented in `docs/ARCHITECTURE.md` §6).
+- CSS bundle spot-check confirms the §11 token refresh shipped end-
+  to-end: `--color-link-visited: #6a60b0` (light, twice for :root
+  and `[data-theme="light"]`) and `#a799cd` (dark, twice for
+  `[data-theme="dark"]` and the auto media-query rule);
+  `--color-link-hover: #3056a9` (light) / `#a6bbf5` (dark);
+  `--color-surface: #ffffff` (light) / `#101418` (dark).
+- Static-HTML element check on `articles/long-article-with-toc/index.html`:
+  `.page-grid` × 1, `.sticky-header` × 4 (in markup + class+script
+  references), `.toc-panel` × 2, `.theme-toggle` × 6, `.main-content`
+  × 3, `<html lang=en-US data-theme=auto>` present, `theme-early.js`
+  referenced × 1. All five reference pages from `docs/RESEARCH.md`
+  §10.1 curl-check return 200.
+- Browser-based parity screenshots were attempted but the Electron-
+  bundled MCP browser cannot reach `localhost:1313` from inside its
+  sandbox even when the dev server is up and reachable from the host
+  shell — `Page.getFrameTree` reports `unreachableUrl` for the
+  expected address. Visual comparison recorded as Phase 12 §6.1
+  gap: a future executor with a non-sandboxed browser or a hosted
+  staging URL can replay the §12.1 manual walkthrough against the
+  live site.
+
 ## [1.0.1] - 2026-07-11
 
 Hotfix patch: three build errors surfaced by `npm run dev` immediately after the
