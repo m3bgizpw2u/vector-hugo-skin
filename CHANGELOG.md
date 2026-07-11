@@ -10,6 +10,35 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [Unreleased]
 
 ### Fixed
+- Page-grid collapses the sidebar AND/OR the toc column when the corresponding
+  region is empty (sidebar absent, toc-panel absent from DOM, or both). The
+  earlier empty-toc fix only covered the toc-absent case and used a bare
+  `:not(:has(.page-grid aside.toc-panel))` selector that didn't track sidebar
+  state. Three problems remained: when the article had no headings AND no menu,
+  the sidebar track (240px at desktop, 248px at desktop-wide) was still reserved,
+  leaving a dead column on the left; when the article had headings but no menu,
+  the sidebar track was still reserved; the bare selector would have collided
+  with a future empty-sidebar rule because the toc-absent case would always
+  match it. Reshaped into three mutually exclusive `@media (min-width: 721px)`
+  rules keyed on the presence of `<aside class="toc-panel">` and on
+  `.sidebar-list__link` (the per-item `<a>` rendered once per main-menu entry).
+  The empty-toc rule gains the extra `:has(.page-grid aside.sidebar
+  .sidebar-list__link)` guard so it only handles the toc-empty-sidebar-present
+  case; two new sibling rules cover sidebar-empty-toc-present
+  (`:has(...toc-panel):not(:has(...sidebar .sidebar-list__link))`) and
+  both-empty (the highest-specificity combination, two `:not(:has())` clauses,
+  wins over the single-empty rules when both conditions hold). All three are
+  scoped to `min-width: 721px` so the single-column mobile layout
+  (`@media (max-width: 720px)`) keeps its existing `(0,0,1,0)` specificity and
+  is not overridden. The empty-toc rule's selector is also scoped further to
+  `.page-grid aside.toc-panel` to defend against a future component using
+  `<aside class="toc-panel">` outside the page-grid accidentally disabling the
+  collapse. At a 1280px viewport on the short-article demo, the article column
+  grew from 580px (both tracks still reserved) to 824px (toc track collapsed)
+  on toc-empty, 852px (sidebar track collapsed) on sidebar-empty, and 1096px
+  (both tracks collapsed) on both-empty — matching Vector 2022's "article
+  expands to fill the freed horizontal space" behaviour. One file touched:
+  `assets/css/layout/page-grid.scss`.
 - Page-grid reserved a 220px column on the right of every article page even
   when no headings existed to populate the table of contents. CSS Grid does
   not auto-collapse declared column tracks when a named area is unoccupied,
