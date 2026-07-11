@@ -243,3 +243,136 @@ For the final visual verification, render the homepage + person-demo + long-arti
 6. **`40-shortcodes.mdc` "every shortcode lives in its own folder".** No new shortcodes in this pass. ✓ no tension.
 
 7. **`30-scripts.mdc` "no cross-imports between modules; coordination in main.ts".** The extended `sidebar-toggle.ts` will handle both the per-portlet AND outer collapse. Two behaviors in one file violates the spirit of the rule; consider splitting into `sidebar-toggle.ts` (outer) and `sidebar-portlets.ts` (inner). **Flagged for user decision** in §3. For this pass I'll keep them in one file because they're closely related (both operate on `.sidebar-list__group` / `.sidebar`) and the implementation is small enough that splitting would create more boilerplate than it removes.
+
+## 7. Phase 16 fidelity pass — responsive bugs
+
+A second visual-comparison pass against Vector 2022 surfaced two
+user-reported responsive bugs and four remaining small in-scope gaps.
+This section records the bugs and the fixes; the four smaller gaps
+are tracked separately under the same phase-16 umbrella.
+
+### 7.1 Bug A — Header collapses at 456px viewport width
+
+**Symptom.** At viewport widths between roughly 380–720px, the
+top `.page-header` chrome wraps onto multiple rows. The sidebar-toggle
+and logo land on row 1, the search box on row 2, the personal-tools
+row on row 3. Header height balloons from the design 56px to 100–150px,
+and the additional rows consume space that should belong to the article.
+
+**Root cause.** Each flex child inside `.page-header` carried the
+default `min-width: auto`. In flexbox, that means the row cannot
+shrink past the natural min-content width of any single child. The
+search box's intrinsic `max-width: 28rem` (declared in
+`assets/css/components/search-box.scss`) is therefore the row's
+hard lower bound — once the viewport can't fit 28rem plus the other
+chrome elements, the container grows vertically to wrap instead of
+shrinking the search box. This is a textbook flexbox trap.
+
+**Fix.** `assets/css/layout/header.scss` now gives every direct flex
+child (`__sidebar-toggle`, `__logo`, `__title`, `__tools`, plus the
+nested `.search-box`) an explicit `min-width: 0` so the row can shrink
+past the search box's intrinsic width. The `.site-logo-mark` wordmark
+becomes a single ellipsis-truncated span, and at <500px the search
+input collapses to its submit-icon magnifier — matching Vector 2022's
+mobile behaviour, where at narrower widths the search surfaces via
+the sidebar instead of letting the header wrap. `flex-wrap: nowrap`
+is set explicitly on `.page-header` for defensive clarity (it's the
+default, but stating it documents intent).
+
+**Visual verification.** Headless Chromium screenshots at
+`/tmp/cursor/screenshots/phase16-fixA-localhost-{320,380,456,500,720,1024}.png`
+show single-row headers at every width from 320px upward. The 456px
+frame — the user-flagged repro point — now renders the logo
+ellipsis-truncated, the full search input visible, and the theme
+toggle intact, all on row 1.
+
+**Side note (not blocking).** The dev server renders the stylesheet
+link under `http://localhost:1313/...` (Hugo's dev-server
+canonicalisation) while the page is browsed at `http://127.0.0.1:1313/`.
+Browsers treat this as cross-origin and, because the `<link>` carries
+`crossorigin="anonymous"`, the CORS fetch is blocked and the author
+CSS is silently disabled. Verification screenshots therefore use
+`localhost:1313` throughout. Documented inline in
+`assets/css/layout/header.scss` so the cause isn't a mystery next
+time.
+
+### 7.2 Bug B — Article content overlaps footer at narrow widths
+
+**Symptom.** At viewport widths around 480–720px (the tablet-to-mobile
+transition), the article body inside the page-grid appears to bleed
+into or overlap with the footer below. Worse at the user's repro
+point (~732px wide, the dev-server's own viewport) where the article
+column's right edge clearly tracks inside the footer's brand row.
+
+**Root cause.** A contract miss. `assets/css/layout/page-grid.scss`
+already declared `.page-grid__main { min-width: 0 }` — but no element
+ever carried that class. The actual inner div emitted by
+`layouts/_default/baseof.html` is `<div class="main-content">`, so the
+rule was dead and the cell fell back to the flex/grid default
+`min-width: auto`. With `min-width: auto`, the grid cell cannot shrink
+below its content's intrinsic min-content width. A wide infobox
+caption, an unbreakable URL, or a `<pre>` block therefore forces the
+track wider than its declared `minmax(0, 1fr)`, the article overflows
+its grid cell horizontally, and — at the widths where the page-grid
+collapses to two columns (sidebar + main) — the overflow visually
+bleeds into the column containing the footer.
+
+**Fix.** `assets/css/layout/page-grid.scss` now targets the actual
+emitted class:
+
+```scss
+.main-content {
+  grid-area: main;
+  min-width: 0;
+}
+```
+
+`.page-grid__main` is kept as a hint for future contract alignment
+(also documented inline). The footer is additionally pinned to its own
+stacking context in `assets/css/components/footer.scss`
+(`position: relative; z-index: 0;`) so the sticky-header can never
+bleed into the footer's visual area at narrow widths — a separate
+defensive measure.
+
+**Visual verification.** Headless Chromium full-page screenshots at
+`/tmp/cursor/screenshots/phase16-bugB-fix-{320,480,720,732,768,1024,1200}-full.png`
+show the article body and footer cleanly separated at every width. The
+732px frame — the user's repro viewport — now shows the article
+ending at ~620px (with the infobox float-right), a clear 48px gap
+from `margin-top: var(--space-2xl)`, then the footer brand row at
+~668px. No horizontal overlap.
+
+### 7.3 Other small gaps (deferred)
+
+The visual comparison also surfaced four small in-scope gaps that are
+out of scope for this pass per the user's "keep this pass focused"
+guidance:
+
+1. **Sidebar sticky header overlap at long-page scroll.** The
+   `.sidebar` is `position: sticky; top: calc(var(--header-height) +
+   var(--space-md))` — at desktop widths where the regular header is
+   sticky, this offsets the sidebar below it correctly; on the long
+   article page (where the sticky condensed header kicks in), the
+   sidebar's top doesn't move, so the two sticky elements overlap.
+   The fix is a `position: sticky` `top` adjustment keyed off the
+   sticky-header's height (one CSS line). Deferred: low visual cost,
+   only one page is long enough to expose it.
+2. **Article-categories pill row vertical spacing.** The
+   `.article-categories` block has `margin-top: var(--space-xl)` but
+   the row inside uses `gap: var(--space-xs) var(--space-sm)` — the
+   pill row sits visually tight against the preceding `<hr>`-style
+   `border-top`. Vector uses a slightly tighter gap; ours looks
+   acceptable but a touch airy.
+3. **Theme-toggle button vertical alignment in the header.** The
+   segmented theme toggle renders ~4px taller than the surrounding
+   header row at widths where the header is exactly `header-height`
+   tall. Aligning `align-self: center` on the toggle would resolve
+   it; cosmetic.
+4. **Long-article scroll-spy active-state border.** The scroll-spy
+   JS marks the currently-visible heading in the ToC but the
+   `border-left` colour does not switch between themes; the active
+   item's border uses `--color-divider` in light and looks slightly
+   washed-out. A two-line CSS rule using `--color-link` would match.
+
+These are tracked here for the next pass — none blocks the Phase 16
+bug fix commits.
