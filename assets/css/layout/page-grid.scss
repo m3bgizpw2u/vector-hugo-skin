@@ -118,4 +118,19 @@
   .page-grid__toc {
     display: block;
   }
+
+  // F1: collapse the sidebar grid cell when the off-canvas drawer is
+  // closed (default). The aside positions itself fixed via
+  // layout/sidebar.scss so the cell would otherwise leave a dead
+  // stacked block beneath the article. When the mobile drawer is
+  // open, the cell hosts the visible drawer panel via the aside's
+  // own fixed-positioned contents.
+  .page-grid__sidebar {
+    display: none;
+  }
+
+  :root[data-sidebar-mobile="open"] .page-grid__sidebar {
+    display: block;
+    height: 0;
+  }
 }

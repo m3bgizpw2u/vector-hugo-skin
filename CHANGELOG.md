@@ -1274,6 +1274,22 @@ build-green verification target.
   `assets/js/main.ts` as the sixth `init()` call alongside the existing
   straight-line composition. Resolves F10; commit 6 of 6 in the plan.
 
+### Added (responsive audit — off-canvas sidebar drawer at mobile + sticky-top offset fix)
+- `assets/css/layout/sidebar.scss`: at `@media (max-width: 720px)` the
+  sidebar aside becomes `position: fixed; inset: var(--header-height) 0
+  0 0; transform: translateX(-100%)` and slides in via
+  `:root[data-sidebar-mobile="open"] .sidebar { transform: translateX(0); }`.
+  The header's `[data-sidebar-toggle]` button now drives this state on
+  mobile via a new `matchMedia('(max-width: 720px)')` listener in
+  `assets/js/modules/sidebar-toggle.ts` — the existing desktop outer-
+  collapse path stays intact. The `.sidebar` sticky-top now factors in
+  `--sticky-header-height` (`calc(var(--header-height) +
+  var(--sticky-header-height) + var(--space-md))`) so the column top
+  lands below the sticky-header band on long pages; the same one-line
+  fix applies to `assets/css/layout/toc-panel.scss` for the right
+  column. Resolves F1 + F5 from the responsive audit
+  (`docs/UI-AUDIT.md` §6 follow-up); commit 2 of 6 in the plan.
+
 ### Documentation
 - Appended `## 8. Responsive audit — implementation summary
   (2026-07-11)` to `docs/UI-AUDIT.md`. Section records the

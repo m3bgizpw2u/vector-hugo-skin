@@ -8,7 +8,7 @@
 /**
  * Sidebar — outer collapse + per-portlet collapse with persisted state.
  *
- * Two related behaviors that share the same DOM root (`.sidebar` /
+ * Three related behaviors that share the same DOM root (`.sidebar` /
  * `.sidebar-list`) and the same persistence namespace (`vhskin:sidebar:…`):
  *
  *  1. Outer collapse — a `[data-sidebar-toggle]` button (rendered by
@@ -23,7 +23,17 @@
  *     links inside. State is persisted under `vhskin:sidebar:groups` so the
  *     collapsed/expanded state of every group survives page loads.
  *
- * Per `.cursor/rules/30-scripts.mdc` ("one behavior per file"), these two
+ *  3. Mobile drawer (F1) — when the viewport is at most 720px wide, the
+ *     same `[data-sidebar-toggle]` button toggles
+ *     `[data-sidebar-mobile="open"]` on `<html>` instead, flipping the
+ *     `.sidebar` aside from off-canvas to in-view via the transform
+ *     defined in `assets/css/layout/sidebar.scss`. The desktop outer-
+ *     collapse path is suppressed on mobile so the column-width transition
+ *     does not fire. When the viewport grows past 720px while the drawer
+ *     is open, the mobile state is cleared so the user does not return
+ *     to a half-open layout.
+ *
+ * Per `.cursor/rules/30-scripts.mdc` ("one behavior per file"), these
  * behaviors share a file because they coordinate on the same DOM root and
  * the same persistence namespace; splitting them would force a third
  * file in `assets/js/main.ts` to wire the two together, which adds
@@ -38,6 +48,8 @@ const OUTER_STORAGE_KEY = 'sidebar:outer';
 const GROUPS_STORAGE_KEY = 'sidebar:groups';
 const COLLAPSED_CLASS = 'sidebar-list__group--collapsed';
 const ROOT_ATTRIBUTE = 'data-sidebar';
+const MOBILE_ROOT_ATTRIBUTE = 'data-sidebar-mobile';
+const MOBILE_BREAKPOINT = '(max-width: 720px)';
 
 type GroupState = Record<string, boolean>;
 
@@ -142,10 +154,77 @@ const initOuterCollapse = (): void => {
     'aria-label',
     initialCollapsed ? 'Show sidebar' : 'Hide sidebar',
   );
-  button.addEventListener('click', toggleOuter);
+};
+
+const isMobileViewport = (): boolean =>
+  window.matchMedia(MOBILE_BREAKPOINT).matches;
+
+const applyMobile = (open: boolean): void => {
+  const root = document.documentElement;
+  if (open) root.setAttribute(MOBILE_ROOT_ATTRIBUTE, 'open');
+  else root.removeAttribute(MOBILE_ROOT_ATTRIBUTE);
+};
+
+const updateAria = (open: boolean): void => {
+  const button = q<HTMLButtonElement>('[data-sidebar-toggle]');
+  if (!button) return;
+  button.setAttribute('aria-expanded', String(open));
+};
+
+const onToggleClick = (event: MouseEvent): void => {
+  if (!isMobileViewport()) {
+    toggleOuter();
+    return;
+  }
+  event.preventDefault();
+  const root = document.documentElement;
+  const open = root.getAttribute(MOBILE_ROOT_ATTRIBUTE) === 'open';
+  applyMobile(!open);
+  updateAria(!open);
+};
+
+const initMobileDrawer = (): void => {
+  const button = q<HTMLButtonElement>('[data-sidebar-toggle]');
+  if (!button) return;
+
+  const media = window.matchMedia(MOBILE_BREAKPOINT);
+
+  button.addEventListener('click', onToggleClick);
+
+  const syncAria = (): void => {
+    const open =
+      document.documentElement.getAttribute(MOBILE_ROOT_ATTRIBUTE) === 'open';
+    updateAria(open);
+  };
+
+  // If the viewport widens past 720px while the drawer is open, close
+  // it so the layout lands in the expected desktop state. When the
+  // viewport drops into mobile, any leftover outer-collapse state would
+  // be incoherent alongside the drawer flag, so reset that too.
+  const onMediaChange = (event: MediaQueryListEvent): void => {
+    if (!event.matches) {
+      applyMobile(false);
+      syncAria();
+      return;
+    }
+    if (
+      document.documentElement.getAttribute(ROOT_ATTRIBUTE) === 'collapsed'
+    ) {
+      applyOuter(false);
+      set(OUTER_STORAGE_KEY, false);
+    }
+    syncAria();
+  };
+  media.addEventListener('change', onMediaChange);
+
+  if (isMobileViewport()) {
+    applyMobile(false);
+    syncAria();
+  }
 };
 
 export const init = (): void => {
   initOuterCollapse();
   initGroupCollapse();
+  initMobileDrawer();
 };

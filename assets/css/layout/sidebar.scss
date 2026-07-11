@@ -7,11 +7,19 @@
 // main menu and page-tools portlets. Visual styling of the menu itself
 // lives in components/sidebar.scss; this file only handles the
 // column shell and its sticky behaviour at wide widths.
+//
+// Mobile drawer (F1 from docs/UI-AUDIT.md §6): at viewport widths
+// ≤720px the sidebar leaves its grid cell and renders as a fixed
+// off-canvas drawer that slides in from the left when the header's
+// hamburger carries the matching open state on `<html>`. The state is
+// wired and toggled by `assets/js/modules/sidebar-toggle.ts` via a
+// `matchMedia('(max-width: 720px)')` listener; desktop behaviour is
+// untouched here.
 
 .sidebar {
   position: sticky;
-  top: calc(var(--header-height) + var(--space-md));
-  height: calc(100vh - var(--header-height) - var(--space-xl));
+  top: calc(var(--header-height) + var(--sticky-header-height) + var(--space-md));
+  height: calc(100vh - var(--header-height) - var(--sticky-header-height) - var(--space-xl));
   overflow-y: auto;
   padding: var(--space-md) 0;
   background-color: transparent;
@@ -28,11 +36,24 @@
 }
 
 @media (max-width: 720px) {
+  // Off-canvas drawer (F1). Fixed positioning pulls the sidebar out
+  // of the grid flow; the open state on `<html>` slides it in.
   .sidebar {
-    position: static;
+    position: fixed;
+    inset: var(--header-height) 0 0 0;
+    width: var(--sidebar-width);
+    transform: translateX(-100%);
+    transition: transform var(--transition-base);
+    will-change: transform;
+    z-index: var(--z-overlay);
+    background: var(--color-surface);
+    border-right: 1px solid var(--color-divider);
     height: auto;
-    border-top: 1px solid var(--color-divider);
-    margin-top: var(--space-lg);
     padding: var(--space-md) 0;
+    overflow-y: auto;
+  }
+
+  :root[data-sidebar-mobile="open"] .sidebar {
+    transform: translateX(0);
   }
 }
