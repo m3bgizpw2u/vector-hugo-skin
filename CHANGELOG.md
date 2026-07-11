@@ -1200,3 +1200,12 @@ build-green verification target.
   fix `hugo --quiet` still exits 0 and `exampleSite/public/articles/*/
   index.html` carries exactly **one** `#search-box-suggestions` node,
   nested inside `<form class="search-box">` and bearing `hidden`.
+
+### Added (responsive audit — prefers-reduced-motion guard)
+- Global `@media (prefers-reduced-motion: reduce)` block appended to
+  `assets/css/base/_reset.scss` disabling animation and transition on
+  `*, *::before, *::after` and forcing `scroll-behavior: auto`, so the
+  transition-heavy chrome (sidebar collapse, ToC dropdown, sticky-header)
+  respects the user's OS-level motion preference. Resolves F9 from the
+  responsive audit (`docs/UI-AUDIT.md` follow-up); commit 1 of 6 in the
+  plan.

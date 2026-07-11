@@ -100,3 +100,18 @@ input, button, textarea, select {
   background-color: var(--color-selection-bg);
   color: var(--color-selection-text);
 }
+
+// ---- Reduced motion ----
+// Resolves F9 from the responsive audit. Disables animation/transition and
+// disables smooth scrolling when the user has requested reduced motion at
+// the OS level, so the chrome (sidebar collapse, ToC dropdown, sticky-header)
+// stops being motion-heavy for users who experience it as a barrier.
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
