@@ -2,6 +2,19 @@
 // button, search box, and personal-tools row. Layout-level only; the
 // visual styling of the search box, theme toggle, etc. lives in their
 // component files.
+//
+// Responsive behaviour (Phase 16 Bug A): the row is single-line at every
+// viewport ≥ 320px. Each flex child carries `min-width: 0` so the row can
+// shrink past the natural min-content width of any single child — without
+// this, the search box's intrinsic `max-width: 28rem` (in
+// components/search-box.scss) makes the whole row wider than the viewport,
+// and the flex container grows vertically to wrap, leaving a 100–150px
+// tall header instead of the design 56px. At <500px the search box is
+// collapsed to a magnifier icon so the row never has to negotiate for
+// space; clicking the icon expands an overlay search input (wired through
+// the same JS module, deferred). Vector 2022 ships the same behaviour at
+// the ~500px breakpoint — at narrower widths, the sidebar slides over
+// instead of the header wrapping.
 
 .page-header {
   display: flex;
@@ -14,10 +27,12 @@
   position: sticky;
   top: 0;
   z-index: var(--z-sticky);
+  flex-wrap: nowrap;
 }
 
 .page-header__sidebar-toggle {
   flex: 0 0 auto;
+  min-width: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -45,7 +60,8 @@
 }
 
 .page-header__logo {
-  flex: 0 0 auto;
+  flex: 0 1 auto;
+  min-width: 0;
   display: flex;
   align-items: center;
   gap: var(--space-sm);
@@ -54,6 +70,7 @@
   font-weight: var(--font-weight-bold);
   color: var(--color-text);
   text-decoration: none;
+  overflow: hidden;
 }
 
 .page-header__logo:hover,
@@ -62,8 +79,20 @@
   color: var(--color-link);
 }
 
+// Logo text — allow truncation with ellipsis when the row is too narrow
+// for the full site title. Phase 16 Bug A: without `overflow: hidden` on
+// the parent + `min-width: 0`, the wordmark couldn't shrink at all and
+// pushed the search box below the row.
+.site-logo-mark {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .page-header__title {
   flex: 1 1 auto;
+  min-width: 0;
   font-size: var(--font-size-lg);
   font-weight: var(--font-weight-normal);
   color: var(--color-text);
@@ -77,14 +106,65 @@
   display: flex;
   align-items: center;
   gap: var(--space-sm);
+  min-width: 0;
+}
+
+// Search box inside the header — give it a baseline flex behaviour so it
+// grows to fill the row but can shrink below its declared `max-width`
+// when the other flex children demand space. Phase 16 Bug A: the
+// components/search-box.scss rule had `width: 100%` (which becomes the
+// flex item's preferred main size); without an explicit `min-width: 0`
+// here, the item couldn't shrink past 28rem and the row wrapped at
+// 456px. The component-level width rule still applies so the search box
+// tops out at 28rem on wide viewports.
+.page-header .search-box {
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 @media (max-width: 720px) {
   .page-header {
     padding: 0 var(--space-sm);
+    gap: var(--space-sm);
   }
 
   .page-header__title {
     font-size: var(--font-size-base);
+  }
+
+  .page-header__logo {
+    font-size: var(--font-size-lg);
+  }
+}
+
+// Phase 16 Bug A: at <500px the search box is collapsed to a magnifier
+// icon to guarantee the header stays single-line. The full search input
+// lives in an overlay panel (deferred). Vector 2022 hides the search box
+// entirely below ~500px and surfaces search via the sidebar instead; we
+// keep a magnifier affordance for parity with the existing
+// search-box component shape.
+@media (max-width: 500px) {
+  .page-header__title {
+    display: none;
+  }
+
+  .page-header .search-box {
+    flex: 0 0 auto;
+    width: auto;
+    max-width: none;
+  }
+
+  .page-header .search-box__input,
+  .page-header .search-box__icon,
+  .page-header .search-box__submit {
+    display: none;
+  }
+
+  // Visible magnifier button — re-purposes the submit icon as the
+  // collapsed search affordance. Aria-label and pointer cursor are
+  // inherited from the existing submit button styling.
+  .page-header .search-box__submit {
+    display: inline-flex;
+    padding: var(--space-xs);
   }
 }

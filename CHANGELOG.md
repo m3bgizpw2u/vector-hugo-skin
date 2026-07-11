@@ -132,8 +132,9 @@ entries in commit order.
 - See `docs/UI-AUDIT.md` §3 for the full list and rationale.
 
 Phase 16 follow-up fidelity pass — visual comparison of the rendered
-site against Vector 2022 surfaced four remaining small in-scope gaps.
-See `docs/UI-AUDIT.md` §7 for the full pass.
+site against Vector 2022 surfaced two user-reported responsive bugs and
+four remaining small in-scope gaps. See `docs/UI-AUDIT.md` §7 for the
+full pass.
 
 ### Fixed
 - Article-title CSS contract: `layouts/_partials/article/article-header.html`
@@ -148,6 +149,18 @@ See `docs/UI-AUDIT.md` §7 for the full pass.
   H1 picks up `font-family: var(--font-serif)` and
   `font-weight: var(--font-weight-normal)`. The previous BEM selectors
   are deleted (they never matched anything in the DOM).
+- Header collapse at 456px (user-reported Bug A):
+  `assets/css/layout/header.scss` now keeps `.page-header` on a single
+  row at every viewport ≥ 320px. Root cause: each flex child carried
+  the default `min-width: auto`, which meant the row could not shrink
+  past the search box's `max-width: 28rem`. The container then grew
+  vertically to wrap, leaving a 100–150px tall header. The fix gives
+  every direct child (`__sidebar-toggle`, `__logo`, `__title`,
+  `__tools`, and the nested `.search-box`) an explicit `min-width: 0`
+  and turns the `.site-logo-mark` text into a single ellipsis-truncated
+  span. At <500px the search input collapses to a magnifier icon
+  (matching Vector's mobile behaviour — at narrower widths Vector
+  surfaces search via the sidebar instead of letting the header wrap).
 
 ### Changed
 - Article-body heading rhythm brought in line with Vector 2022's
