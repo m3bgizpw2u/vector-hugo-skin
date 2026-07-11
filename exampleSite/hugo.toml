@@ -1,4 +1,4 @@
-baseURL = "http://example.org/"
+baseURL = "https://vector-hugo-skin-example.pages.dev/"
 title = "Vector Hugo Skin — Example Site"
 defaultContentLanguage = "en"
 

@@ -137,8 +137,15 @@
   border-bottom-right-radius: var(--radius-md);
 }
 
-// ---- Mobile: stack full-width below the lead ----
-@media (max-width: 720px) {
+// ---- Mobile + tablet: stack full-width below the lead ----
+// Float is dropped at ≤1024 px (not just ≤720 px) so the article body
+// keeps a readable text column when the sidebar column is still showing.
+// At 768 px (iPad portrait) the available article width is roughly
+// 528 px, which after padding leaves room for the 352 px infobox AND
+// only ~140 px of body text — unreadable. Dropping the float there
+// gives the article full tablet width and stacks the infobox below the
+// first paragraph, matching Vector 2022's behavior at this width.
+@media (max-width: 1024px) {
   .infobox {
     float: none;
     max-width: 100%;
