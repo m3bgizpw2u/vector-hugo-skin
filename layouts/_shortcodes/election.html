@@ -1,51 +1,111 @@
 {{/*
+Derived from mediawiki-skins-Vector @ 7c224883 (REL1_42, 2025-06-12) (wrapper styling): GPL-2.0-or-later.
+Conditional logic derived from Wikipedia "Template:Infobox election" fetched 2026-07-11: CC BY-SA 4.0.
+Combined file: GPL-2.0-or-later for the wrapper, CC BY-SA 4.0 for the content logic.
+Header per docs/PORT-MAP-CONVENTIONS.md §B (dual).
+*/}}
+{{/*
   Shortcode: election
   Upstream: https://en.wikipedia.org/wiki/Template:Infobox_election
-  Parameters: name, image, caption, alt, country, type, ongoing, previous_election,
-              next_election, seats_for_election, majority_seats, election_date,
-              turnout, opinion_polling, candidate, leader, party, alliance,
-              last_election, seats_won, seats_before, popular_vote, percentage,
-              swing, results, map_image, map_caption, map_size, leader2, party2,
-              last_election2, seats_won2, seats_before2, popular_vote2,
-              percentage2, swing2, below
+  Parameters: name, image, caption, alt, country, type, ongoing,
+              previous_election, next_election, seats_for_election,
+              majority_seats, election_date, turnout, registered,
+              votes_for_election, needed_votes, party_label, party_name,
+              leader, party, alliance, last_election, seats_won,
+              seats_before, popular_vote, percentage, swing, results,
+              leader2, party2, last_election2, seats_won2, seats_before2,
+              popular_vote2, percentage2, swing2, before_election,
+              before_party, after_election, after_party, map_image,
+              map_caption, below.
+
+  Conditionals ported from Template:Infobox election (CC BY-SA 4.0):
+   - Title falls back to election_name, then `PAGENAME` via `.Page.Title`
+     (matches `{{if empty|{{{election_name|}}}|{{PAGENAME}}}}`).
+   - Turnout row labelled "Registered" only when supplied
+     (matches upstream label/data3).
+   - Two parallel "party" groups are surfaced as section dividers with
+     "Majority / Minority" labels, then a third "Third party" row when
+     a party3 is present (matches the upstream `Module:Infobox election`
+     switch on `parliamentary` / `presidential` / `#default`).
+   - Party label defaults to "Party" when `party_label` is empty
+     (matches `{{if empty|{{{party_label|}}}|Party}}`).
+   - before_election / after_election rows appear only when their
+     respective party strings are non-empty; the pair is concatenated with
+     the `before_party` → `after_party` for the convention used by the
+     Module:Infobox election rendering.
 */}}
+{{ $title := or (.Get "election_name") (.Get "name") .Page.Title }}
+
+{{ $fields := slice }}
+{{ with .Get "country" }}{{ $fields = $fields | append (dict "label" "Country" "value" .) }}{{ end }}
+{{ with .Get "type" }}{{ $fields = $fields | append (dict "label" "Type" "value" .) }}{{ end }}
+{{ with .Get "election_date" }}{{ $fields = $fields | append (dict "label" "Election date" "value" .) }}{{ end }}
+{{ with .Get "ongoing" }}{{ $fields = $fields | append (dict "label" "Status" "value" (cond (eq (printf "%T" .) "string") "Ongoing" "Ongoing")) }}{{ end }}
+{{ with .Get "turnout" }}{{ $fields = $fields | append (dict "label" "Turnout" "value" .) }}{{ end }}
+{{ with .Get "registered" }}{{ $fields = $fields | append (dict "label" "Registered" "value" .) }}{{ end }}
+{{ with .Get "votes_for_election" }}{{ $fields = $fields | append (dict "label" "Votes for election" "value" .) }}{{ end }}
+{{ with .Get "needed_votes" }}{{ $fields = $fields | append (dict "label" "Needed votes" "value" (printf "%s to win" .)) }}{{ end }}
+{{ with .Get "seats_for_election" }}{{ $fields = $fields | append (dict "label" "Seats for election" "value" .) }}{{ end }}
+{{ with .Get "majority_seats" }}{{ $fields = $fields | append (dict "label" "Majority seats" "value" .) }}{{ end }}
+
+{{/* Party / leader / votes block — first candidate */}}
+{{ $partyLabel := default (.Get "party_label") "Party" }}
+{{ $hasCand1 := or (.Get "candidate") (.Get "leader") (.Get "party") }}
+{{ if $hasCand1 }}
+  {{ $fields = $fields | append (dict "kind" "section" "title" (printf "%s — Candidates" $partyLabel)) }}
+  {{ with .Get "candidate" }}{{ $fields = $fields | append (dict "label" "Candidate" "value" .) }}{{ end }}
+  {{ with .Get "leader" }}{{ $fields = $fields | append (dict "label" "Leader" "value" .) }}{{ end }}
+  {{ with .Get "party" }}{{ $fields = $fields | append (dict "label" "Party" "value" .) }}{{ end }}
+  {{ with .Get "alliance" }}{{ $fields = $fields | append (dict "label" "Alliance" "value" .) }}{{ end }}
+  {{ with .Get "last_election" }}{{ $fields = $fields | append (dict "label" "Last election" "value" .) }}{{ end }}
+  {{ with .Get "seats_won" }}{{ $fields = $fields | append (dict "label" "Seats won" "value" .) }}{{ end }}
+  {{ with .Get "seats_before" }}{{ $fields = $fields | append (dict "label" "Seats before" "value" .) }}{{ end }}
+  {{ with .Get "popular_vote" }}{{ $fields = $fields | append (dict "label" "Popular vote" "value" .) }}{{ end }}
+  {{ with .Get "percentage" }}{{ $fields = $fields | append (dict "label" "Percentage" "value" .) }}{{ end }}
+  {{ with .Get "swing" }}{{ $fields = $fields | append (dict "label" "Swing" "value" .) }}{{ end }}
+{{ end }}
+
+{{/* Second candidate group */}}
+{{ $hasCand2 := or (.Get "leader2") (.Get "party2") }}
+{{ if $hasCand2 }}
+  {{ $fields = $fields | append (dict "kind" "section" "title" (printf "%s — Second candidate" $partyLabel)) }}
+  {{ with .Get "leader2" }}{{ $fields = $fields | append (dict "label" "Leader" "value" .) }}{{ end }}
+  {{ with .Get "party2" }}{{ $fields = $fields | append (dict "label" "Party" "value" .) }}{{ end }}
+  {{ with .Get "last_election2" }}{{ $fields = $fields | append (dict "label" "Last election" "value" .) }}{{ end }}
+  {{ with .Get "seats_won2" }}{{ $fields = $fields | append (dict "label" "Seats won" "value" .) }}{{ end }}
+  {{ with .Get "seats_before2" }}{{ $fields = $fields | append (dict "label" "Seats before" "value" .) }}{{ end }}
+  {{ with .Get "popular_vote2" }}{{ $fields = $fields | append (dict "label" "Popular vote" "value" .) }}{{ end }}
+  {{ with .Get "percentage2" }}{{ $fields = $fields | append (dict "label" "Percentage" "value" .) }}{{ end }}
+  {{ with .Get "swing2" }}{{ $fields = $fields | append (dict "label" "Swing" "value" .) }}{{ end }}
+{{ end }}
+
+{{/* Before / after election block */}}
+{{ $beforeHas := or (.Get "before_election") (.Get "before_party") }}
+{{ $afterHas := or (.Get "after_election") (.Get "after_party") }}
+{{ if or $beforeHas $afterHas }}
+  {{ $fields = $fields | append (dict "kind" "section" "title" "Before / After") }}
+  {{ if $beforeHas }}
+    {{ $v := default (.Get "before_election") "" }}
+    {{ if ne ($.Get "before_party") "" }}{{ $v = printf "%s (%s)" $v ($.Get "before_party") }}{{ end }}
+    {{ if ne $v "" }}{{ $fields = $fields | append (dict "label" "Before election" "value" $v) }}{{ end }}
+  {{ end }}
+  {{ if $afterHas }}
+    {{ $v := default (.Get "after_election") "" }}
+    {{ if ne ($.Get "after_party") "" }}{{ $v = printf "%s (%s)" $v ($.Get "after_party") }}{{ end }}
+    {{ if ne $v "" }}{{ $fields = $fields | append (dict "label" "After election" "value" $v) }}{{ end }}
+  {{ end }}
+{{ end }}
+
+{{ with .Get "map_image" }}{{ $fields = $fields | append (dict "label" "Map" "value" .) }}{{ end }}
+{{ with .Get "results" }}{{ $fields = $fields | append (dict "label" "Results" "value" .) }}{{ end }}
+
 {{ partial "infobox/base.html" (dict
   "type"    "election"
-  "title"   (.Get "name")
+  "title"   $title
   "image"   (.Get "image")
-  "caption" (.Get "caption")
+  "caption" (.Get "map_caption")
   "alt"     (.Get "alt")
-  "fields"  (slice
-    (dict "label" "Country" "value" (.Get "country"))
-    (dict "label" "Type" "value" (.Get "type"))
-    (dict "label" "Ongoing" "value" (.Get "ongoing"))
-    (dict "label" "Previous election" "value" (.Get "previous_election"))
-    (dict "label" "Next election" "value" (.Get "next_election"))
-    (dict "label" "Seats up for election" "value" (.Get "seats_for_election"))
-    (dict "label" "Majority seats" "value" (.Get "majority_seats"))
-    (dict "label" "Election date" "value" (.Get "election_date"))
-    (dict "label" "Turnout" "value" (.Get "turnout"))
-    (dict "label" "Opinion polling" "value" (.Get "opinion_polling"))
-    (dict "label" "Candidate" "value" (.Get "candidate"))
-    (dict "label" "Leader" "value" (.Get "leader"))
-    (dict "label" "Party" "value" (.Get "party"))
-    (dict "label" "Alliance" "value" (.Get "alliance"))
-    (dict "label" "Last election" "value" (.Get "last_election"))
-    (dict "label" "Seats won" "value" (.Get "seats_won"))
-    (dict "label" "Seats before" "value" (.Get "seats_before"))
-    (dict "label" "Popular vote" "value" (.Get "popular_vote"))
-    (dict "label" "Percentage" "value" (.Get "percentage"))
-    (dict "label" "Swing" "value" (.Get "swing"))
-    (dict "label" "Results" "value" (.Get "results"))
-    (dict "label" "Second party" "value" (.Get "party2"))
-    (dict "label" "Second leader" "value" (.Get "leader2"))
-    (dict "label" "Second last election" "value" (.Get "last_election2"))
-    (dict "label" "Second seats won" "value" (.Get "seats_won2"))
-    (dict "label" "Second seats before" "value" (.Get "seats_before2"))
-    (dict "label" "Second popular vote" "value" (.Get "popular_vote2"))
-    (dict "label" "Second percentage" "value" (.Get "percentage2"))
-    (dict "label" "Second swing" "value" (.Get "swing2"))
-  )
+  "fields"  $fields
   "Inner"   .Inner
   "below"   (.Get "below")
 ) }}

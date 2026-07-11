@@ -1,49 +1,234 @@
 {{/*
+Derived from mediawiki-skins-Vector @ 7c224883 (REL1_42, 2025-06-12) (wrapper styling): GPL-2.0-or-later.
+Conditional logic derived from Wikipedia "Template:Infobox organization" fetched 2026-07-11: CC BY-SA 4.0.
+Combined file: GPL-2.0-or-later for the wrapper, CC BY-SA 4.0 for the content logic.
+Header per docs/PORT-MAP-CONVENTIONS.md §B (dual).
+*/}}
+{{/*
   Shortcode: organization
   Upstream: https://en.wikipedia.org/wiki/Template:Infobox_organization
-  Parameters: name, image, caption, alt, native_name, logo, type, industry,
-              founded, founder, defunct, hq_location, hq_location_country,
-              coordinates, area_served, members, employees, volunteers, budget,
-              website, key_people, products, services, parent, subsidiaries,
-              affiliations, motto, formation, dissolution, registration_id,
-              status, purpose, language, leader_name, leader_title, below
+  Parameters: name, full_name, native_name, abbreviation, nickname, type,
+              logo, image, caption, founded, founder, founders, formation,
+              defunct, dissolved, headquarters, location, coordinates,
+              region_served, services, products, members, membership,
+              employees, volunteers, budget, key_people, leader_name,
+              leader_title, parent, parent_organization, subsidiaries,
+              affiliations, website, below.
+
+  Conditionals ported from Template:Infobox organization (CC BY-SA 4.0):
+   - Title falls back to `PAGENAMEBASE` via `.Page.Title`
+     (matches `{{if empty|{{{name|}}}|{{PAGENAMEBASE}}}}`).
+   - Founders plural: row label is "Founders" if `founders` given, else
+     "Founder"; data uses the first non-empty.
+   - Defunct row label is "Defunct" if `defunct` given, else "Dissolved";
+     same for data fallback (matches upstream switch).
+   - Focus / Purpose row: label is "Focus" when `focus` or `foci` given,
+     else "Purpose"; data falls back across focus → foci → purpose.
+   - Members row value: `num_members` preferred, else `membership`,
+     optionally suffixed with year (`(YYYY)`).
+   - Leader / leader_title1..4: each `leader_title{N}` becomes the row
+     label, with `leader_name{N}` as the value (matches upstream).
+   - Owner/parent rows use `parent_organisation` then `parent_organization`;
+     vat_id then tax_id; coordinates then coords (matches the conflicting-
+     parameter aliases upstream).
 */}}
+{{ $title := or (.Get "name") .Page.Title }}
+{{ $native := .Get "native_name" }}
+
+{{ $fields := slice }}
+
+{{ with .Get "abbreviation" }}{{ $fields = $fields | append (dict "label" "Abbreviation" "value" .) }}{{ end }}
+{{ with .Get "nickname" }}{{ $fields = $fields | append (dict "label" "Nickname" "value" .) }}{{ end }}
+{{ with .Get "named_after" }}{{ $fields = $fields | append (dict "label" "Named after" "value" .) }}{{ end }}
+{{ with .Get "predecessor" }}{{ $fields = $fields | append (dict "label" "Predecessor" "value" .) }}{{ end }}
+{{ with .Get "merged_into" }}{{ $fields = $fields | append (dict "label" "Merged into" "value" .) }}{{ end }}
+{{ with .Get "successor" }}{{ $fields = $fields | append (dict "label" "Successor" "value" .) }}{{ end }}
+{{ with .Get "formation" }}{{ $fields = $fields | append (dict "label" "Formation" "value" .) }}{{ end }}
+{{ with .Get "founded" }}{{ $fields = $fields | append (dict "label" "Founded" "value" .) }}{{ end }}
+{{ with .Get "established" }}{{ $fields = $fields | append (dict "label" "Established" "value" .) }}{{ end }}
+
+{{ $founderLabel := "Founder" }}
+{{ $founders := .Get "founders" }}
+{{ if ne $founders "" }}{{ $founderLabel = "Founders" }}{{ end }}
+{{ $founderVal := or $founders (.Get "founder") }}
+{{ if ne $founderVal "" }}{{ $fields = $fields | append (dict "label" $founderLabel "value" $founderVal) }}{{ end }}
+
+{{ with .Get "founding_location" }}{{ $fields = $fields | append (dict "label" "Founded at" "value" .) }}{{ end }}
+
+{{ $defunctLabel := "Dissolved" }}
+{{ $defunctVal := "" }}
+{{ with .Get "defunct" }}
+  {{ $defunctLabel = "Defunct" }}
+  {{ $defunctVal = . }}
+{{ else }}
+  {{ $defunctVal = $.Get "dissolved" }}
+{{ end }}
+{{ if ne $defunctVal "" }}{{ $fields = $fields | append (dict "label" $defunctLabel "value" $defunctVal) }}{{ end }}
+
+{{ with .Get "merger" }}{{ $fields = $fields | append (dict "label" "Merger of" "value" .) }}{{ end }}
+{{ with .Get "type" }}{{ $fields = $fields | append (dict "label" "Type" "value" .) }}{{ end }}
+
+{{ $taxLabel := "Tax ID no." }}
+{{ $taxVal := default (.Get "vat_id") (.Get "tax_id") }}
+{{ if ne $taxVal "" }}{{ $fields = $fields | append (dict "label" $taxLabel "value" $taxVal) }}{{ end }}
+
+{{ with .Get "registration_id" }}{{ $fields = $fields | append (dict "label" "Registration no." "value" .) }}{{ end }}
+{{ with .Get "status" }}{{ $fields = $fields | append (dict "label" "Legal status" "value" .) }}{{ end }}
+
+{{ $focusLabel := "Purpose" }}
+{{ $focusVal := "" }}
+{{ if or (ne (.Get "focus") "") (ne (.Get "foci") "") }}{{ $focusLabel = "Focus" }}{{ end }}
+{{ $focusVal = or (.Get "focus") (.Get "foci") (.Get "purpose") }}
+{{ if ne $focusVal "" }}{{ $fields = $fields | append (dict "label" $focusLabel "value" $focusVal) }}{{ end }}
+
+{{ with .Get "professional_title" }}{{ $fields = $fields | append (dict "label" "Professional title" "value" .) }}{{ end }}
+{{ with .Get "headquarters" }}{{ $fields = $fields | append (dict "label" "Headquarters" "value" .) }}{{ end }}
+{{ with .Get "location" }}{{ $fields = $fields | append (dict "label" "Location" "value" .) }}{{ end }}
+
+{{ $coords := default (.Get "coordinates") (.Get "coords") }}
+{{ if ne $coords "" }}{{ $fields = $fields | append (dict "label" "Coordinates" "value" $coords) }}{{ end }}
+
+{{ with .Get "origins" }}{{ $fields = $fields | append (dict "label" "Origins" "value" .) }}{{ end }}
+{{ with .Get "region_served" }}{{ $fields = $fields | append (dict "label" "Region served" "value" .) }}{{ end }}
+
+{{ $prod := default (.Get "products") (.Get "product") }}
+{{ if ne $prod "" }}{{ $fields = $fields | append (dict "label" "Products" "value" $prod) }}{{ end }}
+
+{{ with .Get "services" }}{{ $fields = $fields | append (dict "label" "Services" "value" .) }}{{ end }}
+
+{{ $method := default (.Get "methods") (.Get "method") }}
+{{ if ne $method "" }}{{ $fields = $fields | append (dict "label" "Methods" "value" $method) }}{{ end }}
+
+{{ $field := default (.Get "fields") (.Get "field") }}
+{{ if ne $field "" }}{{ $fields = $fields | append (dict "label" "Fields" "value" $field) }}{{ end }}
+
+{{ $members := default (.Get "num_members") (.Get "membership") }}
+{{ if ne $members "" }}
+  {{ $v := $members }}
+  {{ $membersYear := .Get "num_members_year" }}
+  {{ if ne $membersYear "" }}{{ $v = printf "%s (%s)" $v $membersYear }}{{ end }}
+  {{ $fields = $fields | append (dict "label" "Members" "value" $v) }}
+{{ end }}
+
+{{ $lang := default (.Get "languages") (.Get "language") }}
+{{ if ne $lang "" }}{{ $fields = $fields | append (dict "label" "Official language" "value" $lang) }}{{ end }}
+
+{{ $owner := default (.Get "owners") (.Get "owner") }}
+{{ if ne $owner "" }}{{ $fields = $fields | append (dict "label" "Owners" "value" $owner) }}{{ end }}
+
+{{ $secGen := default (.Get "general_secretary") (.Get "secretary_general") }}
+{{ if ne $secGen "" }}{{ $fields = $fields | append (dict "label" "Secretary General" "value" $secGen) }}{{ end }}
+
+{{ $leaderTitle := .Get "leader_title" }}
+{{ $leaderName := .Get "leader_name" }}
+{{ if ne $leaderName "" }}
+  {{ $label := or $leaderTitle "Leader" }}
+  {{ $fields = $fields | append (dict "label" $label "value" $leaderName) }}
+{{ end }}
+
+{{ range $n := (slice 1 2 3 4) }}
+  {{ $t := $.Get (printf "leader_title%d" $n) }}
+  {{ $n2 := $.Get (printf "leader_name%d" $n) }}
+  {{ if ne $n2 "" }}
+    {{ $label := $t }}
+    {{ if eq $label "" }}{{ $label = (printf "Leader %d" $n) }}{{ end }}
+    {{ $fields = $fields | append (dict "label" $label "value" $n2) }}
+  {{ end }}
+{{ end }}
+
+{{ with .Get "board_of_directors" }}{{ $fields = $fields | append (dict "label" "Board of directors" "value" .) }}{{ end }}
+{{ with .Get "key_people" }}{{ $fields = $fields | append (dict "label" "Key people" "value" .) }}{{ end }}
+{{ with .Get "main_organ" }}{{ $fields = $fields | append (dict "label" "Main organ" "value" .) }}{{ end }}
+{{ with .Get "publication" }}{{ $fields = $fields | append (dict "label" "Publication" "value" .) }}{{ end }}
+
+{{ $parent := default (.Get "parent_organisation") (.Get "parent_organization") }}
+{{ if ne $parent "" }}{{ $fields = $fields | append (dict "label" "Parent organization" "value" $parent) }}{{ end }}
+
+{{ $subs := default (.Get "subsidiaries") (.Get "subsid") }}
+{{ if ne $subs "" }}{{ $fields = $fields | append (dict "label" "Subsidiaries" "value" $subs) }}{{ end }}
+
+{{ with .Get "secessions" }}{{ $fields = $fields | append (dict "label" "Secessions" "value" .) }}{{ end }}
+{{ with .Get "affiliations" }}{{ $fields = $fields | append (dict "label" "Affiliations" "value" .) }}{{ end }}
+{{ with .Get "ror_id" }}{{ $fields = $fields | append (dict "label" "R.O.R. ID" "value" .) }}{{ end }}
+
+{{ $budget := .Get "budget" }}
+{{ if ne $budget "" }}
+  {{ $v := $budget }}
+  {{ $budgetYear := .Get "budget_year" }}
+  {{ if ne $budgetYear "" }}{{ $v = printf "%s (%s)" $v $budgetYear }}{{ end }}
+  {{ $fields = $fields | append (dict "label" "Budget" "value" $v) }}
+{{ end }}
+
+{{ $rev := .Get "revenue" }}
+{{ if ne $rev "" }}
+  {{ $v := $rev }}
+  {{ $revYear := .Get "revenue_year" }}
+  {{ if ne $revYear "" }}{{ $v = printf "%s (%s)" $v $revYear }}{{ end }}
+  {{ $fields = $fields | append (dict "label" "Revenue" "value" $v) }}
+{{ end }}
+
+{{ with .Get "income" }}{{ $fields = $fields | append (dict "label" "Income" "value" .) }}{{ end }}
+{{ with .Get "disbursements" }}{{ $fields = $fields | append (dict "label" "Disbursements" "value" .) }}{{ end }}
+
+{{ $exp := .Get "expenses" }}
+{{ if ne $exp "" }}
+  {{ $v := $exp }}
+  {{ $expYear := .Get "expenses_year" }}
+  {{ if ne $expYear "" }}{{ $v = printf "%s (%s)" $v $expYear }}{{ end }}
+  {{ $fields = $fields | append (dict "label" "Expenses" "value" $v) }}
+{{ end }}
+
+{{ $funding := default (.Get "funders") (.Get "funding") }}
+{{ if ne $funding "" }}{{ $fields = $fields | append (dict "label" "Funding" "value" $funding) }}{{ end }}
+
+{{ $endow := .Get "endowment" }}
+{{ if ne $endow "" }}
+  {{ $v := $endow }}
+  {{ $endowYear := .Get "endowment_year" }}
+  {{ if ne $endowYear "" }}{{ $v = printf "%s (%s)" $v $endowYear }}{{ end }}
+  {{ $fields = $fields | append (dict "label" "Endowment" "value" $v) }}
+{{ end }}
+
+{{ $staff := default (.Get "num_staff") (.Get "num_employees") }}
+{{ if ne $staff "" }}
+  {{ $v := $staff }}
+  {{ $staffYear := default (.Get "num_staff_year") (.Get "num_employees_year") }}
+  {{ if ne $staffYear "" }}{{ $v = printf "%s (%s)" $v $staffYear }}{{ end }}
+  {{ $fields = $fields | append (dict "label" "Employees" "value" $v) }}
+{{ end }}
+
+{{ $vol := .Get "num_volunteers" }}
+{{ if ne $vol "" }}
+  {{ $v := $vol }}
+  {{ $volYear := .Get "num_volunteers_year" }}
+  {{ if ne $volYear "" }}{{ $v = printf "%s (%s)" $v $volYear }}{{ end }}
+  {{ $fields = $fields | append (dict "label" "Volunteers" "value" $v) }}
+{{ end }}
+
+{{ $stud := .Get "num_students" }}
+{{ if ne $stud "" }}
+  {{ $v := $stud }}
+  {{ $studYear := .Get "num_students_year" }}
+  {{ if ne $studYear "" }}{{ $v = printf "%s (%s)" $v $studYear }}{{ end }}
+  {{ $fields = $fields | append (dict "label" "Students" "value" $v) }}
+{{ end }}
+
+{{ with .Get "awards" }}{{ $fields = $fields | append (dict "label" "Awards" "value" .) }}{{ end }}
+{{ with .Get "website" }}{{ $fields = $fields | append (dict "label" "Website" "value" .) }}{{ end }}
+{{ with .Get "remarks" }}{{ $fields = $fields | append (dict "label" "Remarks" "value" .) }}{{ end }}
+{{ with .Get "former_name" }}{{ $fields = $fields | append (dict "label" "Formerly called" "value" .) }}{{ end }}
+
+{{ $subtitle := "" }}
+{{ if ne $native "" }}{{ $subtitle = printf "(%s)" $native }}{{ end }}
+
 {{ partial "infobox/base.html" (dict
-  "type"    "organization"
-  "title"   (.Get "name")
-  "image"   (.Get "image" | default (.Get "logo"))
-  "caption" (.Get "caption")
-  "alt"     (.Get "alt")
-  "fields"  (slice
-    (dict "label" "Native name" "value" (.Get "native_name"))
-    (dict "label" "Type" "value" (.Get "type"))
-    (dict "label" "Industry" "value" (.Get "industry"))
-    (dict "label" "Founded" "value" (printf "%s%s" (.Get "founded") (cond (ne (.Get "founder") "") (printf " by %s" (.Get "founder")) "")))
-    (dict "label" "Defunct" "value" (.Get "defunct"))
-    (dict "label" "Headquarters" "value" (.Get "hq_location"))
-    (dict "label" "Country" "value" (.Get "hq_location_country"))
-    (dict "label" "Coordinates" "value" (.Get "coordinates"))
-    (dict "label" "Area served" "value" (.Get "area_served"))
-    (dict "label" "Members" "value" (.Get "members"))
-    (dict "label" "Employees" "value" (.Get "employees"))
-    (dict "label" "Volunteers" "value" (.Get "volunteers"))
-    (dict "label" "Budget" "value" (.Get "budget"))
-    (dict "label" "Key people" "value" (.Get "key_people"))
-    (dict "label" "Products" "value" (.Get "products"))
-    (dict "label" "Services" "value" (.Get "services"))
-    (dict "label" "Parent" "value" (.Get "parent"))
-    (dict "label" "Subsidiaries" "value" (.Get "subsidiaries"))
-    (dict "label" "Affiliations" "value" (.Get "affiliations"))
-    (dict "label" "Motto" "value" (.Get "motto"))
-    (dict "label" "Formation" "value" (.Get "formation"))
-    (dict "label" "Dissolution" "value" (.Get "dissolution"))
-    (dict "label" "Registration ID" "value" (.Get "registration_id"))
-    (dict "label" "Status" "value" (.Get "status"))
-    (dict "label" "Purpose" "value" (.Get "purpose"))
-    (dict "label" "Official language" "value" (.Get "language"))
-    (dict "label" (.Get "leader_title" | default "Leader") "value" (.Get "leader_name"))
-    (dict "label" "Website" "value" (.Get "website"))
-  )
-  "Inner"   .Inner
-  "below"   (.Get "below")
+  "type"     "organization"
+  "title"    $title
+  "subtitle" $subtitle
+  "image"    (default "" (.Get "logo"))
+  "caption"  (.Get "logo_caption")
+  "alt"      (.Get "logo_alt")
+  "fields"   $fields
+  "Inner"    .Inner
+  "below"    (.Get "below")
 ) }}

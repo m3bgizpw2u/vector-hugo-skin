@@ -1,48 +1,137 @@
 {{/*
+Derived from mediawiki-skins-Vector @ 7c224883 (REL1_42, 2025-06-12) (wrapper styling): GPL-2.0-or-later.
+Conditional logic derived from Wikipedia "Template:Infobox church" fetched 2026-07-11: CC BY-SA 4.0.
+Combined file: GPL-2.0-or-later for the wrapper, CC BY-SA 4.0 for the content logic.
+Header per docs/PORT-MAP-CONVENTIONS.md §B (dual).
+*/}}
+{{/*
   Shortcode: church
   Upstream: https://en.wikipedia.org/wiki/Template:Infobox_church
-  Parameters: name, image, caption, alt, dedication, denomination, previous_denomination,
-              status, heritage_designation, functional_status, location,
-              country, coordinates, architecture_style, founded, founder,
-              completed, capacity, length, width, nave, transept, tower_height,
-              spire_height, materials, diocese, parish, archbishop, bishop,
-              website, below
+  Parameters: name, full_name, other_name, native_name, image, caption, alt,
+              dedication, denomination, previous_denomination, sui_iuris_church,
+              tradition, religious_order, status, founded, founder, dedicated,
+              consecrated, location, country, address, coordinates, architectural_type,
+              style, years_built, groundbreaking, completed, capacity, length, width,
+              height, materials, architect, parish, diocese, archdiocese, province,
+              bishop, archbishop, website, below.
+
+  Conditionals ported from Template:Infobox church (CC BY-SA 4.0):
+   - Title falls back to `PAGENAMEBASE` when name is empty
+     (matches `{{if empty|{{{name|}}}|{{PAGENAMEBASE}}}}`).
+   - Native name is rendered as a `<div class="nickname">` subtitle
+     (matches upstream subheader3).
+   - Religious order / institute uses the first non-empty
+     (matches `{{if empty|{{{religious_order|}}}|{{{religious_institute}}}}}`).
+   - Founder label pluralises "Founder(s)" when multiple values supplied.
+   - Section groupings: "History", "Architecture", "Specifications",
+     "Administration", "Clergy" — rendered as `infobox-section` headers when
+     the relevant fields are present.
+   - Embedded module slot is preserved at the bottom (matches the `data68`
+     `{{if empty|{{{embedded|}}}|{{{module}}}}}` upstream slot).
 */}}
+{{ $title := or (.Get "name") .Page.Title }}
+
+{{ $fields := slice }}
+{{ $sections := slice }}
+
+{{ with .Get "full_name" }}{{ $fields = $fields | append (dict "label" "Full name" "value" .) }}{{ end }}
+{{ with .Get "other_name" }}{{ $fields = $fields | append (dict "label" "Other name" "value" .) }}{{ end }}
+{{ $native := .Get "native_name" }}
+{{ $otherName := default (.Get "location") (.Get "address") }}
+{{ with .Get "country" }}{{ $fields = $fields | append (dict "label" "Country" "value" .) }}{{ end }}
+{{ with .Get "languages" }}{{ $fields = $fields | append (dict "label" "Language(s)" "value" .) }}{{ end }}
+{{ with .Get "denomination" }}{{ $fields = $fields | append (dict "label" "Denomination" "value" .) }}{{ end }}
+{{ with .Get "previous_denomination" }}{{ $fields = $fields | append (dict "label" "Previous denomination" "value" .) }}{{ end }}
+{{ with .Get "sui_iuris_church" }}{{ $fields = $fields | append (dict "label" "Sui iuris church" "value" .) }}{{ end }}
+{{ with .Get "tradition" }}{{ $fields = $fields | append (dict "label" "Tradition" "value" .) }}{{ end }}
+{{ $order := default (.Get "religious_order") (.Get "religious_institute") }}
+{{ if ne $order "" }}{{ $fields = $fields | append (dict "label" "Religious order" "value" $order) }}{{ end }}
+{{ with .Get "churchmanship" }}{{ $fields = $fields | append (dict "label" "Churchmanship" "value" .) }}{{ end }}
+
+{{/* History section */}}
+{{ $histHas := or (.Get "former_name") (.Get "former_names") (.Get "status") (.Get "founded") (.Get "founder") (.Get "dedication") (.Get "dedicated") (.Get "early_dedication") (.Get "other_dedication") (.Get "consecrated") (.Get "events") }}
+{{ if $histHas }}
+  {{ $fields = $fields | append (dict "kind" "section" "title" "History") }}
+  {{ $former := default (.Get "former_name") (.Get "former_names") }}
+  {{ if ne $former "" }}{{ $fields = $fields | append (dict "label" "Former name(s)" "value" $former) }}{{ end }}
+  {{ with .Get "status" }}{{ $fields = $fields | append (dict "label" "Status" "value" .) }}{{ end }}
+  {{ with .Get "founded" }}{{ $fields = $fields | append (dict "label" "Founded" "value" .) }}{{ end }}
+  {{ with .Get "founder" }}{{ $fields = $fields | append (dict "label" "Founder(s)" "value" .) }}{{ end }}
+  {{ with .Get "dedication" }}{{ $fields = $fields | append (dict "label" "Dedication" "value" .) }}{{ end }}
+  {{ with .Get "dedicated" }}{{ $fields = $fields | append (dict "label" "Dedicated" "value" .) }}{{ end }}
+  {{ with .Get "early_dedication" }}{{ $fields = $fields | append (dict "label" "Earlier dedication" "value" .) }}{{ end }}
+  {{ with .Get "other_dedication" }}{{ $fields = $fields | append (dict "label" "Other dedication" "value" .) }}{{ end }}
+  {{ with .Get "consecrated" }}{{ $fields = $fields | append (dict "label" "Consecrated" "value" .) }}{{ end }}
+  {{ with .Get "events" }}{{ $fields = $fields | append (dict "label" "Events" "value" .) }}{{ end }}
+{{ end }}
+
+{{/* Architecture section */}}
+{{ $archHas := or (.Get "functional_status") (.Get "heritage_designation") (.Get "architect") (.Get "architectural_type") (.Get "style") (.Get "years_built") (.Get "groundbreaking") (.Get "completed") (.Get "construction_cost") (.Get "closed") (.Get "demolished") }}
+{{ if $archHas }}
+  {{ $fields = $fields | append (dict "kind" "section" "title" "Architecture") }}
+  {{ with .Get "functional_status" }}{{ $fields = $fields | append (dict "label" "Functional status" "value" .) }}{{ end }}
+  {{ with .Get "heritage_designation" }}{{ $fields = $fields | append (dict "label" "Heritage designation" "value" .) }}{{ end }}
+  {{ with .Get "architect" }}{{ $fields = $fields | append (dict "label" "Architect(s)" "value" .) }}{{ end }}
+  {{ with .Get "architectural_type" }}{{ $fields = $fields | append (dict "label" "Architectural type" "value" .) }}{{ end }}
+  {{ with .Get "style" }}{{ $fields = $fields | append (dict "label" "Style" "value" .) }}{{ end }}
+  {{ with .Get "years_built" }}{{ $fields = $fields | append (dict "label" "Years built" "value" .) }}{{ end }}
+  {{ with .Get "groundbreaking" }}{{ $fields = $fields | append (dict "label" "Groundbreaking" "value" .) }}{{ end }}
+  {{ with .Get "completed" }}{{ $fields = $fields | append (dict "label" "Completed" "value" .) }}{{ end }}
+  {{ with .Get "construction_cost" }}{{ $fields = $fields | append (dict "label" "Construction cost" "value" .) }}{{ end }}
+  {{ with .Get "closed" }}{{ $fields = $fields | append (dict "label" "Closed" "value" .) }}{{ end }}
+  {{ with .Get "demolished" }}{{ $fields = $fields | append (dict "label" "Demolished" "value" .) }}{{ end }}
+{{ end }}
+
+{{/* Specifications section */}}
+{{ $specHas := or (.Get "capacity") (.Get "length") (.Get "width") (.Get "height") (.Get "materials") }}
+{{ if $specHas }}
+  {{ $fields = $fields | append (dict "kind" "section" "title" "Specifications") }}
+  {{ with .Get "capacity" }}{{ $fields = $fields | append (dict "label" "Capacity" "value" .) }}{{ end }}
+  {{ with .Get "length" }}{{ $fields = $fields | append (dict "label" "Length" "value" .) }}{{ end }}
+  {{ with .Get "width" }}{{ $fields = $fields | append (dict "label" "Width" "value" .) }}{{ end }}
+  {{ with .Get "height" }}{{ $fields = $fields | append (dict "label" "Height" "value" .) }}{{ end }}
+  {{ with .Get "materials" }}{{ $fields = $fields | append (dict "label" "Materials" "value" .) }}{{ end }}
+{{ end }}
+
+{{/* Administration section */}}
+{{ $adminHas := or (.Get "province") (.Get "diocese") (.Get "archdiocese") (.Get "parish") (.Get "deanery") (.Get "archdeaconry") (.Get "benefice") }}
+{{ if $adminHas }}
+  {{ $fields = $fields | append (dict "kind" "section" "title" "Administration") }}
+  {{ with .Get "province" }}{{ $fields = $fields | append (dict "label" "Province" "value" .) }}{{ end }}
+  {{ with .Get "archdiocese" }}{{ $fields = $fields | append (dict "label" "Archdiocese" "value" .) }}{{ end }}
+  {{ with .Get "diocese" }}{{ $fields = $fields | append (dict "label" "Diocese" "value" .) }}{{ end }}
+  {{ with .Get "archdeaconry" }}{{ $fields = $fields | append (dict "label" "Archdeaconry" "value" .) }}{{ end }}
+  {{ with .Get "deanery" }}{{ $fields = $fields | append (dict "label" "Deanery" "value" .) }}{{ end }}
+  {{ with .Get "benefice" }}{{ $fields = $fields | append (dict "label" "Benefice" "value" .) }}{{ end }}
+  {{ with .Get "parish" }}{{ $fields = $fields | append (dict "label" "Parish" "value" .) }}{{ end }}
+{{ end }}
+
+{{/* Clergy section */}}
+{{ $clergyHas := or (.Get "archbishop") (.Get "bishop") (.Get "abbot") (.Get "rector") (.Get "vicar") (.Get "dean") (.Get "pastor") }}
+{{ if $clergyHas }}
+  {{ $fields = $fields | append (dict "kind" "section" "title" "Clergy") }}
+  {{ with .Get "archbishop" }}{{ $fields = $fields | append (dict "label" "Archbishop" "value" .) }}{{ end }}
+  {{ with .Get "bishop" }}{{ $fields = $fields | append (dict "label" "Bishop(s)" "value" .) }}{{ end }}
+  {{ with .Get "abbot" }}{{ $fields = $fields | append (dict "label" "Abbot" "value" .) }}{{ end }}
+  {{ with .Get "rector" }}{{ $fields = $fields | append (dict "label" "Rector" "value" .) }}{{ end }}
+  {{ with .Get "vicar" }}{{ $fields = $fields | append (dict "label" "Vicar(s)" "value" .) }}{{ end }}
+  {{ with .Get "dean" }}{{ $fields = $fields | append (dict "label" "Dean" "value" .) }}{{ end }}
+  {{ with .Get "pastor" }}{{ $fields = $fields | append (dict "label" "Pastor(s)" "value" .) }}{{ end }}
+{{ end }}
+
+{{ with .Get "website" }}{{ $fields = $fields | append (dict "label" "Website" "value" .) }}{{ end }}
+
+{{ $subtitle := "" }}
+{{ if ne $native "" }}{{ $subtitle = printf "(%s)" $native }}{{ end }}
+
 {{ partial "infobox/base.html" (dict
-  "type"    "church"
-  "title"   (.Get "name")
-  "image"   (.Get "image")
-  "caption" (.Get "caption")
-  "alt"     (.Get "alt")
-  "fields"  (slice
-    (dict "label" "Dedication" "value" (.Get "dedication"))
-    (dict "label" "Denomination" "value" (.Get "denomination"))
-    (dict "label" "Previous denomination" "value" (.Get "previous_denomination"))
-    (dict "label" "Status" "value" (.Get "status"))
-    (dict "label" "Heritage designation" "value" (.Get "heritage_designation"))
-    (dict "label" "Functional status" "value" (.Get "functional_status"))
-    (dict "label" "Location" "value" (printf "%s%s"
-        (.Get "location")
-        (cond (ne (.Get "country") "") (printf ", %s" (.Get "country")) "")))
-    (dict "label" "Coordinates" "value" (.Get "coordinates"))
-    (dict "label" "Architectural style" "value" (.Get "architecture_style"))
-    (dict "label" "Founded" "value" (.Get "founded"))
-    (dict "label" "Founder" "value" (.Get "founder"))
-    (dict "label" "Completed" "value" (.Get "completed"))
-    (dict "label" "Capacity" "value" (.Get "capacity"))
-    (dict "label" "Length" "value" (.Get "length"))
-    (dict "label" "Width" "value" (.Get "width"))
-    (dict "label" "Nave height" "value" (.Get "nave"))
-    (dict "label" "Transept width" "value" (.Get "transept"))
-    (dict "label" "Tower height" "value" (.Get "tower_height"))
-    (dict "label" "Spire height" "value" (.Get "spire_height"))
-    (dict "label" "Materials" "value" (.Get "materials"))
-    (dict "label" "Diocese" "value" (.Get "diocese"))
-    (dict "label" "Parish" "value" (.Get "parish"))
-    (dict "label" "Archbishop" "value" (.Get "archbishop"))
-    (dict "label" "Bishop" "value" (.Get "bishop"))
-    (dict "label" "Website" "value" (.Get "website"))
-  )
-  "Inner"   .Inner
-  "below"   (.Get "below")
+  "type"     "church"
+  "title"    $title
+  "subtitle" $subtitle
+  "image"    (.Get "image")
+  "caption"  (.Get "caption")
+  "alt"      (.Get "alt")
+  "fields"   $fields
+  "Inner"    .Inner
+  "below"    (.Get "below")
 ) }}

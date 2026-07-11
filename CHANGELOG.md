@@ -881,3 +881,38 @@ build-green verification target.
 - `grep -r 'mw\.\|action=opensearch\|mediawiki\.org' assets/js/
   static/js/ layouts/` returns 0 matches — phase 5's header
   sweep left no MediaWiki-API leftovers in the port.
+
+### Changed (third plan, phase 7a — Infobox topic shortcodes)
+- Four `Infobox <topic>` shortcodes under `layouts/_shortcodes/`
+  gain the dual-license header (`GPL-2.0-or-later` for the Vector
+  wrapper styling, `CC BY-SA 4.0` for the Wikipedia-derived
+  per-topic conditional logic) per `docs/PORT-MAP-CONVENTIONS.md`
+  §B, plus inline `{{ with .Get "…" }}` / `$`-scoped `.Get`
+  conditionals extracted from the upstream MediaWiki templates:
+  - `award.html` — title fallback chain
+    (`name` → `awardname` → `PAGENAMEBASE`); venue / location / site
+    label and data precedence; `firstawarded`/`year`, `host`/`hosts`,
+    `viewership`/`ratings`, `most_wins`/`most_awards` fallbacks;
+    nested "Precedence" / "Television coverage" sections collapsed
+    into flat rows.
+  - `church.html` — group rows into History / Architecture /
+    Specifications / Administration / Clergy sections, suppress
+    each section when its fields are empty; religious order vs
+    religious institute fallback; native name as `<nickname>`
+    subtitle.
+  - `election.html` — title fallback (`election_name` → `name` →
+    `PAGENAME`); `party_label` defaulting to "Party"; render the
+    first candidate group, second candidate group, and before/after
+    election block as three labelled sections.
+  - `organization.html` — founders vs founder, defunct vs dissolved,
+    focus vs foci vs purpose, parent_organisation vs
+    parent_organization, vat_id vs tax_id, coordinates vs coords,
+    leaders 1..4 dynamic labelling, year-suffix `(YYYY)` on the
+    budget / revenue / expenses / endowment / employees / members /
+    students / volunteers rows.
+- Inside `{{ with .Get "key" }}` blocks, nested `.Get "other_key"`
+  calls reference `$` (the page context) rather than `.`, matching
+  the convention the previous worker fixed in `country.html` /
+  `settlement.html`.
+- `hugo --quiet` in `exampleSite/` exits 0; build still produces
+  45 pages with the new conditionals in place.

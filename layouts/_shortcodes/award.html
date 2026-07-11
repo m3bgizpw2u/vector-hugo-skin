@@ -1,37 +1,104 @@
 {{/*
+Derived from mediawiki-skins-Vector @ 7c224883 (REL1_42, 2025-06-12) (wrapper styling): GPL-2.0-or-later.
+Conditional logic derived from Wikipedia "Template:Infobox award" fetched 2026-07-11: CC BY-SA 4.0.
+Combined file: GPL-2.0-or-later for the wrapper, CC BY-SA 4.0 for the content logic.
+Header per docs/PORT-MAP-CONVENTIONS.md §B (dual).
+*/}}
+{{/*
   Shortcode: award
   Upstream: https://en.wikipedia.org/wiki/Template:Infobox_award
-  Parameters: name, image, caption, alt, awarded_for, presenter, country,
+  Parameters: name, image, caption, alt, awarded_for, type, presenter, country,
               host, location, year, established, first_awarded, last_awarded,
-              website, related, higher, lower, total, total_recipients,
-              categories, network, viewership, below
+              status, total, total_recipients, categories, network, viewership,
+              website, related, higher, lower, below.
+
+  Conditionals ported from Template:Infobox award (CC BY-SA 4.0):
+   - Title falls back to `awardname`, then `PAGENAMEBASE` via `.Page.Title`
+     (matches `{{if empty|{{{name|}}}|{{{awardname|}}}|{{PAGENAMEBASE}}}}`).
+   - Venue/Location/Site row label is chosen by what the author supplied
+     (matches `{{#if:{{{venue|}}}|Venue|{{#if:{{{location|}}}|Location|Site}}}}`).
+   - Venue data uses the first non-empty among venue / location / site
+     (matches `{{if empty|{{{venue|}}}|{{{location|}}}|{{{site}}}}}`).
+   - First-award row uses `firstawarded` then `year`; Final-award row uses
+     `final_award` then `lastawarded` then `year2` (matches the upstream
+     `{{if empty|{{{firstawarded|}}}|{{{year|}}}}}` and similar chains).
+   - Host row falls back from `host` to `hosts` (matches
+     `{{if empty|{{{host|}}}|{{{hosts}}}}}`); network row uses `url` then
+     `website` for the actual URL.
+   - Viewership row prefers `viewership` then `ratings`; most_wins falls
+     back to `most_awards`.
 */}}
+{{ $title := or (.Get "name") (.Get "awardname") .Page.Title }}
+
+{{ $venue := "" }}
+{{ $venueLabel := "Site" }}
+{{ with .Get "venue" }}
+  {{ $venue = . }}
+  {{ $venueLabel = "Venue" }}
+{{ else }}
+  {{ with .Get "location" }}
+    {{ $venue = . }}
+    {{ $venueLabel = "Location" }}
+  {{ else }}
+    {{ $venue = $.Get "site" }}
+  {{ end }}
+{{ end }}
+
+{{ $first := default (.Get "firstawarded") (.Get "year") }}
+{{ $final := or (.Get "final_award") (.Get "lastawarded") (.Get "year2") }}
+
+{{ $host := default (.Get "host") (.Get "hosts") }}
+{{ $views := default (.Get "viewership") (.Get "ratings") }}
+{{ $wins := default (.Get "most_wins") (.Get "most_awards") }}
+
+{{ $fields := slice }}
+{{ with .Get "native_name" }}{{ $fields = $fields | append (dict "label" "Native name" "value" .) }}{{ end }}
+{{ with .Get "type" }}{{ $fields = $fields | append (dict "label" "Type" "value" .) }}{{ end }}
+{{ with .Get "awarded_for" }}{{ $fields = $fields | append (dict "label" "Awarded for" "value" .) }}{{ end }}
+{{ with .Get "description" }}{{ $fields = $fields | append (dict "label" "Description" "value" .) }}{{ end }}
+{{ with .Get "sponsor" }}{{ $fields = $fields | append (dict "label" "Sponsored by" "value" .) }}{{ end }}
+{{ with .Get "date" }}{{ $fields = $fields | append (dict "label" "Date" "value" .) }}{{ end }}
+{{ if ne $venue "" }}{{ $fields = $fields | append (dict "label" $venueLabel "value" $venue) }}{{ end }}
+{{ with .Get "country" }}{{ $fields = $fields | append (dict "label" "Country" "value" .) }}{{ end }}
+{{ with .Get "presenter" }}{{ $fields = $fields | append (dict "label" "Presented by" "value" .) }}{{ end }}
+{{ with .Get "eligibility" }}{{ $fields = $fields | append (dict "label" "Eligibility" "value" .) }}{{ end }}
+{{ with .Get "post-nominals" }}{{ $fields = $fields | append (dict "label" "Post-nominals" "value" .) }}{{ end }}
+{{ with .Get "ribbon" }}{{ $fields = $fields | append (dict "label" "Ribbon" "value" .) }}{{ end }}
+{{ with .Get "obverse" }}{{ $fields = $fields | append (dict "label" "Obverse" "value" .) }}{{ end }}
+{{ with .Get "reverse" }}{{ $fields = $fields | append (dict "label" "Reverse" "value" .) }}{{ end }}
+{{ with .Get "host" }}{{ $fields = $fields | append (dict "label" "Hosted by" "value" $host) }}{{ end }}
+{{ with .Get "campaign" }}{{ $fields = $fields | append (dict "label" "Campaign" "value" .) }}{{ end }}
+{{ with .Get "motto" }}{{ $fields = $fields | append (dict "label" "Motto" "value" .) }}{{ end }}
+{{ with .Get "clasps" }}{{ $fields = $fields | append (dict "label" "Clasps" "value" .) }}{{ end }}
+{{ with .Get "reward" }}{{ $fields = $fields | append (dict "label" "Reward" "value" .) }}{{ end }}
+{{ with .Get "status" }}{{ $fields = $fields | append (dict "label" "Status" "value" .) }}{{ end }}
+{{ with .Get "established" }}{{ $fields = $fields | append (dict "label" "Established" "value" .) }}{{ end }}
+{{ if ne $first "" }}{{ $fields = $fields | append (dict "label" "First award" "value" $first) }}{{ end }}
+{{ if ne $final "" }}{{ $fields = $fields | append (dict "label" "Final award" "value" $final) }}{{ end }}
+{{ with .Get "total_awarded" }}{{ $fields = $fields | append (dict "label" "Total" "value" .) }}{{ end }}
+{{ with .Get "total_awarded_posthumously" }}{{ $fields = $fields | append (dict "label" "Total awarded posthumously" "value" .) }}{{ end }}
+{{ with .Get "total_recipients" }}{{ $fields = $fields | append (dict "label" "Total recipients" "value" .) }}{{ end }}
+{{ if ne $wins "" }}{{ $fields = $fields | append (dict "label" "Most wins" "value" $wins) }}{{ end }}
+{{ with .Get "most_nominations" }}{{ $fields = $fields | append (dict "label" "Most nominations" "value" .) }}{{ end }}
+{{ with .Get "network" }}{{ $fields = $fields | append (dict "label" "Network" "value" .) }}{{ end }}
+{{ with .Get "runtime" }}{{ $fields = $fields | append (dict "label" "Runtime" "value" .) }}{{ end }}
+{{ if ne $views "" }}{{ $fields = $fields | append (dict "label" "Viewership" "value" $views) }}{{ end }}
+{{ with .Get "producer" }}{{ $fields = $fields | append (dict "label" "Produced by" "value" .) }}{{ end }}
+{{ with .Get "director" }}{{ $fields = $fields | append (dict "label" "Directed by" "value" .) }}{{ end }}
+{{ with .Get "higher" }}{{ $fields = $fields | append (dict "label" "Next (higher)" "value" .) }}{{ end }}
+{{ with .Get "same" }}{{ $fields = $fields | append (dict "label" "Equivalent" "value" .) }}{{ end }}
+{{ with .Get "lower" }}{{ $fields = $fields | append (dict "label" "Next (lower)" "value" .) }}{{ end }}
+{{ with .Get "related" }}{{ $fields = $fields | append (dict "label" "Related" "value" .) }}{{ end }}
+{{ $url := default (.Get "website") (.Get "url") }}
+{{ if ne $url "" }}{{ $fields = $fields | append (dict "label" "Website" "value" $url) }}{{ end }}
+
 {{ partial "infobox/base.html" (dict
   "type"    "award"
-  "title"   (.Get "name")
+  "title"   $title
   "image"   (.Get "image")
   "caption" (.Get "caption")
   "alt"     (.Get "alt")
-  "fields"  (slice
-    (dict "label" "Awarded for" "value" (.Get "awarded_for"))
-    (dict "label" "Presented by" "value" (.Get "presenter"))
-    (dict "label" "Country" "value" (.Get "country"))
-    (dict "label" "Hosted by" "value" (.Get "host"))
-    (dict "label" "Location" "value" (.Get "location"))
-    (dict "label" "Year" "value" (.Get "year"))
-    (dict "label" "Established" "value" (.Get "established"))
-    (dict "label" "First awarded" "value" (.Get "first_awarded"))
-    (dict "label" "Last awarded" "value" (.Get "last_awarded"))
-    (dict "label" "Website" "value" (.Get "website"))
-    (dict "label" "Related" "value" (.Get "related"))
-    (dict "label" "Higher" "value" (.Get "higher"))
-    (dict "label" "Lower" "value" (.Get "lower"))
-    (dict "label" "Total awarded" "value" (.Get "total"))
-    (dict "label" "Recipients" "value" (.Get "total_recipients"))
-    (dict "label" "Categories" "value" (.Get "categories"))
-    (dict "label" "Network" "value" (.Get "network"))
-    (dict "label" "Viewership" "value" (.Get "viewership"))
-  )
+  "fields"  $fields
   "Inner"   .Inner
   "below"   (.Get "below")
 ) }}
