@@ -1,8 +1,6 @@
 ---
-description: "Commit policy — invoke whenever a logical unit of code changes is finalized"
-alwaysApply: false
+alwaysApply: true
 ---
-
 # Commit policy
 
 Invoke this rule after finishing any logically-complete unit of work (a component's

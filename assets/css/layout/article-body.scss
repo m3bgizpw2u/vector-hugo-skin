@@ -8,9 +8,16 @@
 // type rhythm reserved for article content. Independent reimplementation
 // from Vector's article-container LESS, written from rendered observation.
 
+// Article body container — long-form reading layout. Sizes fluidly to
+// the parent grid column on every viewport, capped at a reading-friendly
+// max-width on wide displays. The `min(100%, <reading-width>)` form is
+// intentionally responsive: on mobile the container fills the available
+// width, on desktop it stops growing past a comfortable line length.
 .article-body {
-  max-width: var(--article-max-width);
-  margin: 0 auto;
+  width: 100%;
+  max-width: min(100%, var(--article-max-width));
+  margin-left: auto;
+  margin-right: auto;
   padding: var(--space-lg) var(--space-md);
 }
 

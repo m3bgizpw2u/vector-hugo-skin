@@ -48,8 +48,15 @@
 // .page-grid__main rule above is dead (no element carries that class)
 // but kept as a hint for future contract alignment; this rule below
 // is the one that actually prevents the responsive overflow.
+//
+// `width: 100%` makes the cell fill its grid track explicitly — without
+// it, browsers compute the cell width from content (not the track) when
+// any descendant has a hardcoded `max-width`. With both rules in place
+// the cell is constrained first by the page-grid track, then by the
+// article-body's fluid `min(100%, reading-width)` cap.
 .main-content {
   grid-area: main;
+  width: 100%;
   min-width: 0;
 }
 

@@ -1,8 +1,6 @@
 ---
-description: "Changelog policy — invoke immediately after preparing any commit"
-alwaysApply: false
+alwaysApply: true
 ---
-
 # Changelog policy
 
 Every commit made under `60-git-commit.mdc` that changes user-facing or
