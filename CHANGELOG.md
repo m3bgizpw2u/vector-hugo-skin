@@ -1026,3 +1026,27 @@ build-green verification target.
     artist(s) / writer(s) / composer(s); platform / platforms
     fallback; mode(s) pluralisation.
 - `hugo --quiet` in `exampleSite/` exits 0.
+
+### Changed (third plan, phase 8 — attribution sweep)
+- `LICENSE` file at the repo root is now the canonical FSF-published
+  GPL-2.0 text verbatim, 327 lines. The previous file wrapped the
+  license text in a Hugo `{{/* */}}` template comment by accident,
+  which would have caused license-aware tooling to misidentify the
+  file. The preamble block has been removed; the plain text license
+  stands as the authoritative SPDX-License-Identifier source.
+- New `NOTICE.md` at the repo root documents the three-tier license
+  model: Tier 1 (GPL-2.0-or-later for Vector skin chrome, pinned to
+  SHA `7c224883`), Tier 2 (CC BY-SA 4.0 for Wikipedia infobox
+  conditional logic), Tier 3 (original Hugo-native build / content /
+  fixtures under the primary `LICENSE`). Includes the Wikimedia
+  Trademark Policy compliance statement and a non-affiliation
+  disclaimer.
+- Attribution audit (`git grep -L "GPL-2.0-or-later\|CC BY-SA 4.0"`)
+  ran across the repo, excluding `vendor/`, `public/`,
+  `node_modules/`, build configs, and demo content. The remaining
+  matches are all expected per `docs/PORT-MAP-CONVENTIONS.md` §C:
+  the Hugo-native primitive shortcodes under
+  `layouts/_shortcodes/infobox/` (no upstream attribution required),
+  the example site content under `exampleSite/content/` (Tier 3,
+  original demo material), `.gitkeep` placeholders, and test
+  fixtures. No missing-header gaps remain.

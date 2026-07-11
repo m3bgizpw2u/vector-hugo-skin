@@ -1,18 +1,4 @@
-{{/*
-SPDX-License-Identifier: GPL-2.0-or-later
-Header preamble for the project LICENSE — this file does not need a header
-itself, but the preamble below is the canonical text used inside the theme.
-
-The full text of the license is reproduced verbatim in the LICENSE file.
-The preamble is a convenience summary; in case of any discrepancy between
-this file and the LICENSE file, the LICENSE file governs.
-
-The project is a derivative port of wikimedia/mediawiki-skins-Vector
-pinned at SHA 7c224883fd6ee166950aaa690381fbc769838071 (REL1_42, 2025-06-12).
-The upstream copyright holder is the Wikimedia Foundation and contributors;
-the port copyright is held by the vector-hugo-skin contributors.
-*/}}
-                    GNU GENERAL PUBLIC LICENSE
+GNU GENERAL PUBLIC LICENSE
                        Version 2, June 1991
 
  Copyright (C) 1989, 1991 Free Software Foundation, Inc.,
