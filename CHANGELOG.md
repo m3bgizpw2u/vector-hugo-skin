@@ -827,3 +827,18 @@ build-green verification target.
   license header per §B.
 - `npm run build` still exits 0 producing 45 pages, confirming the
   header additions did not perturb the SCSS cascade.
+
+### Changed (third plan, phase 4 — template layer)
+- Every ported file under `layouts/_default/` (baseof, single) and
+  `layouts/_partials/` (header × 5, sidebar × 3, article × 4, footer
+  × 2, infobox × 6 base + 4 special) gains the per-file Vector GPL
+  header per `docs/PORT-MAP-CONVENTIONS.md` §A, citing the exact
+  upstream Mustache file at the pinned SHA `7c224883`.
+- The infobox partial family (`base/`, `header`, `image-block`,
+  `row`, `section`, `below`, `special/person-birth-death.html`,
+  `special/settlement-coordinates.html`,
+  `special/organization-founded-dissolved.html`,
+  `special/software-release.html`) gets the dual-license header
+  per §B — Vector-side wrapper styling + Wikipedia-content
+  infobox logic, both notices retained.
+- `npm run build` still exits 0 producing 45 pages.
