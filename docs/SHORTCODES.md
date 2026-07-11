@@ -453,6 +453,12 @@ top of each wrapper file under `layouts/_shortcodes/{name}.html` — that
 header comment is the source of truth, this section is the human-readable
 companion.
 
+> **Per-shortcode quick-reference.** Each named shortcode also has a
+> standalone page under [`docs/shortcodes/<slug>.md`](shortcodes/README.md)
+> with the full parameter table, a worked example, and the upstream
+> Wikipedia link. That directory is the author-facing reference; this
+> section is the in-architecture-doc companion.
+
 > **Note on self-closing vs paired.** Hugo 0.146.0+ distinguishes paired from
 > self-closing shortcodes at parse time based on whether the template
 > references `.Inner`. Every named wrapper in this family does, so all
