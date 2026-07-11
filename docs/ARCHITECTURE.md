@@ -386,3 +386,74 @@ pushes a file above 500 lines, the rule is to **split first**, not retro-fit
 *Phase 3 captures the constraints and module boundaries. Phase 12 will expand
 this document with full Hugo API notes, scaling tradeoffs for the search
 index, and the deeper rationale that lives in `docs/RESEARCH.md`.*
+
+---
+
+## Excluded MediaWiki features (third plan, phase 6)
+
+This section lists every MediaWiki feature that Vector's source ships
+logic for, but which the static Hugo port deliberately does not port.
+The reason is "no static equivalent to port to," not a licensing
+carve-out — these features have no runtime equivalent on a static
+Hugo site (no accounts, no edit pipeline, no API to round-trip).
+
+The exclusion is documented here so the per-file port map in
+`docs/PORT-MAP.md` and the per-line traceability spot-check in
+`docs/RESEARCH.md` §"Source-line traceability spot-check (phase 9)"
+do not look incomplete — these features were never in scope.
+
+| Vector feature | What Vector does | Visual treatment in the port | Rationale |
+|---|---|---|---|
+| Login / create account / preferences (`UserLinks.mustache`) | Server-action links + per-user settings | `<header/personal-tools.html>` keeps the markup slot (so the segmented theme-toggle visually has somewhere to live) but renders placeholder links gated by `[Params].showPersonalToolsPlaceholder`. | No account system. |
+| Edit / history / talk tabs (in `SkinVector22.php`) | Per-page action tabs that POST to a wiki endpoint | `<layouts/_partials/article/byline.html>` renders author + lastmod only; the tab strip itself is omitted. | No edit pipeline. |
+| VisualEditor / page-edit client (`includes/Components/VectorComponentPageTools.php`) | In-page rich-text editor | Not emitted. | Requires MediaWiki core. |
+| Notifications / watchlist (`watchstar.js`) | Echo-event subscription + watch toggle | The `theme-toggle.ts` module reads `watchstar.js`'s cycle helpers only (light/dark/auto). The actual notification/watch UI is not emitted. | No Echo event stream. |
+| Live search API (`searchLoader.js` + `action=opensearch`) | Live autocomplete against MediaWiki's search cluster | Replaced with **static client-side search** — see "Search" subsection below. | The API has no static equivalent. |
+
+### Search (phase 6 decision)
+
+Vector's `searchLoader.js` calls MediaWiki's `action=opensearch` JSON
+endpoint for live autocomplete. The static Hugo port replaces the
+**data source** but keeps the **UI chrome** identical:
+
+- The header partial `layouts/_partials/header/search-box.html`
+  continues to emit the three-region input
+  (`magnifier-label / input / submit-icon`) with the same class
+  names Vector uses (`.search-box`, `.search-box__input`,
+  `.search-box__suggestions`), so the CSS in
+  `assets/css/components/search-box.scss` continues to apply
+  without modification.
+- The TS module `assets/js/modules/search.ts` keeps its event
+  listeners, debounce, and DOM-update contract, but reads from a
+  build-time-generated `public/index.json` (produced by Hugo's
+  `home.json` output format via `[outputs].home = ["HTML", "JSON"]`)
+  rather than a live `action=opensearch` call.
+- Search is **substring over title + plainified summary**, capped at
+  10 results, ranked by descending match length (no external
+  dependency — no Lunr, Fuse, MiniSearch at runtime).
+
+This is a faithful port of Vector's search *UI*; the data source
+swap is the unavoidable exception, not a design change.
+
+## Mustache key → Hugo data source mapping (third plan, phase 4)
+
+Vector's Mustache templates use `{{#bool}}…{{/bool}}` and
+`{{#section}}…{{/section}}` blocks. The Hugo port translates each
+key into the data source that plays the equivalent role; the
+*rendered* markup matches Vector's output even though the
+templating mechanics differ.
+
+| Mustache key (Vector) | Hugo source | Notes |
+|---|---|---|
+| `data-portlets.first.heading` / `…array-of-entries` | `hugo.toml` `[menus.main]` + `index .Site.Menus.main.ByWeight` | `main-menu.html` walks the menu entries Vector would have produced. |
+| `data-search` | `[Params].searchPlaceholder` (default `i18n "searchPlaceholder"`) | SearchBox input attributes. |
+| `data-personal-tools` (user dropdown) | `[Params].showPersonalToolsPlaceholder` (boolean flag) | If true, render placeholder links; otherwise omit the region entirely. The theme-toggle stays in either case. |
+| `data-toc` | Hugo's built-in `.TableOfContents` | ToC panel shell wraps `.TableOfContents` directly. |
+| `data-content[lang]` | Hugo's `.Content` (rendered markdown) | Article body partial. |
+| `data-catlinks` | `.Params.categories` (array of strings) | Categories-footer pill row. |
+| `data-footer-places` | `[Params].licenseText` + `[[menu.footer]]` | Footer license notice + nav. |
+
+The mapping is **mechanical** — for any partial, the keys it reads
+in Vector's source map exactly to the Hugo data sources above. A
+patch to one without the other would diverge the rendered output
+from Vector's actual class/id structure.

@@ -859,3 +859,25 @@ build-green verification target.
   `docs/RESEARCH.md` §12.2 — are not touched.
 - `npx tsc --noEmit` exits 0; `npm run build` produces 45 pages,
   0 errors.
+
+### Changed (third plan, phase 6 — server-dependent exclusions)
+- `docs/ARCHITECTURE.md` gains a new "Excluded MediaWiki features
+  (third plan, phase 6)" section listing every Vector feature
+  without a static equivalent (login / create-account /
+  preferences, edit / history / talk tabs, VisualEditor,
+  notifications, watchlist, live search API) with the visual
+  treatment each receives in the port.
+- A new "Search (phase 6 decision)" subsection documents the
+  static-client-side-search decision: keep the Vector UI chrome
+  verbatim, swap the data source from MediaWiki's
+  `action=opensearch` to a build-time-generated
+  `public/index.json` produced by Hugo's `home.json` output
+  format. The choice preserves the CSS / class-name contract
+  for `search-box.scss` while removing the runtime MediaWiki
+  dependency.
+- A new "Mustache key → Hugo data source mapping (third plan,
+  phase 4)" section records the per-key translation table used
+  by phase 4.
+- `grep -r 'mw\.\|action=opensearch\|mediawiki\.org' assets/js/
+  static/js/ layouts/` returns 0 matches — phase 5's header
+  sweep left no MediaWiki-API leftovers in the port.
