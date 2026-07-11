@@ -37,7 +37,7 @@ Header per docs/PORT-MAP-CONVENTIONS.md §B (dual).
 {{ with .Get "leader" }}{{ $fields = $fields | append (dict "label" "Leader" "value" .) }}{{ end }}
 {{ with .Get "president" }}{{ $fields = $fields | append (dict "label" "President" "value" .) }}{{ end }}
 
-{{ $chair := default (.Get "chairperson") (.Get "chairman") (.Get "chairwoman") }}
+{{ $chair := default (.Get "chairperson") (default (.Get "chairman") (.Get "chairwoman")) }}
 {{ if ne $chair "" }}{{ $fields = $fields | append (dict "label" "Chairperson" "value" $chair) }}{{ end }}
 
 {{ with .Get "secretary" }}{{ $fields = $fields | append (dict "label" "Secretary" "value" .) }}{{ end }}

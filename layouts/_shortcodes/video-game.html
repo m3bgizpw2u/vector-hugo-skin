@@ -48,7 +48,7 @@ Header per docs/PORT-MAP-CONVENTIONS.md §B (dual).
 {{ $platform := default (.Get "platform") (.Get "platforms") }}
 {{ if ne $platform "" }}{{ $fields = $fields | append (dict "label" "Platform(s)" "value" $platform) }}{{ end }}
 
-{{ $released := default (.Get "released") (.Get "release") (.Get "initial_release_date") }}
+{{ $released := default (.Get "released") (default (.Get "release") (.Get "initial_release_date")) }}
 {{ if ne $released "" }}{{ $fields = $fields | append (dict "label" "Initial release" "value" $released) }}{{ end }}
 {{ with .Get "latest_release" }}{{ $fields = $fields | append (dict "label" "Latest release" "value" .) }}{{ end }}
 

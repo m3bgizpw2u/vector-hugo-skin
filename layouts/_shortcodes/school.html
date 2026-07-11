@@ -84,7 +84,7 @@ Header per docs/PORT-MAP-CONVENTIONS.md §B (dual).
 {{ with .Get "denomination" }}{{ $fields = $fields | append (dict "label" "Denomination" "value" .) }}{{ end }}
 {{ with .Get "patron" }}{{ $fields = $fields | append (dict "label" "Patron saint(s)" "value" .) }}{{ end }}
 
-{{ $estDate := default (.Get "established") (.Get "founded") (.Get "opened") }}
+{{ $estDate := default (.Get "established") (default (.Get "founded") (.Get "opened")) }}
 {{ $estLabel := "Opened" }}
 {{ with .Get "established" }}
   {{ $estLabel = "Established" }}
