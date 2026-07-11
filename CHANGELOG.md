@@ -209,6 +209,23 @@ full pass.
   treatment as the article H1, so the heading rhythm is consistent
   across the demo site.
 
+### Added (second-plan visual & behavioral parity pass)
+- `docs/RESEARCH.md` gains a second-plan block (§§10–§14) recording
+  the visual & behavioral parity pass. Tracks the §11 design-token
+  inventory cross-sourced from the live Vector 2022 stylesheet bundle
+  and the upstream LESS files (pinned to clone SHA `dd9a26f9`,
+  2026-07-02), the §12 layout-and-grid findings, the §13 component
+  catalog carry-forward with breakpoint bindings (extending the
+  first-plan §1 entries), the §14 unified breakpoint table, and the
+  §13.4 expansion of the exclusion list by three items surfaced
+  during live inspection. The four sub-sections together are the
+  source-of-truth record for subsequent parity fixes — every concrete
+  value Phase 8/9 implements traces to one of the source columns
+  cited in §11/§12. No code from Vector's source is reproduced; every
+  token value is taken from the live stylesheet bundle (Surface A per
+  the Phase 1 research-philosophy contract) or derived independently
+  from the Codex public token list.
+
 ## [1.0.1] - 2026-07-11
 
 Hotfix patch: three build errors surfaced by `npm run dev` immediately after the
