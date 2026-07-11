@@ -1,30 +1,86 @@
 {{/*
-  Shortcode: historic-site (NRHP)
-  Upstream: https://en.wikipedia.org/wiki/Template:Infobox_NRHP
-  Parameters: name, image, caption, alt, location, nearest_city, coordinates,
-              area, built, architect, architecture, added, NRHP_ref,
-              governing_body, owner, website, below
+Derived from mediawiki-skins-Vector @ 7c224883 (REL1_42, 2025-06-12) (wrapper styling): GPL-2.0-or-later.
+Conditional logic derived from Wikipedia "Template:Infobox NRHP" (canonical alias "Infobox historic site")
+  fetched 2026-07-11: CC BY-SA 4.0.
+Combined file: GPL-2.0-or-later for the wrapper, CC BY-SA 4.0 for the content logic.
+Header per docs/PORT-MAP-CONVENTIONS.md §B (dual).
 */}}
+{{/*
+  Shortcode: historic-site
+  Upstream: https://en.wikipedia.org/wiki/Template:Infobox_NRHP
+  Parameters: name, native_name, other_name, image, caption, alt, type,
+              etymology, epochs, cultures, occupants, location, nearest_city,
+              region, state, country, coordinates, area, built, builder,
+              architect, architecture, style, added, NRHP_ref, refnum,
+              governing_body, owner, website, below.
+
+  Conditionals ported from Template:Infobox NRHP / historic site
+  (CC BY-SA 4.0):
+   - Title falls back to `PAGENAMEBASE` via `.Page.Title`
+     (matches `{{If empty|{{{name|}}}|{{PAGENAMEBASE}}}}`).
+   - Native name rendered as a `<div class="nickname">` subtitle.
+   - Location row composed from location / nearest_city / region /
+     state / country.
+   - "Added" date row; NRHP_ref row falls back from `refnum`.
+   - "Built" row falls back to `year_built` when supplied.
+   - Builder / Architect rows appear only when supplied; data for
+     "Architecture" uses style when architecture_style absent.
+*/}}
+{{ $title := or (.Get "name") .Page.Title }}
+{{ $native := .Get "native_name" }}
+
+{{ $fields := slice }}
+
+{{ with .Get "type" }}{{ $fields = $fields | append (dict "label" "Type" "value" .) }}{{ end }}
+{{ with .Get "etymology" }}{{ $fields = $fields | append (dict "label" "Etymology" "value" .) }}{{ end }}
+{{ with .Get "epochs" }}{{ $fields = $fields | append (dict "label" "Periods" "value" .) }}{{ end }}
+{{ with .Get "cultures" }}{{ $fields = $fields | append (dict "label" "Cultures" "value" .) }}{{ end }}
+{{ with .Get "occupants" }}{{ $fields = $fields | append (dict "label" "Associated with" "value" .) }}{{ end }}
+
+{{ $locParts := slice }}
+{{ with .Get "location" }}{{ $locParts = $locParts | append . }}{{ end }}
+{{ with .Get "nearest_city" }}{{ $locParts = $locParts | append . }}{{ end }}
+{{ with .Get "region" }}{{ $locParts = $locParts | append . }}{{ end }}
+{{ with .Get "state" }}{{ $locParts = $locParts | append . }}{{ end }}
+{{ with .Get "country" }}{{ $locParts = $locParts | append . }}{{ end }}
+{{ if gt (len $locParts) 0 }}
+  {{ $fields = $fields | append (dict "label" "Location" "value" (delimit $locParts ", ")) }}
+{{ end }}
+
+{{ with .Get "coordinates" }}{{ $fields = $fields | append (dict "label" "Coordinates" "value" .) }}{{ end }}
+{{ with .Get "area" }}{{ $fields = $fields | append (dict "label" "Area" "value" .) }}{{ end }}
+
+{{ $built := default (.Get "built") (.Get "year_built") }}
+{{ if ne $built "" }}{{ $fields = $fields | append (dict "label" "Built" "value" $built) }}{{ end }}
+
+{{ with .Get "builder" }}{{ $fields = $fields | append (dict "label" "Builder" "value" .) }}{{ end }}
+{{ with .Get "architect" }}{{ $fields = $fields | append (dict "label" "Architect" "value" .) }}{{ end }}
+
+{{ $arch := default (.Get "architecture") (.Get "architecture_style") }}
+{{ if ne $arch "" }}{{ $fields = $fields | append (dict "label" "Architecture" "value" $arch) }}{{ end }}
+
+{{ with .Get "style" }}{{ $fields = $fields | append (dict "label" "Architectural style" "value" .) }}{{ end }}
+
+{{ with .Get "added" }}{{ $fields = $fields | append (dict "label" "Added to NRHP" "value" .) }}{{ end }}
+
+{{ $ref := default (.Get "NRHP_ref") (.Get "refnum") }}
+{{ if ne $ref "" }}{{ $fields = $fields | append (dict "label" "NRHP reference No." "value" $ref) }}{{ end }}
+
+{{ with .Get "governing_body" }}{{ $fields = $fields | append (dict "label" "Governing body" "value" .) }}{{ end }}
+{{ with .Get "owner" }}{{ $fields = $fields | append (dict "label" "Owner" "value" .) }}{{ end }}
+{{ with .Get "website" }}{{ $fields = $fields | append (dict "label" "Website" "value" .) }}{{ end }}
+
+{{ $subtitle := "" }}
+{{ if ne $native "" }}{{ $subtitle = printf "(%s)" $native }}{{ end }}
+
 {{ partial "infobox/base.html" (dict
-  "type"    "historic-site"
-  "title"   (.Get "name")
-  "image"   (.Get "image")
-  "caption" (.Get "caption")
-  "alt"     (.Get "alt")
-  "fields"  (slice
-    (dict "label" "Location" "value" (.Get "location"))
-    (dict "label" "Nearest city" "value" (.Get "nearest_city"))
-    (dict "label" "Coordinates" "value" (.Get "coordinates"))
-    (dict "label" "Area" "value" (.Get "area"))
-    (dict "label" "Built" "value" (.Get "built"))
-    (dict "label" "Architect" "value" (.Get "architect"))
-    (dict "label" "Architectural style" "value" (.Get "architecture"))
-    (dict "label" "Added to NRHP" "value" (.Get "added"))
-    (dict "label" "NRHP reference No." "value" (.Get "NRHP_ref"))
-    (dict "label" "Governing body" "value" (.Get "governing_body"))
-    (dict "label" "Owner" "value" (.Get "owner"))
-    (dict "label" "Website" "value" (.Get "website"))
-  )
-  "Inner"   .Inner
-  "below"   (.Get "below")
+  "type"     "historic-site"
+  "title"    $title
+  "subtitle" $subtitle
+  "image"    (.Get "image")
+  "caption"  (.Get "caption")
+  "alt"      (.Get "alt")
+  "fields"   $fields
+  "Inner"    .Inner
+  "below"    (.Get "below")
 ) }}

@@ -1,44 +1,118 @@
 {{/*
+Derived from mediawiki-skins-Vector @ 7c224883 (REL1_42, 2025-06-12) (wrapper styling): GPL-2.0-or-later.
+Conditional logic derived from Wikipedia "Template:Infobox military unit" fetched 2026-07-11: CC BY-SA 4.0.
+Combined file: GPL-2.0-or-later for the wrapper, CC BY-SA 4.0 for the content logic.
+Header per docs/PORT-MAP-CONVENTIONS.md §B (dual).
+*/}}
+{{/*
   Shortcode: military-unit
   Upstream: https://en.wikipedia.org/wiki/Template:Infobox_military_unit
-  Parameters: name, image, caption, alt, start_date, end_date, country,
-              allegiance, branch, type, role, size, command, garrison,
-              nickname, patron, motto, colors, march, battles, anniversaries,
-              decorations, commander, notable_commanders, identification_symbol,
-              website, below
+  Parameters: name, unit_name, native_name, image, caption, alt, start_date,
+              end_date, dates, country, countries, allegiance, branch,
+              type, role, specialization, size, command_structure, garrison,
+              nickname, patron, motto, colors, colours, march, mascot,
+              anniversaries, equipment, battles, decorations, battle_honours,
+              commander, notable_commanders, identification_symbol, website,
+              below.
+
+  Conditionals ported from Template:Infobox military unit (CC BY-SA 4.0):
+   - Title falls back to `unit_name` then `PAGENAMEBASE` via `.Page.Title`
+     (matches `{{if empty|{{{unit_name|}}}|{{PAGENAMEBASE}}}}`).
+   - "Active" row label switches based on start_date / end_date
+     presence: "Active" when both present, "Active" when neither,
+     "Founded" when only start_date present.
+   - "Disbanded" row label and data fallback chain.
+   - Country/Countries row: label is "Country" or "Countries" based on
+     the data pluralisation; value uses `country` first then `countries`.
+   - Garrison row label falls back from `garrison_label` to
+     "Garrison/HQ".
+   - Nickname(s) / Motto(es) / Mascot(s) pluralisation.
+   - Colors / Colours label switching based on which is supplied;
+     value uses `colours` then `colors`.
+   - Equipment / Engagements / Battle honours rows.
 */}}
+{{ $title := or (.Get "unit_name") (.Get "name") .Page.Title }}
+{{ $native := .Get "native_name" }}
+
+{{ $fields := slice }}
+
+{{ $startDate := .Get "start_date" }}
+{{ $endDate := .Get "end_date" }}
+{{ $dates := .Get "dates" }}
+{{ if and (ne $startDate "") (ne $endDate "") }}
+  {{ $fields = $fields | append (dict "label" "Active" "value" (printf "%s – %s" $startDate $endDate)) }}
+{{ else if ne $startDate "" }}
+  {{ $fields = $fields | append (dict "label" "Founded" "value" $startDate) }}
+{{ else if ne $dates "" }}
+  {{ $fields = $fields | append (dict "label" "Active" "value" $dates) }}
+{{ end }}
+
+{{ with .Get "disbanded" }}{{ $fields = $fields | append (dict "label" "Disbanded" "value" .) }}{{ end }}
+
+{{ $country := default (.Get "country") (.Get "countries") }}
+{{ if ne $country "" }}
+  {{ $label := "Country" }}
+  {{ if ne (.Get "countries") "" }}{{ $label = "Countries" }}{{ end }}
+  {{ $fields = $fields | append (dict "label" $label "value" $country) }}
+{{ end }}
+
+{{ with .Get "allegiance" }}{{ $fields = $fields | append (dict "label" "Allegiance" "value" .) }}{{ end }}
+{{ with .Get "branch" }}{{ $fields = $fields | append (dict "label" "Branch" "value" .) }}{{ end }}
+{{ with .Get "type" }}{{ $fields = $fields | append (dict "label" "Type" "value" .) }}{{ end }}
+
+{{ $role := default (.Get "role") (.Get "specialization") }}
+{{ if ne $role "" }}{{ $fields = $fields | append (dict "label" "Role" "value" $role) }}{{ end }}
+
+{{ with .Get "size" }}{{ $fields = $fields | append (dict "label" "Size" "value" .) }}{{ end }}
+{{ with .Get "command_structure" }}{{ $fields = $fields | append (dict "label" "Part of" "value" .) }}{{ end }}
+
+{{ $garrisonLabel := default (.Get "garrison_label") "Garrison/HQ" }}
+{{ with .Get "garrison" }}{{ $fields = $fields | append (dict "label" $garrisonLabel "value" .) }}{{ end }}
+
+{{ with .Get "nickname" }}{{ $fields = $fields | append (dict "label" "Nickname(s)" "value" .) }}{{ end }}
+{{ with .Get "patron" }}{{ $fields = $fields | append (dict "label" "Patron" "value" .) }}{{ end }}
+{{ with .Get "motto" }}{{ $fields = $fields | append (dict "label" "Motto" "value" .) }}{{ end }}
+
+{{ $colours := default (.Get "colours") (.Get "colors") }}
+{{ if ne $colours "" }}
+  {{ $colorLabel := default (.Get "colors_label") (.Get "colours_label") }}
+  {{ if eq $colorLabel "" }}
+    {{ if ne (.Get "colours") "" }}{{ $colorLabel = "Colours" }}{{ else }}{{ $colorLabel = "Colors" }}{{ end }}
+  {{ end }}
+  {{ $fields = $fields | append (dict "label" $colorLabel "value" $colours) }}
+{{ end }}
+
+{{ with .Get "march" }}{{ $fields = $fields | append (dict "label" "March" "value" .) }}{{ end }}
+{{ with .Get "mascot" }}{{ $fields = $fields | append (dict "label" "Mascot(s)" "value" .) }}{{ end }}
+{{ with .Get "anniversaries" }}{{ $fields = $fields | append (dict "label" "Anniversaries" "value" .) }}{{ end }}
+
+{{ $equipmentLabel := default (.Get "equipment_label") "Equipment" }}
+{{ with .Get "equipment" }}{{ $fields = $fields | append (dict "label" $equipmentLabel "value" .) }}{{ end }}
+
+{{ $battlesLabel := default (.Get "battles_label") "Engagements" }}
+{{ with .Get "battles" }}{{ $fields = $fields | append (dict "label" $battlesLabel "value" .) }}{{ end }}
+
+{{ with .Get "decorations" }}{{ $fields = $fields | append (dict "label" "Decorations" "value" .) }}{{ end }}
+
+{{ $battleHonoursLabel := default (.Get "battle_honours_label") "Battle honours" }}
+{{ with .Get "battle_honours" }}{{ $fields = $fields | append (dict "label" $battleHonoursLabel "value" .) }}{{ end }}
+
+{{ with .Get "commander" }}{{ $fields = $fields | append (dict "label" "Commander" "value" .) }}{{ end }}
+{{ with .Get "notable_commanders" }}{{ $fields = $fields | append (dict "label" "Notable commanders" "value" .) }}{{ end }}
+{{ with .Get "identification_symbol" }}{{ $fields = $fields | append (dict "label" "Identification symbol" "value" .) }}{{ end }}
+{{ with .Get "website" }}{{ $fields = $fields | append (dict "label" "Website" "value" .) }}{{ end }}
+
+{{ $subtitle := "" }}
+{{ if ne $native "" }}{{ $subtitle = printf "(%s)" $native }}{{ end }}
+
 {{ partial "infobox/base.html" (dict
-  "type"    "military-unit"
-  "title"   (.Get "name")
-  "image"   (.Get "image")
-  "caption" (.Get "caption")
-  "alt"     (.Get "alt")
-  "fields"  (slice
-    (dict "label" "Active" "value" (printf "%s%s%s"
-        (.Get "start_date")
-        (cond (and (ne (.Get "start_date") "") (ne (.Get "end_date") "")) " — " "")
-        (.Get "end_date")))
-    (dict "label" "Country" "value" (.Get "country"))
-    (dict "label" "Allegiance" "value" (.Get "allegiance"))
-    (dict "label" "Branch" "value" (.Get "branch"))
-    (dict "label" "Type" "value" (.Get "type"))
-    (dict "label" "Role" "value" (.Get "role"))
-    (dict "label" "Size" "value" (.Get "size"))
-    (dict "label" "Command structure" "value" (.Get "command"))
-    (dict "label" "Garrison/HQ" "value" (.Get "garrison"))
-    (dict "label" "Nickname(s)" "value" (.Get "nickname"))
-    (dict "label" "Patron" "value" (.Get "patron"))
-    (dict "label" "Motto" "value" (.Get "motto"))
-    (dict "label" "Colors" "value" (.Get "colors"))
-    (dict "label" "March" "value" (.Get "march"))
-    (dict "label" "Battles/wars" "value" (.Get "battles"))
-    (dict "label" "Anniversaries" "value" (.Get "anniversaries"))
-    (dict "label" "Decorations" "value" (.Get "decorations"))
-    (dict "label" "Commander" "value" (.Get "commander"))
-    (dict "label" "Notable commanders" "value" (.Get "notable_commanders"))
-    (dict "label" "Insignia" "value" (.Get "identification_symbol"))
-    (dict "label" "Website" "value" (.Get "website"))
-  )
-  "Inner"   .Inner
-  "below"   (.Get "below")
+  "type"     "military-unit"
+  "title"    $title
+  "subtitle" $subtitle
+  "image"    (.Get "image")
+  "caption"  (.Get "caption")
+  "alt"      (.Get "alt")
+  "fields"   $fields
+  "Inner"    .Inner
+  "below"    (.Get "below")
 ) }}

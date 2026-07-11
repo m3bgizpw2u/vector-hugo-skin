@@ -1,33 +1,109 @@
 {{/*
+Derived from mediawiki-skins-Vector @ 7c224883 (REL1_42, 2025-06-12) (wrapper styling): GPL-2.0-or-later.
+Conditional logic derived from Wikipedia "Template:Infobox football club" fetched 2026-07-11: CC BY-SA 4.0.
+Combined file: GPL-2.0-or-later for the wrapper, CC BY-SA 4.0 for the content logic.
+Header per docs/PORT-MAP-CONVENTIONS.md §B (dual).
+*/}}
+{{/*
   Shortcode: football-club
   Upstream: https://en.wikipedia.org/wiki/Template:Infobox_football_club
-  Parameters: name, image, caption, alt, logo, full_name, nickname, founded,
-              dissolved, ground, capacity, owntitle, owner, chrtitle,
-              chairman, ceo, mgrtitle, manager, coach, league, position,
-              season, website, below
+  Parameters: name, full_name, fullname, nickname, short_name, shortname,
+              founded, dissolved, ground, stadium, capacity, coordinates,
+              owntitle, owner, chrtitle, chairman, ceo, mgrtitle, manager,
+              coach, league, season, position, website, below.
+
+  Conditionals ported from Template:Infobox football club (CC BY-SA 4.0):
+   - Title falls back through `title` → `clubname` → `PAGENAMEBASE`
+     (matches `{{If empty |{{{title|}}}|{{{clubname|}}}|<includeonly>{{PAGENAMEBASE}}</includeonly>}}`).
+   - Ground row: label is "Stadium" if `stadium` supplied, else
+     "Ground"; data uses `stadium` then `ground`.
+   - Owner / Chairman / Manager rows: row label uses `owntitle` /
+     `chrtitle` / `mgrtitle` when supplied, else the default
+     "Owner(s)" / "Chairman" / "Manager" (matches upstream).
+   - Nickname(s) label pluralises when multiple nicknames supplied.
+   - League + Season + Position triplet: rendered as a single row
+     "<season>: <position> in <league>" when all three supplied,
+     else as separate rows.
+   - Coordinates row only emits when `coordinates` supplied.
 */}}
+{{ $title := or (.Get "title") (.Get "clubname") (.Get "name") .Page.Title }}
+
+{{ $fields := slice }}
+
+{{ $fullname := default (.Get "full_name") (.Get "fullname") }}
+{{ if ne $fullname "" }}{{ $fields = $fields | append (dict "label" "Full name" "value" $fullname) }}{{ end }}
+
+{{ with .Get "nickname" }}{{ $fields = $fields | append (dict "label" "Nickname(s)" "value" .) }}{{ end }}
+{{ $short := default (.Get "short_name") (.Get "shortname") }}
+{{ if ne $short "" }}{{ $fields = $fields | append (dict "label" "Short name" "value" $short) }}{{ end }}
+
+{{ with .Get "founded" }}{{ $fields = $fields | append (dict "label" "Founded" "value" .) }}{{ end }}
+{{ with .Get "dissolved" }}{{ $fields = $fields | append (dict "label" "Dissolved" "value" .) }}{{ end }}
+
+{{ $stadium := .Get "stadium" }}
+{{ $ground := .Get "ground" }}
+{{ if or (ne $stadium "") (ne $ground "") }}
+  {{ $label := "Ground" }}
+  {{ if ne $stadium "" }}
+    {{ $label = "Stadium" }}
+    {{ $fields = $fields | append (dict "label" $label "value" $stadium) }}
+  {{ else }}
+    {{ $fields = $fields | append (dict "label" $label "value" $ground) }}
+  {{ end }}
+{{ end }}
+
+{{ with .Get "capacity" }}{{ $fields = $fields | append (dict "label" "Capacity" "value" .) }}{{ end }}
+{{ with .Get "coordinates" }}{{ $fields = $fields | append (dict "label" "Coordinates" "value" .) }}{{ end }}
+
+{{ $ownTitle := .Get "owntitle" }}
+{{ $owner := .Get "owner" }}
+{{ if ne $owner "" }}
+  {{ $label := or $ownTitle "Owner(s)" }}
+  {{ $fields = $fields | append (dict "label" $label "value" $owner) }}
+{{ end }}
+
+{{ $chrTitle := .Get "chrtitle" }}
+{{ $chairman := .Get "chairman" }}
+{{ if ne $chairman "" }}
+  {{ $label := or $chrTitle "Chairman" }}
+  {{ $fields = $fields | append (dict "label" $label "value" $chairman) }}
+{{ end }}
+
+{{ with .Get "ceo" }}{{ $fields = $fields | append (dict "label" "CEO" "value" .) }}{{ end }}
+
+{{ $mgrTitle := .Get "mgrtitle" }}
+{{ $manager := .Get "manager" }}
+{{ if ne $manager "" }}
+  {{ $label := or $mgrTitle "Manager" }}
+  {{ $fields = $fields | append (dict "label" $label "value" $manager) }}
+{{ end }}
+
+{{ with .Get "coach" }}{{ $fields = $fields | append (dict "label" "Coach" "value" .) }}{{ end }}
+
+{{ $league := .Get "league" }}
+{{ $season := .Get "season" }}
+{{ $position := .Get "position" }}
+{{ if and (ne $league "") (ne $season "") (ne $position "") }}
+  {{ $fields = $fields | append (dict "label" $season "value" (printf "%s in %s" $position $league)) }}
+{{ else }}
+  {{ if ne $league "" }}{{ $fields = $fields | append (dict "label" "League" "value" $league) }}{{ end }}
+  {{ if and (ne $season "") (ne $position "") }}
+    {{ $fields = $fields | append (dict "label" $season "value" $position) }}
+  {{ else }}
+    {{ if ne $season "" }}{{ $fields = $fields | append (dict "label" "Season" "value" $season) }}{{ end }}
+    {{ if ne $position "" }}{{ $fields = $fields | append (dict "label" "Position" "value" $position) }}{{ end }}
+  {{ end }}
+{{ end }}
+
+{{ with .Get "website" }}{{ $fields = $fields | append (dict "label" "Website" "value" .) }}{{ end }}
+
 {{ partial "infobox/base.html" (dict
   "type"    "football-club"
-  "title"   (.Get "name")
-  "image"   (.Get "image" | default (.Get "logo"))
+  "title"   $title
+  "image"   (default "" (.Get "image"))
   "caption" (.Get "caption")
   "alt"     (.Get "alt")
-  "fields"  (slice
-    (dict "label" "Full name" "value" (.Get "full_name"))
-    (dict "label" "Nickname(s)" "value" (.Get "nickname"))
-    (dict "label" "Founded" "value" (.Get "founded"))
-    (dict "label" "Dissolved" "value" (.Get "dissolved"))
-    (dict "label" "Ground" "value" (.Get "ground"))
-    (dict "label" "Capacity" "value" (.Get "capacity"))
-    (dict "label" (.Get "owntitle" | default "Owner") "value" (.Get "owner"))
-    (dict "label" (.Get "chrtitle" | default "Chairman") "value" (.Get "chairman"))
-    (dict "label" "CEO" "value" (.Get "ceo"))
-    (dict "label" (.Get "mgrtitle" | default "Manager") "value" (.Get "manager"))
-    (dict "label" "Coach" "value" (.Get "coach"))
-    (dict "label" "League" "value" (.Get "league"))
-    (dict "label" "Position" "value" (printf "%s (as of %s)" (.Get "position") (.Get "season")))
-    (dict "label" "Website" "value" (.Get "website"))
-  )
+  "fields"  $fields
   "Inner"   .Inner
   "below"   (.Get "below")
 ) }}

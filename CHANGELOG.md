@@ -973,3 +973,28 @@ build-green verification target.
     postgrad / doctoral breakdown; city / state / country
     composed into one "Location" row; colors / colours fallback.
 - `hugo --quiet` in `exampleSite/` exits 0.
+
+### Changed (third plan, phase 7d — Infobox topic shortcodes)
+- Four `Infobox <topic>` shortcodes under `layouts/_shortcodes/`
+  gain the dual-license header + extracted conditionals:
+  - `football-club.html` — title fallback chain
+    (`title` → `clubname` → `name` → `PAGENAMEBASE`); ground /
+    stadium label switching; owntitle / chrtitle / mgrtitle
+    override defaults; league + season + position triplet;
+    nickname(s) plural.
+  - `historic-site.html` — title fallback; native name subtitle;
+    location composed from location / nearest_city / region /
+    state / country; built / year_built fallback; NRHP_ref /
+    refnum fallback.
+  - `military-conflict.html` — date_start–date_end pair rendered
+    as "Date" row, falls back to single `date`; place +
+    coordinates composed; result / status fallback;
+    Combatants / Commanders / Strength / Casualties sections
+    each suppressed when their rows are empty.
+  - `military-unit.html` — title fallback; Active/Founded row
+    label switching based on start_date/end_date presence;
+    country / countries fallback; garrison_label override;
+    colours / colors label switching; equipment_label /
+    battles_label / battle_honours_label overrides;
+    nickname(s) / motto(es) / mascot(s) pluralisation.
+- `hugo --quiet` in `exampleSite/` exits 0.
