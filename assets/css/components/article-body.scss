@@ -1,32 +1,68 @@
 // Article body component — long-form content typography: paragraphs,
 // lists, blockquotes, images, figures, tables. The article-body layout
 // file positions the container; this file styles the content inside.
-
-.article-body {
+//
+// Heading rhythm follows Vector 2022's `typography.less`: H1/H2 sit at
+// the default (400) weight, H3/H4 are bold (600). H2 is sized at
+// 1.5rem to match upstream's `@font-size-heading-2: 1.5em` — the
+// previous 1.6rem was slightly heavier than the article body should
+// look. The bottom border on H2 mirrors the Vector heading rule
+// (h2 in Vector 2022 is the only level with a visible underline; h3+
+// have none, hence the explicit `border-bottom: none` on h3/h4 here).
+.article-body,
+.section-list {
   font-size: var(--font-size-base);
   line-height: var(--line-height-relaxed);
   color: var(--color-text);
 }
 
-.article-body > * + * {
+.article-body > * + *,
+.section-list > * + * {
   margin-top: var(--space-md);
 }
 
+.article-body h1,
+.section-list h1,
+.article-header h1 {
+  font-family: var(--font-serif);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-tight);
+}
+
 .article-body h2 {
-  font-size: var(--font-size-h2);
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-tight);
   margin-top: var(--space-xl);
   border-bottom: 1px solid var(--color-divider);
   padding-bottom: var(--space-xs);
 }
 
 .article-body h3 {
-  font-size: var(--font-size-h3);
+  font-family: var(--font-sans);
+  font-size: 1.2rem;
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-snug);
   margin-top: var(--space-lg);
+  border-bottom: none;
 }
 
 .article-body h4 {
-  font-size: var(--font-size-h4);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-snug);
   margin-top: var(--space-md);
+  border-bottom: none;
+}
+
+.article-body h5,
+.article-body h6 {
+  font-family: var(--font-sans);
+  font-weight: var(--font-weight-semibold);
+  margin-top: var(--space-md);
+  border-bottom: none;
 }
 
 .article-body ul,

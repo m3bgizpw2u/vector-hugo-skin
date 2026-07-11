@@ -1,26 +1,33 @@
 // Article header — title, subtitle, byline row at the top of an
-// article. Visual styling only.
+// article. Visual styling only. Selectors key off the classes emitted
+// by `layouts/_partials/article/article-header.html`
+// (`.article-title`, `.article-subtitle`); the previous BEM
+// `__title`/`__subtitle` selectors were dead — the partial has always
+// used the flat class names.
 
-.article-header {
-  margin-bottom: var(--space-lg);
-  padding-bottom: var(--space-md);
-  border-bottom: 1px solid var(--color-divider);
-}
-
-.article-header__title {
+// Vector 2022 renders the article H1 in the serif family at the
+// default (400) weight, with a tight line-height (see upstream
+// `typography.less` `.mw-body h1 { font-family: @font-family-serif;
+// line-height: @line-height-xx-small; }`). The body uses sans-serif.
+// We mirror that split so the article title sits visually apart from
+// the chrome, matching the contrast Wikipedia's own article pages
+// achieve.
+.article-title {
   font-family: var(--font-serif);
   font-size: var(--font-size-h1);
   line-height: var(--line-height-tight);
   font-weight: var(--font-weight-normal);
   margin: 0 0 var(--space-sm);
   color: var(--color-text);
+  word-wrap: break-word;
 }
 
-.article-header__subtitle {
+.article-subtitle {
   font-size: var(--font-size-lg);
   color: var(--color-text-muted);
   margin: 0 0 var(--space-md);
   font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-base);
 }
 
 .article-header__byline {

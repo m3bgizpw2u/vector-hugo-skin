@@ -131,6 +131,36 @@ entries in commit order.
 - Right-side Page-tools portlet.
 - See `docs/UI-AUDIT.md` §3 for the full list and rationale.
 
+Phase 16 follow-up fidelity pass — visual comparison of the rendered
+site against Vector 2022 surfaced four remaining small in-scope gaps.
+See `docs/UI-AUDIT.md` §7 for the full pass.
+
+### Fixed
+- Article-title CSS contract: `layouts/_partials/article/article-header.html`
+  has always emitted `<h1 class="article-title">` (and `<p
+  class="article-subtitle">`), but `assets/css/components/article-header.scss`
+  styled the wrong class names (`.article-header__title` /
+  `.article-header__subtitle`). The article title fell through to the
+  global H1 rule (`font-size: 2rem`, `font-weight: 700`) and rendered
+  as a heavy sans-serif block — visually distinct from Vector 2022,
+  where the article title uses the serif family at the default 400
+  weight. The CSS file now targets the actual emitted classes, so the
+  H1 picks up `font-family: var(--font-serif)` and
+  `font-weight: var(--font-weight-normal)`. The previous BEM selectors
+  are deleted (they never matched anything in the DOM).
+
+### Changed
+- Article-body heading rhythm brought in line with Vector 2022's
+  `typography.less`: H2 sits at `1.5rem` (was `1.6rem`) and at the
+  default 400 weight in the serif family (was 700 sans); H3/H4 stay
+  bold (600) in the sans family but are tightened to `1.2rem` /
+  `1rem` respectively (was `1.4rem` / `1.2rem`). The bottom-border
+  rule that previously applied to all `h2`/`h3`/`h4` now applies to
+  H2 only — Vector 2022 underlines H2 but not H3+. Section-list H1
+  (homepage and section-index) gets the same serif / 400-weight
+  treatment as the article H1, so the heading rhythm is consistent
+  across the demo site.
+
 ## [1.0.1] - 2026-07-11
 
 Hotfix patch: three build errors surfaced by `npm run dev` immediately after the
