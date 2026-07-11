@@ -1,3 +1,10 @@
+// Derived from mediawiki-skins-Vector @ 7c224883 (REL1_42, 2025-06-12) for
+// the surrounding skin chrome, plus Wikipedia's rendered `<table class=
+// "infobox">` rendering for the per-type [data-infobox-type="..."] rule
+// buckets. There is no upstream Vector counterpart for an infobox — the
+// infobox family lives on en.wikipedia.org and is licensed CC BY-SA 4.0.
+// GPL-2.0-or-later (skin chrome) + CC-BY-SA-4.0 (infobox content rules).
+// Header per docs/PORT-MAP-CONVENTIONS.md §B (dual).
 // Infobox — the MediaWiki-style summary box that appears at the top of
 // articles. Styles one component per .cursor/rules/00-core.mdc; per-
 // template visual tweaks are keyed on the [data-infobox-type="..."]

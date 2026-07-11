@@ -816,3 +816,14 @@ build-green verification target.
   `CC-BY-SA-4.0` (or `dual` where Vector wrapper styling and
   Wikipedia template logic share a file), distinct from the GPL
   Vector rows.
+
+### Changed (third plan, phase 3 — CSS layer)
+- Every ported file under `assets/css/` (34 partials: 3 base + 6 layout
+  + 19 components + 3 themes + `main.scss`) gains the per-file Vector
+  GPL header per `docs/PORT-MAP-CONVENTIONS.md` §A, citing the exact
+  upstream file at the pinned SHA `7c224883`. Files that combine
+  Vector wrapper styling with Wikipedia-rendered infobox content
+  (`infobox.scss` + 7 `infobox-pair-*` partials) get the dual
+  license header per §B.
+- `npm run build` still exits 0 producing 45 pages, confirming the
+  header additions did not perturb the SCSS cascade.
