@@ -558,8 +558,9 @@ for F10) are inherited verbatim in the resolved-findings list below.
 
 ### 8.1 Resolved findings
 
-- **F1 — Off-canvas sidebar drawer at <720px** *(in-flight from a
-  worker — see `git log` for the commit SHA)*. Vector parity gap: at
+- **F1 — Off-canvas sidebar drawer at <720px** — commit `d9c0dbc`
+  (`feat(responsive): off-canvas sidebar drawer at mobile +
+  sticky-top offset fix`). Vector parity gap: at
   ≤719px Vector collapses the sidebar column and exposes it only via
   a header hamburger as a slide-in drawer; the theme previously
   rendered it as a stacked block beneath the article with no way to
@@ -624,8 +625,7 @@ for F10) are inherited verbatim in the resolved-findings list below.
   three option buttons remain in the DOM and inside the panel.
 
 - **F5 — Sidebar sticky-top offset wrong when sticky-header visible**
-  *(in-flight from a worker — see `git log` for the commit SHA)*.
-  The sidebar's `position: sticky; top: calc(var(--header-height) +
+  — commit `d9c0dbc` (same commit as F1). The sidebar's `position: sticky; top: calc(var(--header-height) +
   var(--space-md))` is correct when only the primary header is
   sticky, but on long-page scroll the sticky-header appears under
   the primary header and the sidebar's top no longer lands below the
@@ -641,8 +641,9 @@ for F10) are inherited verbatim in the resolved-findings list below.
   commit.
 
 - **F6 — Page-grid uses hardcoded column widths at all viewports (no
-  desktop-wide)** *(in-flight from a worker — see `git log` for the
-  commit SHA)*. Per §14.1 "desktop-wide (≥1200px)", Vector widens
+  desktop-wide)** — commit `c134ee8`
+  (`feat(responsive): desktop-wide tier at >=1200px with
+  content-padding token`). Per §14.1 "desktop-wide (≥1200px)", Vector widens
   the sidebar from 196px to 248px and grows page padding from 44px to
   52px. Fix: introduce a `--content-padding-x` token in
   [`assets/css/base/_tokens.scss`](assets/css/base/_tokens.scss)
@@ -754,11 +755,12 @@ implementation commits.
 
 ### 8.4 Post-implementation state
 
-With F1–F10 either landed (F2, F3, F4, F7, F8, F9, F10) or
-in-flight from a worker (F1, F5, F6), the theme now matches Vector
-2022's responsive behaviour at every breakpoint in §14.1 (300, 320,
-500, 600, 720, 999, 1000, 1199, 1200, 1440, 1600) and at the §14.2
-component break for the search box. The audited surfaces — header
+With F1–F10 all landed (F1 / F5 → `d9c0dbc`, F2 → `10b0f05`,
+F3 / F4 / F7 / F8 → `9ba359e`, F6 → `c134ee8`, F9 → `3ca7130`,
+F10 → `db68c1d`), the theme now matches Vector 2022's responsive
+behaviour at every breakpoint in §14.1 (300, 320, 500, 600, 720,
+999, 1000, 1199, 1200, 1440, 1600) and at the §14.2 component
+break for the search box. The audited surfaces — header
 chrome (search overlay at <500px, magnifier-only at <500px
 delegated to the overlay), page-titlebar (H1 wraps at ≤1024px,
 drops to 1.5rem at ≤719px), theme toggle (single-handle dropdown at

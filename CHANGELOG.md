@@ -1312,11 +1312,12 @@ build-green verification target.
   `uploads/vector_2022_responsive_audit__26_fix_plan_988b5082.plan-L1-L211-0.md`,
   with a per-finding (F1–F10) summary that names the file paths
   and line refs changed, the upstream Vector LESS reference, and
-  the commit SHA where one exists. Commit SHA mapping
-  (verified via `git log`): F9 → `3ca7130`, F2 → `10b0f05`,
-  F3 / F4 / F7 / F8 → `9ba359e`, F10 → `db68c1d`. F1, F5, and F6
-  were still in-flight from a worker at the time of writing; the
-  §8.1 entries for those three cite file paths and intent and
-  defer the SHA to `git log` so no unverified SHA is recorded.
-  §8.3 quotes the plan's "Scope decision: deferred" list
-  verbatim, tagged as five future-plan candidates.
+  the commit SHA. Commit SHA mapping (verified via `git log`):
+  F9 → `3ca7130`, F2 → `10b0f05`, F3 / F4 / F7 / F8 → `9ba359e`,
+  F10 → `db68c1d`, F1 / F5 → `d9c0dbc`,
+  F6 → `c134ee8`. §8.3 quotes the plan's "Scope decision: deferred"
+  list verbatim, tagged as five future-plan candidates.
+- Filled in the F1 / F5 / F6 commit SHAs that the §8 entry
+  initially deferred to `git log` (the three workers landed between
+  the §8 commit and this one). The SHA mapping above is now
+  complete; no behavioural change.
