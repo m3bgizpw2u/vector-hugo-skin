@@ -259,13 +259,21 @@ full pass.
   scroll event. Sentinel element appended to the primary header:
   when the sentinel stops intersecting the viewport, the condensed
   `.sticky-header` becomes visible; when it intersects again, the
-  condensed header collapses. Top/bottom-of-page edge cases (where
-  the observer alone misses state) are still handled via a passive
+  condensed header collapses. **Initial-paint fix:** the module no
+  longer calls `setVisible(true)` unconditionally on init — the SCSS
+  default (`translateY(-100%)` / `opacity: 0`) keeps the bar
+  off-screen until the scroll handler reveals it. The previous
+  unconditional boot call stacked the condensed bar on top of the
+  sticky `.page-header` at `top: 0` and produced a visible two-bar
+  overlap on first paint. Bottom-of-page edge case (where the
+  observer alone misses state) is still handled via a passive
   `scroll` listener that flips the condensed header back on at the
-  document bounds. Behavior contract unchanged for end users
-  (`.is-visible` / `.is-hidden` toggle still drives the same CSS
-  states); no template or SCSS changes; the sidebar-toggle, theme-
-  toggle, and ToC scroll-spy modules are unaffected.
+  document bound; top-of-page no longer forces it visible, because
+  the primary header already covers that area. Behavior contract
+  unchanged for end users (`.is-visible` / `.is-hidden` toggle still
+  drives the same CSS states); no template or SCSS changes; the
+  sidebar-toggle, theme-toggle, and ToC scroll-spy modules are
+  unaffected.
 
 ### Added (theme-switch FOIT guard)
 - New asset `static/js/theme-early.js`: a small synchronous script

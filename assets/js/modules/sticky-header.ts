@@ -17,8 +17,13 @@
  *    at or below the viewport top), the condensed header is removed
  *    again.
  *  - At very top / very bottom of the page, the condensed header is
- *    always visible regardless of observer state (the user must be
- *    able to reach the chrome from anywhere).
+ *    visible so the chrome is reachable from anywhere except the first
+ *    screenful (where the primary header already covers the same area).
+ *    The SCSS default keeps the bar off-screen (`translateY(-100%)` /
+ *    `opacity: 0`) until the IntersectionObserver scroll handler
+ *    explicitly reveals it — unconditionally calling `setVisible(true)`
+ *    on init used to stack the bar on top of the sticky primary header
+ *    and create a visible overlap on first paint.
  *
  * The module is a quiet no-op if either element is missing (the
  * primary header is always present, but `.sticky-header` is optional —
@@ -64,7 +69,7 @@ export const init = (): void => {
   let viewportState: 'top' | 'middle' | 'bottom' = 'top';
 
   const recompute = (): void => {
-    if (viewportState === 'top' || viewportState === 'bottom') {
+    if (viewportState === 'bottom') {
       setVisible(true);
       return;
     }
@@ -107,5 +112,9 @@ export const init = (): void => {
   window.addEventListener('scroll', onScroll, { passive: true });
   window.addEventListener('resize', onScroll, { passive: true });
 
-  setVisible(true);
+  // Run one synchronous recompute so very-short pages (where the
+  // observer may never fire a crossing event) get the right state on
+  // first paint. `onScroll` reads `window.scrollY` and `scrollHeight`
+  // which are valid immediately after script load.
+  onScroll();
 };
