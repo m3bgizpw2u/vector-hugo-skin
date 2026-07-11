@@ -99,17 +99,20 @@
 // areas do not auto-collapse declared column tracks when the named cell
 // has no occupant — the area goes empty but `var(--toc-width)` (220px) is
 // still reserved, leaving a dead gutter on the right edge of short articles.
-// The `:root:not(:has(aside.toc-panel))` selector matches exactly when that
-// element is absent from the document and lets the article column absorb the
-// freed track. Mirrors the shape of the `@media (max-width: 1024px)` block
-// below (also drops the toc track, but for viewport width instead of DOM
-// absence) so the two rules stay consistent.
-:root:not(:has(aside.toc-panel)) .page-grid {
-  grid-template-areas:
-    "header header"
-    "sidebar main"
-    "footer footer";
-  grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
+// The `:root:not(:has(.page-grid aside.toc-panel))` selector matches exactly
+// when that element is absent from the page-grid and lets the article column
+// absorb the freed track. Scoped to `@media (min-width: 721px)` so it cannot
+// override the single-column mobile layout below. Mirrors the shape of the
+// `@media (max-width: 1024px)` block (also drops the toc track, but for
+// viewport width instead of DOM absence) so the two rules stay consistent.
+@media (min-width: 721px) {
+  :root:not(:has(.page-grid aside.toc-panel)) .page-grid {
+    grid-template-areas:
+      "header header"
+      "sidebar main"
+      "footer footer";
+    grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
+  }
 }
 
 // ---- Tablet: hide the TOC column, keep sidebar ----

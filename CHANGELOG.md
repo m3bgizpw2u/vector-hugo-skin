@@ -17,12 +17,19 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   always reserved the toc track. The `layouts/_partials/sidebar/toc-panel.html`
   partial already omits `<aside class="toc-panel">` when the article has zero
   h2/h3 entries, but the grid template did not react. Added a
-  `:root:not(:has(aside.toc-panel)) .page-grid` rule that re-declares the
-  template-areas and template-columns in the two-track form (sidebar | main,
+  `:root:not(:has(.page-grid aside.toc-panel)) .page-grid` rule that re-declares
+  the template-areas and template-columns in the two-track form (sidebar | main,
   no toc), so the article column absorbs the freed space on empty-TOC pages.
-  Mirrors the shape of the existing `@media (max-width: 1024px)` block that
-  collapses the toc track for viewport reasons; the new rule does the same
-  for DOM-absence reasons. One file touched: `assets/css/layout/page-grid.scss`.
+  Scoped to `@media (min-width: 721px)` so it cannot override the
+  single-column mobile layout (its `(0,0,3,1)` selector specificity would
+  otherwise beat the mobile block's `(0,0,1,0)` and force a 2-column
+  grid on phones). The `:has()` selector is also tightened from
+  `aside.toc-panel` to `.page-grid aside.toc-panel` as a defensive scope
+  so a future component using `<aside class="toc-panel">` outside the
+  page-grid cannot accidentally disable the collapse. Mirrors the shape
+  of the existing `@media (max-width: 1024px)` block that collapses the
+  toc track for viewport reasons; the new rule does the same for DOM-
+  absence reasons. One file touched: `assets/css/layout/page-grid.scss`.
 
 ### Changed
 - Page-grid padding moved from the outer `.page-grid` shell onto the
