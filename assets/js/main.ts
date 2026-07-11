@@ -14,6 +14,7 @@ import { init as initToc } from './modules/toc';
 import { init as initTabs } from './modules/tabs';
 import { init as initThemeToggle } from './modules/theme-toggle';
 import { init as initSearch } from './modules/search';
+import { init as initTitlebarToc } from './modules/titlebar-toc';
 
 function bootstrap(): void {
   initSidebar();
@@ -21,6 +22,7 @@ function bootstrap(): void {
   initTabs();
   initThemeToggle();
   initSearch();
+  initTitlebarToc();
 }
 
 if (document.readyState === 'loading') {
