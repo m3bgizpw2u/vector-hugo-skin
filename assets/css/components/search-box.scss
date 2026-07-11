@@ -125,3 +125,81 @@
   color: var(--color-link);
   text-decoration: none;
 }
+
+// ---- Mobile overlay (<500px) ----
+// Resolves F2 from the responsive audit. At ≤499px the input is hidden and
+// only the magnifier submit remains visible; clicking it opens this overlay
+// panel so the user can type a query. The overlay is appended to .search-box
+// lazily by `assets/js/modules/search.ts` (only on first magnifier click).
+.search-box__overlay {
+  display: none;
+  position: fixed;
+  inset: var(--header-height) 0 0 0;
+  z-index: var(--z-overlay);
+  padding: var(--space-md);
+  background-color: var(--color-surface);
+  border-bottom: 1px solid var(--color-divider);
+  box-shadow: var(--shadow-lg);
+}
+
+.search-box--overlay-open .search-box__overlay {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.search-box--overlay-open::before {
+  content: "";
+  position: fixed;
+  inset: var(--header-height) 0 0 0;
+  background-color: color-mix(in srgb, var(--color-text) 50%, transparent);
+  z-index: calc(var(--z-overlay) - 1);
+}
+
+.search-box__overlay-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: var(--space-xs) var(--space-md);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-base);
+  color: var(--color-text);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.search-box__overlay-input:focus {
+  outline: none;
+  border-color: var(--color-focus-ring);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-focus-ring) 30%, transparent);
+}
+
+.search-box__overlay-close {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--color-text);
+  background-color: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background-color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.search-box__overlay-close:hover,
+.search-box__overlay-close:focus-visible {
+  background-color: var(--color-surface-alt);
+  border-color: var(--color-divider);
+}
+
+.search-box__overlay-close:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: -2px;
+}

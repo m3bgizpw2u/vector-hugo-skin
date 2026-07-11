@@ -379,6 +379,41 @@ full pass.
   the existing audit's §1.5 heading-rhythm entry refers to the same
   tightening that the closed-question entry now references.
 
+Vector 2022 responsive audit — four narrow-viewport fixes (F3 + F4 +
+F7 + F8 per `docs/UI-AUDIT.md` §6).
+
+### Added
+- Mobile theme-toggle dropdown contract at `@media (max-width: 600px)` in
+  `assets/css/components/theme-toggle.scss`. The segmented three-button
+  group collapses to a single 44×44px handle (`.theme-toggle::before`
+  pseudo-element) and the three light/dark/auto option buttons hide
+  until the wrapper carries `[data-theme-dropdown="open"]`. The wrapper
+  itself then reveals the options as a stacked dropdown panel anchored
+  top-right. All three `.theme-toggle__option` buttons remain in the
+  DOM and continue to receive clicks — `assets/js/modules/theme-toggle.ts`
+  is unchanged, so `vhskin:theme` persistence and `[data-theme]` /
+  `[data-theme-mode]` HTML attribute wiring flow exactly as they do on
+  wider viewports.
+
+### Changed
+- `assets/css/components/page-titlebar.scss`: `.page-titlebar` now
+  uses `flex-wrap: wrap` globally (was `nowrap`) so the H1 and the
+  ToC dropdown can occupy separate rows at any viewport. Added
+  `@media (max-width: 1024px) .page-titlebar__title { flex: 1 1 100%; }`
+  to let the H1 claim the full row width when the right-column ToC
+  is hidden (the dropdown below is then the sole ToC affordance).
+- `assets/css/components/page-titlebar.scss` and
+  `assets/css/components/article-header.scss`: H1 font-size drops to
+  `1.5rem` at `@media (max-width: 719px)` on both
+  `.page-titlebar__title` and `.article-title`. The latter is
+  defensive parity — both classes can be applied to the article's H1
+  depending on which partial renders it.
+- `assets/css/components/infobox.scss`: at `@media (max-width: 719px)`,
+  `.infobox-row` switches to `flex-direction: column` and both
+  `.infobox-label` and `.infobox-data` claim `width: 100%`, so the
+  label sits above its data cell with full row width. Mirrors
+  Vector's mobile infobox pattern.
+
 ## [1.0.1] - 2026-07-11
 
 Hotfix patch: three build errors surfaced by `npm run dev` immediately after the
@@ -1209,3 +1244,32 @@ build-green verification target.
   respects the user's OS-level motion preference. Resolves F9 from the
   responsive audit (`docs/UI-AUDIT.md` follow-up); commit 1 of 6 in the
   plan.
+
+### Added (responsive audit — search overlay panel at <500px)
+- `assets/js/modules/search.ts` lazily builds a `.search-box__overlay`
+  panel on first magnifier click at `(max-width: 499px)`; the visible
+  magnifier `.search-box__submit` now calls `event.preventDefault()` on
+  mobile and opens the overlay instead of submitting an empty form.
+  Escape closes the overlay, clicking outside closes it, Enter inside
+  the overlay's input navigates to `/search/?q=<query>`. Companion CSS
+  in `assets/css/components/search-box.scss` positions the overlay
+  fixed under the header with a scrim and close button; the existing
+  magnifier-only rules in `assets/css/layout/header.scss` are unchanged
+  — the comment block there now reflects the wired overlay contract.
+  Resolves F2 from the responsive audit; commit 3 of 6 in the plan.
+
+### Added (responsive audit — titlebar ToC close on outside-click and Escape)
+- New `assets/js/modules/titlebar-toc.ts` module (~25 lines, one behavior
+  per `00-core.mdc`) that closes the page-titlebar ToC dropdown on
+  outside-click or Escape keydown. The checkbox-driven panel rendered by
+  `layouts/_partials/article/page-titlebar.html` and styled by
+  `assets/css/components/page-titlebar.scss` opens via the pure-CSS
+  `:checked ~` sibling selector, but had no close affordance: at
+  viewport widths ≤1024px (where the right-column `.toc-panel` is hidden
+  and the dropdown is the sole ToC navigation surface) the panel stayed
+  open after the user navigated, intercepting the next click. The new
+  module's `init()` listens on `document` for clicks outside
+  `.page-titlebar-toc-landmark` and for `Escape`, unchecking
+  `#page-titlebar-toc-checkbox` when it is currently checked. Wired into
+  `assets/js/main.ts` as the sixth `init()` call alongside the existing
+  straight-line composition. Resolves F10; commit 6 of 6 in the plan.

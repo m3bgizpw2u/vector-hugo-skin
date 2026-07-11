@@ -26,6 +26,7 @@ import { debounce } from '../utils/debounce';
 
 const DEBOUNCE_MS = 120;
 const MAX_RESULTS = 10;
+const MOBILE_QUERY = '(max-width: 499px)';
 
 type IndexEntry = {
   title: string;
@@ -104,6 +105,90 @@ export const init = (): void => {
   if (!box) return;
   const input = q<HTMLInputElement>('.search-box__input', box);
   if (!input) return;
+  const submit = q<HTMLButtonElement>('.search-box__submit', box);
+  const form = box.closest('form');
+
+  // Overlay markup is created lazily on first magnifier click at <500px.
+  // Constructing on init would force every page load (desktop included, where
+  // the overlay is never visible) to assemble and store a DOM subtree; lazy
+  // construction only costs work when the user actually needs it.
+  let overlay: HTMLElement | null = null;
+  let overlayInput: HTMLInputElement | null = null;
+  let overlayOpen = false;
+
+  const isMobile = (): boolean => window.matchMedia(MOBILE_QUERY).matches;
+
+  const openOverlay = (): void => {
+    if (overlayOpen) return;
+    overlayOpen = true;
+    addClass(box, 'search-box--overlay-open');
+    box.setAttribute('data-search-overlay', 'open');
+    overlayInput?.focus();
+  };
+
+  const closeOverlay = (): void => {
+    if (!overlayOpen) return;
+    overlayOpen = false;
+    removeClass(box, 'search-box--overlay-open');
+    box.removeAttribute('data-search-overlay');
+  };
+
+  const buildOverlay = (): void => {
+    if (overlay !== null) return;
+    overlay = document.createElement('div');
+    overlay.className = 'search-box__overlay';
+    overlay.setAttribute('role', 'dialog');
+    overlay.setAttribute('aria-label', 'Search');
+    const overlayInputEl = document.createElement('input');
+    overlayInputEl.type = 'search';
+    overlayInputEl.className = 'search-box__overlay-input';
+    overlayInputEl.placeholder = 'Search vector-hugo-skin';
+    overlayInputEl.setAttribute('aria-label', 'Search');
+    const closeButton = document.createElement('button');
+    closeButton.type = 'button';
+    closeButton.className = 'search-box__overlay-close';
+    closeButton.setAttribute('aria-label', 'Close search');
+    closeButton.textContent = '×';
+    closeButton.addEventListener('click', closeOverlay);
+    // Submitting via direct navigation (rather than form.submit()) sidesteps
+    // the hidden-input/value-sync dance: the overlay input is the only typing
+    // surface, so its value can be trusted to encode the user's query, and
+    // /search/ is the search route emitted by the exampleSite config.
+    overlayInputEl.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        const value = overlayInputEl.value.trim();
+        if (value.length === 0) return;
+        const url = `/search/?q=${encodeURIComponent(value)}`;
+        window.location.assign(url);
+      }
+    });
+    overlay.appendChild(overlayInputEl);
+    overlay.appendChild(closeButton);
+    box.appendChild(overlay);
+    overlayInput = overlayInputEl;
+  };
+
+  submit?.addEventListener('click', (event) => {
+    if (!isMobile()) return;
+    event.preventDefault();
+    buildOverlay();
+    openOverlay();
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && overlayOpen) closeOverlay();
+  });
+
+  document.addEventListener('click', (event) => {
+    if (!overlayOpen) return;
+    if (overlay && event.target instanceof Node && overlay.contains(event.target)) return;
+    if (submit && event.target instanceof Node && submit.contains(event.target)) return;
+    closeOverlay();
+  });
+
+  // Suppress unused-binding lint: `form` is referenced for documentation
+  // (the overlay bypasses form.submit() — see Enter handler above).
+  void form;
 
   const list = buildResultsContainer(box);
   let index: IndexEntry[] | null = null;

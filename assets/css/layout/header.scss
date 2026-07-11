@@ -16,10 +16,10 @@
 // and the flex container grows vertically to wrap, leaving a 100–150px
 // tall header instead of the design 56px. At <500px the search box is
 // collapsed to a magnifier icon so the row never has to negotiate for
-// space; clicking the icon expands an overlay search input (wired through
-// the same JS module, deferred). Vector 2022 ships the same behaviour at
-// the ~500px breakpoint — at narrower widths, the sidebar slides over
-// instead of the header wrapping.
+// space; clicking the icon opens an overlay search panel mounted lazily
+// by `assets/js/modules/search.ts` (see responsive audit commit 3, F2).
+// Vector 2022 ships the same behaviour at the ~500px breakpoint — at
+// narrower widths, the sidebar slides over instead of the header wrapping.
 
 .page-header {
   display: flex;
@@ -144,9 +144,13 @@
 
 // Phase 16 Bug A: at <500px the search box is collapsed to a magnifier
 // icon to guarantee the header stays single-line. The full search input
-// lives in an overlay panel (deferred). Vector 2022 hides the search box
-// entirely below ~500px and surfaces search via the sidebar instead; we
-// keep a magnifier affordance for parity with the existing
+// lives in an overlay panel mounted lazily by
+// `assets/js/modules/search.ts` (commit 3 of the responsive audit, F2):
+// clicking the magnifier opens `.search-box__overlay` (built on first
+// click), Escape closes it, outside-click closes it, Enter inside it
+// navigates to `/search/?q=...`. Vector 2022 hides the search box
+// entirely below ~500px and surfaces search via the sidebar instead;
+// we keep a magnifier affordance for parity with the existing
 // search-box component shape.
 @media (max-width: 500px) {
   .page-header__title {
