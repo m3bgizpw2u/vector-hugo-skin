@@ -4,6 +4,7 @@
 // lives in components/toc.scss.
 
 .toc-panel {
+  grid-area: toc;
   position: sticky;
   top: calc(var(--header-height) + var(--space-md));
   height: calc(100vh - var(--header-height) - var(--space-xl));

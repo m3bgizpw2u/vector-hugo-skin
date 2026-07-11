@@ -376,3 +376,68 @@ guidance:
 
 These are tracked here for the next pass — none blocks the Phase 16
 bug fix commits.
+
+### 7.4 Phase 17 — ToC panel sits inside the article column at desktop widths
+
+**Symptom.** At desktop viewports (1100/1280/1440px) the rendered
+ToC panel — the right-column `.toc-panel` with its "Contents" h2 —
+appears *inside the article column*, on top of the article H1 and
+first paragraphs, instead of in its own third column to the right of
+the article. Visually, this reads as "the dark page-header is
+overlapping the sidebar and squeezing the article body to 1–2 words
+wide": the ToC h2 lands immediately below the sticky header bar at
+the same x-coordinate as the article body, so the bug's neighbourly
+position masks it as a header-overlap problem. Verified on
+`http://localhost:1313/articles/church-demo/` (the demo with no
+h2/h3 headings, so the ToC is reduced to its h2 shell + an empty
+`<nav>`) and on `articles/long-article-with-toc/` (where the
+overlap lands directly on the article's section H2 cluster).
+
+**Root cause.** The `.toc-panel` element emitted by
+`layouts/_partials/sidebar/toc-panel.html` carries no `grid-area`
+declaration. Its sibling `.main-content` was wired with
+`grid-area: main` in `assets/css/layout/page-grid.scss`; the
+explicit `grid-template-areas` for row 2 reads
+`"sidebar main toc"`, but with only two of three names claimed at
+build time, CSS Grid auto-placement drops the third auto-grid item
+(`.toc-panel`) into the next *implicit* slot rather than into the
+named `toc` cell. Net effect: ToC panel sits at exactly the article
+column's `getBoundingClientRect().x` and width (verified at
+`toc_x = main_x`, `toc_w = main_w`). The selector
+`.page-grid__toc { grid-area: toc; }` that already existed in
+`page-grid.scss:39` was a contract miss — no element ever carried
+the `page-grid__toc` class; the actual emitted class is `.toc-panel`.
+
+**Fix.** Add `grid-area: toc` to the `.toc-panel` rule at the top
+of `assets/css/layout/toc-panel.scss`. One line, no other CSS or
+template edits. After the fix, `toc_gridArea: "toc"` resolves on the
+computed style and the rect lands in the third column
+(`x = sidebar_w + main_w + gap`, `w = toc_w`).
+
+**Verification.** `http://localhost:1313/articles/church-demo/`:
+- 1100px viewport — `toc_x: 849, toc_w: 220` (was `312.5, 545`)
+- 1280px viewport — `toc_x: 849, toc_w: 220` (was `312.5, 545`)
+- 1440px viewport — `toc_x: 1076.5, toc_w: 220` (was `392.5, 660`)
+- Sidebar column (`x: 128.5, w: 240`) unchanged at desktop widths
+  — the bug was never a header-vs-sidebar overlap or a sidebar
+  squeeze, just a misplaced ToC panel.
+
+Cross-page check:
+- `articles/person-demo/` — article column clear, sidebar unchanged,
+  ToC right of article (had empty ToC, now consistent).
+- `articles/long-article-with-toc/` — full ToC item list
+  (Section A–F, C.1, C.2) renders in the right column; was previously
+  overlapping the article H2 cluster.
+- Homepage (`/`) — landing page renders the ToC in the right
+  column; sidebar full-width on the left.
+
+≥1024px media query unchanged (`display: none` keeps ToC off-screen
+on tablet as designed). <720px media query unchanged (`position:
+static; height: auto` keeps ToC stacked below content). Dev server
+(`http://localhost:1313/`) still serves 45 pages, zero ERROR lines.
+
+Screenshots in `/tmp/cursor/screenshots/`:
+- `phase17-bug-before-{1100,1280,1440}.png` — bug repros.
+- `phase17-bug-after-{1100,1280,1440}.png`, `phase17-person-demo-after.png`,
+  `phase17-long-article-after.png`, `phase17-home-after.png` — fixed
+  state across all four page templates.

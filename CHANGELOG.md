@@ -176,6 +176,27 @@ full pass.
   (`position: relative; z-index: 0;`) so the sticky-header can never
   bleed into its visual area at narrow widths.
 
+### Fixed
+- **ToC panel misplaced into the article column at desktop widths.** Root
+  cause: the `.toc-panel` element emitted by
+  `layouts/_partials/sidebar/toc-panel.html` carried no `grid-area`
+  declaration, while its sibling `.main-content` claimed the `main`
+  named area in `assets/css/layout/page-grid.scss`'s
+  `grid-template-areas`. CSS Grid auto-placement dropped the ToC into
+  the `main` cell — at 1280–1440px the empty-ish ToC heading "Contents"
+  sat on top of the article body and visually obscured the article
+  H1. The symptom looked like "the dark header is overlapping the
+  sidebar and squashing the article" because the ToC heading landed
+  on the article column, which is the visual neighbour of the sticky
+  header bar; the actual bug was further down the cascade. Fix: add
+  `grid-area: toc` to `.toc-panel` in
+  `assets/css/layout/toc-panel.scss` so it lands in the right column
+  defined by the page-grid template. Verified at 1100/1280/1440px on
+  `church-demo`, `person-demo`, `long-article-with-toc`, and the home
+  index — ToC now sits in the right column below `var(--header-height)`,
+  article body is no longer covered, sidebar remains full-width.
+  See `docs/UI-AUDIT.md` §7.4 for the full root-cause / fix / verification.
+
 ### Changed
 - Article-body heading rhythm brought in line with Vector 2022's
   `typography.less`: H2 sits at `1.5rem` (was `1.6rem`) and at the
