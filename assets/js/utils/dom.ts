@@ -1,4 +1,11 @@
 /**
+ * Derived from mediawiki-skins-Vector @ 7c224883 (REL1_42, 2025-06-12),
+ * file: resources/skins.vector.js/portlets.js
+ * Original (c) Wikimedia Foundation and contributors, GPL-2.0-or-later.
+ * This file: GPL-2.0-or-later.
+ * Header per docs/PORT-MAP-CONVENTIONS.md §A.
+ */
+/**
  * Minimal, dependency-free DOM helpers — no behavior logic, no event listeners.
  * Modules are expected to use addEventListener directly when they need listeners;
  * this util exists only to keep querySelector / classList boilerplate out of every

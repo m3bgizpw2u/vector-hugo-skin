@@ -842,3 +842,20 @@ build-green verification target.
   per §B — Vector-side wrapper styling + Wikipedia-content
   infobox logic, both notices retained.
 - `npm run build` still exits 0 producing 45 pages.
+
+### Changed (third plan, phase 5 — JS/TS layer)
+- Every ported TypeScript module under `assets/js/` (1 main + 6
+  modules + 2 Vector-derived utils) gains the per-file Vector GPL
+  header per `docs/PORT-MAP-CONVENTIONS.md` §A, citing the exact
+  upstream JS file at the pinned SHA `7c224883`. `assets/js/utils/
+  storage.ts` is intentionally left headerless — it is a Hugo-
+  native wrapper, with no upstream Vector counterpart per PORT-MAP
+  §10.
+- `static/js/theme-early.js` gains the Vector GPL header per §A.
+- **Behavior preserved unchanged.** The pre-existing module bodies
+  — in particular `assets/js/modules/sticky-header.ts`'s
+  IntersectionObserver sentinel pattern, which predates this
+  plan and matches Vector's `scrollObserver.js` shape per
+  `docs/RESEARCH.md` §12.2 — are not touched.
+- `npx tsc --noEmit` exits 0; `npm run build` produces 45 pages,
+  0 errors.

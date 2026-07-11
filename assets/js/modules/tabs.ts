@@ -1,4 +1,11 @@
 /**
+ * Derived from mediawiki-skins-Vector @ 7c224883 (REL1_42, 2025-06-12),
+ * file: resources/skins.vector.js/menuTabs.js
+ * Original (c) Wikimedia Foundation and contributors, GPL-2.0-or-later.
+ * This file: GPL-2.0-or-later.
+ * Header per docs/PORT-MAP-CONVENTIONS.md §A.
+ */
+/**
  * Generic ARIA-compliant tab widget.
  *
  * One behavior only: `[role="tablist"]` elements are made into working tab

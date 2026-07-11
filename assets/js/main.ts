@@ -1,3 +1,10 @@
+/**
+ * Derived from mediawiki-skins-Vector @ 7c224883 (REL1_42, 2025-06-12),
+ * file: resources/skins.vector.js/skin.js
+ * Original (c) Wikimedia Foundation and contributors, GPL-2.0-or-later.
+ * This file: GPL-2.0-or-later.
+ * Header per docs/PORT-MAP-CONVENTIONS.md §A.
+ */
 // Wire each behavior module — straight-line composition, no logic of its own.
 // Per `.cursor/rules/30-scripts.mdc`, this file should never grow past a list
 // of `init()` calls. If wiring needs a conditional, the conditional goes into

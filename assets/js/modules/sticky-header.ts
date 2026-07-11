@@ -1,4 +1,11 @@
 /**
+ * Derived from mediawiki-skins-Vector @ 7c224883 (REL1_42, 2025-06-12),
+ * file: resources/skins.vector.js/stickyHeader.js
+ * Original (c) Wikimedia Foundation and contributors, GPL-2.0-or-later.
+ * This file: GPL-2.0-or-later.
+ * Header per docs/PORT-MAP-CONVENTIONS.md §A.
+ */
+/**
  * Sticky header — condensed chrome shown once the user scrolls past the
  * primary header. Per docs/RESEARCH.md §12.2 (second-plan Phase 4
  * layout findings), the trigger is an IntersectionObserver on the
