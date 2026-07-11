@@ -106,6 +106,10 @@
   padding: var(--space-xs) 0;
 }
 
+.search-box__suggestions[hidden] {
+  display: none;
+}
+
 .search-box__suggestion {
   display: block;
   padding: var(--space-xs) var(--space-md);

@@ -1176,3 +1176,27 @@ build-green verification target.
   `interactions.sticky-header.spec.ts` targeted a selector class
   (`.sticky-header-condensed` / `[data-sticky-header-condensed]`) that
   the rendered HTML never actually carries.
+
+### Fixed (post-phase-10 — search suggestions visible on first paint)
+- The `.search-box__suggestions` div flashed visible (an empty 10-px-tall
+  band under the search input) on every page load and only disappeared
+  after the user typed and cleared the input. Root cause:
+  `layouts/_partials/header/search-box.html` emitted the suggestions
+  div as a **sibling** of the `<form>`, but
+  `assets/js/modules/search.ts`'s `buildResultsContainer` looked for it
+  with `box.querySelector('.search-box__suggestions')` (inside the
+  form). That returned `null`, so the module created a *second*
+  `<div class="search-box__suggestions">` without the `hidden`
+  attribute, appended it inside the form, and left the original
+  `hidden` sibling behind. The newly-appended copy was visible from
+  page load until the first `input` event finally called
+  `closeSuggestions()`. Fix: emit the suggestions div as the last
+  child of the `<form>` in the partial so the JS finds it directly
+  (and the existing `hidden` attribute survives). Also added a
+  defensive `.search-box__suggestions[hidden] { display: none }` rule
+  in `assets/css/components/search-box.scss` mirroring the same
+  pattern used for `.tabs__panel[hidden]` — author CSS now matches
+  the intent regardless of author-vs-UA cascade ordering. After the
+  fix `hugo --quiet` still exits 0 and `exampleSite/public/articles/*/
+  index.html` carries exactly **one** `#search-box-suggestions` node,
+  nested inside `<form class="search-box">` and bearing `hidden`.
