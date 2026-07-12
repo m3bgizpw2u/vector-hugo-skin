@@ -111,9 +111,23 @@
 // matrix cell. Scoped to `@media (min-width: 721px)` for the same reason
 // the empty-TOC rule is — so the mobile single-column rule keeps its
 // (0,0,1,0) specificity.
+//
+// `margin: 0 auto` re-centers the page-grid within the viewport in this
+// mode only — the F1 follow-up above (`margin: 0`) left-anchors the grid
+// so the sidebar hugs viewport x=0 in the three sidebar-present modes
+// (both-present, sidebar-only, sidebar+no-toc+NOT-collapsed), but when
+// the user has collapsed the sidebar AND there is no ToC, the visible
+// page is just the article and the article body (already self-centering
+// inside its own column via `.article-body`'s `margin: 0 auto; max-width:
+// var(--article-max-width)` per `assets/css/layout/article-body.scss`)
+// needs the page-grid itself centered so the visible content ends up
+// roughly equidistant from the viewport edges. Without this, pages like
+// the Album demo show the article flush-left at viewport x=0 with all
+// the right-side empty space concentrated in one place.
 @media (min-width: 721px) {
   :root[data-sidebar="collapsed"]:not(:has(.page-grid aside.toc-panel)):has(.page-grid aside.sidebar) .page-grid {
     grid-template-columns: 0 minmax(0, 1fr);
+    margin: 0 auto;
   }
 }
 
@@ -174,6 +188,17 @@
 // populates both the menu and most articles' ToCs) but defensive parity
 // with Vector's `.vector-body` grid — the grid should never reserve a
 // dead track.
+//
+// `margin: 0 auto` re-centers the page-grid within the viewport for this
+// mode only — the F1 follow-up above (`margin: 0`) left-anchors the grid
+// so the sidebar hugs viewport x=0 in the other three modes, but in the
+// both-empty case there's no sidebar to anchor and the article body
+// (already self-centering inside its own column via `.article-body`'s
+// `margin: 0 auto; max-width: var(--article-max-width)` per
+// `assets/css/layout/article-body.scss`) needs the page-grid itself
+// centered so the visible content ends up roughly equidistant from the
+// viewport edges. Scoping the override to the both-empty condition keeps
+// the other three modes' flush-left behavior intact.
 @media (min-width: 721px) {
   :root:not(:has(.page-grid aside.toc-panel)):not(:has(.page-grid aside.sidebar)) .page-grid {
     grid-template-areas:
@@ -181,6 +206,7 @@
       "main"
       "footer";
     grid-template-columns: minmax(0, 1fr);
+    margin: 0 auto;
   }
 }
 
