@@ -56,6 +56,18 @@ The workspace-as-theme layout means the theme root sits at the repository root, 
 - **Zero-runtime build** — `node_modules/` is dev tooling only; the produced
   `public/` directory runs on any static host with only the browser's native APIs.
 
+## Local development tools
+
+`npm run tools:shortcodes` opens a local webUI that generates filled-in
+infobox shortcodes — pick a shortcode from the left pane, fill the fields
+in the middle, and copy the generated shortcode from the right. Covers
+all 30 named shortcodes plus the 12 inner primitives
+(`infobox-row`, `infobox-section`, `infobox-pair-*`, …). Pure HTML +
+vanilla TS, served by a tiny Node stdlib HTTP server on
+`localhost:8731`. `npm run tools:check` asserts every YAML in the tool
+has a matching layout file. See [`tools/shortcodes-generator/README.md`](tools/shortcodes-generator/README.md)
+for full docs (architecture, YAML schema, maintenance workflow).
+
 ## Documentation
 
 The full doc set lives under [`docs/`](docs/):

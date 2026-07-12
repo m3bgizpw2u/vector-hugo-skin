@@ -9,7 +9,7 @@
     "build": "hugo --source exampleSite --themesDir ../.. --theme vector-hugo-skin --minify",
     "hugo": "hugo --source exampleSite --themesDir ../.. --theme vector-hugo-skin",
     "format": "prettier --write \"**/*.{ts,js,scss,html,md,json}\"",
-    "lint": "eslint \"assets/js/**/*.ts\" \"tools/shortcodes-generator/scripts/**/*.ts\" && stylelint \"assets/css/**/*.scss\"",
+    "lint": "eslint \"assets/js/**/*.ts\" && stylelint \"assets/css/**/*.scss\"",
     "check:ts": "tsc",
     "tools:shortcodes": "node tools/shortcodes-generator/dev-server.mjs",
     "tools:check": "node tools/shortcodes-generator/check-sync.mjs"
