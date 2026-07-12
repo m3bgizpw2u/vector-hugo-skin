@@ -8,11 +8,21 @@
 // type rhythm reserved for article content. Independent reimplementation
 // from Vector's article-container LESS, written from rendered observation.
 
-// Article body container — long-form reading layout. Sizes fluidly to
-// the parent grid column on every viewport, capped at a reading-friendly
-// max-width on wide displays. The `min(100%, <reading-width>)` form is
-// intentionally responsive: on mobile the container fills the available
-// width, on desktop it stops growing past a comfortable line length.
+// Article body container — fills its parent `<article class="article">`
+// wrapper (which in turn fills `.main-content`'s grid cell minus the page
+// padding). The container itself carries no width cap, so the prose
+// spans the full article column on every viewport; line length on
+// infobox-bearing pages is bounded naturally by the `float: right`
+// infobox on its right edge (Wikipedia's prose + floated-infobox
+// pattern — `.infobox` is rendered inside `.Content`, which lives
+// inside this element). Pages without an infobox do see a longer line
+// length on wide main columns (e.g. the collapsed-sidebar and both-
+// empty modes where `.main-content` resolves to ~1100px); that trade-
+// off was chosen over the previous 720px cap, which left visible empty
+// space on both sides of the body whenever the article wrapper was
+// wider than 720px (e.g. Album demo with the sidebar collapsed: body
+// sat at 720px inside a 1096px wrapper, leaving 188px of empty space
+// on each side).
 //
 // `display: flow-root` establishes a new block formatting context so the
 // `.infobox` float (rendered inside `.Content`) is contained by the
@@ -32,9 +42,6 @@
 .article-body {
   display: flow-root;
   width: 100%;
-  max-width: min(100%, var(--article-max-width));
-  margin-left: auto;
-  margin-right: auto;
   padding: var(--space-lg) var(--space-md);
 }
 

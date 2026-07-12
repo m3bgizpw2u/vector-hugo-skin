@@ -87,7 +87,6 @@
 
   // ---- Layout dimensions ----
   --content-max-width: 1200px;
-  --article-max-width: 720px;
   --sidebar-width: 240px;
   --toc-width: 220px;
   --header-height: 3.5rem;
@@ -131,9 +130,9 @@
 // 196px to 248px and grows the page padding from 44px to 52px. Our
 // base tokens target the narrower desktop range; this media query
 // kicks in only when the viewport is wide enough that the larger
-// column widths leave the article column comfortably above its
-// --article-max-width cap. No collision with the existing tablet
-// (max-width: 1024px) and mobile (max-width: 720px) rules.
+// column widths leave the article column with a comfortable reading
+// width. No collision with the existing tablet (max-width: 1024px)
+// and mobile (max-width: 720px) rules.
 @media (min-width: 1200px) {
   :root {
     --sidebar-width: 248px;

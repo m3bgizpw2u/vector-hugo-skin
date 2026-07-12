@@ -65,7 +65,7 @@ For each surface: **current state**, **Vector 2022 target**, **gap**, and
 
 | | |
 |---|---|
-| **Current** | `layouts/_partials/article/article-body.html` wraps `.Content`. `components/article-body.scss` styles p / h2 / h3 / h4 / ul / ol / blockquote / figure / table. `article-body.scss` layout file caps width at `var(--article-max-width)` = 720px. |
+| **Current** | `layouts/_partials/article/article-body.html` wraps `.Content`. `components/article-body.scss` styles p / h2 / h3 / h4 / ul / ol / blockquote / figure / table. `article-body.scss` layout file makes the body fill its parent `<article class="article">` wrapper (which fills `.main-content`'s grid cell) on every viewport — no width cap. |
 | **Vector** | Article body caps at 720px when `vector-limited-width` is on; can expand to the full column width when off (toggled via `localStorage` key `vhskin:layout`). |
 | **Gap** | No limited-width toggle. Heading sizes don't follow Vector's rhythm — Vector uses 1.5rem / 1.25rem / 1.125rem for h2 / h3 / h4 (we use 1.6 / 1.4 / 1.2). |
 | **Fix** | (a) Skip limited-width toggle for v1 (would need a JS module + a button to toggle it; defer to a later fidelity pass). (b) Tighten heading scale: `--font-size-h2: 1.5rem`, `--font-size-h3: 1.25rem`, `--font-size-h4: 1.125rem`. |
