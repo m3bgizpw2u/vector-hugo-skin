@@ -64,6 +64,11 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   layout registers the shortcode as `{{< <name>/index >}}` in Hugo v0.163.3 and is
   incompatible with paired shortcodes that reference `.Inner`, so flat remains
   the default. See `.cursor/rules/00-core.mdc`.
+- Aligned `.cursor/rules/40-shortcodes.mdc` with the `00-core.mdc` rule amendment
+  from `94fe53d`: shortcodes may use either flat (`layouts/_shortcodes/<name>.html`)
+  or folder (`layouts/_shortcodes/<name>/index.html`) layout, chosen per shortcode.
+  Folder layout remains reserved for shortcodes that genuinely need multiple
+  concerns.
 
 ### Relicensed (third plan, phase 0)
 - Theme re-licensed from MIT to **GPL-2.0-or-later** to match the upstream

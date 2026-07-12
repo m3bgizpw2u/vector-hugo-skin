@@ -7,8 +7,14 @@ alwaysApply: false
 
 # Shortcodes
 
-- Every shortcode gets its own folder: `layouts/_shortcodes/{name}/{file}.html` — never a
-  flat file directly under `layouts/_shortcodes/`. (Hugo renamed
+- Shortcodes live under `layouts/_shortcodes/` and may use either layout, chosen per
+  shortcode: **flat** (default) — `layouts/_shortcodes/<name>.html`, the Hugo-canonical
+  single-file form, callable as `{{< name >}}` and the only safe home for any shortcode
+  that is — or might become — a paired shortcode reading `.Inner`; or **folder** —
+  `layouts/_shortcodes/<name>/index.html` with optional supporting files, used only when
+  the shortcode genuinely needs multiple distinct concerns in separate files. See
+  `00-core.mdc` for the Hugo v0.163.3 caveats on the folder layout (registration name
+  `{{< <name>/index >}}`, and the AST-scanner crash on `.Inner`). (Hugo renamed
   `layouts/shortcodes/` to `layouts/_shortcodes/` in v0.146.0; Phase 8 caught and
   migrated this — see `docs/RESEARCH.md` for the version history.)
 - The Infobox shortcode family (`infobox`, `infobox-row`, `infobox-image`,
