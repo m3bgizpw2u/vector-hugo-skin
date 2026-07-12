@@ -1,0 +1,27 @@
+slug: infobox-pair-population
+category: primitives
+title: infobox-pair-population
+description: Population + as-of-date pair used in settlement / country infoboxes.
+upstream: null
+worked_example: |
+  {{< infobox-pair-population label="Population" total="114,738" as_of="2020" density="670" >}}
+fields:
+  - key: label
+    label: Label
+    type: text
+    required: true
+  - key: total
+    label: Total
+    type: text
+    required: true
+  - key: as_of
+    label: As of (year)
+    type: text
+  - key: density
+    label: Density
+    type: text
+defaults:
+  label: "Population"
+  total: "114,738"
+  as_of: "2020"
+  density: "670"

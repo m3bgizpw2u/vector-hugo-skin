@@ -1,0 +1,14 @@
+slug: infobox-section
+category: primitives
+title: infobox-section
+description: Section divider header that spans both columns. Useful for grouping a long row list into thematic blocks.
+upstream: null
+worked_example: |
+  {{< infobox-section title="Career" >}}
+fields:
+  - key: title
+    label: Section title
+    type: text
+    required: true
+defaults:
+  title: "Career"

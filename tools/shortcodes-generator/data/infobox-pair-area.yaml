@@ -1,0 +1,24 @@
+slug: infobox-pair-area
+category: primitives
+title: infobox-pair-area
+description: Area pair — total + unit (km², mi², acres).
+upstream: null
+worked_example: |
+  {{< infobox-pair-area label="Area" total="171.2" unit="km²" >}}
+fields:
+  - key: label
+    label: Label
+    type: text
+    required: true
+  - key: total
+    label: Total
+    type: text
+    required: true
+  - key: unit
+    label: Unit
+    type: select
+    options: ["km²", "mi²", "acres", "hectares"]
+defaults:
+  label: "Area"
+  total: "171.2"
+  unit: "km²"

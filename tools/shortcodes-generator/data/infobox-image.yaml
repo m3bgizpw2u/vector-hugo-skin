@@ -1,0 +1,22 @@
+slug: infobox-image
+category: primitives
+title: infobox-image
+description: Standalone image + caption + alt block, used when the named wrapper does not cover the article's image.
+upstream: null
+worked_example: |
+  {{< infobox-image image="ada.jpg" caption="Ada Lovelace, 1843" alt="Portrait" >}}
+fields:
+  - key: image
+    label: Image filename
+    type: image
+    required: true
+  - key: caption
+    label: Caption
+    type: markdown
+  - key: alt
+    label: Alt text
+    type: text
+defaults:
+  image: "ada.jpg"
+  caption: "Ada Lovelace, 1843"
+  alt: "Portrait of Ada Lovelace"

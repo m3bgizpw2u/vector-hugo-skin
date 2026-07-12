@@ -1,0 +1,23 @@
+slug: infobox-pair-date
+category: primitives
+title: infobox-pair-date
+description: Special-case date + place pair (Born, Died, Founded, Opened, First-aired, Established, Added).
+upstream: null
+worked_example: |
+  {{< infobox-pair-date label="Born" date="10 December 1815" place="London, England" >}}
+fields:
+  - key: label
+    label: Label
+    type: text
+    required: true
+  - key: date
+    label: Date
+    type: text
+    required: true
+  - key: place
+    label: Place
+    type: text
+defaults:
+  label: "Born"
+  date: "10 December 1815"
+  place: "London, England"

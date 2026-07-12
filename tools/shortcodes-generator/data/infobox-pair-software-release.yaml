@@ -1,0 +1,23 @@
+slug: infobox-pair-software-release
+category: primitives
+title: infobox-pair-software-release
+description: Software release pair — version + date (initial release, latest release, latest preview).
+upstream: null
+worked_example: |
+  {{< infobox-pair-software-release label="Latest release" version="0.163.3" date="2026-06-19" >}}
+fields:
+  - key: label
+    label: Label
+    type: text
+    required: true
+  - key: version
+    label: Version
+    type: text
+    required: true
+  - key: date
+    label: Date
+    type: text
+defaults:
+  label: "Latest release"
+  version: "0.163.3"
+  date: "2026-06-19"

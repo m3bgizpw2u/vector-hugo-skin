@@ -1,0 +1,36 @@
+slug: infobox
+category: primitives
+title: infobox (escape hatch)
+description: Outer paired infobox wrapper for content that does not fit any named shortcode. Author composes rows from inner primitives inside the .Inner block.
+upstream: https://en.wikipedia.org/wiki/Template:Infobox
+worked_example: |
+  {{< infobox type="custom" title="Custom topic" >}}
+    {{< infobox-row label="Founded" value="2010" >}}
+    {{< infobox-section title="Career" >}}
+      {{< infobox-row label="Known for" value="First algorithm" >}}
+    {{< /infobox-section >}}
+  {{< /infobox >}}
+fields:
+  - key: type
+    label: Type
+    type: text
+    hint: Free-form identifier — used as data-infobox-type for per-template CSS
+  - key: title
+    label: Title
+    type: text
+    required: true
+  - key: image
+    label: Image filename
+    type: image
+  - key: caption
+    label: Caption
+    type: markdown
+  - key: alt
+    label: Alt text
+    type: text
+  - key: below
+    label: Below
+    type: markdown
+defaults:
+  type: "custom"
+  title: "Custom topic"

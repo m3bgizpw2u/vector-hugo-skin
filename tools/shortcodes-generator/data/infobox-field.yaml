@@ -1,0 +1,14 @@
+slug: infobox-field
+category: primitives
+title: infobox-field
+description: Bare inline field — renders the value inside a span so it can be embedded in prose or a custom row.
+upstream: null
+worked_example: |
+  {{< infobox-field value="Inline value" >}}
+fields:
+  - key: value
+    label: Value
+    type: markdown
+    required: true
+defaults:
+  value: "Inline value"

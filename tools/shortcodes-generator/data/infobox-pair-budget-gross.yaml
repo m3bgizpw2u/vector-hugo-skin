@@ -1,0 +1,23 @@
+slug: infobox-pair-budget-gross
+category: primitives
+title: infobox-pair-budget-gross
+description: Budget + gross pair used in film / company infoboxes.
+upstream: null
+worked_example: |
+  {{< infobox-pair-budget-gross budget="160000000" gross="836836967" currency="USD" >}}
+fields:
+  - key: budget
+    label: Budget
+    type: text
+    required: true
+  - key: gross
+    label: Gross
+    type: text
+    required: true
+  - key: currency
+    label: Currency
+    type: text
+defaults:
+  budget: "160000000"
+  gross: "836836967"
+  currency: "USD"

@@ -1,0 +1,27 @@
+slug: infobox-pair-episode-season
+category: primitives
+title: infobox-pair-episode-season
+description: Season + episode pair used in television-episode infoboxes.
+upstream: null
+worked_example: |
+  {{< infobox-pair-episode-season season="5" episode="14" total="16" series="Breaking Bad" >}}
+fields:
+  - key: season
+    label: Season
+    type: number
+    required: true
+  - key: episode
+    label: Episode
+    type: number
+    required: true
+  - key: total
+    label: Total episodes
+    type: number
+  - key: series
+    label: Series
+    type: text
+defaults:
+  season: 5
+  episode: 14
+  total: 16
+  series: "Breaking Bad"

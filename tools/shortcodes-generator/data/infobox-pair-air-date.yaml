@@ -1,0 +1,27 @@
+slug: infobox-pair-air-date
+category: primitives
+title: infobox-pair-air-date
+description: Air date pair — first_aired / last_aired with optional network.
+upstream: null
+worked_example: |
+  {{< infobox-pair-air-date label="Aired" first="2022-02-18" last="present" network="Apple TV+" >}}
+fields:
+  - key: label
+    label: Label
+    type: text
+    required: true
+  - key: first
+    label: First
+    type: text
+    required: true
+  - key: last
+    label: Last
+    type: text
+  - key: network
+    label: Network
+    type: text
+defaults:
+  label: "Aired"
+  first: "2022-02-18"
+  last: "present"
+  network: "Apple TV+"

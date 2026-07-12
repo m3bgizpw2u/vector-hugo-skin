@@ -1,0 +1,14 @@
+slug: infobox-below
+category: primitives
+title: infobox-below
+description: Freeform footer block at the bottom of the box.
+upstream: null
+worked_example: |
+  {{< infobox-below content="See also [Wikipedia](https://wikipedia.org)." >}}
+fields:
+  - key: content
+    label: Footer content
+    type: markdown
+    required: true
+defaults:
+  content: "See also [Wikipedia](https://wikipedia.org)."
