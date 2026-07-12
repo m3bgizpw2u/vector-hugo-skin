@@ -67,7 +67,7 @@ Header per docs/PORT-MAP-CONVENTIONS.md §A.
     </label>
     <div id="page-titlebar-toc" class="page-titlebar-toc" role="region" aria-label="{{ i18n "tocLabel" | default "Contents" }}">
       <h2 class="page-titlebar-toc-heading">{{ i18n "tocLabel" | default "Contents" }}</h2>
-      {{ . }}
+      {{ $toc | safeHTML }}
     </div>
   </nav>
   {{ end }}
