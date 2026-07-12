@@ -112,19 +112,38 @@
   // base/_tokens.scss grows it to 3.25rem; the mobile rule below
   // overrides with var(--space-sm).
   //
-  // No right-padding reservation here for the floating toc-panel: the
-  // wrapper `.page-grid__toc` overlays the article's rightmost strip
-  // (see the rule on `.page-grid__toc`), so reserving a 220px right
-  // gutter inside the article column would still leave a 220px-wide
-  // empty area to the right of the prose. Letting the prose extend
-  // behind the panel is acceptable because the panel is only ~352px
-  // tall (content-sized) and sits in the upper-right corner of the
-  // viewport — it occludes a small strip during the scroll window
-  // where the panel is sticky, not the full article column. The
-  // article body's own `max-width` cap (see
-  // `assets/css/layout/article-body.scss`) keeps the prose width
-  // readable when the panel isn't reserving room for it.
+  // Right-padding for the floating toc-panel is added by the desktop
+  // (≥1025px) rule below, gated by `:has(.page-grid aside.toc-panel)`
+  // and `var(--space-md)` of visual gap — so the prose doesn't sit
+  // flush against the panel. The mobile rule below then overrides both
+  // padding edges for the single-column layout (it fully sets
+  // `padding: 0 var(--space-sm)`).
   padding: 0 var(--content-padding-x);
+}
+
+// ---- Desktop ToC-present: reserve right gutter for the floating panel ----
+// `.page-grid__toc` is absolutely positioned and floats over the right
+// edge of the article column (see the wrapper's rule above), so the
+// prose would otherwise extend behind the panel for the entire scroll
+// window where it is sticky-pinned — occluding the rightmost strip of
+// every paragraph. This rule reserves `var(--toc-width)` + `--space-md`
+// of right padding so the article column's prose stays clear of the
+// panel.
+//
+// Gated by `:has(.page-grid aside.toc-panel)` (same pattern as the
+// empty-state collapse rules) so pages without a ToC don't reserve a
+// dead gutter for nothing. Scoped to `@media (min-width: 1025px)` to
+// match the breakpoint the panel is actually visible at: the
+// `@media (max-width: 1024px)` block hides `.page-grid__toc` entirely,
+// the `@media (max-width: 720px)` block drops the wrapper to
+// `position: static`, and the 721–1024px tablet range inherits the
+// base `padding` above without reservation — so we don't reserve dead
+// gutter while the panel is hidden, and we don't override the desktop
+// base padding from a tablet/phone context where the layout differs.
+@media (min-width: 1025px) {
+  :root:has(.page-grid aside.toc-panel) .main-content {
+    padding-right: calc(var(--toc-width) + var(--space-md));
+  }
 }
 
 // ---- Outer sidebar collapse (user-triggered via the header button) ----
