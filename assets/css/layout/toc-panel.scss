@@ -35,12 +35,26 @@
   top: calc(var(--header-height) + var(--sticky-header-height) + var(--space-md));
   max-height: calc(100vh - var(--header-height) - var(--sticky-header-height) - var(--space-xl));
   overflow-y: auto;
-  padding: var(--space-md) 0;
   font-size: var(--font-size-sm);
   // Re-enable clicks on the panel even though `.page-grid__toc` above sets
   // `pointer-events: none` so the wrapper doesn't intercept clicks for
   // underlying article text.
   pointer-events: auto;
+  // Card chrome — sibling of the left-column `.sidebar` card so a user can
+  // tell the two apart at a glance: the sidebar uses `surface-alt` (muted
+  // tint), the ToC uses `surface-raised` (clean white, the same as the
+  // article column's page background) — so the ToC card reads as a
+  // "lifted" white panel against the sidebar's tinted panel. Same border,
+  // radius, padding, and shadow as the sidebar — sibling family,
+  // distinguishable surfaces. `max-height` (not `height`) keeps the long-TOC
+  // escape hatch intact (panel still caps at viewport height and scrolls
+  // internally for articles with many sections) while letting short TOCs
+  // render at their natural height.
+  background-color: var(--color-surface-raised);
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md);
+  box-shadow: var(--shadow-sm);
 }
 
 .toc-panel__heading {
@@ -49,8 +63,14 @@
   letter-spacing: 0.05em;
   color: var(--color-text-muted);
   font-weight: var(--font-weight-semibold);
-  padding: 0 var(--space-sm);
+  // Same heading treatment as `.sidebar__heading` (uppercase muted label
+  // + thin divider rule) so the two cards look like siblings. Padding
+  // matches the link rows so the heading's left edge aligns with the
+  // first link's text.
+  padding: 0 var(--space-xs);
   margin-bottom: var(--space-sm);
+  border-bottom: 1px solid var(--color-divider);
+  padding-bottom: var(--space-sm);
 }
 
 @media (max-width: 1024px) {
@@ -60,11 +80,20 @@
 }
 
 @media (max-width: 720px) {
+  // Mobile re-flow — the panel sits in the article column as a section
+  // after the body. The desktop card chrome is dropped here: the article
+  // column already has its own page-padding on mobile, a card around the
+  // ToC would float against the column and break the in-flow section
+  // pattern the previous mobile rule established. The horizontal divider
+  // (`border-top`) remains as the section separator.
   .toc-panel {
     position: static;
     height: auto;
     max-height: none;
     display: block;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
     border-top: 1px solid var(--color-divider);
     margin-top: var(--space-lg);
     padding: var(--space-md) 0;

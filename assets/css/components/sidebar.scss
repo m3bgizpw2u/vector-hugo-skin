@@ -74,20 +74,30 @@
   font-size: var(--font-size-sm);
   text-decoration: none;
   border-left: 3px solid transparent;
+  // Rounded corners on the hover/active background respect the card's own
+  // `border-radius: var(--radius-lg)` so the tint doesn't bleed into the
+  // card's rounded corners. The card's left edge sits 1px inside the rail,
+  // so the rail itself is left square; only the background tints round.
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
   transition: background-color var(--transition-fast),
     border-color var(--transition-fast);
 }
 
 .sidebar-list__link:hover,
 .sidebar-list__link:focus-visible {
-  background-color: var(--color-surface-alt);
+  // Card surface is `surface-alt` (the muted tint) so the hover/active
+  // background needs a different value to read at a glance — `surface`
+  // (white) pops the row forward and the accent rail at left makes the
+  // hover state unambiguous.
+  background-color: var(--color-surface);
+  border-left-color: var(--color-accent);
   color: var(--color-link);
   text-decoration: none;
 }
 
 .sidebar-list__link--active,
 .sidebar-list__link[aria-current="page"] {
-  background-color: var(--color-surface-alt);
+  background-color: var(--color-surface);
   border-left-color: var(--color-accent);
   color: var(--color-text);
   font-weight: var(--font-weight-medium);

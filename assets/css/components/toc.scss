@@ -31,6 +31,9 @@
   padding: var(--space-xs) var(--space-sm);
   color: var(--color-text-muted);
   text-decoration: none;
+  // The ToC card surface is `surface-raised` (clean white) — the existing
+  // `radius-sm` already rounded the link background, so the tint respects
+  // the link's row geometry. No change here.
   border-radius: var(--radius-sm);
   transition: color var(--transition-fast),
     background-color var(--transition-fast);
@@ -39,6 +42,9 @@
 .toc__link:hover,
 .toc__link:focus-visible {
   color: var(--color-link);
+  // Hover background stays `surface-alt` (the muted tint) — the card's
+  // own surface is `surface-raised` (white), so the contrast pop is
+  // exactly the same pop as the sidebar's hover against its alt card.
   background-color: var(--color-surface-alt);
   text-decoration: none;
 }
@@ -46,6 +52,12 @@
 .toc__item--active .toc__link {
   color: var(--color-link);
   font-weight: var(--font-weight-medium);
+  // Stronger active-state emphasis — the scroll-spy active row now also
+  // carries the same `surface-alt` tint as the hover/active sidebar link,
+  // so a user scanning for "where am I" sees the same visual cue in both
+  // panels. Pair with the existing `border-left-color: accent` rail (on
+  // `.toc__item--active`) for unambiguous current-section identification.
+  background-color: var(--color-surface-alt);
 }
 
 // ---- Nested levels get indentation ----

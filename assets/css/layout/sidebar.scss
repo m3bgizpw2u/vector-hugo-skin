@@ -21,8 +21,21 @@
   top: calc(var(--header-height) + var(--sticky-header-height) + var(--space-md));
   height: calc(100vh - var(--header-height) - var(--sticky-header-height) - var(--space-xl));
   overflow-y: auto;
-  padding: var(--space-md) 0;
-  background-color: transparent;
+  // Card chrome — `.sidebar` renders against the white article column, so
+  // the panel needs its own surface to read as a distinct sibling of the
+  // right-column `.toc-panel`. `surface-alt` is the muted tint (different
+  // from the ToC's `surface-raised` — see layout/toc-panel.scss), `divider`
+  // + `radius-lg` + `shadow-sm` give the card a defined edge and a hint of
+  // elevation. Padding replaces the previous `padding: var(--space-md) 0`
+  // because the card now carries its own gutter on every side; `height`
+  // (viewport-sized, not `max-height`) is preserved so menus scroll inside
+  // the card rather than pushing the page — matching upstream Vector's
+  // `.vector-menu-portal` behaviour for long portlet lists.
+  background-color: var(--color-surface-alt);
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md);
+  box-shadow: var(--shadow-sm);
 }
 
 .sidebar__heading {
@@ -31,8 +44,15 @@
   letter-spacing: 0.05em;
   color: var(--color-text-muted);
   font-weight: var(--font-weight-semibold);
-  padding: 0 var(--space-sm);
+  // Heading sits on a thin rule so the menu list reads as a distinct block
+  // below it. The `border-bottom` lives here (not on the heading's parent
+  // row) so the divider sits at a predictable position regardless of any
+  // later wrapper changes. Padding matches the link rows so the heading's
+  // left edge aligns with the first link's text.
+  padding: 0 var(--space-xs);
   margin-bottom: var(--space-xs);
+  border-bottom: 1px solid var(--color-divider);
+  padding-bottom: var(--space-sm);
 }
 
 @media (max-width: 720px) {
@@ -46,10 +66,20 @@
     transition: transform var(--transition-base);
     will-change: transform;
     z-index: var(--z-overlay);
-    background: var(--color-surface);
-    border-right: 1px solid var(--color-divider);
+    // The desktop card chrome (`surface-alt` + border + shadow) carries
+    // over into the drawer so the slide-in panel reads as the same
+    // component. The drawer's previous `border-right` rule that separated
+    // the drawer from the article column is dropped — the card's `border`
+    // + shadow now own the visible edge against the page, and the right
+    // edge of the drawer sits flush against the viewport on mobile anyway.
+    // Left-only radius keeps the panel's left edge sharp against the
+    // viewport edge so the slide-in transition reads cleanly.
+    background: var(--color-surface-alt);
+    border: 1px solid var(--color-divider);
+    border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+    box-shadow: var(--shadow-sm);
     height: auto;
-    padding: var(--space-md) 0;
+    padding: var(--space-md);
     overflow-y: auto;
   }
 
