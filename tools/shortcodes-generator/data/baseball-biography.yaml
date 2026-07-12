@@ -1,0 +1,109 @@
+slug: baseball-biography
+category: biography
+title: Baseball Biography
+description: Baseball player biography infobox — replicates Wikipedia's `Template:Infobox baseball biography`.
+upstream: https://en.wikipedia.org/wiki/Template:Infobox_baseball_biography
+worked_example: |
+  {{< baseball-biography
+      name        = "Babe Ruth"
+      birth_date  = "1895-02-06"
+      birth_place = "Baltimore, Maryland, U.S."
+      bats        = "Left"
+      throws      = "Left"
+      debut       = "1914-07-11"
+      final_game  = "1935-05-30"
+      position    = "Outfielder, pitcher"
+      teams       = "Boston Red Sox, New York Yankees"
+      hall_of_fame = "Inducted 1936"
+  >}}{{< /baseball-biography >}}
+fields:
+  - key: name
+    label: Name
+    type: text
+    required: true
+  - key: image
+    label: Image filename
+    type: image
+  - key: caption
+    label: Caption
+    type: markdown
+  - key: birth_date
+    label: Birth date
+    type: date
+  - key: birth_place
+    label: Birth place
+    type: text
+  - key: death_date
+    label: Death date
+    type: date
+  - key: death_place
+    label: Death place
+    type: text
+  - key: bats
+    label: Bats
+    type: select
+    options: ["Left", "Right", "Both"]
+  - key: throws
+    label: Throws
+    type: select
+    options: ["Left", "Right"]
+  - key: debut
+    label: MLB debut
+    type: date
+  - key: final_game
+    label: Final game
+    type: date
+  - key: position
+    label: Position
+    type: box
+  - key: team
+    label: Current team
+    type: text
+  - key: teams
+    label: Teams
+    type: box
+  - key: highlights
+    label: Highlights
+    type: box
+  - key: awards
+    label: Awards
+    type: box
+  - key: hall_of_fame
+    label: Hall of fame
+    type: text
+  - key: stat1label
+    label: Stat 1 label
+    type: text
+  - key: stat1value
+    label: Stat 1 value
+    type: text
+  - key: stat2label
+    label: Stat 2 label
+    type: text
+  - key: stat2value
+    label: Stat 2 value
+    type: text
+  - key: stat3label
+    label: Stat 3 label
+    type: text
+  - key: stat3value
+    label: Stat 3 value
+    type: text
+  - key: below
+    label: Below
+    type: markdown
+defaults:
+  name: "Babe Ruth"
+  birth_date: "1895-02-06"
+  birth_place: "Baltimore, Maryland, U.S."
+  bats: "Left"
+  throws: "Left"
+  debut: "1914-07-11"
+  final_game: "1935-05-30"
+  position:
+    - "Outfielder"
+    - "Pitcher"
+  teams:
+    - "Boston Red Sox"
+    - "New York Yankees"
+  hall_of_fame: "Inducted 1936"

@@ -1,0 +1,131 @@
+slug: organization
+category: organization
+title: Organization
+description: Organization infobox — replicates Wikipedia's `Template:Infobox organization`.
+upstream: https://en.wikipedia.org/wiki/Template:Infobox_organization
+worked_example: |
+  {{< organization
+      name               = "Wikimedia Foundation"
+      logo               = "wikimedia-logo.svg"
+      type               = "501(c)(3) nonprofit"
+      founded            = "2003-06-20"
+      founder            = "Jimmy Wales"
+      hq_location        = "San Francisco, California"
+      hq_location_country = "United States"
+      area_served        = "Worldwide"
+      key_people         = "Maryana Iskander (CEO)"
+  >}}{{< /organization >}}
+fields:
+  - key: name
+    label: Name
+    type: text
+    required: true
+  - key: native_name
+    label: Native name
+    type: text
+  - key: logo
+    label: Logo filename
+    type: image
+  - key: type
+    label: Type
+    type: text
+  - key: industry
+    label: Industry
+    type: box
+  - key: founded
+    label: Founded
+    type: date
+  - key: founder
+    label: Founder
+    type: box
+  - key: defunct
+    label: Defunct
+    type: date
+  - key: hq_location
+    label: HQ location
+    type: text
+  - key: hq_location_country
+    label: HQ country
+    type: text
+  - key: coordinates
+    label: Coordinates
+    type: text
+  - key: area_served
+    label: Area served
+    type: box
+  - key: members
+    label: Members
+    type: number
+  - key: employees
+    label: Employees
+    type: number
+  - key: volunteers
+    label: Volunteers
+    type: number
+  - key: budget
+    label: Budget
+    type: text
+  - key: key_people
+    label: Key people
+    type: box
+  - key: products
+    label: Products
+    type: box
+  - key: services
+    label: Services
+    type: box
+  - key: parent
+    label: Parent
+    type: text
+  - key: subsidiaries
+    label: Subsidiaries
+    type: box
+  - key: affiliations
+    label: Affiliations
+    type: box
+  - key: motto
+    label: Motto
+    type: text
+  - key: formation
+    label: Formation
+    type: text
+  - key: dissolution
+    label: Dissolution
+    type: text
+  - key: registration_id
+    label: Registration ID
+    type: text
+  - key: status
+    label: Status
+    type: text
+  - key: purpose
+    label: Purpose
+    type: markdown
+  - key: language
+    label: Language
+    type: box
+  - key: leader_name
+    label: Leader name
+    type: text
+  - key: leader_title
+    label: Leader title
+    type: text
+  - key: website
+    label: Website
+    type: text
+  - key: below
+    label: Below
+    type: markdown
+defaults:
+  name: "Wikimedia Foundation"
+  logo: "wikimedia-logo.svg"
+  type: "501(c)(3) nonprofit"
+  founded: "2003-06-20"
+  founder:
+    - "Jimmy Wales"
+  hq_location: "San Francisco, California"
+  hq_location_country: "United States"
+  area_served:
+    - "Worldwide"
+  key_people:
+    - "Maryana Iskander (CEO)"

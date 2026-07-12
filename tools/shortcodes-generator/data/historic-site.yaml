@@ -1,0 +1,75 @@
+slug: historic-site
+category: geography
+title: Historic Site (NRHP)
+description: Historic site infobox — replicates Wikipedia's `Template:Infobox NRHP`.
+upstream: https://en.wikipedia.org/wiki/Template:Infobox_NRHP
+worked_example: |
+  {{< historic-site
+      name          = "Empire State Building"
+      location      = "350 Fifth Avenue, Manhattan, New York City"
+      coordinates   = "40.7484°N 73.9857°W"
+      built         = "1930–1931"
+      architect     = "Shreve, Lamb and Harmon"
+      architecture  = "Art Deco"
+      added         = "1986-06-23"
+      NRHP_ref      = "86001256"
+  >}}{{< /historic-site >}}
+fields:
+  - key: name
+    label: Name
+    type: text
+    required: true
+  - key: image
+    label: Image filename
+    type: image
+  - key: caption
+    label: Caption
+    type: markdown
+  - key: location
+    label: Location
+    type: text
+  - key: nearest_city
+    label: Nearest city
+    type: text
+  - key: coordinates
+    label: Coordinates
+    type: text
+  - key: area
+    label: Area
+    type: text
+  - key: built
+    label: Built
+    type: text
+  - key: architect
+    label: Architect
+    type: text
+  - key: architecture
+    label: Architecture
+    type: text
+  - key: added
+    label: Added (date)
+    type: date
+  - key: NRHP_ref
+    label: NRHP reference
+    type: text
+  - key: governing_body
+    label: Governing body
+    type: text
+  - key: owner
+    label: Owner
+    type: text
+  - key: website
+    label: Website
+    type: text
+  - key: below
+    label: Below
+    type: markdown
+defaults:
+  name: "Empire State Building"
+  location: "350 Fifth Avenue, Manhattan, New York City"
+  coordinates: "40.7484°N 73.9857°W"
+  built: "1930–1931"
+  architect: "Shreve, Lamb and Harmon"
+  architecture: "Art Deco"
+  added: "1986-06-23"
+  NRHP_ref: "86001256"

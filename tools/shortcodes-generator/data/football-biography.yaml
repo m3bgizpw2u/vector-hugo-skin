@@ -1,0 +1,92 @@
+slug: football-biography
+category: biography
+title: Football Biography
+description: Football (soccer) player biography infobox — replicates Wikipedia's `Template:Infobox football biography`.
+upstream: https://en.wikipedia.org/wiki/Template:Infobox_football_biography
+worked_example: |
+  {{< football-biography
+      name         = "Marta"
+      full_name    = "Marta Vieira da Silva"
+      birth_date   = "1986-02-19"
+      birth_place  = "Dois Riachos, Alagoas, Brazil"
+      height       = "1.63"
+      position     = "Forward"
+      clubs        = "Vasco da Gama, Umeå, Orlando Pride"
+      nationalcaps = "179"
+      nationalgoals = "115"
+  >}}{{< /football-biography >}}
+fields:
+  - key: name
+    label: Name
+    type: text
+    required: true
+  - key: image
+    label: Image filename
+    type: image
+  - key: caption
+    label: Caption
+    type: markdown
+  - key: full_name
+    label: Full name
+    type: text
+  - key: birth_date
+    label: Birth date
+    type: date
+  - key: birth_place
+    label: Birth place
+    type: text
+  - key: death_date
+    label: Death date
+    type: date
+  - key: death_place
+    label: Death place
+    type: text
+  - key: height
+    label: Height (m)
+    type: text
+  - key: position
+    label: Position
+    type: text
+  - key: current_club
+    label: Current club
+    type: number
+  - key: youth_years
+    label: Youth years
+    type: text
+  - key: youth_clubs
+    label: Youth clubs
+    type: box
+  - key: years
+    label: Senior years
+    type: text
+  - key: clubs
+    label: Clubs
+    type: box
+  - key: nationalyears
+    label: National years
+    type: text
+  - key: nationalteam
+    label: National team
+    type: text
+  - key: nationalcaps
+    label: National caps
+    type: number
+  - key: nationalgoals
+    label: National goals
+    type: number
+  - key: below
+    label: Below
+    type: markdown
+defaults:
+  name: "Marta"
+  full_name: "Marta Vieira da Silva"
+  birth_date: "1986-02-19"
+  birth_place: "Dois Riachos, Alagoas, Brazil"
+  height: "1.63"
+  position: "Forward"
+  clubs:
+    - "Vasco da Gama"
+    - "Umeå"
+    - "Orlando Pride"
+  nationalcaps: 179
+  nationalgoals: 115

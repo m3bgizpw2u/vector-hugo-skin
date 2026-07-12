@@ -1,0 +1,104 @@
+slug: military-conflict
+category: history
+title: Military Conflict
+description: Military conflict / battle / war infobox — replicates Wikipedia's `Template:Infobox military conflict`.
+upstream: https://en.wikipedia.org/wiki/Template:Infobox_military_conflict
+worked_example: |
+  {{< military-conflict
+      name        = "Battle of Gettysburg"
+      part_of     = "American Civil War"
+      date_start  = "1863-07-01"
+      date_end    = "1863-07-03"
+      place       = "Gettysburg, Pennsylvania, United States"
+      result      = "Union victory"
+      combatant1  = "United States (Union)"
+      combatant2  = "Confederate States"
+  >}}{{< /military-conflict >}}
+fields:
+  - key: name
+    label: Name
+    type: text
+    required: true
+  - key: conflict
+    label: Conflict
+    type: text
+  - key: part_of
+    label: Part of
+    type: text
+  - key: date_start
+    label: Date start
+    type: date
+  - key: date_end
+    label: Date end
+    type: date
+  - key: place
+    label: Place
+    type: text
+  - key: location
+    label: Location
+    type: text
+  - key: coordinates
+    label: Coordinates
+    type: text
+  - key: territory
+    label: Territory
+    type: text
+  - key: result
+    label: Result
+    type: text
+  - key: status
+    label: Status
+    type: text
+  - key: combatant1
+    label: Combatant 1
+    type: box
+  - key: combatant2
+    label: Combatant 2
+    type: box
+  - key: commander1
+    label: Commander 1
+    type: box
+  - key: commander2
+    label: Commander 2
+    type: box
+  - key: strength1
+    label: Strength 1
+    type: text
+  - key: strength2
+    label: Strength 2
+    type: text
+  - key: casualties1
+    label: Casualties 1
+    type: text
+  - key: casualties2
+    label: Casualties 2
+    type: text
+  - key: civilian_deaths
+    label: Civilian deaths
+    type: number
+  - key: military_deaths
+    label: Military deaths
+    type: number
+  - key: total_deaths
+    label: Total deaths
+    type: number
+  - key: notes
+    label: Notes
+    type: markdown
+  - key: website
+    label: Website
+    type: text
+  - key: below
+    label: Below
+    type: markdown
+defaults:
+  name: "Battle of Gettysburg"
+  part_of: "American Civil War"
+  date_start: "1863-07-01"
+  date_end: "1863-07-03"
+  place: "Gettysburg, Pennsylvania, United States"
+  result: "Union victory"
+  combatant1:
+    - "United States (Union)"
+  combatant2:
+    - "Confederate States"

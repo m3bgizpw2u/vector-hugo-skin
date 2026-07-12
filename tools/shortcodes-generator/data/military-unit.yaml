@@ -1,0 +1,106 @@
+slug: military-unit
+category: organization
+title: Military Unit
+description: Military unit infobox — replicates Wikipedia's `Template:Infobox military unit`.
+upstream: https://en.wikipedia.org/wiki/Template:Infobox_military_unit
+worked_example: |
+  {{< military-unit
+      name        = "101st Airborne Division"
+      start_date  = "1942-08-15"
+      country     = "United States"
+      branch      = "United States Army"
+      type        = "Airborne infantry"
+      role        = "Air assault"
+      garrison    = "Fort Campbell, Kentucky"
+      nickname    = "Screaming Eagles"
+      motto       = "Rendezvous with Destiny"
+      commander   = "Major General Andrew C. Hilmes"
+  >}}{{< /military-unit >}}
+fields:
+  - key: name
+    label: Name
+    type: text
+    required: true
+  - key: start_date
+    label: Start date
+    type: date
+  - key: end_date
+    label: End date
+    type: date
+  - key: country
+    label: Country
+    type: box
+  - key: allegiance
+    label: Allegiance
+    type: box
+  - key: branch
+    label: Branch
+    type: box
+  - key: type
+    label: Type
+    type: text
+  - key: role
+    label: Role
+    type: text
+  - key: size
+    label: Size
+    type: text
+  - key: command
+    label: Command
+    type: text
+  - key: garrison
+    label: Garrison
+    type: box
+  - key: nickname
+    label: Nickname
+    type: text
+  - key: patron
+    label: Patron
+    type: text
+  - key: motto
+    label: Motto
+    type: text
+  - key: colors
+    label: Colors
+    type: text
+  - key: march
+    label: March
+    type: text
+  - key: battles
+    label: Battles
+    type: box
+  - key: anniversaries
+    label: Anniversaries
+    type: box
+  - key: decorations
+    label: Decorations
+    type: box
+  - key: commander
+    label: Commander
+    type: text
+  - key: notable_commanders
+    label: Notable commanders
+    type: box
+  - key: identification_symbol
+    label: Identification symbol
+    type: text
+  - key: website
+    label: Website
+    type: text
+  - key: below
+    label: Below
+    type: markdown
+defaults:
+  name: "101st Airborne Division"
+  start_date: "1942-08-15"
+  country:
+    - "United States"
+  branch:
+    - "United States Army"
+  type: "Airborne infantry"
+  role: "Air assault"
+  garrison:
+    - "Fort Campbell, Kentucky"
+  nickname: "Screaming Eagles"
+  motto: "Rendezvous with Destiny"
+  commander: "Major General Andrew C. Hilmes"

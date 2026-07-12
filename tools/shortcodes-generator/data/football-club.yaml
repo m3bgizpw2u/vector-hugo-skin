@@ -1,0 +1,90 @@
+slug: football-club
+category: sports
+title: Football Club
+description: Football (soccer) club infobox — replicates Wikipedia's `Template:Infobox football club`.
+upstream: https://en.wikipedia.org/wiki/Template:Infobox_football_club
+worked_example: |
+  {{< football-club
+      name      = "Manchester United"
+      full_name = "Manchester United Football Club"
+      nickname  = "The Red Devils"
+      founded   = "1878"
+      ground    = "Old Trafford"
+      capacity  = "74,310"
+      manager   = "Erik ten Hag"
+      league    = "Premier League"
+  >}}{{< /football-club >}}
+fields:
+  - key: name
+    label: Name
+    type: text
+    required: true
+  - key: logo
+    label: Logo filename
+    type: image
+  - key: full_name
+    label: Full name
+    type: text
+  - key: nickname
+    label: Nickname
+    type: text
+  - key: founded
+    label: Founded
+    type: date
+  - key: dissolved
+    label: Dissolved
+    type: date
+  - key: ground
+    label: Ground
+    type: text
+  - key: capacity
+    label: Capacity
+    type: number
+  - key: owntitle
+    label: Owner title
+    type: text
+  - key: owner
+    label: Owner
+    type: text
+  - key: chrtitle
+    label: Chairman title
+    type: text
+  - key: chairman
+    label: Chairman
+    type: text
+  - key: ceo
+    label: CEO
+    type: text
+  - key: mgrtitle
+    label: Manager title
+    type: text
+  - key: manager
+    label: Manager
+    type: text
+  - key: coach
+    label: Coach
+    type: text
+  - key: league
+    label: League
+    type: text
+  - key: position
+    label: Position
+    type: text
+  - key: season
+    label: Season
+    type: text
+  - key: website
+    label: Website
+    type: text
+  - key: below
+    label: Below
+    type: markdown
+defaults:
+  name: "Manchester United"
+  full_name: "Manchester United Football Club"
+  nickname: "The Red Devils"
+  founded: "1878"
+  ground: "Old Trafford"
+  capacity: 74310
+  manager: "Erik ten Hag"
+  league: "Premier League"

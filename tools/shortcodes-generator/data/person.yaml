@@ -1,0 +1,77 @@
+slug: person
+category: biography
+title: Person
+description: Person infobox — replicates Wikipedia's `Template:Infobox person`.
+upstream: https://en.wikipedia.org/wiki/Template:Infobox_person
+worked_example: |
+  {{< person
+      name        = "Ada Lovelace"
+      image       = "ada-lovelace.jpg"
+      caption     = "Portrait of Ada Lovelace, 1843"
+      birth_date  = "10 December 1815"
+      birth_place = "London, England"
+      death_date  = "27 November 1852"
+      occupation  = "Mathematician, Writer"
+      notable_works = "*Notes on the Analytical Engine*"
+  >}}{{< /person >}}
+fields:
+  - key: name
+    label: Name
+    type: text
+    required: true
+  - key: image
+    label: Image filename
+    type: image
+  - key: caption
+    label: Caption
+    type: markdown
+  - key: alt
+    label: Alt text
+    type: text
+  - key: birth_date
+    label: Birth date
+    type: date
+  - key: birth_place
+    label: Birth place
+    type: text
+  - key: death_date
+    label: Death date
+    type: date
+  - key: death_place
+    label: Death place
+    type: text
+  - key: nationality
+    label: Nationality
+    type: text
+  - key: occupation
+    label: Occupation
+    type: box
+  - key: years_active
+    label: Years active
+    type: text
+  - key: known_for
+    label: Known for
+    type: text
+  - key: notable_works
+    label: Notable works
+    type: markdown
+  - key: website
+    label: Website
+    type: text
+  - key: below
+    label: Below
+    type: markdown
+defaults:
+  name: "Ada Lovelace"
+  image: "ada-lovelace.jpg"
+  caption: "Portrait of Ada Lovelace, 1843"
+  alt: "Sepia portrait of Ada Lovelace"
+  birth_date: "1815-12-10"
+  birth_place: "London, England"
+  death_date: "1852-11-27"
+  nationality: "British"
+  occupation:
+    - "Mathematician"
+    - "Writer"
+  known_for: "First computer algorithm"
+  notable_works: "*Notes on the Analytical Engine*"

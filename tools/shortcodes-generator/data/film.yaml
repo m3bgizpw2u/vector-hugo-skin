@@ -1,0 +1,108 @@
+slug: film
+category: media
+title: Film
+description: Film infobox — replicates Wikipedia's `Template:Infobox film`.
+upstream: https://en.wikipedia.org/wiki/Template:Infobox_film
+worked_example: |
+  {{< film
+      name        = "Inception"
+      director    = "Christopher Nolan"
+      producer    = "Emma Thomas, Christopher Nolan"
+      writer      = "Christopher Nolan"
+      starring    = "Leonardo DiCaprio, Joseph Gordon-Levitt, Elliot Page"
+      music       = "Hans Zimmer"
+      studio      = "Syncopy Films, Legendary Pictures"
+      distributor = "Warner Bros. Pictures"
+      released    = "2010-07-08"
+      runtime     = "148"
+      budget      = "160000000"
+      gross       = "836836967"
+      currency    = "USD"
+  >}}{{< /film >}}
+fields:
+  - key: name
+    label: Name
+    type: text
+    required: true
+  - key: image
+    label: Poster filename
+    type: image
+  - key: caption
+    label: Caption
+    type: markdown
+  - key: director
+    label: Director
+    type: box
+  - key: producer
+    label: Producer
+    type: box
+  - key: writer
+    label: Writer
+    type: box
+  - key: starring
+    label: Starring
+    type: box
+  - key: music
+    label: Music
+    type: text
+  - key: cinematography
+    label: Cinematography
+    type: text
+  - key: editing
+    label: Editing
+    type: text
+  - key: studio
+    label: Studio
+    type: box
+  - key: distributor
+    label: Distributor
+    type: text
+  - key: released
+    label: Released
+    type: date
+  - key: runtime
+    label: Runtime (minutes)
+    type: number
+  - key: country
+    label: Country
+    type: text
+  - key: language
+    label: Language
+    type: text
+  - key: budget
+    label: Budget
+    type: text
+  - key: gross
+    label: Gross
+    type: text
+  - key: currency
+    label: Currency
+    type: text
+  - key: below
+    label: Below
+    type: markdown
+defaults:
+  name: "Inception"
+  director:
+    - "Christopher Nolan"
+  producer:
+    - "Emma Thomas"
+    - "Christopher Nolan"
+  writer:
+    - "Christopher Nolan"
+  starring:
+    - "Leonardo DiCaprio"
+    - "Joseph Gordon-Levitt"
+    - "Elliot Page"
+  music: "Hans Zimmer"
+  studio:
+    - "Syncopy Films"
+    - "Legendary Pictures"
+  distributor: "Warner Bros. Pictures"
+  released: "2010-07-08"
+  runtime: 148
+  country: "United States, United Kingdom"
+  language: "English"
+  budget: "160000000"
+  gross: "836836967"
+  currency: "USD"

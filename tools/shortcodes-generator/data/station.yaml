@@ -1,0 +1,116 @@
+slug: station
+category: geography
+title: Station
+description: Transit / railway station infobox — replicates Wikipedia's `Template:Infobox station`.
+upstream: https://en.wikipedia.org/wiki/Template:Infobox_station
+worked_example: |
+  {{< station
+      name        = "Waterloo"
+      native_name = "London Waterloo"
+      country     = "United Kingdom"
+      coordinates = "51.5031°N 0.1132°W"
+      line        = "South Western main line"
+      platforms   = "22"
+      tracks      = "24"
+      opened      = "1848-07-11"
+      code        = "WAT"
+      operator    = "Network Rail"
+  >}}{{< /station >}}
+fields:
+  - key: name
+    label: Name
+    type: text
+    required: true
+  - key: native_name
+    label: Native name
+    type: text
+  - key: address
+    label: Address
+    type: text
+  - key: country
+    label: Country
+    type: text
+  - key: coordinates
+    label: Coordinates
+    type: text
+  - key: line
+    label: Line
+    type: box
+  - key: connections
+    label: Connections
+    type: box
+  - key: platforms
+    label: Platforms
+    type: number
+  - key: tracks
+    label: Tracks
+    type: number
+  - key: structure
+    label: Structure
+    type: text
+  - key: depth
+    label: Depth
+    type: text
+  - key: levels
+    label: Levels
+    type: number
+  - key: type
+    label: Type
+    type: text
+  - key: opened
+    label: Opened
+    type: date
+  - key: closed
+    label: Closed
+    type: date
+  - key: rebuilt
+    label: Rebuilt
+    type: text
+  - key: electrified
+    label: Electrified
+    type: text
+  - key: ADA
+    label: ADA
+    type: text
+  - key: code
+    label: Code
+    type: text
+  - key: owned
+    label: Owned by
+    type: text
+  - key: operator
+    label: Operator
+    type: text
+  - key: zone
+    label: Zone
+    type: text
+  - key: former
+    label: Former names
+    type: box
+  - key: passengers
+    label: Passengers
+    type: number
+  - key: pass_year
+    label: Passenger year
+    type: number
+  - key: pass_rank
+    label: Passenger rank
+    type: number
+  - key: services
+    label: Services
+    type: box
+  - key: below
+    label: Below
+    type: markdown
+defaults:
+  name: "Waterloo"
+  native_name: "London Waterloo"
+  country: "United Kingdom"
+  coordinates: "51.5031°N 0.1132°W"
+  line:
+    - "South Western main line"
+  platforms: 22
+  tracks: 24
+  opened: "1848-07-11"
+  code: "WAT"
+  operator: "Network Rail"

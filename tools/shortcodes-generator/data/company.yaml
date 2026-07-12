@@ -1,0 +1,109 @@
+slug: company
+category: organization
+title: Company
+description: Company / corporation infobox — replicates Wikipedia's `Template:Infobox company`.
+upstream: https://en.wikipedia.org/wiki/Template:Infobox_company
+worked_example: |
+  {{< company
+      name               = "Acme Corporation"
+      trade_name         = "Acme Co."
+      type               = "Public"
+      industry           = "Conglomerate"
+      founded            = "1907-01-01"
+      founder            = "R. J. Acme"
+      hq_location        = "Springfield"
+      hq_location_country = "United States"
+      key_people         = "W. E. Coyote (CEO)"
+      products           = "Anvils, rockets, road runners"
+      revenue            = "US$1.2 billion"
+  >}}{{< /company >}}
+fields:
+  - key: name
+    label: Name
+    type: text
+    required: true
+  - key: logo
+    label: Logo filename
+    type: image
+  - key: trade_name
+    label: Trade name
+    type: text
+  - key: type
+    label: Type
+    type: select
+    options: ["Public", "Private", "Subsidiary", "Nonprofit", "State-owned"]
+  - key: industry
+    label: Industry
+    type: box
+  - key: founded
+    label: Founded
+    type: date
+  - key: founder
+    label: Founder
+    type: box
+  - key: defunct
+    label: Defunct
+    type: date
+  - key: hq_location
+    label: HQ location
+    type: text
+  - key: hq_location_country
+    label: HQ country
+    type: text
+  - key: num_employees
+    label: Employees
+    type: number
+  - key: num_locations
+    label: Locations
+    type: number
+  - key: key_people
+    label: Key people
+    type: box
+  - key: products
+    label: Products
+    type: box
+  - key: revenue
+    label: Revenue
+    type: text
+  - key: operating_income
+    label: Operating income
+    type: text
+  - key: net_income
+    label: Net income
+    type: text
+  - key: assets
+    label: Assets
+    type: text
+  - key: equity
+    label: Equity
+    type: text
+  - key: owner
+    label: Owner
+    type: text
+  - key: parent
+    label: Parent company
+    type: text
+  - key: website
+    label: Website
+    type: text
+  - key: below
+    label: Below
+    type: markdown
+defaults:
+  name: "Acme Corporation"
+  trade_name: "Acme Co."
+  type: "Public"
+  industry:
+    - "Conglomerate"
+  founded: "1907-01-01"
+  founder:
+    - "R. J. Acme"
+  hq_location: "Springfield"
+  hq_location_country: "United States"
+  key_people:
+    - "W. E. Coyote (CEO)"
+  products:
+    - "Anvils"
+    - "Rockets"
+    - "Road runners"
+  revenue: "US$1.2 billion"

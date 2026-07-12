@@ -1,0 +1,99 @@
+slug: military-person
+category: biography
+title: Military Person
+description: Military person infobox — replicates Wikipedia's `Template:Infobox military person`.
+upstream: https://en.wikipedia.org/wiki/Template:Infobox_military_person
+worked_example: |
+  {{< military-person
+      name          = "Patton"
+      birth_date    = "1885-11-11"
+      birth_place   = "San Gabriel, California, U.S."
+      death_date    = "1945-12-21"
+      allegiance    = "United States"
+      branch        = "United States Army"
+      service_years = "1909–1945"
+      rank          = "General"
+      battles       = "World War I, World War II"
+  >}}{{< /military-person >}}
+fields:
+  - key: name
+    label: Name
+    type: text
+    required: true
+  - key: image
+    label: Image filename
+    type: image
+  - key: caption
+    label: Caption
+    type: markdown
+  - key: birth_date
+    label: Birth date
+    type: date
+  - key: birth_place
+    label: Birth place
+    type: text
+  - key: death_date
+    label: Death date
+    type: date
+  - key: death_place
+    label: Death place
+    type: text
+  - key: allegiance
+    label: Allegiance
+    type: box
+  - key: branch
+    label: Branch
+    type: box
+  - key: service_years
+    label: Service years
+    type: text
+  - key: rank
+    label: Rank
+    type: text
+  - key: unit
+    label: Unit
+    type: box
+  - key: commands
+    label: Commands
+    type: box
+  - key: battles
+    label: Battles
+    type: box
+  - key: awards
+    label: Awards
+    type: box
+  - key: alma_mater
+    label: Alma mater
+    type: box
+  - key: spouse
+    label: Spouse
+    type: box
+  - key: relations
+    label: Relations
+    type: box
+  - key: children
+    label: Children
+    type: box
+  - key: laterwork
+    label: Later work
+    type: text
+  - key: website
+    label: Website
+    type: text
+  - key: below
+    label: Below
+    type: markdown
+defaults:
+  name: "Patton"
+  birth_date: "1885-11-11"
+  birth_place: "San Gabriel, California, U.S."
+  death_date: "1945-12-21"
+  allegiance:
+    - "United States"
+  branch:
+    - "United States Army"
+  service_years: "1909–1945"
+  rank: "General"
+  battles:
+    - "World War I"
+    - "World War II"

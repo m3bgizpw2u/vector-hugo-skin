@@ -1,0 +1,109 @@
+slug: ice-hockey-biography
+category: biography
+title: Ice Hockey Biography
+description: Ice hockey player biography infobox — replicates Wikipedia's `Template:Infobox ice hockey biography`.
+upstream: https://en.wikipedia.org/wiki/Template:Infobox_ice_hockey_biography
+worked_example: |
+  {{< ice-hockey-biography
+      name        = "Connor McDavid"
+      birth_date  = "1997-01-13"
+      birth_place = "Richmond Hill, Ontario, Canada"
+      height      = "188"
+      weight      = "88"
+      position    = "Center"
+      shoots      = "Left"
+      played_for  = "Erie Otters, Edmonton Oilers"
+      national_team = "Canada"
+      draft_year  = "2015"
+      draft_team  = "Edmonton Oilers"
+  >}}{{< /ice-hockey-biography >}}
+fields:
+  - key: name
+    label: Name
+    type: text
+    required: true
+  - key: image
+    label: Image filename
+    type: image
+  - key: caption
+    label: Caption
+    type: markdown
+  - key: birth_date
+    label: Birth date
+    type: date
+  - key: birth_place
+    label: Birth place
+    type: text
+  - key: death_date
+    label: Death date
+    type: date
+  - key: death_place
+    label: Death place
+    type: text
+  - key: height
+    label: Height (cm)
+    type: number
+  - key: weight
+    label: Weight (kg)
+    type: number
+  - key: position
+    label: Position
+    type: text
+  - key: shoots
+    label: Shoots
+    type: select
+    options: ["Left", "Right"]
+  - key: catches
+    label: Catches
+    type: select
+    options: ["Left", "Right"]
+  - key: played_for
+    label: Played for
+    type: box
+  - key: national_team
+    label: National team
+    type: text
+  - key: draft_year
+    label: Draft year
+    type: number
+  - key: draft_team
+    label: Draft team
+    type: text
+  - key: draft_round
+    label: Draft round
+    type: number
+  - key: draft_pick
+    label: Draft pick
+    type: number
+  - key: career_start
+    label: Career start
+    type: number
+  - key: career_end
+    label: Career end
+    type: number
+  - key: career_position
+    label: Career position
+    type: text
+  - key: hall_of_fame
+    label: Hall of fame
+    type: text
+  - key: website
+    label: Website
+    type: text
+  - key: below
+    label: Below
+    type: markdown
+defaults:
+  name: "Connor McDavid"
+  birth_date: "1997-01-13"
+  birth_place: "Richmond Hill, Ontario, Canada"
+  height: 188
+  weight: 88
+  position: "Center"
+  shoots: "Left"
+  played_for:
+    - "Erie Otters"
+    - "Edmonton Oilers"
+  national_team: "Canada"
+  draft_year: 2015
+  draft_team: "Edmonton Oilers"

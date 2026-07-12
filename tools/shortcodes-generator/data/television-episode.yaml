@@ -1,0 +1,113 @@
+slug: television-episode
+category: media
+title: Television Episode
+description: Television episode infobox — replicates Wikipedia's `Template:Infobox television episode`.
+upstream: https://en.wikipedia.org/wiki/Template:Infobox_television_episode
+worked_example: |
+  {{< television-episode
+      name        = "Ozymandias"
+      series      = "Breaking Bad"
+      season      = "5"
+      episode     = "14"
+      director    = "Rian Johnson"
+      writer      = "Moira Walley-Beckett"
+      airdate     = "2013-09-15"
+      network     = "AMC"
+      runtime     = "47"
+  >}}{{< /television-episode >}}
+fields:
+  - key: name
+    label: Name
+    type: text
+    required: true
+  - key: series
+    label: Series
+    type: text
+  - key: season
+    label: Season
+    type: number
+  - key: episode
+    label: Episode
+    type: number
+  - key: director
+    label: Director
+    type: text
+  - key: writer
+    label: Writer
+    type: text
+  - key: teleplay
+    label: Teleplay
+    type: text
+  - key: story
+    label: Story
+    type: text
+  - key: based_on
+    label: Based on
+    type: text
+  - key: narrator
+    label: Narrator
+    type: text
+  - key: presenter
+    label: Presenter
+    type: text
+  - key: starring
+    label: Starring
+    type: box
+  - key: guests
+    label: Guests
+    type: box
+  - key: music
+    label: Music
+    type: text
+  - key: camera
+    label: Camera
+    type: text
+  - key: editor
+    label: Editor
+    type: text
+  - key: producer
+    label: Producer
+    type: box
+  - key: executive_producer
+    label: Executive producer
+    type: box
+  - key: airdate
+    label: Airdate
+    type: date
+  - key: network
+    label: Network
+    type: text
+  - key: production_code
+    label: Production code
+    type: text
+  - key: runtime
+    label: Runtime
+    type: number
+  - key: channel
+    label: Channel
+    type: text
+  - key: prev
+    label: Previous episode
+    type: text
+  - key: next
+    label: Next episode
+    type: text
+  - key: episode_list
+    label: Episode list
+    type: text
+  - key: website
+    label: Website
+    type: text
+  - key: below
+    label: Below
+    type: markdown
+defaults:
+  name: "Ozymandias"
+  series: "Breaking Bad"
+  season: 5
+  episode: 14
+  director: "Rian Johnson"
+  writer: "Moira Walley-Beckett"
+  airdate: "2013-09-15"
+  network: "AMC"
+  runtime: 47

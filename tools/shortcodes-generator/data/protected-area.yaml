@@ -1,0 +1,88 @@
+slug: protected-area
+category: geography
+title: Protected Area
+description: Protected area / national park infobox — replicates Wikipedia's `Template:Infobox protected area`.
+upstream: https://en.wikipedia.org/wiki/Template:Infobox_protected_area
+worked_example: |
+  {{< protected-area
+      name           = "Yellowstone National Park"
+      location       = "Wyoming, Montana, Idaho"
+      coordinates    = "44.4280°N 110.5885°W"
+      area           = "2,219,791 acres (8,987 km²)"
+      established    = "1872-03-01"
+      governing_body = "U.S. National Park Service"
+      iucn_category  = "II (national park)"
+  >}}{{< /protected-area >}}
+fields:
+  - key: name
+    label: Name
+    type: text
+    required: true
+  - key: image
+    label: Image filename
+    type: image
+  - key: caption
+    label: Caption
+    type: markdown
+  - key: alt_name
+    label: Alternate name
+    type: text
+  - key: location
+    label: Location
+    type: text
+  - key: nearest_city
+    label: Nearest city
+    type: text
+  - key: coordinates
+    label: Coordinates
+    type: text
+  - key: area
+    label: Area
+    type: text
+  - key: established
+    label: Established
+    type: date
+  - key: named_for
+    label: Named for
+    type: text
+  - key: visitation_num
+    label: Annual visitors
+    type: number
+  - key: visitation_year
+    label: Visitation year
+    type: number
+  - key: governing_body
+    label: Governing body
+    type: text
+  - key: administrator
+    label: Administrator
+    type: text
+  - key: owner
+    label: Owner
+    type: text
+  - key: website
+    label: Website
+    type: text
+  - key: iucn_category
+    label: IUCN category
+    type: text
+  - key: designation
+    label: Designation
+    type: text
+  - key: created
+    label: Created
+    type: date
+  - key: world_heritage_site
+    label: World heritage site
+    type: text
+  - key: below
+    label: Below
+    type: markdown
+defaults:
+  name: "Yellowstone National Park"
+  location: "Wyoming, Montana, Idaho"
+  coordinates: "44.4280°N 110.5885°W"
+  area: "2,219,791 acres (8,987 km²)"
+  established: "1872-03-01"
+  governing_body: "U.S. National Park Service"
+  iucn_category: "II (national park)"

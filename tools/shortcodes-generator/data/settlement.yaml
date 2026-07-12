@@ -1,0 +1,89 @@
+slug: settlement
+category: geography
+title: Settlement
+description: Settlement / city / town infobox — replicates Wikipedia's `Template:Infobox settlement`.
+upstream: https://en.wikipedia.org/wiki/Template:Infobox_settlement
+worked_example: |
+  {{< settlement
+      name            = "Springfield"
+      image           = "springfield.jpg"
+      caption         = "Downtown Springfield"
+      country         = "United States"
+      coordinates     = "39.7817°N 89.6501°W"
+      population_total = "114,738"
+      area_total_km2  = "171.2"
+      leader_title    = "Mayor"
+      leader_name     = "Misty Vela"
+  >}}{{< /settlement >}}
+fields:
+  - key: name
+    label: Name
+    type: text
+    required: true
+  - key: image
+    label: Image filename
+    type: image
+  - key: caption
+    label: Caption
+    type: markdown
+  - key: alt
+    label: Alt text
+    type: text
+  - key: country
+    label: Country
+    type: text
+  - key: subdivision_type1
+    label: Subdivision type
+    type: text
+  - key: subdivision_name1
+    label: Subdivision name
+    type: text
+  - key: coordinates
+    label: Coordinates
+    type: text
+  - key: population_total
+    label: Population total
+    type: text
+  - key: population_as_of
+    label: Population as of
+    type: date
+  - key: area_total_km2
+    label: Area total (km²)
+    type: text
+  - key: established_title1
+    label: Established title
+    type: text
+  - key: established_date1
+    label: Established date
+    type: date
+  - key: leader_title
+    label: Leader title
+    type: text
+  - key: leader_name
+    label: Leader name
+    type: text
+  - key: timezone
+    label: Timezone
+    type: text
+  - key: postal_code
+    label: Postal code
+    type: text
+  - key: area_code
+    label: Area code
+    type: text
+  - key: website
+    label: Website
+    type: text
+  - key: below
+    label: Below
+    type: markdown
+defaults:
+  name: "Springfield"
+  image: "springfield.jpg"
+  caption: "Downtown Springfield"
+  country: "United States"
+  coordinates: "39.7817°N 89.6501°W"
+  population_total: "114,738"
+  area_total_km2: "171.2"
+  leader_title: "Mayor"
+  leader_name: "Misty Vela"

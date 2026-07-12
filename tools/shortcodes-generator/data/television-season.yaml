@@ -1,0 +1,91 @@
+slug: television-season
+category: media
+title: Television Season
+description: Television season infobox — replicates Wikipedia's `Template:Infobox television season`.
+upstream: https://en.wikipedia.org/wiki/Template:Infobox_television_season
+worked_example: |
+  {{< television-season
+      name          = "Breaking Bad — Season 5"
+      series_name   = "Breaking Bad"
+      season_number = "5"
+      num_episodes  = "16"
+      network       = "AMC"
+      first_aired   = "2012-07-15"
+      last_aired    = "2013-09-29"
+  >}}{{< /television-season >}}
+fields:
+  - key: name
+    label: Name
+    type: text
+    required: true
+  - key: image
+    label: Image filename
+    type: image
+  - key: series_name
+    label: Series name
+    type: text
+  - key: season_number
+    label: Season number
+    type: number
+  - key: num_episodes
+    label: Number of episodes
+    type: number
+  - key: host
+    label: Host
+    type: text
+  - key: starring
+    label: Starring
+    type: box
+  - key: judges
+    label: Judges
+    type: box
+  - key: director
+    label: Director
+    type: box
+  - key: presenter
+    label: Presenter
+    type: text
+  - key: narrator
+    label: Narrator
+    type: text
+  - key: music
+    label: Music
+    type: text
+  - key: country
+    label: Country
+    type: text
+  - key: network
+    label: Network
+    type: text
+  - key: channel
+    label: Channel
+    type: text
+  - key: first_aired
+    label: First aired
+    type: date
+  - key: last_aired
+    label: Last aired
+    type: date
+  - key: episode_list
+    label: Episode list
+    type: text
+  - key: prev_season
+    label: Previous season
+    type: text
+  - key: next_season
+    label: Next season
+    type: text
+  - key: website
+    label: Website
+    type: text
+  - key: below
+    label: Below
+    type: markdown
+defaults:
+  name: "Breaking Bad — Season 5"
+  series_name: "Breaking Bad"
+  season_number: 5
+  num_episodes: 16
+  network: "AMC"
+  first_aired: "2012-07-15"
+  last_aired: "2013-09-29"

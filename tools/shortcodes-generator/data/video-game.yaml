@@ -1,0 +1,125 @@
+slug: video-game
+category: media
+title: Video Game
+description: Video game infobox — replicates Wikipedia's `Template:Infobox video game`.
+upstream: https://en.wikipedia.org/wiki/Template:Infobox_video_game
+worked_example: |
+  {{< video-game
+      name                = "Hades"
+      developer           = "Supergiant Games"
+      publisher           = "Supergiant Games"
+      director            = "Greg Kasavin"
+      composer            = "Darren Korb"
+      engine              = "Hades Engine"
+      platform            = "Windows, macOS, Nintendo Switch"
+      initial_release_date = "2020-09-17"
+      latest_release      = "1.0"
+      genre               = "Roguelike"
+      modes               = "Single-player"
+      status              = "Released"
+  >}}{{< /video-game >}}
+fields:
+  - key: name
+    label: Name
+    type: text
+    required: true
+  - key: cover_art
+    label: Cover art filename
+    type: image
+  - key: caption
+    label: Caption
+    type: markdown
+  - key: developer
+    label: Developer
+    type: box
+  - key: publisher
+    label: Publisher
+    type: box
+  - key: director
+    label: Director
+    type: box
+  - key: producer
+    label: Producer
+    type: box
+  - key: designer
+    label: Designer
+    type: box
+  - key: programmer
+    label: Programmer
+    type: box
+  - key: artist
+    label: Artist
+    type: box
+  - key: writer
+    label: Writer
+    type: box
+  - key: composer
+    label: Composer
+    type: box
+  - key: series
+    label: Series
+    type: text
+  - key: engine
+    label: Engine
+    type: text
+  - key: platform
+    label: Platform
+    type: box
+  - key: initial_release_date
+    label: Initial release
+    type: date
+  - key: latest_release
+    label: Latest release
+    type: text
+  - key: genre
+    label: Genre
+    type: box
+  - key: modes
+    label: Modes
+    type: box
+  - key: requirements
+    label: Requirements
+    type: text
+  - key: ratings
+    label: Ratings
+    type: text
+  - key: input
+    label: Input
+    type: box
+  - key: language
+    label: Language
+    type: box
+  - key: format
+    label: Format
+    type: text
+  - key: status
+    label: Status
+    type: text
+  - key: website
+    label: Website
+    type: text
+  - key: below
+    label: Below
+    type: markdown
+defaults:
+  name: "Hades"
+  developer:
+    - "Supergiant Games"
+  publisher:
+    - "Supergiant Games"
+  director:
+    - "Greg Kasavin"
+  composer:
+    - "Darren Korb"
+  engine: "Hades Engine"
+  platform:
+    - "Windows"
+    - "macOS"
+    - "Nintendo Switch"
+  initial_release_date: "2020-09-17"
+  latest_release: "1.0"
+  genre:
+    - "Roguelike"
+  modes:
+    - "Single-player"
+  status: "Released"

@@ -1,0 +1,104 @@
+slug: basketball-biography
+category: biography
+title: Basketball Biography
+description: Basketball player biography infobox — replicates Wikipedia's `Template:Infobox basketball biography`.
+upstream: https://en.wikipedia.org/wiki/Template:Infobox_basketball_biography
+worked_example: |
+  {{< basketball-biography
+      name        = "Lisa Leslie"
+      birth_date  = "1972-07-07"
+      birth_place = "Gardena, California, U.S."
+      nationality = "American"
+      height      = "1.96"
+      position    = "Center"
+      college     = "USC"
+      draft_year  = "1997"
+      draft_pick  = "7"
+      draft_team  = "Los Angeles Sparks"
+  >}}{{< /basketball-biography >}}
+fields:
+  - key: name
+    label: Name
+    type: text
+    required: true
+  - key: image
+    label: Image filename
+    type: image
+  - key: caption
+    label: Caption
+    type: markdown
+  - key: birth_date
+    label: Birth date
+    type: date
+  - key: birth_place
+    label: Birth place
+    type: text
+  - key: death_date
+    label: Death date
+    type: date
+  - key: death_place
+    label: Death place
+    type: text
+  - key: nationality
+    label: Nationality
+    type: text
+  - key: height
+    label: Height (m)
+    type: text
+  - key: weight
+    label: Weight (kg)
+    type: number
+  - key: position
+    label: Position
+    type: text
+  - key: jersey_number
+    label: Jersey number
+    type: number
+  - key: high_school
+    label: High school
+    type: text
+  - key: college
+    label: College
+    type: box
+  - key: draft_year
+    label: Draft year
+    type: number
+  - key: draft_round
+    label: Draft round
+    type: number
+  - key: draft_pick
+    label: Draft pick
+    type: number
+  - key: draft_team
+    label: Draft team
+    type: text
+  - key: career_start
+    label: Career start
+    type: number
+  - key: career_end
+    label: Career end
+    type: number
+  - key: hall_of_fame
+    label: Hall of fame
+    type: text
+  - key: highlights
+    label: Highlights
+    type: box
+  - key: stats
+    label: Stats
+    type: text
+  - key: below
+    label: Below
+    type: markdown
+defaults:
+  name: "Lisa Leslie"
+  birth_date: "1972-07-07"
+  birth_place: "Gardena, California, U.S."
+  nationality: "American"
+  height: "1.96"
+  position: "Center"
+  college:
+    - "USC"
+  draft_year: 1997
+  draft_pick: 7
+  draft_team: "Los Angeles Sparks"

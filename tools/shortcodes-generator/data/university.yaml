@@ -1,0 +1,116 @@
+slug: university
+category: organization
+title: University
+description: University / college infobox — replicates Wikipedia's `Template:Infobox university`.
+upstream: https://en.wikipedia.org/wiki/Template:Infobox_university
+worked_example: |
+  {{< university
+      name        = "Massachusetts Institute of Technology"
+      motto       = "Mens et Manus"
+      established = "1861"
+      type        = "Private research university"
+      endowment   = "US$24.6 billion"
+      president   = "Sally Kornbluth"
+      students    = "11,934"
+      city        = "Cambridge"
+      state       = "Massachusetts"
+      country     = "United States"
+      colors      = "Cardinal red and silver gray"
+      mascot      = "Tim the Beaver"
+  >}}{{< /university >}}
+fields:
+  - key: name
+    label: Name
+    type: text
+    required: true
+  - key: motto
+    label: Motto
+    type: text
+  - key: motto_language
+    label: Motto language
+    type: text
+  - key: established
+    label: Established
+    type: date
+  - key: closed
+    label: Closed
+    type: date
+  - key: type
+    label: Type
+    type: text
+  - key: affiliation
+    label: Affiliation
+    type: box
+  - key: endowment
+    label: Endowment
+    type: text
+  - key: budget
+    label: Budget
+    type: text
+  - key: president
+    label: President
+    type: text
+  - key: chancellor
+    label: Chancellor
+    type: text
+  - key: dean
+    label: Dean
+    type: text
+  - key: faculty
+    label: Faculty
+    type: number
+  - key: students
+    label: Students
+    type: number
+  - key: undergrad
+    label: Undergraduates
+    type: number
+  - key: postgrad
+    label: Postgraduates
+    type: number
+  - key: doctoral
+    label: Doctoral
+    type: number
+  - key: city
+    label: City
+    type: text
+  - key: state
+    label: State
+    type: text
+  - key: country
+    label: Country
+    type: text
+  - key: campus
+    label: Campus
+    type: text
+  - key: colors
+    label: Colors
+    type: text
+  - key: mascot
+    label: Mascot
+    type: text
+  - key: nickname
+    label: Nickname
+    type: text
+  - key: sporting_affiliations
+    label: Sporting affiliations
+    type: box
+  - key: website
+    label: Website
+    type: text
+  - key: below
+    label: Below
+    type: markdown
+defaults:
+  name: "Massachusetts Institute of Technology"
+  motto: "Mens et Manus"
+  established: "1861"
+  type: "Private research university"
+  endowment: "US$24.6 billion"
+  president: "Sally Kornbluth"
+  students: 11934
+  city: "Cambridge"
+  state: "Massachusetts"
+  country: "United States"
+  colors: "Cardinal red and silver gray"
+  mascot: "Tim the Beaver"

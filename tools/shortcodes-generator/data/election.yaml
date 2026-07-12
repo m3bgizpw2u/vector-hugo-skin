@@ -1,0 +1,122 @@
+slug: election
+category: politics
+title: Election
+description: Election infobox — replicates Wikipedia's `Template:Infobox election`.
+upstream: https://en.wikipedia.org/wiki/Template:Infobox_election
+worked_example: |
+  {{< election
+      name          = "2024 United States presidential election"
+      country       = "United States"
+      type          = "Presidential"
+      election_date = "2024-11-05"
+      turnout       = "63.9%"
+      leader        = "Donald Trump"
+      party         = "Republican"
+      seats_won     = "312 electoral votes"
+      percentage    = "49.8%"
+  >}}{{< /election }}
+fields:
+  - key: name
+    label: Name
+    type: text
+    required: true
+  - key: country
+    label: Country
+    type: text
+  - key: type
+    label: Type
+    type: text
+  - key: ongoing
+    label: Ongoing
+    type: checkbox
+  - key: previous_election
+    label: Previous election
+    type: text
+  - key: next_election
+    label: Next election
+    type: text
+  - key: seats_for_election
+    label: Seats for election
+    type: number
+  - key: majority_seats
+    label: Majority seats
+    type: number
+  - key: election_date
+    label: Election date
+    type: date
+  - key: turnout
+    label: Turnout
+    type: text
+  - key: opinion_polling
+    label: Opinion polling
+    type: text
+  - key: candidate
+    label: Candidate 1
+    type: text
+  - key: leader
+    label: Leader 1
+    type: text
+  - key: party
+    label: Party 1
+    type: text
+  - key: alliance
+    label: Alliance 1
+    type: text
+  - key: last_election
+    label: Last election 1
+    type: text
+  - key: seats_won
+    label: Seats won 1
+    type: number
+  - key: seats_before
+    label: Seats before 1
+    type: number
+  - key: popular_vote
+    label: Popular vote 1
+    type: text
+  - key: percentage
+    label: Percentage 1
+    type: text
+  - key: swing
+    label: Swing 1
+    type: text
+  - key: results
+    label: Results 1
+    type: text
+  - key: leader2
+    label: Leader 2
+    type: text
+  - key: party2
+    label: Party 2
+    type: text
+  - key: last_election2
+    label: Last election 2
+    type: text
+  - key: seats_won2
+    label: Seats won 2
+    type: number
+  - key: seats_before2
+    label: Seats before 2
+    type: number
+  - key: popular_vote2
+    label: Popular vote 2
+    type: text
+  - key: percentage2
+    label: Percentage 2
+    type: text
+  - key: swing2
+    label: Swing 2
+    type: text
+  - key: below
+    label: Below
+    type: markdown
+defaults:
+  name: "2024 United States presidential election"
+  country: "United States"
+  type: "Presidential"
+  election_date: "2024-11-05"
+  turnout: "63.9%"
+  leader: "Donald Trump"
+  party: "Republican"
+  seats_won: 312
+  percentage: "49.8%"

@@ -1,0 +1,112 @@
+slug: school
+category: organization
+title: School
+description: School infobox — replicates Wikipedia's `Template:Infobox school`.
+upstream: https://en.wikipedia.org/wiki/Template:Infobox_school
+worked_example: |
+  {{< school
+      name        = "Springfield High School"
+      motto       = "Veritas Lux in Tenebris"
+      established = "1889"
+      type        = "Public secondary"
+      principal   = "John Smith"
+      students    = "2,100"
+      grades      = "9–12"
+      nickname    = "Tigers"
+      mascot      = "Tommy Tiger"
+      colors      = "Orange and black"
+  >}}{{< /school >}}
+fields:
+  - key: name
+    label: Name
+    type: text
+    required: true
+  - key: motto
+    label: Motto
+    type: text
+  - key: established
+    label: Established
+    type: date
+  - key: closed
+    label: Closed
+    type: date
+  - key: type
+    label: Type
+    type: text
+  - key: affiliation
+    label: Affiliation
+    type: box
+  - key: religion
+    label: Religion
+    type: text
+  - key: president
+    label: President
+    type: text
+  - key: principal
+    label: Principal
+    type: text
+  - key: dean
+    label: Dean
+    type: text
+  - key: head
+    label: Head
+    type: text
+  - key: faculty
+    label: Faculty
+    type: number
+  - key: staff
+    label: Staff
+    type: number
+  - key: students
+    label: Students
+    type: number
+  - key: grades
+    label: Grades
+    type: text
+  - key: gender
+    label: Gender
+    type: text
+  - key: age_range
+    label: Age range
+    type: text
+  - key: enrolment
+    label: Enrolment
+    type: number
+  - key: campus
+    label: Campus
+    type: text
+  - key: campus_size
+    label: Campus size
+    type: text
+  - key: area
+    label: Area
+    type: text
+  - key: colors
+    label: Colors
+    type: text
+  - key: nickname
+    label: Nickname
+    type: text
+  - key: mascot
+    label: Mascot
+    type: text
+  - key: accreditation
+    label: Accreditation
+    type: box
+  - key: website
+    label: Website
+    type: text
+  - key: below
+    label: Below
+    type: markdown
+defaults:
+  name: "Springfield High School"
+  motto: "Veritas Lux in Tenebris"
+  established: "1889"
+  type: "Public secondary"
+  principal: "John Smith"
+  students: 2100
+  grades: "9–12"
+  nickname: "Tigers"
+  mascot: "Tommy Tiger"
+  colors: "Orange and black"

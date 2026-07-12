@@ -1,0 +1,121 @@
+slug: church
+category: geography
+title: Church
+description: Church / religious building infobox — replicates Wikipedia's `Template:Infobox church`.
+upstream: https://en.wikipedia.org/wiki/Template:Infobox_church
+worked_example: |
+  {{< church
+      name               = "St. Patrick's Cathedral"
+      dedication         = "Saint Patrick"
+      denomination       = "Catholic (Roman)"
+      location           = "New York City"
+      country            = "United States"
+      coordinates        = "40.7587°N 73.9757°W"
+      architecture_style = "Gothic Revival"
+      founded            = "1809"
+      completed          = "1878"
+      capacity           = "2,400"
+  >}}{{< /church >}}
+fields:
+  - key: name
+    label: Name
+    type: text
+    required: true
+  - key: image
+    label: Image filename
+    type: image
+  - key: caption
+    label: Caption
+    type: markdown
+  - key: dedication
+    label: Dedication
+    type: text
+  - key: denomination
+    label: Denomination
+    type: text
+  - key: previous_denomination
+    label: Previous denomination
+    type: text
+  - key: status
+    label: Status
+    type: text
+  - key: heritage_designation
+    label: Heritage designation
+    type: text
+  - key: functional_status
+    label: Functional status
+    type: text
+  - key: location
+    label: Location
+    type: text
+  - key: country
+    label: Country
+    type: text
+  - key: coordinates
+    label: Coordinates
+    type: text
+  - key: architecture_style
+    label: Architecture style
+    type: text
+  - key: founded
+    label: Founded
+    type: date
+  - key: founder
+    label: Founder
+    type: text
+  - key: completed
+    label: Completed
+    type: date
+  - key: capacity
+    label: Capacity
+    type: number
+  - key: length
+    label: Length
+    type: text
+  - key: width
+    label: Width
+    type: text
+  - key: nave
+    label: Nave
+    type: text
+  - key: transept
+    label: Transept
+    type: text
+  - key: tower_height
+    label: Tower height
+    type: text
+  - key: spire_height
+    label: Spire height
+    type: text
+  - key: materials
+    label: Materials
+    type: box
+  - key: diocese
+    label: Diocese
+    type: text
+  - key: parish
+    label: Parish
+    type: text
+  - key: archbishop
+    label: Archbishop
+    type: text
+  - key: bishop
+    label: Bishop
+    type: text
+  - key: website
+    label: Website
+    type: text
+  - key: below
+    label: Below
+    type: markdown
+defaults:
+  name: "St. Patrick's Cathedral"
+  dedication: "Saint Patrick"
+  denomination: "Catholic (Roman)"
+  location: "New York City"
+  country: "United States"
+  coordinates: "40.7587°N 73.9757°W"
+  architecture_style: "Gothic Revival"
+  founded: "1809"
+  completed: "1878"
+  capacity: 2400

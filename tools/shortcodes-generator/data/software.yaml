@@ -1,0 +1,95 @@
+slug: software
+category: tech
+title: Software
+description: Software / application infobox — replicates Wikipedia's `Template:Infobox software`.
+upstream: https://en.wikipedia.org/wiki/Template:Infobox_software
+worked_example: |
+  {{< software
+      name                = "Hugo"
+      developer           = "spf13, Bjørn Erik Pedersen, and contributors"
+      initial_release     = "2013"
+      latest_release      = "0.163.3"
+      latest_release_date = "2026-06-19"
+      status              = "Active"
+      operating_system    = "Cross-platform"
+      platform            = "Linux, macOS, Windows"
+      license             = "Apache-2.0"
+      source_model        = "Open-source"
+      programming_language = "Go"
+  >}}{{< /software >}}
+fields:
+  - key: name
+    label: Name
+    type: text
+    required: true
+  - key: logo
+    label: Logo filename
+    type: image
+  - key: developer
+    label: Developer
+    type: box
+  - key: initial_release
+    label: Initial release
+    type: text
+  - key: latest_release
+    label: Latest release
+    type: text
+  - key: latest_release_date
+    label: Latest release date
+    type: date
+  - key: latest_preview
+    label: Latest preview
+    type: text
+  - key: status
+    label: Status
+    type: text
+  - key: operating_system
+    label: Operating system
+    type: box
+  - key: platform
+    label: Platform
+    type: box
+  - key: available_languages
+    label: Available languages
+    type: box
+  - key: genre
+    label: Genre
+    type: text
+  - key: license
+    label: License
+    type: text
+  - key: source_model
+    label: Source model
+    type: text
+  - key: programming_language
+    label: Programming language
+    type: box
+  - key: website
+    label: Website
+    type: text
+  - key: repo
+    label: Repo URL
+    type: text
+  - key: below
+    label: Below
+    type: markdown
+defaults:
+  name: "Hugo"
+  developer:
+    - "spf13"
+    - "Bjørn Erik Pedersen"
+    - "and contributors"
+  initial_release: "2013"
+  latest_release: "0.163.3"
+  latest_release_date: "2026-06-19"
+  status: "Active"
+  operating_system:
+    - "Cross-platform"
+  platform:
+    - "Linux"
+    - "macOS"
+    - "Windows"
+  license: "Apache-2.0"
+  source_model: "Open-source"
+  programming_language:
+    - "Go"

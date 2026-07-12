@@ -1,0 +1,178 @@
+slug: country
+category: geography
+title: Country
+description: Country / sovereign state infobox — replicates Wikipedia's `Template:Infobox country`.
+upstream: https://en.wikipedia.org/wiki/Template:Infobox_country
+worked_example: |
+  {{< country
+      name               = "France"
+      native_name        = "République française"
+      motto              = "Liberté, Égalité, Fraternité"
+      capital            = "Paris"
+      official_languages = "French"
+      demonym            = "French"
+      government         = "Unitary semi-presidential republic"
+      leader_title1      = "President"
+      leader_name1       = "Emmanuel Macron"
+      area_km2           = "643,801"
+      population_estimate = "68,070,000"
+      currency           = "Euro (€) (EUR)"
+  >}}{{< /country }}
+fields:
+  - key: name
+    label: Name
+    type: text
+    required: true
+  - key: native_name
+    label: Native name
+    type: text
+  - key: alt_name
+    label: Alternate name
+    type: text
+  - key: motto
+    label: Motto
+    type: text
+  - key: anthem
+    label: Anthem
+    type: text
+  - key: royal_anthem
+    label: Royal anthem
+    type: text
+  - key: image_flag
+    label: Flag filename
+    type: image
+  - key: image_coat
+    label: Coat of arms filename
+    type: image
+  - key: symbol
+    label: Symbol filename
+    type: image
+  - key: symbol_type
+    label: Symbol type
+    type: text
+  - key: capital
+    label: Capital
+    type: text
+  - key: largest_city
+    label: Largest city
+    type: text
+  - key: official_languages
+    label: Official languages
+    type: box
+  - key: recognized_languages
+    label: Recognized languages
+    type: box
+  - key: regional_languages
+    label: Regional languages
+    type: box
+  - key: ethnic_groups
+    label: Ethnic groups
+    type: box
+  - key: religion
+    label: Religion
+    type: box
+  - key: demonym
+    label: Demonym
+    type: text
+  - key: government
+    label: Government
+    type: text
+  - key: leader_title1
+    label: Leader title 1
+    type: text
+  - key: leader_name1
+    label: Leader name 1
+    type: text
+  - key: leader_title2
+    label: Leader title 2
+    type: text
+  - key: leader_name2
+    label: Leader name 2
+    type: text
+  - key: sovereignty_type
+    label: Sovereignty type
+    type: text
+  - key: established_event1
+    label: Established event 1
+    type: text
+  - key: established_date1
+    label: Established date 1
+    type: date
+  - key: area_km2
+    label: Area (km²)
+    type: number
+  - key: area_rank
+    label: Area rank
+    type: number
+  - key: percent_water
+    label: Percent water
+    type: text
+  - key: population_estimate
+    label: Population estimate
+    type: number
+  - key: population_estimate_rank
+    label: Population rank
+    type: number
+  - key: population_census
+    label: Population census
+    type: number
+  - key: population_density_km2
+    label: Population density
+    type: number
+  - key: GDP_PPP
+    label: GDP (PPP)
+    type: text
+  - key: GDP_PPP_year
+    label: GDP PPP year
+    type: number
+  - key: GDP_nominal
+    label: GDP (nominal)
+    type: text
+  - key: GDP_nominal_year
+    label: GDP nominal year
+    type: number
+  - key: GDP_nominal_rank
+    label: GDP nominal rank
+    type: number
+  - key: Gini
+    label: Gini
+    type: text
+  - key: HDI
+    label: HDI
+    type: text
+  - key: currency
+    label: Currency
+    type: text
+  - key: timezone
+    label: Timezone
+    type: text
+  - key: drives_on
+    label: Drives on
+    type: select
+    options: ["left", "right"]
+  - key: calling_code
+    label: Calling code
+    type: text
+  - key: patron_saint
+    label: Patron saint
+    type: text
+  - key: website
+    label: Website
+    type: text
+  - key: below
+    label: Below
+    type: markdown
+defaults:
+  name: "France"
+  native_name: "République française"
+  motto: "Liberté, Égalité, Fraternité"
+  capital: "Paris"
+  official_languages:
+    - "French"
+  demonym: "French"
+  government: "Unitary semi-presidential republic"
+  leader_title1: "President"
+  leader_name1: "Emmanuel Macron"
+  area_km2: 643801
+  population_estimate: 68070000
+  currency: "Euro (€) (EUR)"

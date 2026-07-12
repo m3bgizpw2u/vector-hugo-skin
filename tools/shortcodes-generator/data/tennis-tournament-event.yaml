@@ -1,0 +1,98 @@
+slug: tennis-tournament-event
+category: sports
+title: Tennis Tournament Event
+description: Tennis tournament event infobox — replicates Wikipedia's `Template:Infobox tennis tournament event`.
+upstream: https://en.wikipedia.org/wiki/Template:Infobox_tennis_tournament_event
+worked_example: |
+  {{< tennis-tournament-event
+      name        = "2024 Wimbledon Championships – Men's singles"
+      tournament  = "Wimbledon Championships"
+      tour        = "Grand Slam"
+      draw        = "128S / 64Q"
+      surface     = "Grass"
+      location    = "Wimbledon, London"
+      venue       = "All England Lawn Tennis and Croquet Club"
+      date        = "1–14 July 2024"
+      champ_name  = "Carlos Alcaraz"
+  >}}{{< /tennis-tournament-event >}}
+fields:
+  - key: name
+    label: Name
+    type: text
+    required: true
+  - key: tournament
+    label: Tournament
+    type: text
+  - key: tour
+    label: Tour
+    type: text
+  - key: type
+    label: Type
+    type: text
+  - key: category
+    label: Category
+    type: text
+  - key: draw
+    label: Draw
+    type: text
+  - key: surface
+    label: Surface
+    type: text
+  - key: location
+    label: Location
+    type: text
+  - key: place
+    label: Place
+    type: text
+  - key: venue
+    label: Venue
+    type: text
+  - key: coordinates
+    label: Coordinates
+    type: text
+  - key: date
+    label: Date
+    type: text
+  - key: edition
+    label: Edition
+    type: text
+  - key: champ_name
+    label: Champion
+    type: text
+  - key: runner_name
+    label: Runner-up
+    type: text
+  - key: score
+    label: Score
+    type: text
+  - key: prize_money
+    label: Prize money
+    type: text
+  - key: attendance
+    label: Attendance
+    type: number
+  - key: seeds
+    label: Seeds
+    type: number
+  - key: players
+    label: Players
+    type: number
+  - key: main_draw
+    label: Main draw
+    type: number
+  - key: website
+    label: Website
+    type: text
+  - key: below
+    label: Below
+    type: markdown
+defaults:
+  name: "2024 Wimbledon Championships – Men's singles"
+  tournament: "Wimbledon Championships"
+  tour: "Grand Slam"
+  draw: "128S / 64Q"
+  surface: "Grass"
+  location: "Wimbledon, London"
+  venue: "All England Lawn Tennis and Croquet Club"
+  date: "1–14 July 2024"
+  champ_name: "Carlos Alcaraz"

@@ -1,0 +1,116 @@
+slug: political-party
+category: politics
+title: Political Party
+description: Political party infobox — replicates Wikipedia's `Template:Infobox political party`.
+upstream: https://en.wikipedia.org/wiki/Template:Infobox_political_party
+worked_example: |
+  {{< political-party
+      name         = "Green Party of England and Wales"
+      abbreviation = "GPEW"
+      leader       = "Co-leaders"
+      founded      = "1990"
+      headquarters = "London"
+      country      = "United Kingdom"
+      ideology     = "Green politics, eco-socialism"
+      position     = "Left-wing"
+      colors       = "Green"
+  >}}{{< /political-party >}}
+fields:
+  - key: name
+    label: Name
+    type: text
+    required: true
+  - key: logo
+    label: Logo filename
+    type: image
+  - key: abbreviation
+    label: Abbreviation
+    type: text
+  - key: leader
+    label: Leader
+    type: text
+  - key: founder
+    label: Founder
+    type: box
+  - key: founder2
+    label: Founder 2
+    type: text
+  - key: founded
+    label: Founded
+    type: date
+  - key: dissolved
+    label: Dissolved
+    type: date
+  - key: split
+    label: Split from
+    type: text
+  - key: merged
+    label: Merged into
+    type: text
+  - key: headquarters
+    label: Headquarters
+    type: text
+  - key: country
+    label: Country
+    type: text
+  - key: ideology
+    label: Ideology
+    type: box
+  - key: position
+    label: Position
+    type: text
+  - key: european
+    label: European affiliation
+    type: text
+  - key: international
+    label: International affiliation
+    type: text
+  - key: youth_wing
+    label: Youth wing
+    type: text
+  - key: wing
+    label: Wing
+    type: text
+  - key: membership
+    label: Membership
+    type: number
+  - key: slogan
+    label: Slogan
+    type: text
+  - key: anthem
+    label: Anthem
+    type: text
+  - key: colors
+    label: Colors
+    type: box
+  - key: seats1_title
+    label: Seats 1 title
+    type: text
+  - key: seats1
+    label: Seats 1
+    type: number
+  - key: seats2_title
+    label: Seats 2 title
+    type: text
+  - key: seats2
+    label: Seats 2
+    type: number
+  - key: website
+    label: Website
+    type: text
+  - key: below
+    label: Below
+    type: markdown
+defaults:
+  name: "Green Party of England and Wales"
+  abbreviation: "GPEW"
+  leader: "Co-leaders"
+  founded: "1990"
+  headquarters: "London"
+  country: "United Kingdom"
+  ideology:
+    - "Green politics"
+    - "Eco-socialism"
+  position: "Left-wing"
+  colors:
+    - "Green"

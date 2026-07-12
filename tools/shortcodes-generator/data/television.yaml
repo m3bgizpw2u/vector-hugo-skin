@@ -1,0 +1,119 @@
+slug: television
+category: media
+title: Television
+description: Television show infobox — replicates Wikipedia's `Template:Infobox television`.
+upstream: https://en.wikipedia.org/wiki/Template:Infobox_television
+worked_example: |
+  {{< television
+      name           = "Severance"
+      genre          = "Science fiction, thriller"
+      creator        = "Dan Erickson"
+      starring       = "Adam Scott, Britt Lower, Patricia Arquette"
+      num_seasons    = "2"
+      num_episodes   = "19"
+      network        = "Apple TV+"
+      first_aired    = "2022-02-18"
+      last_aired     = "present"
+  >}}{{< /television >}}
+fields:
+  - key: name
+    label: Name
+    type: text
+    required: true
+  - key: image
+    label: Image filename
+    type: image
+  - key: caption
+    label: Caption
+    type: markdown
+  - key: genre
+    label: Genre
+    type: box
+  - key: creator
+    label: Creator
+    type: box
+  - key: based_on
+    label: Based on
+    type: text
+  - key: written_by
+    label: Written by
+    type: box
+  - key: director
+    label: Director
+    type: box
+  - key: starring
+    label: Starring
+    type: box
+  - key: voices
+    label: Voices
+    type: box
+  - key: narrated
+    label: Narrated by
+    type: text
+  - key: music
+    label: Music
+    type: text
+  - key: country_of_origin
+    label: Country of origin
+    type: text
+  - key: original_language
+    label: Original language
+    type: text
+  - key: num_seasons
+    label: Number of seasons
+    type: number
+  - key: num_episodes
+    label: Number of episodes
+    type: number
+  - key: executive_producer
+    label: Executive producer
+    type: box
+  - key: producer
+    label: Producer
+    type: box
+  - key: location
+    label: Location
+    type: text
+  - key: editor
+    label: Editor
+    type: text
+  - key: camera
+    label: Camera
+    type: text
+  - key: runtime
+    label: Runtime
+    type: text
+  - key: network
+    label: Network
+    type: text
+  - key: first_aired
+    label: First aired
+    type: date
+  - key: last_aired
+    label: Last aired
+    type: text
+  - key: related
+    label: Related
+    type: box
+  - key: website
+    label: Website
+    type: text
+  - key: below
+    label: Below
+    type: markdown
+defaults:
+  name: "Severance"
+  genre:
+    - "Science fiction"
+    - "Thriller"
+  creator:
+    - "Dan Erickson"
+  starring:
+    - "Adam Scott"
+    - "Britt Lower"
+    - "Patricia Arquette"
+  num_seasons: 2
+  num_episodes: 19
+  network: "Apple TV+"
+  first_aired: "2022-02-18"
+  last_aired: "present"

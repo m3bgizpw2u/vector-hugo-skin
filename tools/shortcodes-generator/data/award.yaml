@@ -1,0 +1,83 @@
+slug: award
+category: organization
+title: Award
+description: Award / prize infobox — replicates Wikipedia's `Template:Infobox award`.
+upstream: https://en.wikipedia.org/wiki/Template:Infobox_award
+worked_example: |
+  {{< award
+      name          = "Academy Award for Best Picture"
+      awarded_for   = "Excellence in cinematic achievements"
+      presenter     = "Academy of Motion Picture Arts and Sciences"
+      country       = "United States"
+      established   = "1929-05-16"
+      first_awarded = "1929"
+  >}}{{< /award >}}
+fields:
+  - key: name
+    label: Name
+    type: text
+    required: true
+  - key: awarded_for
+    label: Awarded for
+    type: text
+  - key: presenter
+    label: Presenter
+    type: text
+  - key: country
+    label: Country
+    type: text
+  - key: host
+    label: Host
+    type: text
+  - key: location
+    label: Location
+    type: text
+  - key: year
+    label: Year
+    type: number
+  - key: established
+    label: Established
+    type: date
+  - key: first_awarded
+    label: First awarded
+    type: text
+  - key: last_awarded
+    label: Last awarded
+    type: text
+  - key: website
+    label: Website
+    type: text
+  - key: related
+    label: Related
+    type: box
+  - key: higher
+    label: Higher
+    type: text
+  - key: lower
+    label: Lower
+    type: text
+  - key: total
+    label: Total
+    type: number
+  - key: total_recipients
+    label: Total recipients
+    type: number
+  - key: categories
+    label: Categories
+    type: box
+  - key: network
+    label: Network
+    type: text
+  - key: viewership
+    label: Viewership
+    type: number
+  - key: below
+    label: Below
+    type: markdown
+defaults:
+  name: "Academy Award for Best Picture"
+  awarded_for: "Excellence in cinematic achievements"
+  presenter: "Academy of Motion Picture Arts and Sciences"
+  country: "United States"
+  established: "1929-05-16"
+  first_awarded: "1929"

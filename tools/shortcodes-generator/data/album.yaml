@@ -1,0 +1,104 @@
+slug: album
+category: media
+title: Album
+description: Music album infobox — replicates Wikipedia's `Template:Infobox album`.
+upstream: https://en.wikipedia.org/wiki/Template:Infobox_album
+worked_example: |
+  {{< album
+      name      = "OK Computer"
+      type      = "Studio"
+      artist    = "Radiohead"
+      cover     = "ok-computer.jpg"
+      released  = "1997-05-21"
+      recorded  = "1996–1997"
+      studio    = "St Catherine's Court, Bath"
+      genre     = "Art rock, alternative rock, electronica"
+      length    = "53:30"
+      label     = "Parlophone, Capitol"
+      producer  = "Nigel Godrich, Radiohead"
+      tracks    = "12"
+  >}}{{< /album >}}
+fields:
+  - key: name
+    label: Name
+    type: text
+    required: true
+  - key: type
+    label: Type
+    type: select
+    options: ["Studio", "EP", "Live", "Compilation", "Single"]
+  - key: artist
+    label: Artist
+    type: text
+  - key: cover
+    label: Cover filename
+    type: image
+  - key: released
+    label: Released
+    type: date
+  - key: recorded
+    label: Recorded
+    type: text
+  - key: studio
+    label: Studio
+    type: text
+  - key: genre
+    label: Genre
+    type: box
+  - key: length
+    label: Length
+    type: text
+  - key: label
+    label: Label
+    type: text
+  - key: producer
+    label: Producer
+    type: box
+  - key: executive_producer
+    label: Executive producer
+    type: box
+  - key: last_album
+    label: Previous album
+    type: text
+  - key: last_album_year
+    label: Previous album year
+    type: number
+  - key: next_album
+    label: Next album
+    type: text
+  - key: next_album_year
+    label: Next album year
+    type: number
+  - key: tracks
+    label: Number of tracks
+    type: number
+  - key: total_length
+    label: Total length
+    type: text
+  - key: awards
+    label: Awards
+    type: box
+  - key: certifications
+    label: Certifications
+    type: box
+  - key: below
+    label: Below
+    type: markdown
+defaults:
+  name: "OK Computer"
+  type: "Studio"
+  artist: "Radiohead"
+  cover: "ok-computer.jpg"
+  released: "1997-05-21"
+  recorded: "1996–1997"
+  studio: "St Catherine's Court, Bath"
+  genre:
+    - "Art rock"
+    - "Alternative rock"
+    - "Electronica"
+  length: "53:30"
+  label: "Parlophone, Capitol"
+  producer:
+    - "Nigel Godrich"
+    - "Radiohead"
+  tracks: 12
