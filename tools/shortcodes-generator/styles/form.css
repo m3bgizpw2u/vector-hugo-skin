@@ -1,0 +1,129 @@
+/* Form (middle pane): dynamic fields rendered from YAML. */
+
+.tool-form__header {
+  margin-bottom: var(--space-md);
+  padding-bottom: var(--space-md);
+  border-bottom: 1px solid var(--color-divider);
+}
+
+.tool-form__title {
+  font-size: var(--font-size-xl);
+  margin-bottom: var(--space-xs);
+}
+
+.tool-form__description {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  margin: 0;
+}
+
+.tool-form__upstream {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  margin: var(--space-xs) 0 0;
+}
+
+.tool-form__upstream a {
+  color: var(--color-link);
+}
+
+.tool-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.tool-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.tool-field__label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.tool-field__required {
+  color: #d33;
+  font-size: var(--font-size-xs);
+}
+
+.tool-field__hint {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.tool-field__input,
+.tool-field__textarea,
+.tool-field__select {
+  width: 100%;
+}
+
+.tool-field__textarea {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+  resize: vertical;
+  min-height: 5rem;
+}
+
+.tool-field__box {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+  resize: vertical;
+  min-height: 4rem;
+}
+
+.tool-field__markdown {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-sm);
+}
+
+.tool-field__markdown textarea {
+  min-height: 6rem;
+}
+
+.tool-field__markdown-preview {
+  border: 1px dashed var(--color-divider);
+  border-radius: var(--radius-md);
+  padding: var(--space-sm);
+  font-size: var(--font-size-sm);
+  background: var(--color-surface-alt);
+  min-height: 6rem;
+  overflow: auto;
+}
+
+.tool-field__markdown-preview p:first-child {
+  margin-top: 0;
+}
+
+.tool-field__image-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--space-sm);
+}
+
+.tool-field__checkbox {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.tool-field__number {
+  max-width: 12rem;
+}
+
+.tool-section-divider {
+  border-top: 1px dashed var(--color-divider);
+  margin: var(--space-md) 0 var(--space-sm);
+}
+
+.tool-form__reset {
+  align-self: flex-start;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}

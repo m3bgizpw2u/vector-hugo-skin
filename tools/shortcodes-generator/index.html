@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Shortcodes generator — vector-hugo-skin</title>
+    <link rel="stylesheet" href="styles/tokens.css" />
+    <link rel="stylesheet" href="styles/base.css" />
+    <link rel="stylesheet" href="styles/shell.css" />
+    <link rel="stylesheet" href="styles/picker.css" />
+    <link rel="stylesheet" href="styles/form.css" />
+    <link rel="stylesheet" href="styles/preview.css" />
+  </head>
+  <body>
+    <header class="tool-header">
+      <h1 class="tool-title">Shortcodes generator</h1>
+      <div class="tool-header__actions">
+        <label class="tool-format-toggle">
+          Format:
+          <select id="format-select">
+            <option value="vertical" selected>vertical</option>
+            <option value="compact">compact</option>
+          </select>
+        </label>
+        <label class="tool-theme-toggle">
+          Theme:
+          <select id="theme-select">
+            <option value="light" selected>light</option>
+            <option value="dark">dark</option>
+          </select>
+        </label>
+        <button id="primitives-toggle" class="tool-tab-button" type="button">
+          Inner primitives
+        </button>
+      </div>
+    </header>
+
+    <main class="tool-shell">
+      <aside class="tool-pane tool-pane--picker" aria-label="Shortcode picker">
+        <input
+          id="picker-search"
+          class="tool-picker__search"
+          type="search"
+          placeholder="Search shortcodes…"
+          autocomplete="off"
+        />
+        <nav id="picker-list" class="tool-picker__list"></nav>
+      </aside>
+
+      <section class="tool-pane tool-pane--form" aria-label="Field form">
+        <header id="form-header" class="tool-form__header">
+          <h2 id="form-title" class="tool-form__title">Pick a shortcode</h2>
+          <p id="form-description" class="tool-form__description">
+            Choose a shortcode from the picker on the left.
+          </p>
+          <p id="form-upstream" class="tool-form__upstream"></p>
+        </header>
+        <form id="form-fields" class="tool-form" autocomplete="off"></form>
+      </section>
+
+      <section class="tool-pane tool-pane--preview" aria-label="Preview">
+        <div class="tool-preview__tabs" role="tablist">
+          <button
+            class="tool-preview__tab is-active"
+            data-tab="source"
+            type="button"
+            role="tab"
+            aria-selected="true"
+          >
+            Source
+          </button>
+          <button
+            class="tool-preview__tab"
+            data-tab="rendered"
+            type="button"
+            role="tab"
+            aria-selected="false"
+          >
+            Rendered
+          </button>
+          <button id="copy-button" class="tool-preview__copy" type="button">
+            Copy to clipboard
+          </button>
+        </div>
+        <pre
+          id="preview-source"
+          class="tool-preview__source is-active"
+          role="tabpanel"
+        ></pre>
+        <div
+          id="preview-rendered"
+          class="tool-preview__rendered"
+          role="tabpanel"
+          hidden
+        ></div>
+      </section>
+    </main>
+
+    <script type="module" src="scripts/main.ts"></script>
+  </body>
+</html>
