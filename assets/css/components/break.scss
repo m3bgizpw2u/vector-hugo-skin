@@ -1,0 +1,4 @@
+// Float-break — single rule that lets the {{< break >}} shortcode clear
+// floated siblings without inline style. Pairs with the `.break` class
+// hook emitted by layouts/_shortcodes/break.html.
+.break { clear: both; }
