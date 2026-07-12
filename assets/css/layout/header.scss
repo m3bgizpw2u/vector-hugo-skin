@@ -20,6 +20,15 @@
 // by `assets/js/modules/search.ts` (see responsive audit commit 3, F2).
 // Vector 2022 ships the same behaviour at the ~500px breakpoint — at
 // narrower widths, the sidebar slides over instead of the header wrapping.
+//
+// Flex priority (post-9273a7c follow-up): the title sits at content size
+// (`flex: 0 1 auto`, truncates with ellipsis), the search-box claims its
+// full 28rem cap (`flex: 0 1 28rem`, with `max-width: min(40rem, 100%)`
+// for header-context growth past the cap), and the personal-tools cluster
+// pins to the right edge via `margin-left: auto`. At ≥1280px the
+// search-box flex grows (`flex: 1 1 36rem`) so it absorbs leftover row
+// width on wide viewports; the title claims whatever space remains
+// between the logo and the search-box in the <1280px band.
 
 .page-header {
   display: flex;
@@ -96,7 +105,18 @@
 }
 
 .page-header__title {
-  flex: 1 1 auto;
+  // `flex: 0 1 auto` so the title sits at content size and doesn't
+  // compete with the search-box for leftover row width — it truncates
+  // with ellipsis if overflow rather than growing past its content.
+  // Previously `1 1 auto` (set in commit 9273a7c) caused both the
+  // title and the search-box to claim the same leftover row width;
+  // with the new search-box flex-basis of 28rem (below) the title is
+  // the natural flex-grower of any leftover room between the logo and
+  // the search-box in the <1280px band (the search-box itself stops
+  // at 28rem there). At ≥1280px the search-box itself grows
+  // (`flex: 1 1 36rem` in the media query below), so the title does
+  // not absorb leftover room in that band.
+  flex: 0 1 auto;
   min-width: 0;
   font-size: var(--font-size-lg);
   font-weight: var(--font-weight-normal);
@@ -108,24 +128,32 @@
 
 .page-header__tools,
 .page-header .personal-tools {
+  // `margin-left: auto` pins the right-side cluster (theme-toggle plus
+  // any future personal-tools items) to the absolute right edge of
+  // `.page-header`, regardless of how the other flex items behave.
+  // This implements both "separate flex child pinned to the right
+  // edge" and "add margin-left:auto" — they collapse to a single rule
+  // because `.personal-tools` IS the right-side cluster.
   flex: 0 0 auto;
+  margin-left: auto;
   display: flex;
   align-items: center;
   gap: var(--space-sm);
   min-width: 0;
 }
 
-// Search box inside the header — give it a baseline flex behaviour so it
-// grows to fill the row but can shrink below its declared `max-width`
-// when the other flex children demand space. Phase 16 Bug A: the
-// components/search-box.scss rule had `width: 100%` (which becomes the
-// flex item's preferred main size); without an explicit `min-width: 0`
-// here, the item couldn't shrink past 28rem and the row wrapped at
-// 456px. The component-level width rule still applies so the search box
-// tops out at 28rem on wide viewports.
+// Search box inside the header — sized to its declared `max-width`
+// (28rem, set in components/search-box.scss) so it always claims its
+// full cap before the title does, and grown past 28rem on wide
+// viewports via a separate `min-width: 1280px` rule below. The
+// component-level `max-width: 28rem` caps the box in standalone
+// contexts (none exist today — see grep result for `class="search-box"`,
+// only the header uses it); the header-context override below raises
+// that cap to `min(40rem, 100%)` so growth above 28rem is possible.
 .page-header .search-box {
-  flex: 1 1 auto;
+  flex: 0 1 28rem;
   min-width: 0;
+  max-width: min(40rem, 100%);
 }
 
 @media (max-width: 720px) {
@@ -140,6 +168,24 @@
 
   .page-header__logo {
     font-size: var(--font-size-lg);
+  }
+}
+
+// Desktop-wide search-box stretch — at ≥1280px the search-box grows
+// from a fixed 28rem basis to a 36rem basis with `flex-grow: 1`, so it
+// absorbs leftover row width on wide viewports rather than capping at
+// the component-level 28rem. The 40rem `max-width` cap above is the
+// hard upper bound. The breakpoint sits above the 1200px desktop-wide
+// tier in _tokens.scss (where sidebar/padding grow) so the new
+// flex-basis doesn't compete with that token swap; a 1280px viewport
+// has plenty of header row width even after the personal-tools
+// cluster and a 36rem search box are claimed. At <1280px the box
+// sits at exactly 28rem and the title claims the leftover between
+// the logo and the search-box (the title's `flex: 0 1 auto` makes it
+// the natural recipient of any leftover room in that band).
+@media (min-width: 1280px) {
+  .page-header .search-box {
+    flex: 1 1 36rem;
   }
 }
 
