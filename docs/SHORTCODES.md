@@ -541,7 +541,7 @@ so this shortcode is the only references block the page emits.
 >}}{{< /person >}}
 ```
 
-**See also:** <https://en.wikipedia.org/wiki/Template:Infobox_person>
+**See also:** <https://en.wikipedia.org/wiki/Template:Infobox_person>; for upstream parameters this wrapper does not yet accept (e.g. astronaut-specific `Spouse`, `Partner`, `Missions`, `Mission insignia`, `Time in space`, `Selection`, `Retirement`), see [`docs/SHORTCODE-GAPS.md`](SHORTCODE-GAPS.md#person).
 
 ### `{{< football-biography >}}`
 **Intent:** Football (soccer) player biography infobox — replicates `Template:Infobox football biography` from Wikipedia (~218k transclusions).
