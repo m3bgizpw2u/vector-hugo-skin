@@ -60,8 +60,18 @@
   padding: var(--space-lg) var(--space-md);
 }
 
+// Desktop cap: only on pages that actually have a ToC panel in DOM. When
+// the panel is present, reserve var(--toc-width) + var(--space-md) of width
+// inside the cap so the body never grows into the area the floating panel
+// covers (matching the right-padding reservation on .main-content in
+// assets/css/layout/page-grid.scss lines 150–154 — same :has() gate).
+// When no ToC is present (e.g. /articles/album-demo/ — zero ## headings),
+// the cap falls through and width: 100% on the base .article-body rule fills
+// the entire article wrapper. Gated on `:root:has(.page-grid aside.toc-panel)`
+// to mirror the .main-content gate (which uses :root:has(...) for cascade
+// parity with the empty-state collapse rules above it).
 @media (min-width: 1025px) {
-  .article-body {
+  :root:has(.page-grid aside.toc-panel) .article-body {
     max-width: min(100%, calc(60ch + var(--toc-width) + var(--space-md)));
   }
 }
