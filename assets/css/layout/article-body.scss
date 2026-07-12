@@ -10,8 +10,8 @@
 
 // Article body container — fills its parent `<article class="article">`
 // wrapper (which in turn fills `.main-content`'s grid cell minus the page
-// padding). The container itself carries no width cap by default, so on
-// narrow viewports the prose spans the full available width and on
+// padding). The container itself carries no width cap, so on narrow
+// viewports the prose spans the full available width and on
 // infobox-bearing pages line length is bounded naturally by the
 // `float: right` infobox on its right edge (Wikipedia's prose +
 // floated-infobox pattern — `.infobox` is rendered inside `.Content`,
@@ -21,27 +21,22 @@
 // uncapping of `.page-grid` is what pins the floating `.page-grid__toc`
 // to the viewport's right edge — see the comment on `.page-grid` in
 // `assets/css/layout/page-grid.scss`). The right-padding reservation
-// on `.main-content` (page-grid.scss lines 150–154) already accounts
-// for the floating ToC panel — so the body never grows INTO the panel
-// area even without an article-body cap. The desktop `min()` formula
-// below caps the body at `60ch` of prose plus `var(--space-md)` of
-// right gutter when a ToC is present — `60ch` is ~480px at the
-// inherited 1rem font-size, comfortable reading length — so on any
-// viewport wider than that the prose stops growing and the ToC panel
-// + remaining reading gutter fill the freed horizontal space. The
-// earlier version of this cap also reserved `var(--toc-width)` here,
-// but that double-counted the panel: the `.main-content` reservation
-// already removes the panel's column from the body's available width,
-// so adding it again on `.article-body` constricted the prose by
-// ~220px unnecessarily and produced the narrow 484px line length
-// visible on `/articles/long-article-with-toc/` after the floated
-// infobox finished. Gated on `:root:has(.page-grid aside.toc-panel)`
-// so empty-TOC pages (e.g. `/articles/album-demo/`) fall through and
-// `width: 100%` on the base rule fills the entire article wrapper.
-// Scoped to `@media (min-width: 1025px)` to match the breakpoint the
-// right-padding reservation also gates on — below the desktop tier
-// the column is already narrow enough that a cap would only ever
-// apply to the smallest screens.
+// on `.main-content` (page-grid.scss lines 150–154,
+// `:has(.page-grid aside.toc-panel) .main-content { padding-right:
+// calc(var(--toc-width) + var(--space-md)); }`) is the single source of
+// truth for the ToC panel column — it carves the panel's 220px column
+// plus a 16px visual gap off the right side of the `.main-content` grid
+// cell, so the `.article` wrapper inside it already excludes that
+// space. The body therefore never overlaps the panel and can fill the
+// wrapper unmodified. Earlier attempts at desktop caps (a
+// `var(--article-max-width): 720px` token, then a `min(100%, calc(60ch
+// + var(--toc-width) + var(--space-md)))` rule gated on the ToC's
+// presence) all constricted the prose unnecessarily — the wrapper-level
+// reservation is sufficient. Trade-off: pages without an infobox see
+// the natural full-wrapper line length, which on wide viewports (>1600px)
+// can exceed 60ch — consistent with how long-form articles render on
+// upstream Vector 2022 when no infobox constrains the prose and with
+// the user-stated "spread evenly inside (fitting width)" intent.
 //
 // `display: flow-root` establishes a new block formatting context so the
 // `.infobox` float (rendered inside `.Content`) is contained by the
@@ -62,27 +57,6 @@
   display: flow-root;
   width: 100%;
   padding: var(--space-lg) var(--space-md);
-}
-
-// Desktop cap: only on pages that actually have a ToC panel in DOM. When
-// the panel is present, the right-padding reservation on `.main-content`
-// in assets/css/layout/page-grid.scss lines 150–154 already removes the
-// panel's column from the body's available width, so this cap is only
-// responsible for the comfortable-reading-length floor (`60ch` of prose
-// plus `var(--space-md)` of right gutter) — the body's `max-width`
-// becomes `min(100%, calc(60ch + var(--space-md)))`, ≈ 496px at the
-// inherited 1rem font-size, while the `.main-content` rule carves out
-// the ToC column separately. When no ToC is present (e.g.
-// /articles/album-demo/ — zero ## headings), the `:has()` gate fails
-// and the cap falls through; `width: 100%` on the base `.article-body`
-// rule fills the entire article wrapper unmodified. Gated on
-// `:root:has(.page-grid aside.toc-panel)` to mirror the `.main-content`
-// gate (which uses :root:has(...) for cascade parity with the
-// empty-state collapse rules above it).
-@media (min-width: 1025px) {
-  :root:has(.page-grid aside.toc-panel) .article-body {
-    max-width: min(100%, calc(60ch + var(--space-md)));
-  }
 }
 
 .article-body__title {
