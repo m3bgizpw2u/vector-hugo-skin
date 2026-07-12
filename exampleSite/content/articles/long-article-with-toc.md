@@ -26,6 +26,8 @@ This section introduces the demo content and the inline infobox. The body text b
 
 The infobox floats to the right of the prose on desktop widths. On narrow screens it collapses to a stacked layout above the lead continuation. This dual-state behavior is one of the most important responsive commitments of the theme.
 
+{{< break >}}
+
 ## Section B — Background
 
 Background context goes here. Three to five short paragraphs of invented content keep the article long enough to scroll meaningfully. The text intentionally has no Wikipedia verbatim material — every sentence is original prose invented for the demo.
