@@ -23,7 +23,9 @@ Five commands to a running theme + example site:
 ```sh
 git clone <repo-url>
 cd vector-hugo-skin
-npm install
+npm ci                            # uses the checked-in package-lock.json — first-time
+                                  # contributors may use `npm install` instead if
+                                  # they haven't cloned with the lockfile
 # No git submodule, no Hugo Modules init — the theme ships in-tree.
 npm run dev                       # → http://localhost:1313
 ```
@@ -53,6 +55,31 @@ The workspace-as-theme layout means the theme root sits at the repository root, 
   dependency on Lunr, Fuse, or MiniSearch for the v1 content scale.
 - **Zero-runtime build** — `node_modules/` is dev tooling only; the produced
   `public/` directory runs on any static host with only the browser's native APIs.
+
+## Documentation
+
+The full doc set lives under [`docs/`](docs/):
+
+- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — locked architecture decisions.
+- [`docs/SHORTCODES.md`](docs/SHORTCODES.md) — author-facing reference for the 30 named
+  infobox shortcodes.
+- [`docs/shortcodes/`](docs/shortcodes/) — one standalone page per named shortcode
+  with a Markdown parameter table and a worked example drawn from Wikipedia. Index
+  lives at [`docs/shortcodes/README.md`](docs/shortcodes/README.md).
+- [`docs/RESEARCH.md`](docs/RESEARCH.md) — visual & behavioral parity research record
+  with the design-token inventory, layout/grid/StickyHeader mechanics, and the
+  unified breakpoint table (§14.1).
+- [`docs/PORT-MAP.md`](docs/PORT-MAP.md) — per-file upstream Vector 2022 provenance.
+- [`docs/UI-AUDIT.md`](docs/UI-AUDIT.md) — visual + structural audit notes that
+  catalog the user-facing decisions behind the current layout.
+- [`docs/SHORTCODE-GAPS.md`](docs/SHORTCODE-GAPS.md) — per-shortcode gap inventory,
+  documenting parameters the current wrappers do not accept (with workarounds via
+  the inner primitives).
+- [`CHANGELOG.md`](CHANGELOG.md) — Keep-a-Changelog record; every commit that
+  changes user-facing or developer-facing behavior lands a matching entry in the
+  same commit.
+
+This README is the entry point — every other doc is one click away.
 
 ## Contributing
 
