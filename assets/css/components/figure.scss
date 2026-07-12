@@ -1,0 +1,88 @@
+// Original work, GPL-2.0-or-later.
+// Header per docs/PORT-MAP-CONVENTIONS.md §A.
+// Re-derived from W3C <figure> semantics + the documented upstream
+// selectors upstream `content.thumbnail.less` (mediawiki/mediawiki-core)
+// cites — that LESS is NOT vendored under vendor/mediawiki-vector/, so
+// this SCSS is not a "Derived from mediawiki-skins-Vector @ …" header.
+// Figure shortcode — article-body element (Sally Ride Elements 3 & 4),
+// not an infobox. Styles the .figure class hook and the data-* attribute
+// set emitted by layouts/_shortcodes/figure.html:
+//
+//   .figure                                    root
+//   [data-halign="left|right|center"|""]       float direction
+//   [data-mw-size="default"]                   CSS-only sizing hook —
+//                                              reserved for future
+//                                              override (e.g. a gallery
+//                                              layout that wants 220px).
+//                                              No rules attach today; the
+//                                              data attribute is the
+//                                              forward-compat anchor.
+//                                              Future width overrides from
+//                                              the shortcode's `width`
+//                                              parameter will land here
+//                                              alongside this selector —
+//                                              the border + padding layout
+//                                              below already adapts to
+//                                              any explicit width.
+//   [data-kind="image|audio|video"]            inner-element selector
+//   [data-lightbox]                            (consumed by lightbox.ts;
+//                                              not styled here — ticket 010)
+//   [data-lightbox-group="key"]                (consumed by lightbox.ts;
+//                                              not styled here)
+//
+// CSS hook contract lives in docs/SHORTCODES.md §A. Component-level rule
+// per .cursor/rules/20-styles.mdc: this file only styles the .figure
+// subtree, never reaches into .article-body. The figcaption token choices
+// (--font-size-sm, --color-text-muted) mirror article-body.scss's
+// figcaption by design, but this file's selectors don't depend on a
+// .article-body ancestor — figure-shortcode figures can live outside the
+// article body in principle, and the cascade has to read correctly in
+// either scope.
+.figure {
+  display: flex;
+  flex-direction: column;
+  margin: var(--space-md) 0;
+  max-width: 100%;
+  padding: var(--space-sm);
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius-md);
+}
+
+.figure[data-halign="right"] {
+  float: right;
+  margin: 0 0 var(--space-md) var(--space-md);
+}
+
+.figure[data-halign="left"] {
+  float: left;
+  margin: 0 var(--space-md) var(--space-md) 0;
+}
+
+.figure[data-halign="center"] {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.figure > img {
+  width: 100%;
+  height: auto;
+}
+
+.figure figcaption {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  text-align: left;
+  margin-top: var(--space-xs);
+}
+
+.figure[data-kind="audio"] > audio,
+.figure[data-kind="video"] > video {
+  width: 100%;
+}
+
+@media print {
+  .figure[data-kind="audio"] controls,
+  .figure[data-kind="video"] controls {
+    display: none;
+  }
+}
