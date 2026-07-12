@@ -44,7 +44,12 @@ function safeJoin(root, urlPath) {
   const decoded = decodeURIComponent(urlPath.split('?')[0]);
   const stripped = decoded.replace(/^\/+/, '');
   const joined = normalize(join(root, stripped));
-  if (joined !== root && !joined.startsWith(root + sep)) return null;
+  // Normalize root to no trailing separator for the startsWith check,
+  // but accept either form.
+  const rootNoSep = root.endsWith(sep) ? root.slice(0, -sep.length) : root;
+  if (joined !== rootNoSep && joined !== root && !joined.startsWith(rootNoSep + sep)) {
+    return null;
+  }
   return joined;
 }
 

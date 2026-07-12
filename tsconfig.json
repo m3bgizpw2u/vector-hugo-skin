@@ -15,8 +15,7 @@
     "isolatedModules": true,
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
-    "noEmit": true,
-    "rootDir": "assets/js"
+    "noEmit": true
   },
   "include": ["assets/js/**/*.ts", "tools/shortcodes-generator/scripts/**/*.ts"],
   "exclude": ["node_modules", "public", "resources"]

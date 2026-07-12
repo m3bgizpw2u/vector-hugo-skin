@@ -15,10 +15,6 @@
 
 import type { ShortcodeSpec, FieldSpec, FieldValue, FieldType } from './types.js';
 
-interface ParseResult {
-  data: Record<string, unknown>;
-}
-
 function isString(v: unknown): v is string {
   return typeof v === 'string';
 }
@@ -61,21 +57,6 @@ function tokenize(src: string): Line[] {
     lines.push({ indent, content: raw.slice(indent), raw });
   }
   return lines;
-}
-
-interface Block {
-  lines: Line[];
-  startIndex: number;
-}
-
-function takeBlock(lines: Line[], start: number, baseIndent: number): Block {
-  const blockLines: Line[] = [];
-  let i = start;
-  while (i < lines.length && lines[i].indent > baseIndent) {
-    blockLines.push(lines[i]);
-    i += 1;
-  }
-  return { lines: blockLines, startIndex: i };
 }
 
 function parseBlock(lines: Line[], start: number, baseIndent: number): unknown {
@@ -174,12 +155,6 @@ function parseBlock(lines: Line[], start: number, baseIndent: number): unknown {
 function asString(v: unknown, fallback = ''): string {
   return typeof v === 'string' ? v : fallback;
 }
-function asNumber(v: unknown, fallback = 0): number {
-  return typeof v === 'number' ? v : fallback;
-}
-function asBool(v: unknown, fallback = false): boolean {
-  return typeof v === 'boolean' ? v : fallback;
-}
 function asArray(v: unknown): unknown[] {
   return Array.isArray(v) ? v : [];
 }
@@ -276,5 +251,3 @@ export async function loadAllYaml(): Promise<ShortcodeSpec[]> {
 }
 
 export { parseScalar, parseShortcode };
-// Re-export helpers used by tests / dev tooling.
-export const _internal = { asString, asNumber, asBool, asArray };

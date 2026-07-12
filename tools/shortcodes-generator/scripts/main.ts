@@ -6,7 +6,6 @@
 import { initState, getState, subscribe } from './state.js';
 import { initPicker, selectShortcode, getSelectedSlug } from './picker.js';
 import { renderForm } from './form.js';
-import { generate } from './generator.js';
 import { initPreview, renderPreview, switchTab } from './preview.js';
 import { initClipboard } from './clipboard.js';
 import { initPrimitivesToggle } from './primitives.js';
@@ -22,6 +21,8 @@ async function boot() {
   initPrimitivesToggle();
 
   const catalog = await loadAllYaml();
+  // Picker registers itself with the catalog and calls setCatalog internally;
+  // nothing else needs to set the catalog separately.
   initPicker(catalog, (slug) => {
     selectShortcode(slug);
     renderForm();
@@ -36,7 +37,10 @@ async function boot() {
 
   // Tabs and format/theme selectors re-render directly.
   document.querySelectorAll<HTMLButtonElement>('.tool-preview__tab').forEach((btn) => {
-    btn.addEventListener('click', () => switchTab(btn.dataset.tab ?? 'source'));
+    btn.addEventListener('click', () => {
+      const tab = btn.dataset.tab;
+      if (tab === 'source' || tab === 'rendered') switchTab(tab);
+    });
   });
 
   // Initial form render if a slug is restored from storage.
