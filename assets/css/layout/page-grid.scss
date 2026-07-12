@@ -33,7 +33,12 @@
   grid-template-rows: var(--header-height) minmax(0, 1fr) auto;
   gap: 0 var(--space-lg);
   max-width: var(--content-max-width);
-  margin: 0 auto;
+  // F1 follow-up: left-align the grid so the sidebar sits flush against the
+  // viewport's left edge at desktop widths (Vector pattern — see the
+  // matching comment on `.main-content` below). `margin: 0 auto` produced
+  // a dead gutter to the left of the sidebar at any viewport wider than
+  // `--content-max-width` (1200px).
+  margin: 0;
   min-height: 100vh;
 }
 
