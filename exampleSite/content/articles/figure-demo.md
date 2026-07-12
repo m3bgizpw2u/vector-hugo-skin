@@ -23,7 +23,7 @@ attribute that the future `assets/css/components/figure.scss` (ticket 002)
 will style as a float.
 
 {{< figure
-    src     = "/media/sally-ride-portrait.jpg"
+    src     = "/media/sample-image-1.png"
     alt     = "Sally Ride in 1984"
     caption = "Ride in 1984, the year she became the first American woman in space."
     halign  = "right"
@@ -31,7 +31,7 @@ will style as a float.
 
 ```go
 {{< figure
-    src     = "/media/sally-ride-portrait.jpg"
+    src     = "/media/sample-image-1.png"
     alt     = "Sally Ride in 1984"
     caption = "Ride in 1984, the year she became the first American woman in space."
     halign  = "right"
@@ -51,7 +51,7 @@ The inner text passes through `markdownify` so inline links, bold, and
 emphasis all work.
 
 {{< figure
-    src    = "/media/sally-ride-water-survival-training.jpg"
+    src    = "/media/sample-image-2.png"
     halign = "right"
 >}}Sally Ride during a water survival training session at NASA's
 [Neutral Buoyancy Laboratory](https://en.wikipedia.org/wiki/Neutral_Buoyancy_Laboratory).
@@ -59,7 +59,7 @@ emphasis all work.
 
 ```go
 {{< figure
-    src    = "/media/sally-ride-water-survival-training.jpg"
+    src    = "/media/sample-image-2.png"
     halign = "right"
 >}}Sally Ride during a water survival training session at NASA's
 [Neutral Buoyancy Laboratory](https://en.wikipedia.org/wiki/Neutral_Buoyancy_Laboratory).
@@ -78,7 +78,7 @@ browser-default controls are the v1 surface.
 
 {{< figure
     kind        = "audio"
-    src         = "/media/audio/sample.mp3"
+    src         = "/media/sample.mp3"
     attribution = "NASA Audio Recording, STS-7 launch commentary, 18 June 1983."
     caption     = "Launch commentary excerpt from STS-7, 18 June 1983."
 >}}{{< /figure >}}
@@ -86,15 +86,14 @@ browser-default controls are the v1 surface.
 ```go
 {{< figure
     kind        = "audio"
-    src         = "/media/audio/sample.mp3"
+    src         = "/media/sample.mp3"
     attribution = "NASA Audio Recording, STS-7 launch commentary, 18 June 1983."
     caption     = "Launch commentary excerpt from STS-7, 18 June 1983."
 >}}{{< /figure >}}
 ```
 
-The `src` here is a placeholder — this is a demo, the file does not need
-to exist. The point of the example is to confirm the Hugo build pipeline
-renders the `<audio>` element without crashing.
+Staging real fixture files for the demo at `/media/sample.mp3` — see
+`exampleSite/static/media/` (gitignored) and `.misc/` for the source.
 
 ## `kind="video"` (Element 3)
 
@@ -104,7 +103,7 @@ static surface.
 
 {{< figure
     kind        = "video"
-    src         = "/media/video/sample.mp4"
+    src         = "/media/sample.mp4"
     attribution = "NASA mission footage, STS-7 onboard recording, 1983."
     caption     = "Onboard footage excerpt from STS-7, 1983."
 >}}{{< /figure >}}
@@ -112,14 +111,14 @@ static surface.
 ```go
 {{< figure
     kind        = "video"
-    src         = "/media/video/sample.mp4"
+    src         = "/media/sample.mp4"
     attribution = "NASA mission footage, STS-7 onboard recording, 1983."
     caption     = "Onboard footage excerpt from STS-7, 1983."
 >}}{{< /figure >}}
 ```
 
-As with the audio example, `src` is a placeholder; the goal is to verify
-the build emits the `<video>` element cleanly.
+Staging real fixture files for the demo at `/media/sample.mp4` — see
+`exampleSite/static/media/` (gitignored) and `.misc/` for the source.
 
 ## Lightbox group — two siblings sharing a `group` key
 
@@ -130,7 +129,7 @@ carousel; figures without a group (or with `group="default"`) join the
 default carousel.
 
 {{< figure
-    src        = "/media/sally-ride-gallery-1.jpg"
+    src        = "/media/sample-image-3.png"
     alt        = "Sally Ride on the flight deck of STS-7"
     caption    = "Ride on the flight deck of STS-7, June 1983."
     lightbox   = "true"
@@ -138,7 +137,7 @@ default carousel.
 >}}{{< /figure >}}
 
 {{< figure
-    src        = "/media/sally-ride-gallery-2.jpg"
+    src        = "/media/sample-image-4.png"
     alt        = "Sally Ride in the middeck of STS-7"
     caption    = "Ride in the middeck of STS-7, June 1983."
     lightbox   = "true"
@@ -146,8 +145,8 @@ default carousel.
 >}}{{< /figure >}}
 
 ```go
-{{< figure src="/media/sally-ride-gallery-1.jpg" alt="…" caption="…" lightbox="true" group="gallery-1" >}}{{< /figure >}}
-{{< figure src="/media/sally-ride-gallery-2.jpg" alt="…" caption="…" lightbox="true" group="gallery-1" >}}{{< /figure >}}
+{{< figure     src="/media/sample-image-3.png" alt="…" caption="…" lightbox="true" group="gallery-1" >}}{{< /figure >}}
+{{< figure src="/media/sample-image-4.png" alt="…" caption="…" lightbox="true" group="gallery-1" >}}{{< /figure >}}
 ```
 
 The trigger attribute on the rendered DOM is `data-lightbox` (booleany,

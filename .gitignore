@@ -24,6 +24,10 @@ npm-debug.log*
 # but is never part of the theme repo's history).
 /.plans/
 
+# exampleSite media fixtures (staged from .misc/, see CHANGELOG for the
+# rationale — large media files aren't tracked).
+/exampleSite/static/media/
+
 # Editor/OS noise
 .DS_Store
 Thumbs.db

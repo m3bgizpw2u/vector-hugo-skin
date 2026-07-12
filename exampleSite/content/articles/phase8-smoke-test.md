@@ -180,7 +180,7 @@ it is a build-time smoke test.
 ## Figure
 
 {{< figure
-    src     = "/media/placeholder.png"
+    src     = "/media/sample-image-1.png"
     alt     = "Placeholder image for smoke coverage"
     caption = "Smoke fixture for the figure shortcode."
     halign  = "right"
