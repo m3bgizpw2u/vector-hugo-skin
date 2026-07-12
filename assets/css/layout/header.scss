@@ -106,7 +106,8 @@
   white-space: nowrap;
 }
 
-.page-header__tools {
+.page-header__tools,
+.page-header .personal-tools {
   flex: 0 0 auto;
   display: flex;
   align-items: center;

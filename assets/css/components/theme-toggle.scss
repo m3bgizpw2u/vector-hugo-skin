@@ -17,6 +17,7 @@
 }
 
 .theme-toggle__option {
+  flex: 0 0 auto;
   appearance: none;
   background: transparent;
   border: none;
@@ -62,11 +63,12 @@
 }
 
 // ---- Responsive behaviour ----
-// Below 600px the header tools row is space-constrained, so collapse
-// the theme toggle to icon-only buttons. Vector 2022 hides the
-// Appearance dropdown label on narrow viewports; we preserve the
-// accessible name via aria-label on each option button.
-@media (max-width: 600px) {
+// At 900px and below the labeled toggle consumes about 160px, leaving the
+// header at its exact-fit boundary once the logo, search, and gaps are counted.
+// Collapse only the labels to create an 84px reserve through the 601–900px
+// band; the segmented group remains directly operable until the separate
+// 600px dropdown-handle breakpoint. Each button keeps its explicit aria-label.
+@media (max-width: 900px) {
   .theme-toggle__option {
     padding: var(--space-xs);
   }
