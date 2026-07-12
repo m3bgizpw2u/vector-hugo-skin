@@ -1,7 +1,7 @@
 // Middle-pane form: renders dynamic fields from a ShortcodeSpec, choosing
 // the right widget per field type, and pre-filling from defaults/state.
 
-import { getState, getValuesFor, resetValuesFor } from './state.js';
+import { getState, getValuesFor, resetValuesFor, resetImageModesFor } from './state.js';
 import type { FieldSpec, ShortcodeSpec } from './types.js';
 import { renderText } from './widgets/text.js';
 import { renderTextarea } from './widgets/textarea.js';
@@ -56,6 +56,7 @@ export function renderForm(): void {
   reset.textContent = 'Reset to defaults';
   reset.addEventListener('click', () => {
     resetValuesFor(spec.slug);
+    resetImageModesFor(spec.slug);
     renderForm();
   });
   formEl.appendChild(reset);

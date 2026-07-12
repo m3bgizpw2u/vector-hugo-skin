@@ -9,15 +9,19 @@
 //     format: 'vertical' | 'compact'                   — preview format
 //     theme: 'light' | 'dark'                          — UI theme override
 //     activeTab: 'source' | 'rendered'                 — preview pane tab
+//     imageModes: Record<slug, Record<key, 'upload' | 'url'>>  — per-field
+//                  image-widget mode (which sub-widget is shown)
 //   }
 //
 // Persistence: every state mutation re-serialises the durable bits
-// (selectedSlug, mode, values, format, theme, activeTab) into
+// (selectedSlug, mode, values, format, theme, activeTab, imageModes) into
 // localStorage under one key so a refresh restores the user.
 
 import type { ShortcodeSpec, FieldValue } from './types.js';
 
 const STORAGE_KEY = 'vhskin:shortcodes-generator:v1';
+
+export type ImageMode = 'upload' | 'url';
 
 export interface State {
   catalog: ShortcodeSpec[];
@@ -27,6 +31,7 @@ export interface State {
   format: 'vertical' | 'compact';
   theme: 'light' | 'dark';
   activeTab: 'source' | 'rendered';
+  imageModes: Record<string, Record<string, ImageMode>>;
 }
 
 const state: State = {
@@ -37,6 +42,7 @@ const state: State = {
   format: 'vertical',
   theme: 'light',
   activeTab: 'source',
+  imageModes: {},
 };
 
 type Listener = () => void;
@@ -56,6 +62,7 @@ function persist(): void {
       format: state.format,
       theme: state.theme,
       activeTab: state.activeTab,
+      imageModes: state.imageModes,
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(durable));
   } catch {
@@ -74,6 +81,7 @@ function restore(): void {
     if (data.format) state.format = data.format;
     if (data.theme) state.theme = data.theme;
     if (data.activeTab) state.activeTab = data.activeTab;
+    if (data.imageModes) state.imageModes = data.imageModes;
   } catch {
     // ignore corrupt storage
   }
@@ -124,6 +132,21 @@ export function setValueFor(slug: string, key: string, value: FieldValue): void 
 
 export function resetValuesFor(slug: string): void {
   state.values[slug] = {};
+  notify();
+}
+
+export function getImageMode(slug: string, key: string): ImageMode {
+  return state.imageModes[slug]?.[key] ?? 'upload';
+}
+
+export function setImageMode(slug: string, key: string, mode: ImageMode): void {
+  if (!state.imageModes[slug]) state.imageModes[slug] = {};
+  state.imageModes[slug][key] = mode;
+  notify();
+}
+
+export function resetImageModesFor(slug: string): void {
+  state.imageModes[slug] = {};
   notify();
 }
 
