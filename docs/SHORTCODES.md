@@ -1197,3 +1197,97 @@ All fetches completed successfully on 2026-07-11 against the live
 logic extracted from each source is documented inline in the file
 header of each named shortcode — see the "Conditionals ported from
 ..." block at the top of each `layouts/_shortcodes/<topic>.html`.
+
+---
+
+## §A. Article-body shortcodes
+
+Not every shortcode in this theme maps to a Wikipedia `Template:Infobox <topic>`.
+Some shortcodes model **article-body elements** — the figures, media, and inline
+blocks that live between paragraphs of prose rather than inside the right-hand
+infobox column. The Sally Ride replication research
+(`.plans/research-2026-07-12/sally-ride-replication-spec.md` lines 22–50)
+cites these as Element 3 (audio-visual thumb) and Element 4 (standard
+right-aligned thumbnail). They have **no upstream `Template:Infobox figure`
+mapping** and so cannot live under §10 — §10 is locked to the 30-entry
+per-template contract defined in §1.
+
+This section is the home for non-infobox article-body shortcodes. The rest of
+this document's taxonomy (layer 1 / layer 2 / layer 3, the §6 CSS hook contract,
+the §7 responsiveness commitment, the §8 v1 scope cuts) applies to infobox
+shortcodes only; figure stands outside that scope and uses its own minimal
+CSS hook set keyed on `.figure`, `[data-halign]`, `[data-mw-size]`,
+`[data-kind]`, `[data-lightbox]`, and `[data-lightbox-group]`.
+
+New non-infobox article-body shortcodes land in this section by default; new
+infobox-mapped shortcodes land in §10. The distinction is recorded per the
+`40-shortcodes.mdc` rule that any new shortcode must be documented with a full
+worked example before being considered done — the per-shortcode standalone
+page under `docs/shortcodes/<slug>.md` is the canonical quick-reference for
+both kinds.
+
+### `{{< figure >}}`
+**Intent:** Article-body figure — image, audio, or video embedded inline in
+the prose, with optional caption, float alignment, and lightbox participation.
+Replicates Element 4 (right-aligned thumbnail) and Element 3 (audio-visual
+thumb) from the Sally Ride research in a single shortcode, distinguished by
+the `kind` parameter. No upstream `Template:Infobox figure` mapping exists —
+figure is an article-body element, not an infobox.
+**Most-used parameters:** `src`, `alt`, `caption`, `attribution`, `halign`,
+`kind`, `lightbox`, `group`, `width`.
+**Worked example — parameter-only image (Sally Ride Element 4):**
+
+```go
+{{< figure
+    src     = "/media/sally-ride-portrait.jpg"
+    alt     = "Sally Ride in 1984"
+    caption = "Ride in 1984, the year she became the first American woman in space."
+    halign  = "right"
+>}}{{< /figure >}}
+```
+
+The parameter-only form maps Element 4 onto the article body — a floated
+right-aligned thumbnail with a captioned `<figure>`. Ticket 002 owns the
+`assets/css/components/figure.scss` file that styles the `[data-halign]`
+float rule; until that lands the figure still renders but the float is
+unconstrained.
+
+**Worked example — `kind="audio"` (Sally Ride Element 3):**
+
+```go
+{{< figure
+    kind        = "audio"
+    src         = "/media/audio/sally-ride-sts-7-launch-recording.mp3"
+    attribution = "NASA Audio Recording, STS-7 launch commentary, 18 June 1983."
+    caption     = "Launch commentary excerpt from STS-7, 18 June 1983."
+>}}{{< /figure >}}
+```
+
+`kind="audio"` emits the native `<audio controls preload="metadata">` element
+with a download-link fallback — browser-default controls, no custom player
+UI in v1 (see §A `Limitations` below). Video is the analogous `<video>`
+shape; the worked example here uses audio to keep this section short and
+let `docs/shortcodes/figure.md` show the paired-with-inner form.
+
+**Worked example — paired form (author-supplied caption):**
+
+```go
+{{< figure
+    src     = "/media/sally-ride-water-survival-training.jpg"
+    halign  = "right"
+>}}Sally Ride during a water survival training session at NASA's
+[Neutral Buoyancy Laboratory](https://en.wikipedia.org/wiki/Neutral_Buoyancy_Laboratory).
+{{</ figure >}}
+```
+
+When inner content is non-empty it becomes the figure body, and the inner
+text passes through `markdownify` so inline links, bold, and emphasis work
+inside the caption block. This is the canonical pattern when the caption
+needs a Markdown link that the `caption="…"` parameter cannot easily express.
+
+**See also:** [`docs/shortcodes/figure.md`](shortcodes/figure.md) — the
+canonical per-shortcode page (full parameter table, CSS hook contract,
+lightbox integration); the §6 CSS hook contract applies to infobox
+shortcodes only, so the figure class hooks live in
+`assets/css/components/figure.scss` (ticket 002); no upstream
+`Template:Infobox figure` mapping exists.

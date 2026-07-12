@@ -177,6 +177,17 @@ it is a build-time smoke test.
 
 {{< break >}}
 
+## Figure
+
+{{< figure
+    src     = "/media/placeholder.png"
+    alt     = "Placeholder image for smoke coverage"
+    caption = "Smoke fixture for the figure shortcode."
+    halign  = "right"
+>}}{{< /figure >}}
+
+{{< break >}}
+
 ## Military person
 
 {{< military-person

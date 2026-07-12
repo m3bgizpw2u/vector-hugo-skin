@@ -63,6 +63,18 @@ fixed schema does not cover a field an author needs. See
 [Building blocks — infobox primitives](infobox-primitives.md) for the
 five generic primitives and seven special-case pair primitives.
 
+## Article-body shortcodes
+
+Shortcodes that model **article-body elements** — media embedded inline in
+the prose between paragraphs, not inside the right-hand infobox column —
+live in a separate bucket. They have no upstream `Template:Infobox <topic>`
+mapping and so do not belong in the named-shortcodes list above. See
+[`docs/SHORTCODES.md`](../SHORTCODES.md) §A for the rationale.
+
+| Shortcode | Used for |
+|---|---|
+| [`{{< figure >}}`](figure.md) | Inline figures — image / audio / video with caption, float alignment, and optional lightbox participation |
+
 ## Citations
 
 The **`cite-ref` / `references`** pair reproduces Wikipedia's footnote
