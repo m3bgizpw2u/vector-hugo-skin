@@ -1,0 +1,30 @@
+Dual-license notice for tools/shortcodes-generator/.
+
+This tool is a derivative work of the theme's shortcode family. The
+tooling code itself (the dev server, the YAML schema, the form widgets,
+the generator logic, the rendered preview, and the README) is licensed
+under GPL-2.0-or-later — same as the theme's skin chrome at
+LICENSE in the repo root.
+
+The per-shortcode field lists under data/*.yaml mirror the upstream
+MediaWiki `Template:Infobox <topic>` parameter names (snake_case keys
+like `birth_date`, `nationality`, `population_total`). The parameter
+*names* are facts (MediaWiki convention) and are not copyrightable.
+The accompanying *conditionals* and *worked examples* are original
+prose authored for this theme and are released under GPL-2.0-or-later
+alongside the code. The infobox-content license statement in
+docs/SHORTCODES.md §0 — CC BY-SA 4.0 for per-topic conditional logic
+ported from Wikipedia — applies to the corresponding rendered infobox
+content, not to the YAML field lists here. The tool merely emits the
+parameter names; it does not transclude any Wikipedia content.
+
+Wikipedia contributors are the joint authors of the parameter-naming
+convention this tool reuses; their upstream template text is licensed
+CC BY-SA 4.0. Attribution is recorded per-shortcode in the `upstream:`
+field of each data/<slug>.yaml and in docs/SHORTCODES.md §11.
+
+This project is not affiliated with, endorsed by, or sponsored by the
+Wikimedia Foundation. "Wikipedia" and the Wikipedia logo are registered
+trademarks of the Wikimedia Foundation; this tool does not redistribute
+Wikimedia Foundation trademarks or logos. See NOTICE.md for the full
+Wikimedia Trademark Policy compliance statement.
