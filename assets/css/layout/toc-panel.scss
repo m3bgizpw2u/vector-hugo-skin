@@ -7,15 +7,40 @@
 // scroll-spy / collapsible heading list. The panel shell is sticky
 // at wide widths; the toc widget's own scroll-spy + collapse logic
 // lives in components/toc.scss.
+//
+// Size constraint: `max-height` (not `height`) so the panel shrinks to fit
+// its content for short ToCs. The earlier `height: calc(100vh - ...)`
+// made every panel a fixed-height box the size of the viewport, which on
+// articles with only a handful of headings left ~400px of empty
+// whitespace below the items on a 1280x800 viewport — the panel's grid
+// cell was 220px wide but the visible content stopped at ~280px tall,
+// with the rest of the box rendering as bare white below the last link.
+// `max-height` keeps the long-TOC escape hatch intact (panel still caps at
+// viewport height and scrolls internally for articles with many sections)
+// while letting short TOCs render at their natural height. `align-self:
+// start` is also needed: in a grid cell, `align-self` defaults to `stretch`
+// (the panel is forced to fill the cell vertically), which would otherwise
+// re-stretch the panel back to the cell's full height even with
+// `max-height` set — the cell itself stretches to match the article
+// column's height in the middle row. No behavioural change for the long
+// case; visible improvement for the short case.
 
 .toc-panel {
-  grid-area: toc;
+  // No `grid-area` here — the wrapper `.page-grid__toc` is already
+  // absolutely-positioned (see `assets/css/layout/page-grid.scss`). The
+  // panel sits inside that wrapper, sticky within the article column.
+  // Re-anchor `position: sticky` against the wrapper so the panel pins to
+  // the viewport top on scroll.
   position: sticky;
   top: calc(var(--header-height) + var(--sticky-header-height) + var(--space-md));
-  height: calc(100vh - var(--header-height) - var(--sticky-header-height) - var(--space-xl));
+  max-height: calc(100vh - var(--header-height) - var(--sticky-header-height) - var(--space-xl));
   overflow-y: auto;
   padding: var(--space-md) 0;
   font-size: var(--font-size-sm);
+  // Re-enable clicks on the panel even though `.page-grid__toc` above sets
+  // `pointer-events: none` so the wrapper doesn't intercept clicks for
+  // underlying article text.
+  pointer-events: auto;
 }
 
 .toc-panel__heading {
@@ -38,6 +63,7 @@
   .toc-panel {
     position: static;
     height: auto;
+    max-height: none;
     display: block;
     border-top: 1px solid var(--color-divider);
     margin-top: var(--space-lg);

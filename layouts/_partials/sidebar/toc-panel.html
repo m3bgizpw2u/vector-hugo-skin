@@ -30,8 +30,10 @@ Header per docs/PORT-MAP-CONVENTIONS.md §A.
 {{ $toc := .TableOfContents }}
 {{ $entryCount := len (findRE "<li>" $toc) }}
 {{ if and (eq .Kind "page") (gt $entryCount 0) }}
-<aside class="toc-panel" id="toc-panel" aria-label="{{ i18n "tocLabel" | default "Contents" }}">
-  <h2 class="toc-panel__heading">{{ i18n "tocLabel" | default "Contents" }}</h2>
-  {{ $toc }}
-</aside>
+<div class="page-grid__toc">
+  <aside class="toc-panel" id="toc-panel" aria-label="{{ i18n "tocLabel" | default "Contents" }}">
+    <h2 class="toc-panel__heading">{{ i18n "tocLabel" | default "Contents" }}</h2>
+    {{ $toc }}
+  </aside>
+</div>
 {{ end }}

@@ -25,11 +25,22 @@
 
 .page-grid {
   display: grid;
+  // The toc wrapper `.page-grid__toc` is positioned absolutely (see below)
+  // and floats over the right edge of the article column. The grid only
+  // declares two columns (sidebar | main) so `.main-content` claims the
+  // freed horizontal space; the article body extends to the full main
+  // column width and the floating toc-panel overlays its rightmost strip.
+  // Earlier, the third `var(--toc-width)` track was reserved as a grid
+  // cell, and because every cell in the middle row shared the row's
+  // height (= article height), the toc cell also stretched to article
+  // height — leaving a 220px × article-height slab of empty white space
+  // beneath the panel on any article whose body was taller than its ToC.
+  // Pulling the toc out of the grid removes the dead cell entirely.
   grid-template-areas:
-    "header header header"
-    "sidebar main toc"
-    "footer footer footer";
-  grid-template-columns: var(--sidebar-width) minmax(0, 1fr) var(--toc-width);
+    "header header"
+    "sidebar main"
+    "footer footer";
+  grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
   grid-template-rows: var(--header-height) minmax(0, 1fr) auto;
   gap: 0 var(--space-lg);
   max-width: var(--content-max-width);
@@ -40,12 +51,42 @@
   // `--content-max-width` (1200px).
   margin: 0;
   min-height: 100vh;
+  // `.page-grid__toc` is positioned absolutely with `right: 0; top: 0` —
+  // see the rule on `.page-grid__toc` below — so `.page-grid` becomes the
+  // positioning ancestor (the abspos wrapper otherwise anchors to the
+  // initial containing block, pinning to the viewport corner instead of the
+  // page-grid's right edge).
+  position: relative;
 }
 
 .page-grid__header { grid-area: header; }
 .page-grid__sidebar { grid-area: sidebar; min-width: 0; }
 .page-grid__main { grid-area: main; min-width: 0; }
-.page-grid__toc { grid-area: toc; }
+// `.page-grid__toc` wraps the toc-panel and anchors it to the grid area
+// `toc` so the `:has(.page-grid .page-grid__toc)` collapse rules below
+// still detect the element, but the wrapper itself is positioned
+// absolutely so it visually floats over the right edge of the article
+// column instead of occupying a 220px × article-height grid cell. The
+// toc-panel inside retains `position: sticky` for the scroll-spy behaviour
+// — sticky now anchors against the wrapper's 0-height box and pins to the
+// viewport top as the user scrolls. `pointer-events: none` on the wrapper
+// lets underlying content receive clicks; re-enabled on the panel itself
+// in `layout/toc-panel.scss`.
+.page-grid__toc {
+  grid-area: toc;
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: var(--toc-width);
+  // Span the full height of the page-grid so the panel inside (sticky
+  // within this wrapper) has room to pin to viewport top during the full
+  // article scroll. Without `height: 100%`, the wrapper would size to its
+  // single child (the panel) — collapsing it to the panel's natural
+  // height — and `position: sticky` would only pin within that collapsed
+  // window, defeating the scroll-spy behaviour.
+  height: 100%;
+  pointer-events: none;
+}
 .page-grid__footer { grid-area: footer; }
 
 // Actual class emitted by layouts/_default/baseof.html. The previous
@@ -70,6 +111,19 @@
   // it is 1rem; the desktop-wide `@media (min-width: 1200px)` block in
   // base/_tokens.scss grows it to 3.25rem; the mobile rule below
   // overrides with var(--space-sm).
+  //
+  // No right-padding reservation here for the floating toc-panel: the
+  // wrapper `.page-grid__toc` overlays the article's rightmost strip
+  // (see the rule on `.page-grid__toc`), so reserving a 220px right
+  // gutter inside the article column would still leave a 220px-wide
+  // empty area to the right of the prose. Letting the prose extend
+  // behind the panel is acceptable because the panel is only ~352px
+  // tall (content-sized) and sits in the upper-right corner of the
+  // viewport — it occludes a small strip during the scroll window
+  // where the panel is sticky, not the full article column. The
+  // article body's own `max-width` cap (see
+  // `assets/css/layout/article-body.scss`) keeps the prose width
+  // readable when the panel isn't reserving room for it.
   padding: 0 var(--content-padding-x);
 }
 
@@ -78,8 +132,11 @@
 // drops to 0 and the main column expands to fill the freed space. The
 // transition keeps the collapse visible rather than instant. Pairs
 // with assets/js/modules/sidebar-toggle.ts.
+//
+// Two columns only — the toc wrapper `.page-grid__toc` is absolutely-
+// positioned (see its rule) so the third track is no longer reserved here.
 :root[data-sidebar="collapsed"] .page-grid {
-  grid-template-columns: 0 minmax(0, 1fr) var(--toc-width);
+  grid-template-columns: 0 minmax(0, 1fr);
   gap: 0;
 }
 
@@ -162,21 +219,26 @@
 
 // ---- Empty sidebar: collapse the sidebar column when no menu links exist ----
 // Symmetric to the empty-toc rule above. `layouts/_partials/sidebar/sidebar.html`
-// omits the entire `<aside class="sidebar">` element when `Site.Menus.main` is
-// empty, so the `var(--sidebar-width)` track would otherwise be reserved for a
-// column that has nothing to show. Keying on the presence of the element itself
-// (`:has(.page-grid aside.sidebar)` / `:not(:has(.page-grid aside.sidebar))`)
-// is sufficient — the partial never emits an empty wrapper, so checking for
-// emptiness inside the wrapper is no longer needed. Requires
+// omits the entire `<aside class="sidebar">` element when `Site.Menus.main`
+// is empty, so the `var(--sidebar-width)` track would otherwise be reserved for
+// a column that has nothing to show. Keying on the presence of the element
+// itself (`:has(.page-grid aside.sidebar)` / `:not(:has(.page-grid
+// aside.sidebar))`) is sufficient — the partial never emits an empty wrapper,
+// so checking for emptiness inside the wrapper is no longer needed. Requires
 // `:has(.page-grid aside.toc-panel)` to scope this to the sidebar-empty-only
 // case; the both-empty branch below owns the case where the ToC is also absent.
+//
+// Two-column output here — the toc wrapper is absolutely positioned on the
+// desktop layout (see `.page-grid__toc`), so reserving a `var(--toc-width)`
+// grid column would be dead space when the ToC exists (the abspos wrapper
+// already owns its 220px of width).
 @media (min-width: 721px) {
   :root:has(.page-grid aside.toc-panel):not(:has(.page-grid aside.sidebar)) .page-grid {
     grid-template-areas:
       "header header"
-      "main toc"
+      "main main"
       "footer footer";
-    grid-template-columns: minmax(0, 1fr) var(--toc-width);
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
@@ -240,6 +302,12 @@
   }
 
   .page-grid__toc {
+    // Drop the desktop abspos float on mobile so the wrapper rejoins the
+    // single-column flow (the panel's own mobile rule below then handles
+    // `position: static; height: auto` etc. on `.toc-panel` itself).
+    position: static;
+    width: auto;
+    pointer-events: auto;
     display: block;
   }
 
