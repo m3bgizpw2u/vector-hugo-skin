@@ -14,8 +14,19 @@ database.
 - Never mix languages in one file — no inline `<style>`/`<script>` in templates.
 - One concern per file: one component per CSS file, one behavior per TS module, one page
   region per partial.
-- Every shortcode lives in its own folder: `layouts/_shortcodes/{name}/{file}.html`, even
-  if currently a single file.
+- Shortcodes live under `layouts/_shortcodes/` and may use either of two layouts,
+  chosen per shortcode:
+  - **Flat** (default): `layouts/_shortcodes/<name>.html`. The Hugo-canonical
+    single-file layout, callable inline as `{{< name >}}`. Use this for any
+    shortcode that is — or might become — a paired shortcode reading `.Inner`,
+    and for any shortcode that fits in a single file.
+  - **Folder**: `layouts/_shortcodes/<name>/index.html` (with optional supporting
+    files like `body.html`, `head.html`, or nested partials). Use this only when
+    the shortcode genuinely needs multiple distinct concerns living in separate
+    files of the same folder. Note the upstream constraint: in Hugo v0.163.3 a
+    folder layout registers the shortcode as `{{< <name>/index >}}` (not
+    `{{< <name >}}`), and the AST scanner crashes the build for paired shortcodes
+    that reference `.Inner` in this layout — so flat remains the default.
 - The built `public/` output must run with zero JS runtime dependencies beyond the
   browser — `node_modules/` is dev-tooling only.
 - If a task would require violating any of the above, stop and flag it rather than

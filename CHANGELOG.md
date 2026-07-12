@@ -58,6 +58,12 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   mobile breakpoint (`≤720px`) keeps its `var(--space-sm)` gutter,
   now applied to `.main-content` rather than `.page-grid`. One file
   touched: `assets/css/layout/page-grid.scss`.
+- Allowed shortcodes to live either as `layouts/_shortcodes/<name>.html` (flat,
+  the Hugo-canonical default) or `layouts/_shortcodes/<name>/index.html` (folder,
+  when a shortcode needs multiple distinct concerns in separate files). Folder
+  layout registers the shortcode as `{{< <name>/index >}}` in Hugo v0.163.3 and is
+  incompatible with paired shortcodes that reference `.Inner`, so flat remains
+  the default. See `.cursor/rules/00-core.mdc`.
 
 ### Relicensed (third plan, phase 0)
 - Theme re-licensed from MIT to **GPL-2.0-or-later** to match the upstream
