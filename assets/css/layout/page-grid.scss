@@ -43,13 +43,20 @@
   grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
   grid-template-rows: var(--header-height) minmax(0, 1fr) auto;
   gap: 0 var(--space-lg);
-  max-width: var(--content-max-width);
-  // F1 follow-up: left-align the grid so the sidebar sits flush against the
-  // viewport's left edge at desktop widths (Vector pattern — see the
-  // matching comment on `.main-content` below). `margin: 0 auto` produced
-  // a dead gutter to the left of the sidebar at any viewport wider than
-  // `--content-max-width` (1200px).
-  margin: 0;
+  // No `max-width` cap on the shell. The `.page-grid__toc` wrapper is
+  // positioned absolutely with `right: 0; top: 0` (see its rule below)
+  // and so pins to the shell's right edge — capping the shell at
+  // `var(--content-max-width)` (1200px) would leave the toc stranded at
+  // viewport-x ≈ 1200 on any viewport wider than 1200px, with the rest of
+  // the screen to the right of the panel sitting empty (the user-reported
+  // "unused space on the right" symptom at ~1920px viewports). Letting the
+  // shell fill the viewport pins the toc to the viewport's actual right
+  // edge on every desktop width. Line length on the now-wider article
+  // column is bounded by `assets/css/layout/article-body.scss`'s own
+  // `max-width` cap instead, so prose doesn't stretch arbitrarily wide on
+  // >1200px viewports. The F1 follow-up that left-anchored the shell with
+  // `margin: 0` is no longer needed either: with no `max-width` cap the
+  // grid naturally fills its parent's width (default `margin: 0`).
   min-height: 100vh;
   // `.page-grid__toc` is positioned absolutely with `right: 0; top: 0` —
   // see the rule on `.page-grid__toc` below — so `.page-grid` becomes the
@@ -188,18 +195,19 @@
 // the empty-TOC rule is — so the mobile single-column rule keeps its
 // (0,0,1,0) specificity.
 //
-// `margin: 0 auto` re-centers the page-grid within the viewport in this
-// mode only — the F1 follow-up above (`margin: 0`) left-anchors the grid
-// so the sidebar hugs viewport x=0 in the three sidebar-present modes
-// (both-present, sidebar-only, sidebar+no-toc+NOT-collapsed), but when
-// the user has collapsed the sidebar AND there is no ToC, the visible
-// page is just the article and the article body (already self-centering
-// inside its own column via `.article-body`'s `margin: 0 auto; max-width:
-// var(--article-max-width)` per `assets/css/layout/article-body.scss`)
-// needs the page-grid itself centered so the visible content ends up
-// roughly equidistant from the viewport edges. Without this, pages like
-// the Album demo show the article flush-left at viewport x=0 with all
-// the right-side empty space concentrated in one place.
+// `margin: 0 auto` is a no-op here now that the F1 follow-up + this
+// commit's shell-uncapping mean `.page-grid` fills the viewport width
+// at every breakpoint (no `max-width` cap, so the auto-margins have no
+// room to center within). Kept in the rule for cascade-stability against
+// any future re-capping of the shell (and so the selector specificity
+// stays identical to the empty-TOC rule above it, which still wins the
+// cascade tie-break by inheriting this rule's selector chain). When the
+// user has collapsed the sidebar AND there is no ToC, the visible page
+// is just the article; on viewports wider than the article body's
+// reading-width cap (added in `assets/css/layout/article-body.scss`)
+// the body sits left-anchored within the wider main column. Pages like
+// the Album demo behave acceptably in this mode because the sidebar's
+// toggle is the visible chrome and the article is the only content.
 @media (min-width: 721px) {
   :root[data-sidebar="collapsed"]:not(:has(.page-grid aside.toc-panel)):has(.page-grid aside.sidebar) .page-grid {
     grid-template-columns: 0 minmax(0, 1fr);
@@ -270,16 +278,19 @@
 // with Vector's `.vector-body` grid — the grid should never reserve a
 // dead track.
 //
-// `margin: 0 auto` re-centers the page-grid within the viewport for this
-// mode only — the F1 follow-up above (`margin: 0`) left-anchors the grid
-// so the sidebar hugs viewport x=0 in the other three modes, but in the
-// both-empty case there's no sidebar to anchor and the article body
-// (already self-centering inside its own column via `.article-body`'s
-// `margin: 0 auto; max-width: var(--article-max-width)` per
-// `assets/css/layout/article-body.scss`) needs the page-grid itself
-// centered so the visible content ends up roughly equidistant from the
-// viewport edges. Scoping the override to the both-empty condition keeps
-// the other three modes' flush-left behavior intact.
+// `margin: 0 auto` is a no-op here for the same reason as the
+// collapsed-no-toc rule above — the shell no longer carries a
+// `max-width` cap, so the auto-margins have nothing to center within.
+// Kept in the rule for cascade-stability and to preserve the original
+// comment intent ("on the both-empty layout the article body needs to
+// be roughly equidistant from the viewport edges") as a documented
+// no-op for future maintainers. The visible behaviour on wide viewports
+// is now: main column fills viewport, article body caps at its
+// reading-width (see `assets/css/layout/article-body.scss`) and sits
+// left-anchored. This is the natural consequence of uncapping the
+// shell to pin the ToC panel to the viewport's right edge — both-empty
+// pages (no chrome at all) accept a flush-left body in exchange for
+// the main-column ToC-page fix the user reported.
 @media (min-width: 721px) {
   :root:not(:has(.page-grid aside.toc-panel)):not(:has(.page-grid aside.sidebar)) .page-grid {
     grid-template-areas:

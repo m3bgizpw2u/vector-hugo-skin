@@ -10,19 +10,34 @@
 
 // Article body container — fills its parent `<article class="article">`
 // wrapper (which in turn fills `.main-content`'s grid cell minus the page
-// padding). The container itself carries no width cap, so the prose
-// spans the full article column on every viewport; line length on
-// infobox-bearing pages is bounded naturally by the `float: right`
-// infobox on its right edge (Wikipedia's prose + floated-infobox
-// pattern — `.infobox` is rendered inside `.Content`, which lives
-// inside this element). Pages without an infobox do see a longer line
-// length on wide main columns (e.g. the collapsed-sidebar and both-
-// empty modes where `.main-content` resolves to ~1100px); that trade-
-// off was chosen over the previous 720px cap, which left visible empty
-// space on both sides of the body whenever the article wrapper was
-// wider than 720px (e.g. Album demo with the sidebar collapsed: body
-// sat at 720px inside a 1096px wrapper, leaving 188px of empty space
-// on each side).
+// padding). The container itself carries no width cap by default, so on
+// narrow viewports the prose spans the full available width and on
+// infobox-bearing pages line length is bounded naturally by the
+// `float: right` infobox on its right edge (Wikipedia's prose +
+// floated-infobox pattern — `.infobox` is rendered inside `.Content`,
+// which lives inside this element).
+//
+// At desktop widths the page-grid shell has no `max-width` cap (the
+// uncapping of `.page-grid` is what pins the floating `.page-grid__toc`
+// to the viewport's right edge — see the comment on `.page-grid` in
+// `assets/css/layout/page-grid.scss`), so without a cap here the body
+// would stretch to fill the entire main column minus the right-padding
+// reservation (very wide lines on >1400px viewports). The desktop `min()`
+// formula caps the body at `60ch` of prose plus room for the toc-panel
+// and its visual gap, so on any viewport wider than that the prose stops
+// growing and the ToC panel + a comfortable right-side reading gutter
+// fill the remaining horizontal space. `ch` units key off the body's
+// inherited font-size (1rem from `_reset.scss`); 60ch at that size is
+// ~30rem ≈ 480px of prose, plus the toc-width + space-md reservation
+// gives a ~720px body cap — comfortable reading length that matches the
+// width of the previous `--article-max-width: 720px` rule without the
+// unwanted side-effect of forcing centering on every viewport (the cap
+// here applies only when the column is wider than the cap, and the body
+// stays left-anchored otherwise). Scoped to `@media (min-width: 1025px)`
+// to match the breakpoint the right-padding reservation also gates on
+// — below the desktop tier the column is already narrow enough that a
+// cap would only ever apply to the smallest screens, which is exactly
+// the case the cap is meant to leave alone.
 //
 // `display: flow-root` establishes a new block formatting context so the
 // `.infobox` float (rendered inside `.Content`) is contained by the
@@ -43,6 +58,12 @@
   display: flow-root;
   width: 100%;
   padding: var(--space-lg) var(--space-md);
+}
+
+@media (min-width: 1025px) {
+  .article-body {
+    max-width: min(100%, calc(60ch + var(--toc-width) + var(--space-md)));
+  }
 }
 
 .article-body__title {
