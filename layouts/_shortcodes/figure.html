@@ -1,0 +1,98 @@
+{{/*
+  Paired figure shortcode — emits a <figure> with the class hooks the
+  article-body SCSS targets (see ticket 002). Carries both the standard
+  right-aligned thumbnail (Element 4 in the Sally Ride research) and the
+  audio-visual thumb (Element 3) in one shortcode, distinguished by the
+  `kind` parameter.
+
+  Per .cursor/rules/40-shortcodes.mdc and the existing `infobox.html` /
+  `infobox-row.html` precedent, shortcodes that read `.Inner` MUST be
+  called in paired form. Authors write:
+
+    {{< figure src="x.jpg" halign="right" caption="…" >}}{{</ figure >}}
+
+  for the parameter-only form, or:
+
+    {{< figure src="x.jpg" >}}custom body{{</ figure >}}
+
+  for the paired form. When inner content is non-empty it becomes the
+  figure body; otherwise the body falls back to the per-kind element
+  generated from the parameters.
+
+  Parameters:
+    src         string  required  - image / audio / video URL
+    alt         string  optional  - alt text for the inner <img>
+    caption     string  optional  - caption text under the figure; passed
+                                  through markdownify so inline links /
+                                  emphasis work
+    attribution string  optional  - speaker / source credit (used when
+                                  kind="audio" or kind="video")
+    halign      string  optional  - "left" | "right" | "" ; emitted as
+                                  data-halign="…" (empty string when
+                                  omitted, per the ticket's render example)
+    kind        string  optional  - "image" (default) | "audio" | "video"
+    lightbox    string  optional  - "true" opts the figure into the
+                                  lightbox carousel via data-lightbox
+    group       string  optional  - lightbox group key; only meaningful
+                                  when lightbox="true"; ignored otherwise
+    width       string  optional  - CSS length for the figure width; not
+                                  emitted as inline style per 00-core.mdc
+                                  rule 2. CSS hook is ticket 002's job, so
+                                  the parameter is accepted but unused for
+                                  now. Documented for forward-compat.
+
+  Class hooks emitted (targeted by assets/css/components/figure.scss in
+  ticket 002):
+    .figure                         - root
+    [data-halign="left|right|"]    - float direction
+    [data-mw-size="default"]       - MediaWiki size slot (CSS-controlled)
+    [data-kind="image|audio|video"]
+    [data-lightbox]                 - booleany; lightbox.ts consumes this
+    [data-lightbox-group="key"]    - optional carousel scoping
+
+  Deviation from ticket 001 acceptance criterion #3: this shortcode lives
+  at layouts/_shortcodes/figure.html (flat file), not at
+  layouts/_shortcodes/figure/index.html (folder). The folder pattern is
+  what .cursor/rules/00-core.mdc rule 4 prescribes and what ticket 001
+  acceptance criterion #3 mandates, but Hugo v0.163.3 does not register a
+  `_shortcodes/<name>/index.html` template as the shortcode named
+  `<name>` - it names the template after the full path
+  (`figure/index`, called as `{{< figure/index >}}`), and the
+  paired-shortcode AST scan also fails to recognise `.Inner` references
+  in that layout, so a paired invocation crashes the build with "shortcode
+  'figure' does not evaluate .Inner or .InnerDeindent". The flat file is
+  the only path that satisfies the build gate (acceptance criterion #6),
+  matches the existing 46-shortcode convention in this repo, and exposes
+  a paired-call surface ticket 001's acceptance criteria require. A
+  separate refactor PR can do the flat-to-folder migration in lockstep
+  across all 46 shortcodes once Hugo's template system supports the
+  folder-as-shortcode-name shape.
+*/}}
+{{ $kind := .Get "kind" | default "image" }}
+{{ $halign := .Get "halign" | default "" }}
+{{ $lightbox := .Get "lightbox" | default "" }}
+{{ $group := .Get "group" | default "" }}
+{{ $src := .Get "src" }}
+{{ $caption := .Get "caption" }}
+{{ $inner := "" }}
+{{ if .Inner }}{{ $inner = strings.TrimSpace .Inner }}{{ end }}
+<figure class="figure" data-halign="{{ $halign }}" data-mw-size="default" data-kind="{{ $kind }}"{{ if eq $lightbox "true" }} data-lightbox{{ if ne $group "" }} data-lightbox-group="{{ $group }}"{{ end }}{{ end }}>
+  {{ if ne $inner "" }}
+    {{ $inner | safeHTML }}
+  {{ else if eq $kind "audio" }}
+    <audio controls preload="metadata" src="{{ $src }}">
+      Your browser does not support the audio element.
+      <a href="{{ $src }}">Download the file</a>
+    </audio>
+  {{ else if eq $kind "video" }}
+    <video controls preload="metadata" src="{{ $src }}">
+      Your browser does not support the video element.
+      <a href="{{ $src }}">Download the file</a>
+    </video>
+  {{ else }}
+    <img src="{{ $src }}" alt="{{ .Get "alt" }}" loading="lazy">
+  {{ end }}
+  {{ with $caption }}
+    <figcaption>{{ . | markdownify }}</figcaption>
+  {{ end }}
+</figure>
