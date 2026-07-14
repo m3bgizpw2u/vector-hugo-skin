@@ -119,6 +119,13 @@ static surface.
 >}}{{< /figure >}}
 ```
 
+{{< figure
+    kind        = "video"
+    src         = "/media/sample.mp4"
+    attribution = "NASA mission footage, STS-7 onboard recording, 1983."
+    caption     = "Onboard footage excerpt from STS-7, 1983."
+>}}{{< /figure >}}
+
 Staging real fixture files for the demo at `/media/sample.mp4` — see
 `exampleSite/static/media/` (gitignored) and `.misc/` for the source.
 
