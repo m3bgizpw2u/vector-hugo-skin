@@ -13,11 +13,12 @@
 
   for the parameter-only form, or:
 
-    {{< figure src="x.jpg" >}}custom body{{</ figure >}}
+    {{< figure src="x.jpg" >}}Caption with a [Markdown link](https://…).{{</ figure >}}
 
-  for the paired form. When inner content is non-empty it becomes the
-  figure body; otherwise the body falls back to the per-kind element
-  generated from the parameters.
+  for the paired form. A non-empty inner body is treated as the caption and
+  rendered as Markdown (so inline links / emphasis work), taking precedence
+  over the `caption` param. The image / audio / video element is always
+  emitted from the parameters — the inner body never replaces it.
 
   Parameters:
     src         string  required  - image / audio / video URL
@@ -78,34 +79,43 @@
 {{ $attribution := .Get "attribution" }}
 {{ $inner := "" }}
 {{ if .Inner }}{{ $inner = strings.TrimSpace .Inner }}{{ end }}
+{{/* Resolve the caption once: a non-empty paired body wins over the
+     `caption` param and is rendered as Markdown (via .Page.RenderString) so
+     inline links / emphasis in the caption work — mirroring the sibling
+     layouts/_shortcodes/thumb.html convention. Without this, a paired-form
+     caption fell through the old body-replacement branch and rendered as
+     literal `[text](url)` while the image was dropped entirely. */}}
+{{ $captionHTML := "" }}
+{{ if ne $inner "" }}
+  {{ $captionHTML = .Inner | .Page.RenderString }}
+{{ else }}
+  {{ with $caption }}{{ $captionHTML = . | markdownify }}{{ end }}
+{{ end }}
 {{/* The image branch delegates its <img> + <figcaption> + magnify to the
-     shared article/thumb.html partial (native-ratio responsive rendering).
-     data-lightbox is emitted on the inner .thumb figure by the partial, so
-     it is only emitted on the .figure wrapper for the non-image branches
-     (custom inner body / audio / video) to avoid double-binding in
+     shared article/thumb.html partial (native-ratio responsive rendering);
+     data-lightbox is emitted on the inner .thumb figure by the partial. It is
+     only emitted on the .figure wrapper for the audio / video branches (which
+     the partial doesn't handle) to avoid double-binding in
      assets/js/modules/lightbox.ts. */}}
-{{ $isImageBranch := and (eq $inner "") (ne $kind "audio") (ne $kind "video") }}
+{{ $isImageBranch := and (ne $kind "audio") (ne $kind "video") }}
 <figure class="figure" data-halign="{{ $halign }}" data-mw-size="default" data-kind="{{ $kind }}"{{ if and (eq $lightbox "true") (not $isImageBranch) }} data-lightbox{{ if ne $group "" }} data-lightbox-group="{{ $group }}"{{ end }}{{ end }}>
-  {{ if ne $inner "" }}
-    {{ $inner | safeHTML }}
-    {{ with $caption }}<figcaption>{{ . | markdownify }}</figcaption>{{ end }}
-  {{ else if eq $kind "audio" }}
+  {{ if eq $kind "audio" }}
     <audio controls preload="metadata" src="{{ $src }}">
       Your browser does not support the audio element.
       <a href="{{ $src }}">Download the file</a>
     </audio>
-    {{ with $caption }}<figcaption>{{ . | markdownify }}</figcaption>{{ end }}
+    {{ with $captionHTML }}<figcaption>{{ . }}</figcaption>{{ end }}
   {{ else if eq $kind "video" }}
     <video controls preload="metadata" src="{{ $src }}">
       Your browser does not support the video element.
       <a href="{{ $src }}">Download the file</a>
     </video>
-    {{ with $caption }}<figcaption>{{ . | markdownify }}</figcaption>{{ end }}
+    {{ with $captionHTML }}<figcaption>{{ . }}</figcaption>{{ end }}
   {{ else }}
     {{ partial "article/thumb.html" (dict
         "src"      $src
         "alt"      $alt
-        "caption"  (cond (ne (default "" $caption) "") ($caption | markdownify) "")
+        "caption"  $captionHTML
         "align"    "none"
         "lightbox" $lightbox
         "group"    $group

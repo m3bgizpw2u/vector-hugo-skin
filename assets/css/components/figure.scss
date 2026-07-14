@@ -44,8 +44,13 @@
   margin: var(--space-md) 0;
   max-width: 100%;
   padding: 3px;
-  background-color: #f8f9fa;
-  border: 1px solid #a2a9b1;
+  // Theme-aware surface + border. These tokens equal MediaWiki's light-mode
+  // thumb chrome exactly (--color-surface-alt = #f8f9fa, --color-border =
+  // #a2a9b1), so light mode is unchanged; dark mode picks up the dark surface
+  // (#27292d) and border (#72777d) automatically instead of rendering a bright
+  // light box on the dark page.
+  background-color: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
   border-radius: 2px;
 }
 
@@ -68,13 +73,56 @@
 // (native-ratio responsive pipeline — see assets/css/components/_thumb.scss).
 // The figure shortcode emits the partial with class="figure__thumb" and
 // align="none", so the .figure wrapper here owns the float direction
-// (data-halign) and the border chrome, while the nested .thumb renders the
-// image at native ratio. Zero the .thumb's own vertical margin — the .figure
-// padding is the frame — and let the partial's own width tiers (20rem desktop,
-// clamped tablet, full-width mobile) size the box so a floated figure keeps a
-// bounded width instead of resolving 100% against the float's shrink-to-fit.
+// (data-halign) AND the width cap, while the nested .thumb fills it (width:100%
+// below) and renders the image at native ratio. Zero the .thumb's own vertical
+// margin — the .figure padding is the frame.
+//
+// Width lives on the wrapper, not the inner .thumb, on purpose: a floated
+// .figure shrink-wraps to content, and the thumb's own tablet tier is a
+// *percentage* (clamp(12rem, 40%, 20rem)). A percentage width inside a
+// shrink-wrap float is circular — the browser resolves it against the image's
+// intrinsic max-content, so the border ended up wrapping a box ~2× wider than
+// the rendered image (an empty gap beside the picture). Putting the width on
+// .figure fixes it: the figure's containing block is the definite-width
+// .article-body, so the clamp resolves cleanly and the border hugs the image.
+// Selector carries .thumb.figure__thumb (0,3,0) to beat _thumb.scss's
+// `.thumb[data-align="none"] { width: … }` (0,2,0), which is @use'd after this.
 .figure > .figure__thumb {
   margin: 0;
+}
+
+.figure > .thumb.figure__thumb {
+  width: 100%;
+}
+
+// ---- Image-figure width tiers (mirror _thumb.scss's breakpoints) --------
+$figure-mobile-breakpoint: 720px;
+$figure-tablet-breakpoint: 1024px;
+
+@media (min-width: ($figure-tablet-breakpoint + 1px)) {
+  .figure[data-kind="image"] {
+    width: 20rem;
+  }
+}
+
+@media (min-width: $figure-mobile-breakpoint) and (max-width: $figure-tablet-breakpoint) {
+  .figure[data-kind="image"][data-halign="right"],
+  .figure[data-kind="image"][data-halign="left"] {
+    width: clamp(12rem, 40%, 20rem);
+  }
+
+  .figure[data-kind="image"][data-halign="center"],
+  .figure[data-kind="image"]:not([data-halign="right"]):not([data-halign="left"]) {
+    width: clamp(12rem, 50%, 20rem);
+  }
+}
+
+@media (max-width: ($figure-mobile-breakpoint - 1px)) {
+  .figure[data-kind="image"] {
+    float: none;
+    width: 100%;
+    margin: var(--space-md) 0;
+  }
 }
 
 .figure figcaption {

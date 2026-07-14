@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Wikipedia-style Thumbnail Mockup</title>
+<style>
+  body {
+    font-family: sans-serif, Arial, Helvetica;
+    background: #fff;
+    color: #202122;
+    max-width: 900px;
+    margin: 40px auto;
+    line-height: 1.6;
+    padding: 0 16px;
+  }
+  p { text-align: justify; }
+
+  /* --- Wikipedia "thumb" figure --- */
+  .thumb {
+    border: none;
+    width: 100%;
+    max-width: 260px; /* desktop cap; height is still automatic via the img rule */
+    background-color: #f8f9fa;
+    font-size: 94%;
+    text-align: center;
+    float: right;
+    clear: right;
+    margin: 0.5em 0 1em 1.4em;
+    box-sizing: border-box;
+  }
+  .thumb.left { float: left; margin: 0.5em 1.4em 1em 0; clear: left; }
+
+  /* Tablet: smaller cap, still floated */
+  @media (max-width: 1024px) {
+    .thumb { max-width: 200px; }
+  }
+
+  /* Mobile: stop floating, go full-width and center */
+  @media (max-width: 640px) {
+    .thumb, .thumb.left {
+      float: none;
+      max-width: 100%;
+      width: 100%;
+      margin: 1em 0;
+    }
+  }
+
+  .thumbinner {
+    border: 1px solid #a2a9b1;
+    padding: 3px;
+    background-color: #f8f9fa;
+    position: relative;
+  }
+
+  .thumbinner img {
+    display: block;
+    width: 100%;   /* fills the fixed-width container */
+    height: auto;  /* preserves native aspect ratio, no cropping */
+    border: 1px solid #eaecf0;
+  }
+
+  .magnify {
+    position: absolute;
+    right: 6px;
+    bottom: 6px;
+    width: 15px;
+    height: 15px;
+    background: rgba(255,255,255,0.75);
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .magnify svg { width: 11px; height: 11px; fill: #54595d; }
+
+  .thumbcaption {
+    border-top: none;
+    text-align: left;
+    padding: 4px 4px 2px;
+    font-size: 0.95em;
+    color: #202122;
+  }
+</style>
+</head>
+<body>
+
+<h2>Sample Article Section</h2>
+
+<figure class="thumb">
+  <div class="thumbinner">
+    <img src="https://img2.pixhost.to/images/9332/749043083_sample-image-7.png" alt="Sample image 7">
+    <span class="magnify">
+      <svg viewBox="0 0 20 20"><path d="M13 2a7 7 0 105.2 11.7l4 4 1.6-1.6-4-4A7 7 0 0013 2zm0 2a5 5 0 110 10 5 5 0 010-10z"/></svg>
+    </span>
+  </div>
+  <figcaption class="thumbcaption">Sample caption for image 7, describing what is shown above.</figcaption>
+</figure>
+
+<p>
+This paragraph demonstrates how Wikipedia wraps body text around a right-floated
+thumbnail figure. The image itself was originally 1920&nbsp;×&nbsp;1080&nbsp;px
+(a 16:9 ratio), but the thumbnail container only fixes a <strong>width</strong>
+(260px here). The image's <code>height: auto</code> rule lets the browser scale
+it down proportionally — so it renders at roughly 260&nbsp;×&nbsp;146px — with no
+cropping and no distortion. This is the whole trick: width is fixed, height
+follows the source ratio automatically.
+</p>
+
+<figure class="thumb left">
+  <div class="thumbinner">
+    <img src="https://img2.pixhost.to/images/9332/749043091_sample-image-6.png" alt="Sample image 6">
+    <span class="magnify">
+      <svg viewBox="0 0 20 20"><path d="M13 2a7 7 0 105.2 11.7l4 4 1.6-1.6-4-4A7 7 0 0013 2zm0 2a5 5 0 110 10 5 5 0 010-10z"/></svg>
+    </span>
+  </div>
+  <figcaption class="thumbcaption">Sample caption for image 6, left-floated this time.</figcaption>
+</figure>
+
+<p>
+This second figure is left-floated instead, just like Wikipedia sometimes
+alternates image placement for visual rhythm down the length of a long article.
+Both figures use the exact same container width (260px) even though the
+underlying images are identical 1920×1080 sources — the layout system doesn't
+care about the original pixel dimensions, only about the ratio, which it
+preserves automatically via <code>height: auto</code>.
+</p>
+
+<p>
+If you want images to appear <em>larger</em> in the mockup (Wikipedia's modern
+default is closer to 220–320px, but user preferences can push it up to 400px+),
+just change the single <code>.thumb { max-width: ... }</code> value — everything
+else recalculates on its own.
+</p>
+
+<p>
+<strong>Responsiveness:</strong> resize this browser window to see it in action.
+Above 1024px the figures cap at 260px and float beside the text, like desktop
+Wikipedia. Between 641–1024px (tablet) they shrink to a 200px cap. At 640px and
+below (mobile) they drop the float entirely, go full-width, and stack above/below
+the paragraph instead of squeezing next to it — matching how Wikipedia's mobile
+skin behaves. The image inside never needs its own breakpoint, since
+<code>width:100%; height:auto</code> already tracks whatever width the container
+currently has.
+</p>
+
+</body>
+</html>
