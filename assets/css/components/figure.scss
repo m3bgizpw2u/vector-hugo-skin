@@ -75,6 +75,13 @@
   margin-top: var(--space-xs);
 }
 
+.figure figcaption + .figure-attribution {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  margin-top: calc(-1 * var(--space-xs));
+  text-align: right;
+}
+
 .figure[data-kind="audio"] > audio,
 .figure[data-kind="video"] > video {
   width: 100%;

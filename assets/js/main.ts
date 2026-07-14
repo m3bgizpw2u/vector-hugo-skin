@@ -13,6 +13,7 @@ import { init as initSidebar } from './modules/sidebar-toggle';
 import { init as initToc } from './modules/toc';
 import { init as initTabs } from './modules/tabs';
 import { init as initThemeToggle } from './modules/theme-toggle';
+import { init as initLightbox } from './modules/lightbox';
 import { init as initSearch } from './modules/search';
 import { init as initTitlebarToc } from './modules/titlebar-toc';
 
@@ -21,6 +22,7 @@ function bootstrap(): void {
   initToc();
   initTabs();
   initThemeToggle();
+  initLightbox();
   initSearch();
   initTitlebarToc();
 }

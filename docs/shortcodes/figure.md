@@ -34,7 +34,7 @@ of truth.
 | `src` | required | Image / audio / video URL. |
 | `alt` | optional | Alt text for the inner `<img>`. |
 | `caption` | optional | Caption text under the figure; passed through `markdownify` so inline links / emphasis work. |
-| `attribution` | optional | Speaker / source credit (used when `kind="audio"` or `kind="video"`). |
+| `attribution` | optional | Speaker / source credit; rendered as a `<p class="figure-attribution">` below the caption. |
 | `halign` | optional | `"left"` \| `"right"` \| `""`; emitted as `data-halign="…"`. Empty string when omitted. |
 | `kind` | optional | `"image"` (default) \| `"audio"` \| `"video"`. |
 | `lightbox` | optional | `"true"` opts the figure into the lightbox carousel via `data-lightbox`. |
@@ -104,21 +104,41 @@ hook set above.
 
 `lightbox="true"` opts the figure into the lightbox carousel — clicking the
 figure opens the in-page carousel powered by `assets/js/modules/lightbox.ts`
-(ticket 009), and arrow keys cycle through the carousel. Two or more
-sibling figures that share a `group="key"` form one carousel; figures
-without a group (or with `group="default"`) join the default carousel.
-There is **no auto-grouping** across the page — the author opts in
-explicitly per figure. Example:
+(ticket 009). The lightbox overlay renders on top of the page with the image
+centred at up to 90% of the viewport, a caption bar below it, and navigation
+controls.
+
+**Attributes on the rendered `<figure>`:**
+
+- `data-lightbox` (booleany) — present when `lightbox="true"`; the JS module
+  consumes this as its entry-point selector.
+- `data-lightbox-group="key"` (optional) — emitted only when both
+  `lightbox="true"` and `group="…"` are set. Figures sharing the same group
+  key belong to the same carousel.
+
+**Keyboard navigation:**
+
+| Key | Action |
+|---|---|
+| `ArrowLeft` | Previous image in the active group |
+| `ArrowRight` | Next image in the active group |
+| `Home` | First image |
+| `End` | Last image |
+| `Escape` | Close the lightbox |
+
+The lightbox can also be closed by clicking the close button or by clicking
+the semi-transparent backdrop behind the image. There is **no auto-grouping**
+across the page — the author opts in explicitly per figure by supplying
+`group="key"`. Figures without a group (or with `group=""`) belong to the
+default carousel. Example:
 
 ```go
 {{< figure src="/media/ride-1.jpg" lightbox="true" group="gallery-1" caption="…" >}}{{< /figure >}}
 {{< figure src="/media/ride-2.jpg" lightbox="true" group="gallery-1" caption="…" >}}{{< /figure >}}
 ```
 
-The trigger attribute on the rendered DOM is `data-lightbox` (booleany,
-present on the `<figure>`); the optional scoping attribute is
-`data-lightbox-group="key"`. Without `lightbox="true"` the figure renders
-as a plain `<figure>` and the JS module never touches it.
+Without `lightbox="true"` the figure renders as a plain `<figure>` and the
+JS module never touches it.
 
 ## Limitations / v1 scope
 
@@ -137,6 +157,14 @@ as a plain `<figure>` and the JS module never touches it.
 - **Lightbox is the v1 image carousel.** Audio and video figures do not
   participate in the lightbox carousel even when `lightbox="true"` is set;
   the carousel is image-only in v1.
+- **Fullscreen mode is not included in v1.** The lightbox opens in an
+  overlay but does not expand to browser fullscreen. This can be added in
+  a later phase.
+- **No API-based metadata fetching.** Lightbox captions come from the
+  figure's existing `caption` shortcode param (rendered figcaption) or
+  `attribution` param. There is no dynamic metadata fetch from an external
+  source — Hugo is a static site generator, so all data is baked in at
+  build time.
 
 ## See also
 

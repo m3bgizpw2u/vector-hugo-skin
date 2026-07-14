@@ -1,0 +1,133 @@
+// Original work, GPL-2.0-or-later.
+// Header per docs/PORT-MAP-CONVENTIONS.md §A.
+// Wikipedia Multimedia Viewer (MMV) — lightbox overlay for the figure shortcode.
+// Injected into document.body by assets/js/modules/lightbox.ts.
+// Token references: --z-overlay, --space-*, --font-size-*, --transition-slow,
+// --radius-sm. No color hard-coding for dark-theme compatibility.
+
+.lightbox-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-overlay);
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition-slow);
+}
+
+.lightbox-overlay--visible {
+  display: flex;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.lightbox-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.92);
+}
+
+.lightbox-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow: hidden;
+}
+
+.lightbox-btn {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  border: none;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: #ffffff;
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+
+  svg {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+  }
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.7);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.lightbox-btn--close {
+  top: var(--space-md);
+  right: var(--space-md);
+}
+
+.lightbox-btn--prev {
+  top: 50%;
+  left: var(--space-md);
+  transform: translateY(-50%);
+}
+
+.lightbox-btn--next {
+  top: 50%;
+  right: var(--space-md);
+  transform: translateY(-50%);
+}
+
+.lightbox-btn[disabled] {
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.lightbox-image-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-height: calc(90vh - 80px);
+  overflow: hidden;
+}
+
+.lightbox-img {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  margin: auto;
+}
+
+.lightbox-caption-area {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-md);
+  padding: var(--space-sm) var(--space-md);
+  background-color: rgba(0, 0, 0, 0.6);
+}
+
+.lightbox-caption {
+  font-size: var(--font-size-sm);
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0;
+  text-align: left;
+  flex: 1;
+}
+
+.lightbox-counter {
+  font-size: var(--font-size-xs);
+  color: rgba(255, 255, 255, 0.6);
+  text-align: right;
+  flex-shrink: 0;
+}

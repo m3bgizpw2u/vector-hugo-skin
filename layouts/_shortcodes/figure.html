@@ -74,6 +74,7 @@
 {{ $group := .Get "group" | default "" }}
 {{ $src := .Get "src" }}
 {{ $caption := .Get "caption" }}
+{{ $attribution := .Get "attribution" }}
 {{ $inner := "" }}
 {{ if .Inner }}{{ $inner = strings.TrimSpace .Inner }}{{ end }}
 <figure class="figure" data-halign="{{ $halign }}" data-mw-size="default" data-kind="{{ $kind }}"{{ if eq $lightbox "true" }} data-lightbox{{ if ne $group "" }} data-lightbox-group="{{ $group }}"{{ end }}{{ end }}>
@@ -94,5 +95,8 @@
   {{ end }}
   {{ with $caption }}
     <figcaption>{{ . | markdownify }}</figcaption>
+  {{ end }}
+  {{ if $attribution }}
+    <p class="figure-attribution">{{ $attribution }}</p>
   {{ end }}
 </figure>
