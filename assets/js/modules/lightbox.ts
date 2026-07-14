@@ -147,7 +147,7 @@ const buildOverlay = (): void => {
   captionArea.appendChild(captionEl);
   captionArea.appendChild(counterEl);
   imageWrapper.appendChild(imgEl);
-  container.appendChild(backdrop);
+  overlay.appendChild(backdrop);
   container.appendChild(closeBtn);
   container.appendChild(prevBtn);
   container.appendChild(nextBtn);
