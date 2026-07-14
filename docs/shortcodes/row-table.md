@@ -2,8 +2,10 @@
 
 Article-body element that renders a labelled section of
 `icon | text | photo` rows. Each row pairs a small inline-SVG icon with
-a heading + body and a fixed-aspect photograph, scaled fluidly between
-a 360px phone and a 1920px desktop. The layout is fully static by
+a heading + body and a photograph that renders at its native ratio
+(via the shared `article/thumb.html` partial — no fixed aspect-ratio
+crop), scaled fluidly between a 360px phone and a 1920px desktop. The
+layout is fully static by
 default (no JS cost); a `variant="expandable"` opt-in adds a
 narrow-viewport click-to-expand interaction.
 
@@ -22,9 +24,9 @@ for `variant="expandable"` only when the row's body copy is long
 enough that a 2-line clamp on mobile is a real readability win.
 
 For a single figure with caption and float alignment, the
-`{{< figure >}}` shortcode is the right pick — it shares the
-`object-fit: cover` / `aspect-ratio` design but doesn't impose the
-row pattern. For data tables, Hugo's built-in Markdown table syntax
+`{{< figure >}}` shortcode is the right pick — it shares the same
+shared `article/thumb.html` native-ratio image pipeline but doesn't
+impose the row pattern. For data tables, Hugo's built-in Markdown table syntax
 is the right pick. For infobox columns, the named `{{< person >}}`
 / `{{< settlement >}}` / etc. wrappers stay inside the right-hand
 infobox column; `row-table` is the article-body counterpart.
@@ -130,7 +132,7 @@ off these names, and the templates must emit exactly these names.
 | `row-table__text` | the text slot | title + body wrapper |
 | `row-table__text-title` | the row heading | Bold row title |
 | `row-table__text-body` | the row body | Markdown-rendered, supports inline links/emphasis |
-| `row-table__photo` | the photo slot | `<img>` with `object-fit: cover`, fixed `aspect-ratio` |
+| `row-table__photo` | the photo slot | grid-area anchor wrapping a `.thumb` figure (rendered by `layouts/_partials/article/thumb.html`); the image renders at its native ratio with `srcset`/`sizes`, no `object-fit`/`aspect-ratio` crop |
 | `row-table__footer` | the closing note | Markdown-rendered at the bottom of the section |
 
 ## Responsiveness

@@ -10,7 +10,7 @@ Lead paragraph introducing the Organization demo. This page exercises the organi
 
 {{< organization
     name                = "Sample Foundation"
-    logo                = "placeholder.jpg"
+    logo                = "/media/sample-image-2.png"
     type                = "Non-profit"
     industry            = "Demo sector"
     founded             = "1 January 2005"

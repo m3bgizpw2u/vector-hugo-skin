@@ -10,7 +10,7 @@ Lead paragraph introducing the Video game demo. This page exercises the video-ga
 
 {{< video-game
     name                = "Sample Game"
-    cover_art           = "placeholder.jpg"
+    cover_art           = "/media/sample-image-1.png"
     developer           = "Demo Studio"
     publisher           = "Demo Publisher"
     director            = "Demo Director"

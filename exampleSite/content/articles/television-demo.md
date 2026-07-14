@@ -10,7 +10,7 @@ Lead paragraph introducing the Television demo. This page exercises the televisi
 
 {{< television
     name             = "Sample Series"
-    image            = "placeholder.jpg"
+    image            = "/media/sample-image-1.png"
     caption          = "Sample series poster"
     genre            = "Drama"
     creator          = "Demo Creator"

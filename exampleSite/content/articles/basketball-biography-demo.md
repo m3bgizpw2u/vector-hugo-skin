@@ -10,7 +10,7 @@ Lead paragraph introducing the Basketball biography demo. This page exercises th
 
 {{< basketball-biography
     name          = "Demo Center"
-    image         = "placeholder.jpg"
+    image         = "/media/sample-image-portrait.png"
     caption       = "Sample player photo"
     birth_date    = "10 March 1992"
     birth_place   = "Demo City"

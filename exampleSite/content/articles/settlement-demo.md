@@ -10,7 +10,7 @@ Lead paragraph introducing the Settlement demo. This page exercises the settleme
 
 {{< settlement
     name            = "Sample Town"
-    image           = "placeholder.jpg"
+    image           = "/media/sample-image-1.png"
     caption         = "Downtown Sample Town"
     country         = "Demo Country"
     subdivision_name1 = "Demo Region"

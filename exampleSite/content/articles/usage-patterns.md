@@ -44,7 +44,7 @@ links.
 
 {{< person
     name          = "Ada Lovelace"
-    image         = "placeholder.jpg"
+    image         = "/media/sample-image-portrait.png"
     caption       = "Portrait of Ada Lovelace, 1843"
     alt           = "Black-and-white portrait of Ada Lovelace"
     birth_date    = "10 December 1815"
@@ -63,6 +63,17 @@ links.
 The `below` text renders through `markdownify`, so inline emphasis
 and links work inside it. The block sits at the bottom of the box,
 full-width.
+
+The portrait above renders at its **native ratio** — the infobox image
+no longer crops to a fixed per-type aspect ratio. Every image-emitting
+shortcode now delegates to the shared `layouts/_partials/article/thumb.html`
+partial, which fixes the container width and lets the image's height scale
+to its source proportions (Wikipedia's own thumbnail behaviour). A tall
+portrait like this one therefore reads taller in the column than a
+landscape settlement photo would — the height difference is expected, not
+a layout bug. Per-type `max-width` hints in
+`assets/css/components/infobox.scss` keep naturally-tall portraits from
+dominating the box without re-introducing a crop.
 
 ## Compose with other infoboxes
 

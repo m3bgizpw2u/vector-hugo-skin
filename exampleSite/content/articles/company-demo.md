@@ -11,7 +11,7 @@ Lead paragraph introducing the Company demo. This page exercises the company sho
 
 {{< company
     name           = "Sample Company Inc."
-    logo           = "placeholder.jpg"
+    logo           = "/media/sample-image-2.png"
     trade_name     = "Sample Co."
     type           = "Private"
     industry       = "Demo industry"

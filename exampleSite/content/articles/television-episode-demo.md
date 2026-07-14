@@ -11,7 +11,7 @@ Lead paragraph introducing the Television episode demo. This page exercises the 
 {{< television-episode
     name           = "Sample Episode"
     series         = "Sample Series"
-    image          = "placeholder.jpg"
+    image          = "/media/sample-image-1.png"
     season         = "2"
     episode        = "5"
     director       = "Demo Director"

@@ -10,7 +10,7 @@ Lead paragraph introducing the Software demo. This page exercises the software s
 
 {{< software
     name                = "Demo Software"
-    logo                = "placeholder.jpg"
+    logo                = "/media/sample-image-2.png"
     developer           = "Demo Software Foundation"
     initial_release     = "2020"
     latest_release      = "1.0.0"

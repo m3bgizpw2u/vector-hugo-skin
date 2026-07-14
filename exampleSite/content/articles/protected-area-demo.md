@@ -10,7 +10,7 @@ Lead paragraph introducing the Protected area demo. This page exercises the prot
 
 {{< protected-area
     name            = "Sample Reserve"
-    image           = "placeholder.jpg"
+    image           = "/media/sample-image-1.png"
     location        = "Demo Region"
     nearest_city    = "Demo City"
     coordinates     = "0.0000°N 0.0000°E"

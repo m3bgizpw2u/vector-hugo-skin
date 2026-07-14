@@ -10,7 +10,7 @@ Lead paragraph introducing the Political party demo. This page exercises the pol
 
 {{< political-party
     name         = "Sample Party"
-    logo         = "placeholder.jpg"
+    logo         = "/media/sample-image-2.png"
     abbreviation = "SP"
     leader       = "Demo Leader"
     founder      = "Demo Founder"

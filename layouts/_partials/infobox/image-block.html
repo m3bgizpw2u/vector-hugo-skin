@@ -19,7 +19,22 @@ licensed CC BY-SA 4.0. Header per docs/PORT-MAP-CONVENTIONS.md §B (dual).
 */}}
 <figure class="infobox-image-block" data-lightbox>
   {{ with .image }}
-    <img src="{{ . }}" alt="{{ $.alt | default "" }}" loading="lazy">
+    {{/* Image rendering is delegated to the shared article/thumb.html partial
+         so the infobox image inherits the project's native-ratio responsive
+         pipeline (srcset/sizes, intrinsic width/height, no aspect-ratio crop).
+         align="none" + width="100%" makes the .thumb fill the infobox column;
+         the infobox-scoped width override lives in
+         assets/css/components/infobox.scss. The lightbox opt-in stays on this
+         outer .infobox-image-block wrapper (not passed to the partial) so
+         assets/js/modules/lightbox.ts binds exactly once, and the
+         .infobox-caption below is preserved as the documented CSS hook
+         (docs/SHORTCODES.md §6). */}}
+    {{ partial "article/thumb.html" (dict
+        "src"   .
+        "alt"   ($.alt | default "")
+        "align" "none"
+        "width" "100%"
+    ) }}
   {{ end }}
   {{ with .caption }}
     <figcaption class="infobox-caption">{{ . | safeHTML }}</figcaption>

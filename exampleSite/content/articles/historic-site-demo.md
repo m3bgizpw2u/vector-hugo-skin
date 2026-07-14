@@ -10,7 +10,7 @@ Lead paragraph introducing the Historic site demo. This page exercises the histo
 
 {{< historic-site
     name        = "Sample Landmark"
-    image       = "placeholder.jpg"
+    image       = "/media/sample-image-1.png"
     caption     = "Sample landmark photo"
     location    = "100 Demo Street"
     nearest_city = "Demo City"

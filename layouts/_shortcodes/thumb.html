@@ -1,0 +1,68 @@
+{{/*
+  Original work, GPL-2.0-or-later. Header per docs/PORT-MAP-CONVENTIONS.md §A.
+
+  thumb — the user-facing inline article-body thumbnail. A thin paired-form
+  wrapper over the shared layouts/_partials/article/thumb.html partial, which
+  does the actual native-ratio responsive image rendering (srcset/sizes,
+  intrinsic width/height for CLS, magnify + lightbox hooks). Full reference:
+  docs/shortcodes/thumb.md.
+
+  Per .cursor/rules/00-core.mdc rule 4 and the existing figure.html precedent,
+  a shortcode that may read .Inner MUST be called in paired form. Authors
+  write either the parameter-only form:
+
+    {{< thumb src="/media/x.jpg" alt="…" caption="…" align="right" >}}{{</ thumb >}}
+
+  or the paired form, where .Inner becomes the caption (so the caption can
+  carry Markdown links / emphasis authored inline):
+
+    {{< thumb src="/media/x.jpg" alt="…" align="left" lightbox="true" >}}
+    Photographed in 1984. See [the archive](https://example.org/archive).
+    {{</ thumb >}}
+
+  Parameters:
+    src      string  required  image URL (remote http(s)://) or a
+                               site-relative / assets-relative path.
+    alt      string  optional  alt text; empty is valid for a decorative image.
+    caption  string  optional  caption markup; markdownified here so inline
+                               links / emphasis work. Ignored when .Inner is
+                               non-empty (the paired body wins).
+    align    string  optional  "right" | "left" | "none" (default "right" —
+                               the Wikipedia default-thumb placement).
+    width    string  optional  CSS length cap for the desktop container; also
+                               feeds the partial's `sizes` hint.
+    lightbox string  optional  "true" opts into the lightbox overlay + magnify
+                               button.
+    group    string  optional  lightbox carousel key; only meaningful when
+                               lightbox="true".
+
+  The partial emits the .thumb / .thumb__image-wrap / .thumb__img /
+  .thumb__magnify / .thumb__caption hooks — see assets/css/components/_thumb.scss
+  and assets/js/modules/thumb.ts.
+*/}}
+{{- $src := .Get "src" -}}
+{{- if not $src }}{{ errorf "thumb shortcode: 'src' is required" .Position }}{{ end -}}
+{{- $alt := .Get "alt" | default "" -}}
+{{- $align := .Get "align" | default "right" -}}
+{{- $width := .Get "width" | default "" -}}
+{{- $lightbox := .Get "lightbox" | default "" -}}
+{{- $group := .Get "group" | default "" -}}
+{{- /* .Inner (paired body) wins over the `caption` param when non-empty, so a
+       caption can carry inline Markdown authored between the tags. */ -}}
+{{- $caption := "" -}}
+{{- $inner := "" -}}
+{{- with .Inner -}}{{- $inner = strings.TrimSpace . -}}{{- end -}}
+{{- if ne $inner "" -}}
+  {{- $caption = .Inner | .Page.RenderString -}}
+{{- else -}}
+  {{- with .Get "caption" -}}{{- $caption = . | $.Page.RenderString -}}{{- end -}}
+{{- end -}}
+{{- partial "article/thumb.html" (dict
+    "src"      $src
+    "alt"      $alt
+    "caption"  $caption
+    "align"    $align
+    "width"    $width
+    "lightbox" $lightbox
+    "group"    $group
+) -}}

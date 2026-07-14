@@ -11,7 +11,7 @@ Lead paragraph introducing the Television season demo. This page exercises the t
 {{< television-season
     name           = "Sample Series — Season 2"
     series_name    = "Sample Series"
-    image          = "placeholder.jpg"
+    image          = "/media/sample-image-1.png"
     season_number  = "2"
     num_episodes   = "10"
     starring       = "Demo Actor One, Demo Actor Two"

@@ -73,28 +73,44 @@
 {{ $lightbox := .Get "lightbox" | default "" }}
 {{ $group := .Get "group" | default "" }}
 {{ $src := .Get "src" }}
+{{ $alt := .Get "alt" | default "" }}
 {{ $caption := .Get "caption" }}
 {{ $attribution := .Get "attribution" }}
 {{ $inner := "" }}
 {{ if .Inner }}{{ $inner = strings.TrimSpace .Inner }}{{ end }}
-<figure class="figure" data-halign="{{ $halign }}" data-mw-size="default" data-kind="{{ $kind }}"{{ if eq $lightbox "true" }} data-lightbox{{ if ne $group "" }} data-lightbox-group="{{ $group }}"{{ end }}{{ end }}>
+{{/* The image branch delegates its <img> + <figcaption> + magnify to the
+     shared article/thumb.html partial (native-ratio responsive rendering).
+     data-lightbox is emitted on the inner .thumb figure by the partial, so
+     it is only emitted on the .figure wrapper for the non-image branches
+     (custom inner body / audio / video) to avoid double-binding in
+     assets/js/modules/lightbox.ts. */}}
+{{ $isImageBranch := and (eq $inner "") (ne $kind "audio") (ne $kind "video") }}
+<figure class="figure" data-halign="{{ $halign }}" data-mw-size="default" data-kind="{{ $kind }}"{{ if and (eq $lightbox "true") (not $isImageBranch) }} data-lightbox{{ if ne $group "" }} data-lightbox-group="{{ $group }}"{{ end }}{{ end }}>
   {{ if ne $inner "" }}
     {{ $inner | safeHTML }}
+    {{ with $caption }}<figcaption>{{ . | markdownify }}</figcaption>{{ end }}
   {{ else if eq $kind "audio" }}
     <audio controls preload="metadata" src="{{ $src }}">
       Your browser does not support the audio element.
       <a href="{{ $src }}">Download the file</a>
     </audio>
+    {{ with $caption }}<figcaption>{{ . | markdownify }}</figcaption>{{ end }}
   {{ else if eq $kind "video" }}
     <video controls preload="metadata" src="{{ $src }}">
       Your browser does not support the video element.
       <a href="{{ $src }}">Download the file</a>
     </video>
+    {{ with $caption }}<figcaption>{{ . | markdownify }}</figcaption>{{ end }}
   {{ else }}
-    <img src="{{ $src }}" alt="{{ .Get "alt" }}" loading="lazy">
-  {{ end }}
-  {{ with $caption }}
-    <figcaption>{{ . | markdownify }}</figcaption>
+    {{ partial "article/thumb.html" (dict
+        "src"      $src
+        "alt"      $alt
+        "caption"  (cond (ne (default "" $caption) "") ($caption | markdownify) "")
+        "align"    "none"
+        "lightbox" $lightbox
+        "group"    $group
+        "class"    "figure__thumb"
+    ) }}
   {{ end }}
   {{ if $attribution }}
     <p class="figure-attribution">{{ $attribution }}</p>

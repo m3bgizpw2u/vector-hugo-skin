@@ -10,7 +10,7 @@ Lead paragraph introducing the Church demo. This page exercises the church short
 
 {{< church
     name               = "Sample Cathedral"
-    image              = "placeholder.jpg"
+    image              = "/media/sample-image-1.png"
     caption            = "Sample cathedral photo"
     dedication         = "Demo saint"
     denomination       = "Demo denomination"

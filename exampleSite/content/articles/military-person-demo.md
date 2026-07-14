@@ -10,7 +10,7 @@ Lead paragraph introducing the Military person demo. This page exercises the mil
 
 {{< military-person
     name          = "Demo Soldier"
-    image         = "placeholder.jpg"
+    image         = "/media/sample-image-portrait.png"
     caption       = "Sample portrait"
     birth_date    = "1 January 1970"
     birth_place   = "Demo City"

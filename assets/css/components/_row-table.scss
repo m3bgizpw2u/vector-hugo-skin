@@ -191,20 +191,28 @@ $rt-breakpoint: 720px;
 }
 
 // ---- Photo slot ---------------------------------------------------
+// The photo's <img> is rendered by the shared article/thumb.html partial
+// (native-ratio responsive pipeline — see assets/css/components/_thumb.scss),
+// so this wrapper no longer crops to 4/3 with object-fit:cover. It stays as
+// the grid-area anchor + rounded surface; the image scales to its native
+// ratio inside the cell.
 .row-table__photo {
   grid-area: photo;
   width: 100%;
-  aspect-ratio: 4 / 3;
   overflow: hidden;
   border-radius: var(--radius-md);
   background-color: var(--color-surface-alt);
 }
 
+.row-table__photo .thumb {
+  margin: 0;
+  width: 100%;
+}
+
 .row-table__photo img {
   display: block;
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  height: auto;
   border-radius: var(--radius-md);
 }
 
@@ -278,7 +286,6 @@ $rt-breakpoint: 720px;
   }
 
   .row-table__photo {
-    aspect-ratio: 16 / 9;
     max-width: 18rem;
   }
 }

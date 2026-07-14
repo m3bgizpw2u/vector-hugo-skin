@@ -10,7 +10,7 @@ Lead paragraph introducing the School demo. This page exercises the school short
 
 {{< school
     name        = "Sample Academy"
-    image       = "placeholder.jpg"
+    image       = "/media/sample-image-1.png"
     motto       = "Demo motto"
     established = "1900"
     type        = "Private"

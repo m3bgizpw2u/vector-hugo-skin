@@ -1,0 +1,52 @@
+slug: row
+category: primitives
+title: row
+description: One data row inside a `{{< row-table >}}` parent. Renders the icon → text → photo triple. Single-form; required: `title`, `text`, `image`.
+upstream: null
+worked_example: |
+  {{< row
+      icon    = "leaf-ovate"
+      title   = "Ovate"
+      image   = "/media/leaf-ovate.jpg"
+      text    = "Egg-shaped leaf, wider near the base and tapering toward the tip."
+      lightbox = "true"
+      group   = "leaves"
+  >}}
+fields:
+  - key: icon
+    label: Icon
+    type: text
+    hint: Basename of an SVG partial under `layouts/partials/icons/` (no `.svg` suffix). Resolution is guarded — a missing icon does not break the build.
+  - key: title
+    label: Title
+    type: text
+    required: true
+  - key: image
+    label: Image
+    type: image
+    required: true
+    hint: Local path → `relURL`; URL → verbatim.
+  - key: alt
+    label: Alt text
+    type: text
+    hint: Falls back to `title=` when omitted.
+  - key: text
+    label: Body text
+    type: markdown
+    required: true
+  - key: lightbox
+    label: Lightbox
+    type: checkbox
+    hint: Opts the photo into the lightbox overlay; caption is the row's `alt=` (falling back to `title=`).
+  - key: group
+    label: Lightbox group
+    type: text
+    hint: Carousel key — overrides the parent `{{< row-table >}}` default when set.
+defaults:
+  icon: "leaf-ovate"
+  title: "Ovate"
+  image: "/media/leaf-ovate.jpg"
+  alt: ""
+  text: "Egg-shaped leaf, wider near the base and tapering toward the tip."
+  lightbox: true
+  group: ""

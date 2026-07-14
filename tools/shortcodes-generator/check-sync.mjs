@@ -3,8 +3,8 @@
 // within the infobox family.
 //
 // Out of scope for this lint: shortcodes that don't have a per-field
-// YAML form — namely `break` (a float-clear primitive), `figure`
-// (article-body figure, see docs/SHORTCODES.md §A), and
+// YAML form — namely `break` (a float-clear primitive), `figure` and
+// `thumb` (article-body media, see docs/SHORTCODES.md §A), and
 // `cite-ref` / `references` (citation markers). Those are documented
 // elsewhere and intentionally have no generator UI.
 //
@@ -47,8 +47,8 @@ async function listWrappers() {
 }
 
 // Shortcodes the tool intentionally does not cover. These are
-// documented elsewhere (see docs/SHORTCODES.md §A for figure, the
-// note for `cite-ref` / `references` in §10, and `break` in the
+// documented elsewhere (see docs/SHORTCODES.md §A for figure + thumb,
+// the note for `cite-ref` / `references` in §10, and `break` in the
 // component catalogue). They are skipped from sync checks so adding
 // or removing one does not affect `npm run tools:check`.
 const OUT_OF_SCOPE = new Set([
@@ -56,6 +56,7 @@ const OUT_OF_SCOPE = new Set([
   'cite-ref',
   'references',
   'figure',
+  'thumb',
 ]);
 
 function wrapperExists(slug) {

@@ -28,8 +28,12 @@ npm-debug.log*
 /.plans/
 
 # exampleSite media fixtures (staged from .misc/, see CHANGELOG for the
-# rationale — large media files aren't tracked).
+# rationale — large media files aren't tracked). Images are additionally
+# staged under exampleSite/assets/media/ so Hugo's image pipeline
+# (resources.Get + .Resize) can process them into srcset variants; the
+# static/media/ copies remain for audio/video and any direct static refs.
 /exampleSite/static/media/
+/exampleSite/assets/media/
 
 # Editor/OS noise
 .DS_Store

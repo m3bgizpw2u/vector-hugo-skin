@@ -232,6 +232,12 @@ wrapper built, and renders, in order:
    image, a `caption` underneath (rendered through `markdownify` to allow
    inline emphasis and links), and the `alt` attribute on the `<img>` itself
    for assistive tech. Absent image → block omitted entirely, no placeholder.
+   The image itself is rendered by the shared `article/thumb.html` partial
+   (native-ratio responsive pipeline — `srcset`/`sizes`, intrinsic
+   `width`/`height`, no aspect-ratio crop), the same partial every
+   image-emitting shortcode delegates to; the `.infobox-image-block`
+   `<figure>` and its `.infobox-caption` stay as the positioning/caption
+   wrapper.
 3. **The row sequence.** The `fields` value is a slice of `dict` entries,
    each one either:
    - a plain label/value pair (the wrapper provides a `label` and a `value`
@@ -315,7 +321,7 @@ contribute to it on either side as needed.
 |---|---|---|
 | `infobox` | the outer `<aside>` | The root box. Selector for box-level styles (max-width, float, border, background). |
 | `infobox-header` | the title `<div>` | The top header cell. Bold, centred or left-aligned, slightly larger than body text. |
-| `infobox-image` | the image `<figure>` | Wraps the image element when present. |
+| `infobox-image` | the image `<figure>` | Wraps the image element when present. The `<img>` inside is rendered by the shared `article/thumb.html` partial (native-ratio, `srcset`/`sizes`); per-type `max-width` hints keyed on `[data-infobox-type]` keep tall portraits from dominating the column. |
 | `infobox-caption` | the caption `<figcaption>` | Underneath the image, smaller text. |
 | `infobox-row` | a label/value row `<div>` | The dominant row type; two-column key/value layout. |
 | `infobox-label` | the label cell of a row | Left column; usually bolder and narrower. |
@@ -325,8 +331,12 @@ contribute to it on either side as needed.
 
 The named wrapper also emits a **`data-infobox-type="{slug}"`** attribute on
 the outer `<aside>`. This is the per-template SCSS hook: any visual tweak
-specific to one shortcode (e.g. a portrait aspect ratio for `person`) is a
-single SCSS rule keyed on `[data-infobox-type="{slug}"]`. Per-template
+specific to one shortcode (e.g. a narrower image-column `max-width` hint for
+`person`) is a single SCSS rule keyed on `[data-infobox-type="{slug}"]`.
+Since images now render at their native ratio through the shared
+`article/thumb.html` partial, per-type rules use `max-width` container hints
+rather than the former per-type `aspect-ratio` + `object-fit: cover` crops.
+Per-template
 SCSS files are prohibited by `.cursor/rules/00-core.mdc`; all per-template
 rules live in the one `infobox.scss` file, keyed on the attribute.
 
@@ -1226,6 +1236,64 @@ worked example before being considered done — the per-shortcode standalone
 page under `docs/shortcodes/<slug>.md` is the canonical quick-reference for
 both kinds.
 
+> **Shared image-rendering partial.** Every shortcode that emits an image —
+> `{{< thumb >}}`, `{{< figure >}}`, `{{< infobox-image >}}` and the
+> `{{< row >}}` photo slot — delegates the actual `<img>` to one shared
+> partial, `layouts/_partials/article/thumb.html`. That partial runs Hugo's
+> image pipeline (`resources.GetRemote` / `resources.Get` → `.Resize` →
+> `srcset`/`sizes` + intrinsic `width`/`height` for CLS) and renders every
+> image at its **native ratio** inside a max-width-constrained container —
+> the Wikipedia `figure[typeof~='mw:File/Thumb']` contract. There is no fixed
+> `aspect-ratio` and no `object-fit: cover` cropping anywhere in the theme;
+> the container's width is fixed and the height scales to the source ratio.
+> The class hooks it emits (`.thumb`, `.thumb__image-wrap`, `.thumb__img`,
+> `.thumb__magnify`, `.thumb__caption`) are styled by
+> `assets/css/components/_thumb.scss` and enhanced by
+> `assets/js/modules/thumb.ts`.
+
+### `{{< thumb >}}`
+**Intent:** The user-facing inline article-body thumbnail — a floated,
+native-ratio image with an optional caption and an optional lightbox magnify
+affordance. This is the direct expression of the Wikipedia thumbnail contract
+(Element 4 of the Sally Ride research) and the canonical entry point for the
+shared image-rendering partial described above. Use it for a standalone image
+that flows beside prose; use `{{< figure >}}` when you also need the
+bordered figure chrome or the audio/video `kind`s.
+**Most-used parameters:** `src` (required), `alt`, `caption`, `align`
+(`right` default \| `left` \| `none`), `width`, `lightbox`, `group`.
+**Worked example — parameter-only, right-aligned:**
+
+```go
+{{< thumb
+    src     = "/media/sally-ride-portrait.jpg"
+    alt     = "Sally Ride in 1984"
+    caption = "Ride in 1984, the year she became the first American woman in space."
+    align   = "right"
+    lightbox = "true"
+>}}{{< /thumb >}}
+```
+
+**Worked example — paired body as the caption (inline Markdown link):**
+
+```go
+{{< thumb src="/media/ride-training.jpg" alt="Water survival training" align="left" >}}
+Ride during water survival training at NASA's
+[Neutral Buoyancy Laboratory](https://en.wikipedia.org/wiki/Neutral_Buoyancy_Laboratory).
+{{</ thumb >}}
+```
+
+When the paired body is non-empty it becomes the caption (rendered through
+`RenderString` so inline Markdown works); otherwise the `caption="…"`
+parameter is used. A landscape and a portrait source both render with
+correct, uncropped proportions from the same call — that is the whole point
+of the native-ratio contract. On desktop/tablet the figure floats per
+`align` and caps its width; at the mobile breakpoint (720px) the float is
+dropped and the figure goes full-width.
+
+**See also:** [`docs/shortcodes/thumb.md`](shortcodes/thumb.md) — the
+canonical per-shortcode page (full parameter table, CSS hook contract,
+responsiveness, accessibility, limitations).
+
 ### `{{< figure >}}`
 **Intent:** Article-body figure — image, audio, or video embedded inline in
 the prose, with optional caption, float alignment, and lightbox participation.
@@ -1247,10 +1315,12 @@ figure is an article-body element, not an infobox.
 ```
 
 The parameter-only form maps Element 4 onto the article body — a floated
-right-aligned thumbnail with a captioned `<figure>`. Ticket 002 owns the
-`assets/css/components/figure.scss` file that styles the `[data-halign]`
-float rule; until that lands the figure still renders but the float is
-unconstrained.
+right-aligned thumbnail with a captioned `<figure>`. The `[data-halign]`
+float rule lives in `assets/css/components/figure.scss`; the `<img>` +
+`<figcaption>` themselves are delegated to the shared
+`layouts/_partials/article/thumb.html` partial, so the image renders at its
+native ratio (no 4:3 crop) with a Hugo-processed `srcset`/`sizes` — the same
+image-rendering policy every image-emitting shortcode now shares.
 
 **Worked example — `kind="audio"` (Sally Ride Element 3):**
 

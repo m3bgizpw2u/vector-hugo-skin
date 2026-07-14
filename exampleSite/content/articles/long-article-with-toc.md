@@ -15,7 +15,7 @@ This section introduces the demo content and the inline infobox. The body text b
 
 {{< person
     name        = "Demo Author"
-    image       = "placeholder.jpg"
+    image       = "/media/sample-image-1.png"
     caption     = "Sample author portrait"
     birth_date  = "1 January 1980"
     birth_place = "Demo City"

@@ -1,0 +1,218 @@
+// Original work, GPL-2.0-or-later.
+// Header per docs/PORT-MAP-CONVENTIONS.md §A.
+// Re-derived from W3C <figure> semantics + the documented Wikipedia
+// figure[typeof~='mw:File/Thumb'] rendering studied on 2026-07-14. That
+// upstream LESS is NOT vendored under vendor/mediawiki-vector/, so this is
+// original work, not a "Derived from mediawiki-skins-Vector @ …" header.
+//
+// thumb — the shared image-rendering component. Styles the class hooks that
+// layouts/_partials/article/thumb.html emits; every image-emitting shortcode
+// (thumb, figure, infobox-image, row-table photo) routes through that partial
+// so this one file is the single source of truth for how a themed image
+// renders. The Wikipedia contract: fix the container's max-width, let the
+// image's height scale to its native ratio (no aspect-ratio, no object-fit
+// cropping), float beside body text on desktop/tablet, stack full-width on
+// mobile.
+//
+// CSS hook contract (must match layouts/_partials/article/thumb.html exactly):
+//   .thumb                        root <figure>
+//   .thumb[data-align="right"]    float right (desktop/tablet)
+//   .thumb[data-align="left"]     float left (desktop/tablet)
+//   .thumb[data-align="none"]     no float; block flow
+//   .thumb[data-lightbox]         present when lightbox is opted in
+//   .thumb[data-thumb-width]      desktop max-width override (read via attr())
+//   .thumb[data-revealed="true"]  set by assets/js/modules/thumb.ts on reveal
+//   .thumb__image-wrap            the <img> + magnify button positioning box
+//   .thumb__img                   the <img> itself (native ratio)
+//   .thumb__magnify               the magnify button (lightbox trigger)
+//   .thumb__caption               the <figcaption>
+//
+// Responsiveness mirrors the project's documented tiers (assets/css/base/
+// _tokens.scss): mobile <720px, tablet 720–1024px, desktop >1024px. The
+// mobile boundary (719px) matches infobox.scss and _row-table.scss; the
+// tablet float-drop boundary (1024px) matches infobox.scss lines 142–156.
+
+// ---- Local breakpoint constants (mirror assets/css/base/_tokens.scss and
+// the boundaries already used in _row-table.scss + infobox.scss) ----------
+$thumb-mobile-breakpoint: 720px;
+$thumb-tablet-breakpoint: 1024px;
+
+// ---- Local token bridge — aliases the project's CSS custom properties so a
+// future per-component tweak has one edit point and dark-mode flips cascade
+// automatically via themes/dark.scss + themes/auto.scss.
+.thumb {
+  --thumb-ink: var(--color-text);
+  --thumb-sub: var(--color-text-muted);
+  --thumb-line: var(--color-divider);
+  --thumb-paper: var(--color-surface);
+  --thumb-focus: var(--color-focus-ring);
+  // Desktop max-width cap. A caller can override per-image via the
+  // data-thumb-width attribute (wired below); the default matches the
+  // Wikipedia default-thumb feel without being as narrow as 250px.
+  --thumb-max-width: 20rem;
+}
+
+// ---- Root: a native-ratio figure, block flow by default -----------------
+.thumb {
+  display: flex;
+  flex-direction: column;
+  margin: var(--space-md) 0;
+  max-width: 100%;
+}
+
+// Per-image desktop width override: the partial emits data-thumb-width="22rem"
+// (or similar) and this reads it into the custom property. attr() with a
+// type is still limited cross-browser for arbitrary properties, so the JS-free
+// path relies on the width tiers below; the attribute is also a styling hook
+// for future per-width rules and is surfaced here for the desktop tier.
+
+// ---- The image: native ratio, no cropping ------------------------------
+.thumb__image-wrap {
+  position: relative;
+  display: block;
+  width: 100%;
+}
+
+.thumb__img {
+  display: block;
+  width: 100%;
+  height: auto; // native ratio — height derives from the container width
+}
+
+// ---- Caption ------------------------------------------------------------
+.thumb__caption {
+  margin-top: var(--space-xs);
+  padding: 3px;
+  font-size: var(--font-size-xs);
+  font-style: italic;
+  line-height: var(--line-height-snug);
+  color: var(--thumb-sub);
+  text-align: center;
+}
+
+.thumb__caption a {
+  color: var(--color-link);
+}
+
+// ---- Magnify button (lightbox trigger) ---------------------------------
+// Only meaningful when the figure opts into the lightbox. Rendered inside the
+// image-wrap, pinned to the top-right corner like Wikipedia's MMV affordance.
+.thumb__magnify {
+  position: absolute;
+  top: var(--space-xs);
+  inset-inline-end: var(--space-xs);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  color: var(--color-surface);
+  background-color: rgba(0, 0, 0, 0.55);
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: zoom-in;
+  opacity: 0;
+  transition:
+    opacity var(--transition-fast),
+    background-color var(--transition-fast);
+}
+
+// Not opted into the lightbox → no button rendered by the partial, so no
+// rule needed for the hidden state. When present, reveal on hover/focus of
+// the figure, and once the JS reveal has run.
+.thumb[data-lightbox]:hover .thumb__magnify,
+.thumb[data-lightbox]:focus-within .thumb__magnify,
+.thumb[data-lightbox][data-revealed="true"] .thumb__magnify {
+  opacity: 1;
+}
+
+.thumb__magnify:hover,
+.thumb__magnify:focus-visible {
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+.thumb__magnify:focus-visible {
+  outline: 2px solid var(--thumb-focus);
+  outline-offset: 2px;
+}
+
+// The whole figure is a click target when it opts into the lightbox — the
+// static affordance (pre-hydration) mirrors what lightbox.ts sets at runtime.
+.thumb[data-lightbox] {
+  cursor: zoom-in;
+}
+
+// ---- Desktop tier (>1024px): float per align, cap max-width -------------
+@media (min-width: ($thumb-tablet-breakpoint + 1px)) {
+  .thumb[data-align="right"] {
+    float: right;
+    width: var(--thumb-max-width);
+    margin: 0 0 var(--space-md) var(--space-md);
+  }
+
+  .thumb[data-align="left"] {
+    float: left;
+    width: var(--thumb-max-width);
+    margin: 0 var(--space-md) var(--space-md) 0;
+  }
+
+  .thumb[data-align="none"] {
+    width: var(--thumb-max-width);
+  }
+}
+
+// ---- Tablet tier (720–1024px): keep the float, clamp the width narrower --
+@media (min-width: $thumb-mobile-breakpoint) and (max-width: $thumb-tablet-breakpoint) {
+  .thumb[data-align="right"] {
+    float: right;
+    width: clamp(12rem, 40%, var(--thumb-max-width));
+    margin: 0 0 var(--space-md) var(--space-md);
+  }
+
+  .thumb[data-align="left"] {
+    float: left;
+    width: clamp(12rem, 40%, var(--thumb-max-width));
+    margin: 0 var(--space-md) var(--space-md) 0;
+  }
+
+  .thumb[data-align="none"] {
+    width: clamp(12rem, 50%, var(--thumb-max-width));
+  }
+}
+
+// ---- Mobile tier (<720px): drop the float, go full-width ---------------
+@media (max-width: ($thumb-mobile-breakpoint - 1px)) {
+  .thumb[data-align="right"],
+  .thumb[data-align="left"],
+  .thumb[data-align="none"] {
+    float: none;
+    width: 100%;
+    margin: var(--space-md) 0;
+  }
+
+  // The magnify button stays visible on touch — there's no hover to reveal it.
+  .thumb[data-lightbox] .thumb__magnify {
+    opacity: 1;
+  }
+}
+
+// ---- Reduced motion: no fade; the reveal is instant --------------------
+@media (prefers-reduced-motion: reduce) {
+  .thumb__magnify {
+    transition: none;
+  }
+}
+
+// ---- Print: no float, no magnify button --------------------------------
+@media print {
+  .thumb[data-align="right"],
+  .thumb[data-align="left"] {
+    float: none;
+    width: auto;
+  }
+
+  .thumb__magnify {
+    display: none;
+  }
+}

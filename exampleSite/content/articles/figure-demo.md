@@ -15,12 +15,23 @@ the parameter-only image, the paired image with author-supplied caption,
 example is paired with a short prose explanation so the demo doubles as
 documentation.
 
+Image rendering now delegates to the shared
+`layouts/_partials/article/thumb.html` partial, so figure images inherit
+the project's native-ratio responsive pipeline: a real Hugo-processed
+`srcset`/`sizes` set, intrinsic `width`/`height` for zero layout shift,
+and **no** `aspect-ratio: 4/3` crop. The image keeps its true proportions
+inside the floated `.figure` frame; the `.figure` wrapper still owns the
+border chrome and the `halign` float direction. Audio and video kinds are
+media players, not images, so they bypass the partial.
+
 ## Parameter-only image (Element 4)
 
 The canonical right-aligned thumbnail — a floated image with an
 alt-text, a captioned figure caption, and a `halign="right"` data
-attribute that the future `assets/css/components/figure.scss` (ticket 002)
-will style as a float.
+attribute that `assets/css/components/figure.scss` styles as a float. The
+image itself renders at its native ratio (via the shared thumb partial),
+so a landscape source stays landscape and a portrait source stays
+portrait — no 4:3 crop is imposed on either.
 
 {{< figure
     src     = "/media/sample-image-1.png"
@@ -176,7 +187,7 @@ and wires up arrow-key navigation without further DOM coordination.
 | `kind` | optional | `"image"` (default) \| `"audio"` \| `"video"`. |
 | `lightbox` | optional | `"true"` opts the figure into the lightbox carousel. |
 | `group` | optional | Lightbox group key; only meaningful when `lightbox="true"`. |
-| `width` | optional | CSS length for the figure width; accepted for forward-compat but not yet emitted. |
+| `width` | optional | CSS length for the figure width; feeds the shared thumb partial's `sizes` hint. |
 
 The list mirrors the comment header at the top of
 `layouts/_shortcodes/figure.html`, which is the source of truth. See

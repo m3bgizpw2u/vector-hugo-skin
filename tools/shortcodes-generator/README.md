@@ -45,17 +45,25 @@ Press `Ctrl-C` in the terminal to stop the server.
 ## What it does
 
 For each of the 30 named infobox shortcodes (`{{< person >}}`, `{{< settlement >}}`,
-`{{< film >}}`, …) plus the 12 inner primitives (`{{< infobox-row >}}`,
-`{{< infobox-section >}}`, `{{< infobox-pair-date >}}`, …), the tool:
+`{{< film >}}`, …) plus the 13 inner primitives (`{{< infobox-row >}}`,
+`{{< infobox-section >}}`, `{{< infobox-pair-date >}}`, …, `{{< row >}}`),
+the tool:
 
 1. Renders a form whose fields are defined in `data/<slug>.yaml`.
 2. Pre-fills the form with the `defaults` block from the same YAML so authors
    see a worked example before they start typing.
 3. Live-renders the corresponding Hugo shortcode as you type, with a toggle
    between vertical-aligned (multi-line) and compact (one-line) formatting.
-4. Shows a rendered preview that mirrors what Hugo emits (same infobox CSS
-   hooks: `infobox`, `infobox-header`, `infobox-row`, `infobox-label`,
-   `infobox-data`, `infobox-section-header`, `infobox-below`).
+4. Shows a rendered preview that mirrors what Hugo emits. For the infobox
+   family this is the same infobox CSS hook chrome (`infobox`,
+   `infobox-header`, `infobox-row`, `infobox-label`, `infobox-data`,
+   `infobox-section-header`, `infobox-below`). For `{{< row-table >}}` it is
+   the section chrome (`.row-table` + `.row-table__header` + a representative
+   `.row-table__row` with placeholder icon / text / photo) with the
+   lightbox opt-in surfaced via the dashed outline on the photo when a
+   `group=` is set. For the `{{< row >}}` primitive it is one row card
+   rendered in the same grid so authors can preview a row in isolation
+   before pasting it into the wrapper.
 5. Copies the paired-form shortcode to your clipboard when you click Copy.
 6. Auto-saves your in-progress form to `localStorage` per shortcode, so a
    page refresh doesn't lose what you typed.
@@ -143,7 +151,7 @@ tools/shortcodes-generator/
 └── data/
     ├── person.yaml
     ├── settlement.yaml
-    └── ... (30 named + 12 primitives = 42 files)
+    └── ... (30 named + 13 primitives = 43 files; 30 infobox + `row-table` named, 12 infobox-pair/row/section/etc + `row` primitive)
 ```
 
 ## Adding a new shortcode
@@ -192,8 +200,9 @@ a matching layout file (and vice versa), so CI catches accidental drift.
 The named wrappers and the inner primitives are presented as two separate
 generator views. The inner-primitive view (`primitives.ts`) lets you generate
 `infobox-row`, `infobox-section`, `infobox-image`, `infobox-below`,
-`infobox-field`, and the seven `infobox-pair-*` primitives — useful when you
-need to drop a custom row inside a named wrapper's `.Inner` block.
+`infobox-field`, the seven `infobox-pair-*` primitives, and the `row`
+inner primitive used inside `{{< row-table >}}` — useful when you need to
+drop a custom row inside a named wrapper's `.Inner` block.
 
 ## Maintenance and linting
 

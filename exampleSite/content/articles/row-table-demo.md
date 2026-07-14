@@ -24,6 +24,15 @@ narrow viewports and expand on tap / Enter / Space). Each example is
 paired with a short prose explanation so the demo doubles as
 documentation.
 
+The photo slot now delegates its image to the shared
+`layouts/_partials/article/thumb.html` partial, so row photos render at
+their **native aspect ratio** (real `srcset`/`sizes` from Hugo image
+processing, intrinsic `width`/`height` for zero layout shift) rather than
+being cropped to a fixed 4/3 box with `object-fit: cover`. The
+`.row-table__photo` cell is still the grid anchor and still supplies the
+rounded surface and the lightbox zoom-in affordance; only the image inside
+it stopped cropping.
+
 ## Default variant — three leaf shapes
 
 The canonical shape: a wrapper with eyebrow + title + description,
@@ -66,11 +75,12 @@ photo full-width below the icon+text row (no DOM order change, pure
 
 ## `variant="compact"` — tighter spacing
 
-The `compact` modifier tightens the row gap and the photo column's
-aspect ratio, useful when the table sits alongside prose in a busy
-article. The class hook is `row-table--compact`; the variant is
-emitted automatically from the `variant=` parameter so authors don't
-have to know the BEM suffix.
+The `compact` modifier tightens the row gap and padding, useful when the
+table sits alongside prose in a busy article. The class hook is
+`row-table--compact`; the variant is emitted automatically from the
+`variant=` parameter so authors don't have to know the BEM suffix. (The
+photo still renders at its native ratio — compact only changes the
+surrounding spacing, not the image.)
 
 {{< row-table
     eyebrow     = "2/4 · Compact"
@@ -193,7 +203,9 @@ group, Escape closes, focus returns to the trigger.
 | inner rows    | required | One or more `{{</* row */>}}` children. |
 
 The `{{</* row */>}}` child accepts: `title` (required), `text` (required,
-markdown), `image` (required, local path → `relURL`, URL → verbatim),
+markdown), `image` (required — rendered through the shared
+`article/thumb.html` partial at native ratio with `srcset`/`sizes`, no
+4:3 crop),
 `icon` (optional, basename under `layouts/partials/icons/`), `alt`
 (optional, defaults to the row `title`), `lightbox` (optional, `"true"`
 opts the photo into the lightbox overlay), `group` (optional, lightbox

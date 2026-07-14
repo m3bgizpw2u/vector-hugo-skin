@@ -11,7 +11,7 @@ Lead paragraph introducing the Film demo. This page exercises the film shortcode
 
 {{< film
     name        = "Sample Film"
-    image       = "placeholder.jpg"
+    image       = "/media/sample-image-portrait.png"
     caption     = "Sample film poster"
     director    = "Demo Director"
     producer    = "Demo Producer"

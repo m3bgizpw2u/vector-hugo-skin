@@ -23,6 +23,17 @@ author-friendly surface: Hugo's Markdown renderer emits `<audio>` and
 `<video>` tags with no controls, no fallback link, and no consistent
 attributes; `{{< figure >}}` standardises the wrapper.
 
+**Image rendering is delegated to the shared partial.** For the `image`
+kind, the `<img>` + `<figcaption>` now come from
+`layouts/_partials/article/thumb.html` — the same native-ratio responsive
+partial every image-emitting shortcode routes through. Images render at
+their native aspect ratio (no 4:3 crop, no `object-fit: cover`) with a
+Hugo-processed `srcset`/`sizes` set and intrinsic `width`/`height` for
+CLS. The `.figure` wrapper keeps its own border chrome and float
+alignment; only the image contract changed. See
+[`docs/shortcodes/thumb.md`](thumb.md) for the shared partial's full
+contract.
+
 ## Parameters
 
 The full parameter list, in declaration order. The list mirrors the comment
@@ -39,7 +50,7 @@ of truth.
 | `kind` | optional | `"image"` (default) \| `"audio"` \| `"video"`. |
 | `lightbox` | optional | `"true"` opts the figure into the lightbox carousel via `data-lightbox`. |
 | `group` | optional | Lightbox group key; only meaningful when `lightbox="true"`; ignored otherwise. |
-| `width` | optional | CSS length for the figure width; accepted for forward-compat but not yet emitted as an inline style. The CSS hook is ticket 002's job. |
+| `width` | optional | CSS length forwarded to the shared partial; feeds the responsive image's `sizes` hint. Not emitted as an inline style (per `00-core.mdc`); the desktop width cap lives in `_thumb.scss`. |
 
 ## Worked example
 
@@ -96,7 +107,7 @@ hook set above.
 
 | `kind` | What it emits | When to use |
 |---|---|---|
-| `image` (default) | `<img src alt loading="lazy">` | The standard right-aligned thumbnail (Element 4). The default; can be omitted. |
+| `image` (default) | A `.thumb` figure from the shared `article/thumb.html` partial — responsive `<img srcset sizes width height loading="lazy" decoding="async">` at native ratio | The standard right-aligned thumbnail (Element 4). The default; can be omitted. |
 | `audio` | `<audio controls preload="metadata" src>` with download-link fallback | Inline audio clip (Element 3); `<audio controls>` is the browser-default player. |
 | `video` | `<video controls preload="metadata" src>` with download-link fallback | Inline video (Element 3); `<video controls>` is the browser-default player. |
 
@@ -147,9 +158,12 @@ JS module never touches it.
   surface. Custom skins, caption tracks (`<track kind="captions">`),
   poster images, and inline play/pause buttons are out of scope until a
   follow-on phase adds them.
-- **The `width` parameter is accepted but not yet emitted.** Ticket 002
-  (figure SCSS) owns the actual width-handling logic; until then the
-  parameter is recorded for forward-compat and the CSS hook is on hold.
+- **The `width` parameter feeds the `sizes` hint, not an inline style.**
+  The image branch now delegates to the shared `article/thumb.html` partial,
+  which passes `width` into the responsive `sizes` attribute. The desktop
+  container width is set by the tiered rules in
+  `assets/css/components/_thumb.scss` (per `00-core.mdc`'s no-inline-style
+  rule), so a raw CSS length is not emitted as `style="width:…"`.
 - **No upstream `Template:Infobox figure` mapping exists.** Figure is an
   article-body element (Sally Ride Elements 3 / 4), not an infobox
   wrapper. There is no MediaWiki `Template:Infobox figure` to port from;

@@ -17,6 +17,7 @@ import { init as initLightbox } from './modules/lightbox';
 import { init as initSearch } from './modules/search';
 import { init as initTitlebarToc } from './modules/titlebar-toc';
 import { init as initRowTables } from './modules/row-table';
+import { init as initThumb } from './modules/thumb';
 
 function bootstrap(): void {
   initSidebar();
@@ -27,6 +28,7 @@ function bootstrap(): void {
   initSearch();
   initTitlebarToc();
   initRowTables();
+  initThumb();
 }
 
 if (document.readyState === 'loading') {

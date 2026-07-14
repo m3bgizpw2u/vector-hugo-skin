@@ -10,7 +10,7 @@ Lead paragraph introducing the Ice hockey biography demo. This page exercises th
 
 {{< ice-hockey-biography
     name          = "Demo Skater"
-    image         = "placeholder.jpg"
+    image         = "/media/sample-image-portrait.png"
     caption       = "Sample player photo"
     birth_date    = "20 January 1996"
     birth_place   = "Demo City"

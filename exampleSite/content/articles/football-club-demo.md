@@ -10,7 +10,7 @@ Lead paragraph introducing the Football club demo. This page exercises the footb
 
 {{< football-club
     name      = "Sample United"
-    logo      = "placeholder.jpg"
+    logo      = "/media/sample-image-2.png"
     full_name = "Sample United Football Club"
     nickname  = "The Samples"
     founded   = "1878"

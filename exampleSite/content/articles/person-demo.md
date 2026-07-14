@@ -10,7 +10,7 @@ Lead paragraph introducing the Person demo. This page exercises the person short
 
 {{< person
     name          = "Demo Person"
-    image         = "placeholder.jpg"
+    image         = "/media/sample-image-portrait.png"
     caption       = "Sample portrait"
     alt           = "Sample portrait of demo person"
     birth_date    = "1 January 1990"

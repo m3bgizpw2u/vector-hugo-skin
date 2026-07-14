@@ -28,10 +28,6 @@
 {{- if not $title }}{{ errorf "row shortcode: 'title' is required" .Position }}{{ end }}
 {{- if not $text }}{{ errorf "row shortcode: 'text' is required" .Position }}{{ end }}
 {{- if not $image }}{{ errorf "row shortcode: 'image' is required" .Position }}{{ end }}
-{{- $src := $image }}
-{{- if and (ne $image "") (not (or (hasPrefix $image "http://") (hasPrefix $image "https://") (hasPrefix $image "//"))) }}
-  {{- $src = $image | relURL }}
-{{- end }}
 {{- /*
     Group inheritance: prefer the row's own `group` param, then fall
     back to the parent `{{< row-table >}}` `group` param, then "". Keeps
@@ -55,8 +51,21 @@
     <p class="row-table__text-title">{{ $title }}</p>
     <div class="row-table__text-body">{{ $text | markdownify }}</div>
   </div>
+  {{- /* The photo slot delegates its <img> to the shared article/thumb.html
+         partial so the row photo inherits the project's native-ratio
+         responsive pipeline (srcset/sizes, intrinsic width/height, no
+         aspect-ratio crop). align="none" — the photo is a grid cell, not a
+         floated figure. The lightbox opt-in stays on this .row-table__photo
+         wrapper (not passed to the partial) so assets/js/modules/lightbox.ts
+         binds exactly once; data-lightbox-caption carries the alt text as the
+         overlay caption since the partial emits no <figcaption> here. */ -}}
   <div class="row-table__photo"
        {{- if $lightbox }} data-lightbox{{ if ne $group "" }} data-lightbox-group="{{ $group }}"{{ end }} data-lightbox-caption="{{ $alt }}"{{ end }}>
-    <img src="{{ $src }}" alt="{{ $alt }}"{{ if $lightbox }} role="button" tabindex="0"{{ end }} loading="lazy" decoding="async">
+    {{ partial "article/thumb.html" (dict
+        "src"   $image
+        "alt"   $alt
+        "align" "none"
+        "width" "100%"
+    ) }}
   </div>
 </div>

@@ -1,0 +1,69 @@
+slug: row-table
+category: article-body
+title: Row Table
+description: Article-body element — labelled section of icon → text → photo rows for catalogue / reference pages. Each row is added as a child `{{< row >}}` primitive.
+upstream: null
+worked_example: |
+  {{< row-table
+      eyebrow     = "1/4 · Example"
+      title       = "Common houseplant leaf shapes"
+      description = "A reusable icon → text → photo layout that scales fluidly between a 360px phone and a 1920px desktop."
+      variant     = "compact"
+      group       = "leaves"
+  >}}
+
+  {{< row
+      icon  = "leaf-ovate"
+      title = "Ovate"
+      image = "/media/leaf-ovate.jpg"
+      text  = "Egg-shaped leaf, wider near the base and tapering toward the tip."
+      lightbox = "true"
+  >}}
+
+  {{< row
+      icon  = "leaf-pinnate"
+      title = "Pinnate"
+      image = "/media/leaf-pinnate.jpg"
+      text  = "Leaflets arranged in pairs along a central stem, feather-like."
+      lightbox = "true"
+  >}}
+
+  {{< /row-table >}}
+fields:
+  - key: eyebrow
+    label: Eyebrow
+    type: text
+    hint: Small kicker label above the title.
+  - key: title
+    label: Title
+    type: text
+    hint: Heading text; rendered at the level set by `level=`.
+  - key: level
+    label: Heading level
+    type: number
+    hint: Defaults to 3; respects surrounding document outline.
+  - key: description
+    label: Description
+    type: markdown
+    hint: Intro paragraph rendered as Markdown.
+  - key: footer
+    label: Footer
+    type: markdown
+    hint: Closing note rendered as Markdown.
+  - key: variant
+    label: Variant
+    type: select
+    options: ["", "compact", "expandable"]
+    hint: "`compact` tightens padding/gap; `expandable` opts rows into the narrow-viewport click-to-expand."
+  - key: group
+    label: Lightbox group
+    type: text
+    hint: Carousel key inherited by every child row that opts into `lightbox="true"` without its own `group=`.
+defaults:
+  eyebrow: "1/4 · Example"
+  title: "Common houseplant leaf shapes"
+  level: 3
+  description: "A reusable icon → text → photo layout that scales fluidly between a 360px phone and a 1920px desktop."
+  footer: ""
+  variant: "compact"
+  group: "leaves"

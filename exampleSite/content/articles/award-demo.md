@@ -11,7 +11,7 @@ Lead paragraph introducing the Award demo. This page exercises the award shortco
 
 {{< award
     name          = "Sample Prize"
-    image         = "placeholder.jpg"
+    image         = "/media/sample-image-1.png"
     awarded_for   = "Demo excellence"
     presenter     = "Demo Academy"
     country       = "Demo Country"

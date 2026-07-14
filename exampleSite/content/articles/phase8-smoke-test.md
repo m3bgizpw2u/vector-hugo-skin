@@ -13,7 +13,7 @@ it is a build-time smoke test.
 
 {{< settlement
     name            = "Springfield"
-    image           = "springfield.jpg"
+    image           = "/media/sample-image-1.png"
     caption         = "Downtown Springfield"
     alt             = "Aerial view of downtown Springfield"
     country         = "United States"
@@ -38,7 +38,7 @@ it is a build-time smoke test.
 
 {{< person
     name          = "Ada Lovelace"
-    image         = "ada.jpg"
+    image         = "/media/sample-image-portrait.png"
     caption       = "Portrait of Ada Lovelace, 1843"
     alt           = "Black-and-white engraved portrait of a young woman"
     birth_date    = "10 December 1815"

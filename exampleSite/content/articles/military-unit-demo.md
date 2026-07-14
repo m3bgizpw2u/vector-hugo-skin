@@ -10,7 +10,7 @@ Lead paragraph introducing the Military unit demo. This page exercises the milit
 
 {{< military-unit
     name        = "Sample Regiment"
-    image       = "placeholder.jpg"
+    image       = "/media/sample-image-2.png"
     start_date  = "1 January 1940"
     end_date    = ""
     country     = "Demo Country"

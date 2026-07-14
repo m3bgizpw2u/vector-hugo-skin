@@ -1,0 +1,137 @@
+{{/*
+  Original work, GPL-2.0-or-later. Header per docs/PORT-MAP-CONVENTIONS.md §A.
+
+  article/thumb.html — the shared image-rendering partial. Every shortcode
+  that emits an image delegates the actual <img> + <figcaption> + magnify
+  affordance to this one file, so the Wikipedia-style native-ratio
+  responsive-container pattern is the project's single image-rendering
+  policy rather than a feature of one shortcode.
+
+  Callers today: layouts/_shortcodes/thumb.html (the user-facing inline
+  thumbnail), layouts/_shortcodes/figure.html (article-body figures),
+  layouts/_partials/infobox/image-block.html (every named infobox), and
+  layouts/_shortcodes/row.html (the row-table photo slot).
+
+  ─── Research findings (baked into this design) ──────────────────────────
+  Pulled the rendered DOM from en.wikipedia.org/wiki/Sally_Ride,
+  /wiki/Eiffel_Tower and /wiki/Lion on 2026-07-14. The modern
+  Vector/Minerva markup is:
+    * Root:  <figure typeof="mw:File/Thumb" class="mw-default-size mw-halign-right">
+             (the legacy .thumb / .thumbinner / .thumbcaption triple is
+             collapsed into figure[typeof~='mw:File/Thumb']).
+    * Image: explicit width="250" height="164" from the parser + a
+             retina-only 2× srcset at the default size.
+    * Caption: a native <figcaption>.
+    * NO fixed aspect ratio — the <img> carries the natural width/height,
+      the container only constrains max-width, and the height grows with
+      the container's width at the source ratio.
+
+  ─── Intentional divergences from upstream ───────────────────────────────
+  1. No `typeof` RDFa attribute — there is no MediaWiki parser, so it would
+     be dead weight.
+  2. No `data-file-*` attributes — no Parsoid metadata in a static site.
+  3. No `mw-file-description` wrapper link — no MediaWiki file page to link
+     to; the figure stands alone.
+  4. The <a> link wrapping the <img> is replaced by the lightbox trigger
+     (data-lightbox on the <figure>, consumed by assets/js/modules/lightbox.ts).
+  5. A 3-width srcset (320 / 640 / 800) instead of Wikipedia's 2-width
+     retina-only srcset — Hugo's native processing makes multi-width almost
+     free and gives tablet + mobile crispness.
+  6. The infobox family inherits this same native-ratio pattern instead of
+     carrying per-type aspect ratios; the project chose to drop per-type
+     ratios (see assets/css/components/infobox.scss + the plan).
+
+  ─── Parameters (dict keys) ──────────────────────────────────────────────
+    src      string  required  image URL (remote http(s)://) or a
+                               site-relative / assets-relative path.
+    alt      string  optional  alt text; empty string is a valid value for
+                               a decorative image.
+    caption  string  optional  caption markup; rendered through safeHTML so
+                               the caller controls markdownify vs raw.
+    align    string  optional  "right" | "left" | "none" (default "none");
+                               emitted as data-align on the figure.
+    width    string  optional  CSS length cap for the desktop container
+                               (default handled in _thumb.scss); also feeds
+                               the `sizes` attribute hint. "100%" means the
+                               figure fills its parent (infobox column).
+    lightbox bool/str optional "true" opts the figure into the lightbox
+                               overlay (data-lightbox + a magnify button).
+    group    string  optional  lightbox carousel key; only meaningful when
+                               lightbox is opted in.
+    class    string  optional  extra class appended to the .thumb root, for
+                               a caller-specific modifier (e.g. figure__thumb).
+
+  ─── Image-processing pipeline ───────────────────────────────────────────
+    src → remote (http(s)://)? → try resources.GetRemote → image resource
+        → else (assets-relative)? → resources.Get         → image resource
+        → on miss/error          → plain <img src> fallback (no srcset)
+    image → .Resize "320x" / "640x" / "800x" (capped at the source width)
+    srcset → "<v320> 320w, <v640> 640w, <v800> 800w"
+    sizes  → "(max-width: 719px) 100vw, <width-or-20rem>"
+  The intrinsic width/height pair is the CLS-friendly bit: the browser
+  reserves the right vertical space before the bytes land, while CSS uses
+  height:auto to compute the rendered height from the container width.
+*/}}
+{{- $src := .src -}}
+{{- $alt := .alt | default "" -}}
+{{- $caption := .caption | default "" -}}
+{{- $align := .align | default "none" -}}
+{{- $width := .width | default "" -}}
+{{- $lightbox := false -}}
+{{- with .lightbox -}}{{- if or (eq . true) (eq . "true") -}}{{- $lightbox = true -}}{{- end -}}{{- end -}}
+{{- $group := .group | default "" -}}
+{{- $extraClass := .class | default "" -}}
+
+{{- /* Resolve the source into a Hugo image resource where possible. Remote
+       URLs go through resources.GetRemote; everything else is treated as an
+       assets-relative path (leading slash and a leading "media/"-style path
+       both handled). A miss falls through to $img == nil and the plain
+       <img> fallback below. */ -}}
+{{- $img := "" -}}
+{{- $isRemote := or (hasPrefix $src "http://") (hasPrefix $src "https://") (hasPrefix $src "//") -}}
+{{- if $isRemote -}}
+  {{- with try (resources.GetRemote $src) -}}
+    {{- with .Err -}}{{/* network/parse error — leave $img empty */}}
+    {{- else with .Value -}}{{- $img = . -}}{{- end -}}
+  {{- end -}}
+{{- else -}}
+  {{- $lookup := strings.TrimPrefix "/" $src -}}
+  {{- with resources.Get $lookup -}}{{- $img = . -}}{{- end -}}
+{{- end -}}
+
+{{- /* Class list + data attributes shared by both the processed-resource
+       and the fallback branches. */ -}}
+{{- $rootClass := "thumb" -}}
+{{- if ne $extraClass "" -}}{{- $rootClass = printf "%s %s" $rootClass $extraClass -}}{{- end -}}
+{{- $sizes := "(max-width: 719px) 100vw, 20rem" -}}
+{{- if and (ne $width "") (not (strings.Contains $width "%")) -}}
+  {{- $sizes = printf "(max-width: 719px) 100vw, %s" $width -}}
+{{- end -}}
+<figure class="{{ $rootClass }}" data-align="{{ $align }}"{{ if ne $width "" }} data-thumb-width="{{ $width }}"{{ end }}{{ if $lightbox }} data-lightbox{{ if ne $group "" }} data-lightbox-group="{{ $group }}"{{ end }}{{ if ne $caption "" }} data-lightbox-caption="{{ $caption | plainify | htmlUnescape }}"{{ end }}{{ end }}>
+  <div class="thumb__image-wrap">
+    {{- if $img -}}
+      {{- $v320 := $img -}}{{- if gt $img.Width 320 -}}{{- $v320 = $img.Resize "320x" -}}{{- end -}}
+      {{- $v640 := $img -}}{{- if gt $img.Width 640 -}}{{- $v640 = $img.Resize "640x" -}}{{- end -}}
+      {{- $v800 := $img -}}{{- if gt $img.Width 800 -}}{{- $v800 = $img.Resize "800x" -}}{{- end -}}
+      <img class="thumb__img"
+           src="{{ $v800.RelPermalink }}"
+           srcset="{{ $v320.RelPermalink }} {{ $v320.Width }}w, {{ $v640.RelPermalink }} {{ $v640.Width }}w, {{ $v800.RelPermalink }} {{ $v800.Width }}w"
+           sizes="{{ $sizes }}"
+           width="{{ $img.Width }}" height="{{ $img.Height }}"
+           alt="{{ $alt }}"
+           loading="lazy" decoding="async">
+    {{- else -}}
+      <img class="thumb__img" src="{{ $src }}" alt="{{ $alt }}" loading="lazy" decoding="async">
+    {{- end -}}
+    {{- if $lightbox -}}
+      <button type="button" class="thumb__magnify" aria-label="{{ if ne $caption "" }}Open image: {{ $caption | plainify | htmlUnescape }}{{ else }}Open image{{ end }}">
+        <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true" focusable="false">
+          <path fill="currentColor" d="M8 2a6 6 0 014.472 9.98l4.774 4.773-1.06 1.06-4.774-4.773A6 6 0 118 2zm0 1.5a4.5 4.5 0 100 9 4.5 4.5 0 000-9zM7.25 5.5h1.5V7.25H10.5v1.5H8.75V10.5h-1.5V8.75H5.5v-1.5h1.75V5.5z"/>
+        </svg>
+      </button>
+    {{- end -}}
+  </div>
+  {{- if ne $caption "" -}}
+    <figcaption class="thumb__caption">{{ $caption | safeHTML }}</figcaption>
+  {{- end -}}
+</figure>

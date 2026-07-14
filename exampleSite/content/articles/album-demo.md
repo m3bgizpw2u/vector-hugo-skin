@@ -13,7 +13,7 @@ Lead paragraph introducing the Album demo. This page exercises the album infobox
     name      = "Sample Album"
     type      = "Studio"
     artist    = "Demo Artist"
-    cover     = "placeholder.jpg"
+    cover     = "/media/sample-image-2.png"
     released  = "15 March 2025"
     recorded  = "2024"
     studio    = "Demo Studios"

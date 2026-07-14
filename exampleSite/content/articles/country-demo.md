@@ -11,7 +11,7 @@ Lead paragraph introducing the Country demo. This page exercises the country sho
 {{< country
     name               = "Sample Republic"
     native_name        = "Demo Republic"
-    image_flag         = "placeholder.jpg"
+    image_flag         = "/media/sample-image-1.png"
     motto              = "Demo motto"
     capital            = "Demo Capital"
     largest_city       = "Demo Capital"

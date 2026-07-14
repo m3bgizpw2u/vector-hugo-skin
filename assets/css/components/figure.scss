@@ -64,16 +64,17 @@
   margin-right: auto;
 }
 
-// Constant 4/3 aspect ratio with object-fit cover for article-body figures.
-// Matches Wikipedia's default thumb size for general-purpose inline figures,
-// and prevents unstyled images from stretching the figure box when their
-// intrinsic aspect ratio differs from the rendered slot. Audio and video
-// kinds do not flow through this selector — those are media players, not
-// images — see the audio/video selector pair further down.
-.figure > img {
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
+// Image rendering is delegated to the shared article/thumb.html partial
+// (native-ratio responsive pipeline — see assets/css/components/_thumb.scss).
+// The figure shortcode emits the partial with class="figure__thumb" and
+// align="none", so the .figure wrapper here owns the float direction
+// (data-halign) and the border chrome, while the nested .thumb renders the
+// image at native ratio. Zero the .thumb's own vertical margin — the .figure
+// padding is the frame — and let the partial's own width tiers (20rem desktop,
+// clamped tablet, full-width mobile) size the box so a floated figure keeps a
+// bounded width instead of resolving 100% against the float's shrink-to-fit.
+.figure > .figure__thumb {
+  margin: 0;
 }
 
 .figure figcaption {

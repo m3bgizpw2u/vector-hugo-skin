@@ -10,7 +10,7 @@ Lead paragraph introducing the Baseball biography demo. This page exercises the 
 
 {{< baseball-biography
     name        = "Demo Batter"
-    image       = "placeholder.jpg"
+    image       = "/media/sample-image-portrait.png"
     caption     = "Sample player photo"
     birth_date  = "15 April 1988"
     birth_place = "Demo City"

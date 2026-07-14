@@ -10,7 +10,7 @@ Lead paragraph introducing the University demo. This page exercises the universi
 
 {{< university
     name        = "Sample University"
-    image       = "placeholder.jpg"
+    image       = "/media/sample-image-1.png"
     motto       = "Demo university motto"
     established = "1850"
     type        = "Public research"

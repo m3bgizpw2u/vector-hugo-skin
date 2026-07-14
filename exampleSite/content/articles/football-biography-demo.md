@@ -10,7 +10,7 @@ Lead paragraph introducing the Football biography demo. This page exercises the 
 
 {{< football-biography
     name          = "Demo Player"
-    image         = "placeholder.jpg"
+    image         = "/media/sample-image-portrait.png"
     caption       = "Sample action photo"
     full_name     = "Demo Full Name"
     birth_date    = "5 June 1995"

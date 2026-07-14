@@ -136,3 +136,145 @@
   text-align: center;
   padding: var(--space-md);
 }
+
+/* Row-table preview — mirrors the CSS hook contract in
+ * assets/css/components/_row-table.scss so the preview matches what
+ * Hugo will render. Two classes are preview-only: `.row-table--sample`
+ * dims the placeholder row so authors can distinguish it from real
+ * children, and `.row-table__photo--lightbox-preview` paints the
+ * lightbox opt-in affordance the same way the JS-driven runtime does. */
+.row-table {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 0 auto;
+  padding: 0.75rem;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-sm);
+  background: var(--color-surface);
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius-md);
+}
+.row-table__header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--color-divider);
+}
+.row-table__eyebrow {
+  margin: 0;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+}
+.row-table__title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: var(--font-size-base);
+  color: var(--color-text);
+}
+.row-table__description {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+.row-table__rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.row-table__row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) 6rem;
+  grid-template-areas: 'icon text photo';
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--color-divider);
+}
+.row-table__row:last-child {
+  border-bottom: none;
+}
+.row-table__row--sample {
+  opacity: 0.85;
+}
+.row-table__icon {
+  grid-area: icon;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  color: var(--color-accent);
+  flex-shrink: 0;
+}
+.row-table__icon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  fill: currentColor;
+}
+.row-table__text {
+  grid-area: text;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.row-table__text-title {
+  margin: 0;
+  font-weight: 600;
+  color: var(--color-text);
+}
+.row-table__text-body {
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+}
+.row-table__photo {
+  grid-area: photo;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-alt);
+}
+.row-table__photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.row-table__photo--lightbox-preview {
+  cursor: zoom-in;
+  outline: 2px dashed var(--color-accent);
+  outline-offset: -2px;
+}
+.row-table__preview-note {
+  margin: 0;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+.row-table__footer {
+  margin: 0;
+  padding-top: 0.5rem;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  border-top: 1px solid var(--color-divider);
+}
+.row-table--compact {
+  padding: 0.5rem;
+  gap: 0.5rem;
+}
+.row-table--compact .row-table__row {
+  padding: 0.25rem 0;
+}
+.row-table--expandable .row-table__row {
+  cursor: pointer;
+}
+.row-table--primitive-preview {
+  padding: 0.5rem;
+}
