@@ -1,0 +1,10 @@
+{{/*
+  CSS pipeline — Dart Sass via Hugo Pipes (css.Sass namespace).
+  Extracted from layouts/_default/baseof.html so the pipeline lives in one
+  place; baseof.html calls this partial at the head link-tag insertion
+  point. Output is minified and fingerprinted (sha256) with SRI integrity
+  attributes, matching the previous inline pattern.
+*/ -}}
+{{- $cssOpts := dict "transpiler" "dartsass" "targetPath" "css/main.css" }}
+{{- $css := resources.Get "css/main.scss" | css.Sass $cssOpts | resources.Minify | resources.Fingerprint "sha256" }}
+<link rel="stylesheet" href="{{ $css.Permalink }}" integrity="{{ $css.Data.Integrity }}" crossorigin="anonymous">

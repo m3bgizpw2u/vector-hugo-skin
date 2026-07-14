@@ -1291,3 +1291,84 @@ lightbox integration); the §6 CSS hook contract applies to infobox
 shortcodes only, so the figure class hooks live in
 `assets/css/components/figure.scss` (ticket 002); no upstream
 `Template:Infobox figure` mapping exists.
+
+### `{{< row-table >}}`
+**Intent:** Article-body element that renders a labelled section of
+`icon | text | photo` rows. Each row pairs a small inline-SVG icon with
+a heading + body and a fixed-aspect photograph, scaled fluidly between
+a 360px phone and a 1920px desktop. A single structural breakpoint at
+the project's mobile boundary (720px per `_tokens.scss`) re-maps the
+grid to a stacked `icon + text` row with a full-width photo below — the
+DOM order is unchanged. Fully static by default (no JS cost); a
+`variant="expandable"` opt-in adds a narrow-viewport click-to-expand
+interaction (clamped to 2 lines, expand on click / Enter / Space).
+**Most-used parameters:** `eyebrow`, `title`, `level` (default `3`),
+`description`, `footer`, `variant` (`compact` or `expandable`),
+`group` (lightbox carousel key, inherited as default by every child
+row that opts into `lightbox="true"` without its own `group=`).
+**Worked example — static case:**
+
+```go
+{{< row-table
+    eyebrow      = "1/4 · Example"
+    title        = "Common houseplant leaf shapes"
+    description  = "A reusable icon → text → photo layout."
+>}}
+
+{{< row
+    icon  = "leaf-ovate"
+    title = "Ovate"
+    image = "/images/leaf-ovate.jpg"
+    text  = "Egg-shaped leaf, wider near the base and tapering toward the tip." >}}
+
+{{< row
+    icon  = "leaf-palmate"
+    title = "Palmate"
+    image = "/images/leaf-palmate.jpg"
+    text  = "Lobes radiate outward from a single point, like fingers from a palm." >}}
+
+{{< /row-table >}}
+```
+
+**Worked example — `variant="expandable"` (narrow-viewport toggle):**
+
+```go
+{{< row-table variant="expandable" title="Long-form descriptions" >}}
+  {{< row icon="leaf-pinnate" title="Pinnate" image="/images/leaf-pinnate.jpg"
+        text="Long body copy that benefits from 2-line clamping on phones…" >}}
+{{< /row-table >}}
+```
+
+**Worked example — `lightbox="true"` (full-screen photo overlay):**
+
+```go
+{{< row-table title="Leaf photos" group="leaves" >}}
+  {{< row title="Ovate"   image="/images/leaf-ovate.jpg"   text="…" lightbox="true" >}}
+  {{< row title="Palmate" image="/images/leaf-palmate.jpg" text="…" lightbox="true" group="other-set" >}}
+  {{< row title="Pinnate" image="/images/leaf-pinnate.jpg" text="…" lightbox="true" >}}
+{{< /row-table >}}
+```
+
+Opting a row into `lightbox="true"` adds `data-lightbox` +
+`data-lightbox-group` + `data-lightbox-caption` to `.row-table__photo`
+and the existing `assets/js/modules/lightbox.ts` module opens the
+overlay on click / Enter / Space. The `group=` value is inherited
+from the parent wrapper by default (so one key on the parent joins
+every row into a single carousel) and can be overridden per row. The
+caption is the row's `alt=` (falling back to `title=`). No extra JS
+ships — the same module that powers `{{< figure >}}` handles both.
+
+**See also:** [`docs/shortcodes/row-table.md`](shortcodes/row-table.md) —
+the canonical per-shortcode page (full parameter tables, CSS hook
+contract, responsiveness, accessibility). The parent is the paired
+shortcode `layouts/_shortcodes/row-table.html`; the child is
+`layouts/_shortcodes/row.html` (single-form, requires `title` + `text`
++ `image`). The CSS is `assets/css/components/_row-table.scss` (CSS
+Grid with explicit areas; same DOM order at every viewport, area
+re-map at the 720px breakpoint). The optional progressive-enhancement
+JS lives in `assets/js/modules/row-table.ts` and is a no-op for the
+default static case. `lightbox="true"` and `group=` on the child, or
+`group=` on the parent (inherited as default), wire the photo into the
+existing `assets/js/modules/lightbox.ts` overlay — see the worked
+example above. No upstream `Template:Infobox row-table` mapping
+exists.

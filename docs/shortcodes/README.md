@@ -74,6 +74,7 @@ mapping and so do not belong in the named-shortcodes list above. See
 | Shortcode | Used for |
 |---|---|
 | [`{{< figure >}}`](figure.md) | Inline figures — image / audio / video with caption, float alignment, and optional lightbox participation |
+| [`{{< row-table >}}`](row-table.md) | Repeating `icon \| text \| photo` rows with fluid responsiveness and an opt-in expandable variant |
 
 ## Citations
 

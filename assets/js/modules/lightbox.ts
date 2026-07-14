@@ -1,9 +1,16 @@
 /**
  * Wikipedia-style lightbox (Multimedia Viewer / MMV) for the Hugo theme.
  *
- * Clicks on any `<figure data-lightbox>` open a full-screen overlay showing
- * the image at full resolution. Figures sharing the same `data-lightbox-group`
- * value form a navigable carousel; ungrouped figures operate in isolation.
+ * Clicks on any `<figure data-lightbox>` (or any container with
+ * `data-lightbox` wrapping a single `<img>`, like `.row-table__photo`)
+ * open a full-screen overlay showing the image at full resolution.
+ * Containers sharing the same `data-lightbox-group` value form a
+ * navigable carousel; ungrouped containers operate in isolation.
+ *
+ * The caption is read first from any descendant `<figcaption>`, then
+ * (if absent) from a `data-lightbox-caption` attribute on the trigger
+ * element — this lets non-`<figure>` wrappers pass a caption without
+ * embedding an invisible figcaption.
  *
  * Keyboard: Escape closes, ArrowLeft/Right navigates (RTL-aware),
  * Home/End jump to first/last. Tab cycles through interactive elements only.
@@ -70,7 +77,10 @@ const collectGroups = (figures: HTMLElement[]): Map<string, LightboxGroup> => {
       element: figure,
       img: img!,
       src: img?.src ?? '',
-      caption: q<HTMLElement>('figcaption', figure)?.textContent?.trim() ?? null,
+      caption:
+        q<HTMLElement>('figcaption', figure)?.textContent?.trim() ??
+        figure.getAttribute('data-lightbox-caption') ??
+        null,
       group: key,
     };
 

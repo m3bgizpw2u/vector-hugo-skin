@@ -1,0 +1,53 @@
+{{/*
+  Paired parent shortcode — wraps a stack of `{{< row >}}` children in a
+  labelled section with optional eyebrow, title, description, and footer.
+
+  Optional params: eyebrow, title, level (default 3), description, footer,
+  variant (compact | expandable), group (lightbox carousel key — inherited
+  as the default by every child row that opts into lightbox="true" and
+  doesn't set its own group; see row.html).
+
+  Class hooks emitted (targeted by assets/css/components/_row-table.scss):
+    .row-table              the section root
+    .row-table--<variant>   modifier (e.g. row-table--compact)
+    .row-table__header      the header block (eyebrow + title + description)
+    .row-table__eyebrow     the kicker label
+    .row-table__title       the section heading
+    .row-table__description the intro paragraph
+    .row-table__footer      the closing note
+*/}}
+{{- $eyebrow := .Get "eyebrow" }}
+{{- $title := .Get "title" }}
+{{- $level := default "3" (.Get "level") }}
+{{- $description := .Get "description" }}
+{{- $footer := .Get "footer" }}
+{{- $variant := .Get "variant" }}
+{{- $hasHeader := or (ne $eyebrow "") (ne $title "") (ne $description "") (ne $footer "") }}
+{{- $classes := slice "row-table" }}
+{{- with $variant }}{{ $classes = $classes | append (printf "row-table--%s" .) }}{{ end }}
+{{- $expandable := eq $variant "expandable" }}
+<section
+  class="{{ delimit $classes " " }}"
+  {{ if $expandable }}data-expandable="true"{{ end }}
+  {{ with $title }}aria-labelledby="row-table-title-{{ $.Ordinal }}"{{ end }}
+>
+  {{- if $hasHeader }}
+    <header class="row-table__header">
+      {{- with $eyebrow }}
+        <p class="row-table__eyebrow">{{ . }}</p>
+      {{- end }}
+      {{- with $title }}
+        {{ printf "<h%d id=\"row-table-title-%d\">%s</h%d>" (int $level) $.Ordinal . (int $level) | safeHTML }}
+      {{- end }}
+      {{- with $description }}
+        <div class="row-table__description">{{ . | markdownify }}</div>
+      {{- end }}
+    </header>
+  {{- end }}
+  <div class="row-table__rows">
+    {{- .Inner }}
+  </div>
+  {{- with $footer }}
+    <footer class="row-table__footer">{{ . | markdownify }}</footer>
+  {{- end }}
+</section>

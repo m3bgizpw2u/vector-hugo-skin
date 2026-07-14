@@ -1,0 +1,305 @@
+// Original work, GPL-2.0-or-later.
+// Header per docs/PORT-MAP-CONVENTIONS.md §A.
+// row-table — reusable 3-column icon | text | photo layout for
+// `layouts/_shortcodes/row-table.html` and `layouts/_shortcodes/row.html`.
+//
+// CSS hook contract (must match layouts/_shortcodes/row-table.html and
+// layouts/_shortcodes/row.html exactly):
+//   .row-table              section root
+//   .row-table--compact     variant modifier — tighter padding/gap
+//   .row-table--expandable  variant modifier — JS opt-in via data-expandable
+//   .row-table__header      header block (eyebrow + title + description)
+//   .row-table__eyebrow     small kicker label above the title
+//   .row-table__title       section heading (h-level from `level` param)
+//   .row-table__description intro paragraph (markdown-rendered)
+//   .row-table__rows        the children container
+//   .row-table__row         a single data row (one `{{< row >}}` child)
+//   .row-table__icon        icon slot (inline SVG; aria-hidden when decorative)
+//   .row-table__text        text slot
+//   .row-table__text-title  row heading
+//   .row-table__text-body   row body copy (markdown-rendered)
+//   .row-table__photo       photo slot
+//   .row-table__footer      closing note (markdown-rendered)
+//
+// Responsiveness: the layout is fluid by default (clamp() on font-size,
+// row gap, icon size, photo size) and adds a single structural breakpoint
+// at the project's documented mobile boundary (720px per
+// assets/css/base/_tokens.scss) where the grid re-maps the same three
+// cells into a stacked icon+text row with a full-width photo below — the
+// DOM order is preserved, the area re-map is the only change.
+
+@use 'sass:math';
+
+// ---- Local breakpoint constant (mirrors assets/js/modules/row-table.ts
+// MOBILE_BREAKPOINT_PX and the documented mobile boundary in
+// assets/css/base/_tokens.scss) ----------------------------------------
+$rt-breakpoint: 720px;
+
+// ---- Local token bridge — aliases the project's CSS custom properties
+// from assets/css/base/_tokens.scss so a future per-component tweak has
+// one edit point and so dark-mode flips via themes/dark.scss +
+// themes/auto.scss cascade automatically.
+.row-table {
+  --rt-ink: var(--color-text);
+  --rt-sub: var(--color-text-muted);
+  --rt-line: var(--color-divider);
+  --rt-paper: var(--color-surface);
+  --rt-accent: var(--color-accent);
+}
+
+// ---- Root: section + flex column of rows + fluid typography --------
+.row-table {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1rem, 0.5rem + 1.5vw, 1.75rem);
+  margin: clamp(1rem, 0.5rem + 1.5vw, 1.75rem) 0;
+  padding: clamp(0.75rem, 0.5rem + 0.5vw, 1.25rem);
+  font-family: var(--font-sans);
+  font-size: clamp(0.9rem, 0.85rem + 0.2vw, 1rem);
+  line-height: var(--line-height-base);
+  color: var(--rt-ink);
+  background-color: var(--rt-paper);
+  border: 1px solid var(--rt-line);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+// ---- Header block (eyebrow / title / description) -------------------
+.row-table__header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding-bottom: clamp(0.5rem, 0.25rem + 0.5vw, 0.75rem);
+  border-bottom: 1px solid var(--rt-line);
+}
+
+.row-table__eyebrow {
+  margin: 0;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--rt-sub);
+}
+
+.row-table__title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: clamp(1.25rem, 1rem + 1vw, 1.6rem);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-tight);
+  color: var(--rt-ink);
+}
+
+.row-table__description {
+  margin: 0;
+  color: var(--rt-sub);
+  font-size: clamp(0.95rem, 0.9rem + 0.2vw, 1.05rem);
+}
+
+.row-table__description p {
+  margin: 0;
+}
+
+.row-table__description p + p {
+  margin-top: var(--space-xs);
+}
+
+// ---- Rows container -----------------------------------------------
+.row-table__rows {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.75rem, 0.5rem + 1vw, 1.5rem);
+}
+
+// ---- One data row: CSS Grid with explicit areas. Same DOM order at
+// every breakpoint; the area re-map is the only thing that changes.
+.row-table__row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) clamp(6rem, 4rem + 5vw, 10rem);
+  grid-template-areas: 'icon text photo';
+  align-items: center;
+  gap: clamp(0.5rem, 0.25rem + 1vw, 1.25rem);
+  padding: clamp(0.5rem, 0.25rem + 0.5vw, 1rem) 0;
+  border-bottom: 1px solid var(--rt-line);
+  transition: background-color var(--transition-fast);
+}
+
+.row-table__row:last-child {
+  border-bottom: none;
+}
+
+// ---- Icon slot -----------------------------------------------------
+.row-table__icon {
+  grid-area: icon;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(2.5rem, 1.5rem + 3vw, 4rem);
+  height: clamp(2.5rem, 1.5rem + 3vw, 4rem);
+  color: var(--rt-accent);
+  flex-shrink: 0;
+
+  svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+}
+
+// ---- Text slot (title + body) --------------------------------------
+.row-table__text {
+  grid-area: text;
+  min-width: 0; // allow text to shrink so long URLs don't blow the grid
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.row-table__text-title {
+  margin: 0;
+  font-size: clamp(1rem, 0.9rem + 0.3vw, 1.15rem);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-snug);
+  color: var(--rt-ink);
+}
+
+.row-table__text-body {
+  color: var(--rt-ink);
+  font-size: clamp(0.9rem, 0.85rem + 0.15vw, 1rem);
+  line-height: var(--line-height-base);
+}
+
+.row-table__text-body p {
+  margin: 0;
+}
+
+.row-table__text-body p + p {
+  margin-top: var(--space-xs);
+}
+
+.row-table__text-body a {
+  color: var(--color-link);
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  transition: text-decoration-color var(--transition-fast);
+}
+
+.row-table__text-body a:hover,
+.row-table__text-body a:focus-visible {
+  text-decoration-color: currentColor;
+}
+
+// ---- Photo slot ---------------------------------------------------
+.row-table__photo {
+  grid-area: photo;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface-alt);
+}
+
+.row-table__photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+}
+
+// When the photo opts into lightbox, the JS module attaches a click
+// handler and sets cursor: zoom-in at runtime — this rule supplies the
+// same affordance statically (pre-hydration) and adds a hover lift so
+// the photo reads as a click target even before the module runs.
+.row-table__photo[data-lightbox] {
+  cursor: zoom-in;
+
+  img {
+    transition: transform var(--transition-fast);
+  }
+
+  &:hover img,
+  &:focus-visible img {
+    transform: scale(1.03);
+  }
+}
+
+.row-table__photo[data-lightbox]:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+// ---- Footer --------------------------------------------------------
+.row-table__footer {
+  margin: 0;
+  padding-top: clamp(0.5rem, 0.25rem + 0.5vw, 0.75rem);
+  font-size: var(--font-size-sm);
+  color: var(--rt-sub);
+  border-top: 1px solid var(--rt-line);
+}
+
+.row-table__footer p {
+  margin: 0;
+}
+
+// ---- Compact variant: tighter padding + gap ------------------------
+.row-table--compact {
+  padding: clamp(0.5rem, 0.25rem + 0.5vw, 0.75rem);
+  gap: clamp(0.5rem, 0.25rem + 0.5vw, 0.75rem);
+
+  .row-table__row {
+    padding: clamp(0.25rem, 0.1rem + 0.25vw, 0.5rem) 0;
+    gap: clamp(0.5rem, 0.25rem + 0.5vw, 1rem);
+  }
+}
+
+// ---- Expandable variant: JS opt-in (opt-in via data-expandable="true").
+// Visual hint only — the toggle is JS-owned (assets/js/modules/row-table.ts).
+.row-table--expandable .row-table__row {
+  cursor: pointer;
+}
+
+.row-table--expandable .row-table__row:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+// ---- Structural breakpoint: stack icon+text above full-width photo.
+// Same DOM order; only the grid-template-areas change.
+@media (max-width: ($rt-breakpoint - 1px)) {
+  .row-table__row {
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-areas:
+      'icon text'
+      'photo photo';
+    align-items: start;
+  }
+
+  .row-table__photo {
+    aspect-ratio: 16 / 9;
+    max-width: 18rem;
+  }
+}
+
+// ---- Reduced motion: zero out transitions --------------------------
+@media (prefers-reduced-motion: reduce) {
+  .row-table__row,
+  .row-table__text-body a,
+  .row-table__photo img {
+    transition: none;
+  }
+}
+
+// ---- Print: stack everything; no shadow; keep aspect ratios ------
+@media print {
+  .row-table {
+    box-shadow: none;
+    border-color: var(--rt-line);
+  }
+
+  .row-table__row {
+    page-break-inside: avoid;
+  }
+}

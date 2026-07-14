@@ -1,0 +1,62 @@
+{{/*
+  Inner primitive — one data row inside a `{{< row-table >}}` parent.
+  Renders the icon|text|photo triple that the parent shortcode lays out
+  via CSS Grid. Single-form (no .Inner) per .cursor/rules/40-shortcodes.mdc.
+
+  Required params: title, text, image.
+  Optional: icon (filename without extension under layouts/partials/icons/),
+  alt (falls back to title), lightbox ("true" opts the photo into the
+  lightbox overlay — see assets/js/modules/lightbox.ts), group (lightbox
+  carousel key; only meaningful when lightbox="true"). The group value
+  is normally inherited from the parent `{{< row-table >}}` wrapper via
+  `.Parent` and acts as a default here so per-row overrides are still
+  possible.
+
+  Class hooks emitted (targeted by assets/css/components/_row-table.scss):
+    .row-table__row    the row container
+    .row-table__icon   the icon slot
+    .row-table__text   the text slot (title + body)
+    .row-table__photo  the photo slot
+*/}}
+{{- $title := .Get "title" }}
+{{- $text := .Get "text" }}
+{{- $image := .Get "image" }}
+{{- $icon := .Get "icon" }}
+{{- $alt := default $title (.Get "alt") }}
+{{- $lightbox := eq (.Get "lightbox") "true" }}
+{{- $rowGroup := default "" (.Get "group") }}
+{{- if not $title }}{{ errorf "row shortcode: 'title' is required" .Position }}{{ end }}
+{{- if not $text }}{{ errorf "row shortcode: 'text' is required" .Position }}{{ end }}
+{{- if not $image }}{{ errorf "row shortcode: 'image' is required" .Position }}{{ end }}
+{{- $src := $image }}
+{{- if and (ne $image "") (not (or (hasPrefix $image "http://") (hasPrefix $image "https://") (hasPrefix $image "//"))) }}
+  {{- $src = $image | relURL }}
+{{- end }}
+{{- /*
+    Group inheritance: prefer the row's own `group` param, then fall
+    back to the parent `{{< row-table >}}` `group` param, then "". Keeps
+    the parent as the carousel default while letting a single row opt
+    out by setting its own group (or group="-" to go standalone — we
+    treat empty string as "use parent / standalone" rather than a key).
+*/ -}}
+{{- $parentGroup := "" }}
+{{- with .Parent }}{{ $parentGroup = default "" (.Get "group") }}{{ end }}
+{{- $group := or $rowGroup $parentGroup }}
+<div class="row-table__row">
+  {{- with $icon }}
+    {{- $iconFile := printf "icons/%s.svg" . }}
+    <div class="row-table__icon"{{ if $title }} aria-hidden="true"{{ end }}>
+      {{- if templates.Exists (printf "_partials/%s" $iconFile) }}
+        {{- partial (printf "%s" $iconFile) (dict "title" $title) }}
+      {{- end }}
+    </div>
+  {{- end }}
+  <div class="row-table__text">
+    <p class="row-table__text-title">{{ $title }}</p>
+    <div class="row-table__text-body">{{ $text | markdownify }}</div>
+  </div>
+  <div class="row-table__photo"
+       {{- if $lightbox }} data-lightbox{{ if ne $group "" }} data-lightbox-group="{{ $group }}"{{ end }} data-lightbox-caption="{{ $alt }}"{{ end }}>
+    <img src="{{ $src }}" alt="{{ $alt }}"{{ if $lightbox }} role="button" tabindex="0"{{ end }} loading="lazy" decoding="async">
+  </div>
+</div>

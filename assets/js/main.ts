@@ -16,6 +16,7 @@ import { init as initThemeToggle } from './modules/theme-toggle';
 import { init as initLightbox } from './modules/lightbox';
 import { init as initSearch } from './modules/search';
 import { init as initTitlebarToc } from './modules/titlebar-toc';
+import { init as initRowTables } from './modules/row-table';
 
 function bootstrap(): void {
   initSidebar();
@@ -25,6 +26,7 @@ function bootstrap(): void {
   initLightbox();
   initSearch();
   initTitlebarToc();
+  initRowTables();
 }
 
 if (document.readyState === 'loading') {
