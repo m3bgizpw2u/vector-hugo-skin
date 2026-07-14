@@ -10,6 +10,9 @@ fields:
     label: Image filename
     type: image
     required: true
+  - key: lightbox
+    label: Lightbox
+    type: checkbox
   - key: caption
     label: Caption
     type: markdown
@@ -18,5 +21,6 @@ fields:
     type: text
 defaults:
   image: "ada.jpg"
+  lightbox: true
   caption: "Ada Lovelace, 1843"
   alt: "Portrait of Ada Lovelace"

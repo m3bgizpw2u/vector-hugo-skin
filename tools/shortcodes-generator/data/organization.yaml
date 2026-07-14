@@ -26,6 +26,9 @@ fields:
   - key: logo
     label: Logo filename
     type: image
+  - key: lightbox
+    label: Lightbox
+    type: checkbox
   - key: type
     label: Type
     type: text
@@ -119,6 +122,7 @@ fields:
 defaults:
   name: "Wikimedia Foundation"
   logo: "wikimedia-logo.svg"
+  lightbox: true
   type: "501(c)(3) nonprofit"
   founded: "2003-06-20"
   founder:

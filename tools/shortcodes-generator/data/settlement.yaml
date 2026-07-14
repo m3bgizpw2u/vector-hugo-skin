@@ -23,6 +23,9 @@ fields:
   - key: image
     label: Image filename
     type: image
+  - key: lightbox
+    label: Lightbox
+    type: checkbox
   - key: caption
     label: Caption
     type: markdown
@@ -80,6 +83,7 @@ fields:
 defaults:
   name: "Springfield"
   image: "springfield.jpg"
+  lightbox: true
   caption: "Downtown Springfield"
   country: "United States"
   coordinates: "39.7817°N 89.6501°W"

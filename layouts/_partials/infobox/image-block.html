@@ -17,7 +17,7 @@ licensed CC BY-SA 4.0. Header per docs/PORT-MAP-CONVENTIONS.md §B (dual).
                        inline emphasis and links work
     .alt     string  — alt text for assistive tech
 */}}
-<figure class="infobox-image-block">
+<figure class="infobox-image-block" data-lightbox>
   {{ with .image }}
     <img src="{{ . }}" alt="{{ $.alt | default "" }}" loading="lazy">
   {{ end }}

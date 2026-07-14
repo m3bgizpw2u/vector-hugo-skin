@@ -36,6 +36,7 @@ export function renderInfobox(spec: ShortcodeSpec): HTMLElement {
     if (typeof imageVal === 'string' && imageVal.length > 0) {
       const fig = document.createElement('figure');
       fig.className = 'infobox-image';
+      fig.dataset.lightbox = '';
       const img = document.createElement('img');
       img.src = imageVal;
       img.alt = (values.alt as string | undefined) ?? titleText;

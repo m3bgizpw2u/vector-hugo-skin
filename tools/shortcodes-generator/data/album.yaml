@@ -33,6 +33,9 @@ fields:
   - key: cover
     label: Cover filename
     type: image
+  - key: lightbox
+    label: Lightbox
+    type: checkbox
   - key: released
     label: Released
     type: date
@@ -89,6 +92,7 @@ defaults:
   type: "Studio"
   artist: "Radiohead"
   cover: "ok-computer.jpg"
+  lightbox: true
   released: "1997-05-21"
   recorded: "1996–1997"
   studio: "St Catherine's Court, Bath"

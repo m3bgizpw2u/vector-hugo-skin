@@ -22,6 +22,9 @@ fields:
   - key: image
     label: Image filename
     type: image
+  - key: lightbox
+    label: Lightbox
+    type: checkbox
   - key: caption
     label: Caption
     type: markdown
@@ -64,6 +67,7 @@ fields:
 defaults:
   name: "Ada Lovelace"
   image: "ada-lovelace.jpg"
+  lightbox: true
   caption: "Portrait of Ada Lovelace, 1843"
   alt: "Sepia portrait of Ada Lovelace"
   birth_date: "1815-12-10"
