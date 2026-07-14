@@ -33,7 +33,7 @@
 // CSS hook contract lives in docs/SHORTCODES.md §A. Component-level rule
 // per .cursor/rules/20-styles.mdc: this file only styles the .figure
 // subtree, never reaches into .article-body. The figcaption token choices
-// (--font-size-sm, --color-text-muted) mirror article-body.scss's
+// (--font-size-xs, --color-text-muted) mirror article-body.scss's
 // figcaption by design, but this file's selectors don't depend on a
 // .article-body ancestor — figure-shortcode figures can live outside the
 // article body in principle, and the cascade has to read correctly in
@@ -43,9 +43,10 @@
   flex-direction: column;
   margin: var(--space-md) 0;
   max-width: 100%;
-  padding: var(--space-sm);
-  border: 1px solid var(--color-divider);
-  border-radius: var(--radius-md);
+  padding: 3px;
+  background-color: #f8f9fa;
+  border: 1px solid #a2a9b1;
+  border-radius: 2px;
 }
 
 .figure[data-halign="right"] {
@@ -76,10 +77,12 @@
 }
 
 .figure figcaption {
-  font-size: var(--font-size-sm);
+  padding: 3px;
+  font-size: var(--font-size-xs);
+  font-style: italic;
   color: var(--color-text-muted);
-  text-align: left;
-  margin-top: var(--space-xs);
+  text-align: center;
+  margin-top: 3px;
 }
 
 .figure figcaption + .figure-attribution {

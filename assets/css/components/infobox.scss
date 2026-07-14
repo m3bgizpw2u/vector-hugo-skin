@@ -71,9 +71,11 @@
   background-color: var(--color-surface);
 }
 
+.infobox-image-block img,
 .infobox-image img {
   max-width: 100%;
-  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
   display: inline-block;
 }
 
@@ -190,11 +192,13 @@
 // for film, etc.). Per-template CSS files are forbidden.
 // =========================================================================
 
+.infobox[data-infobox-type="person"] .infobox-image-block img,
 .infobox[data-infobox-type="person"] .infobox-image img {
   aspect-ratio: 3 / 4;
   object-fit: cover;
 }
 
+.infobox[data-infobox-type="film"] .infobox-image-block img,
 .infobox[data-infobox-type="film"] .infobox-image img {
   aspect-ratio: 2 / 3;
   object-fit: cover;
@@ -209,6 +213,7 @@
   font-variant-numeric: tabular-nums;
 }
 
+.infobox[data-infobox-type="company"] .infobox-image-block img,
 .infobox[data-infobox-type="company"] .infobox-image img {
   aspect-ratio: 1 / 1;
   object-fit: cover;
@@ -218,6 +223,7 @@
   background-color: var(--color-surface-alt);
 }
 
+.infobox[data-infobox-type="settlement"] .infobox-image-block img,
 .infobox[data-infobox-type="settlement"] .infobox-image img {
   aspect-ratio: 16 / 9;
   object-fit: cover;
@@ -228,6 +234,7 @@
   letter-spacing: 0.05em;
 }
 
+.infobox[data-infobox-type="country"] .infobox-image-block img,
 .infobox[data-infobox-type="country"] .infobox-image img {
   aspect-ratio: 4 / 3;
   object-fit: cover;
@@ -237,6 +244,9 @@
   border-top: 3px solid var(--color-accent);
 }
 
+.infobox[data-infobox-type="television"] .infobox-image-block img,
+.infobox[data-infobox-type="television-episode"] .infobox-image-block img,
+.infobox[data-infobox-type="television-season"] .infobox-image-block img,
 .infobox[data-infobox-type="television"] .infobox-image img,
 .infobox[data-infobox-type="television-episode"] .infobox-image img,
 .infobox[data-infobox-type="television-season"] .infobox-image img {
@@ -244,12 +254,14 @@
   object-fit: cover;
 }
 
+.infobox[data-infobox-type="album"] .infobox-image-block img,
 .infobox[data-infobox-type="album"] .infobox-image img {
   aspect-ratio: 1 / 1;
   object-fit: cover;
   border-radius: var(--radius-sm);
 }
 
+.infobox[data-infobox-type="organization"] .infobox-image-block img,
 .infobox[data-infobox-type="organization"] .infobox-image img {
   aspect-ratio: 1 / 1;
   object-fit: cover;
@@ -260,6 +272,7 @@
   color: var(--color-accent-contrast);
 }
 
+.infobox[data-infobox-type="election"] .infobox-image-block img,
 .infobox[data-infobox-type="election"] .infobox-image img {
   aspect-ratio: 3 / 4;
   object-fit: cover;
