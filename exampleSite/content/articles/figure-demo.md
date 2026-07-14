@@ -27,6 +27,7 @@ will style as a float.
     alt     = "Sally Ride in 1984"
     caption = "Ride in 1984, the year she became the first American woman in space."
     halign  = "right"
+    lightbox = "true"
 >}}{{< /figure >}}
 
 ```go
@@ -35,6 +36,7 @@ will style as a float.
     alt     = "Sally Ride in 1984"
     caption = "Ride in 1984, the year she became the first American woman in space."
     halign  = "right"
+    lightbox = "true"
 >}}{{< /figure >}}
 ```
 

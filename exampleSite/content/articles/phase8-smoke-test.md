@@ -184,6 +184,7 @@ it is a build-time smoke test.
     alt     = "Placeholder image for smoke coverage"
     caption = "Smoke fixture for the figure shortcode."
     halign  = "right"
+    lightbox = "true"
 >}}{{< /figure >}}
 
 {{< break >}}
