@@ -195,6 +195,11 @@
   object-fit: cover;
 }
 
+.infobox[data-infobox-type="film"] .infobox-image img {
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+}
+
 .infobox[data-infobox-type="film"] .infobox-header {
   background-color: var(--color-text);
   color: var(--color-surface);
@@ -204,13 +209,28 @@
   font-variant-numeric: tabular-nums;
 }
 
+.infobox[data-infobox-type="company"] .infobox-image img {
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+}
+
 .infobox[data-infobox-type="company"] .infobox-row[data-pair="date"] {
   background-color: var(--color-surface-alt);
+}
+
+.infobox[data-infobox-type="settlement"] .infobox-image img {
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
 }
 
 .infobox[data-infobox-type="settlement"] .infobox-section-header {
   text-transform: uppercase;
   letter-spacing: 0.05em;
+}
+
+.infobox[data-infobox-type="country"] .infobox-image img {
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
 }
 
 .infobox[data-infobox-type="country"] {
@@ -230,7 +250,17 @@
   border-radius: var(--radius-sm);
 }
 
+.infobox[data-infobox-type="organization"] .infobox-image img {
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+}
+
 .infobox[data-infobox-type="organization"] .infobox-header {
   background-color: var(--color-accent);
   color: var(--color-accent-contrast);
+}
+
+.infobox[data-infobox-type="election"] .infobox-image img {
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
 }

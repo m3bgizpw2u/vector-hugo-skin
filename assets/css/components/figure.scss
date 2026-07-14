@@ -63,9 +63,16 @@
   margin-right: auto;
 }
 
+// Constant 4/3 aspect ratio with object-fit cover for article-body figures.
+// Matches Wikipedia's default thumb size for general-purpose inline figures,
+// and prevents unstyled images from stretching the figure box when their
+// intrinsic aspect ratio differs from the rendered slot. Audio and video
+// kinds do not flow through this selector — those are media players, not
+// images — see the audio/video selector pair further down.
 .figure > img {
   width: 100%;
-  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
 }
 
 .figure figcaption {

@@ -9,6 +9,9 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Changed
+- Article-body `<img>` inside the `{{< figure >}}` shortcode now uses a constant 4/3 `aspect-ratio` with `object-fit: cover` (replacing `height: auto` in `assets/css/components/figure.scss`). Mirrors Wikipedia's default thumb size for general-purpose inline figures and prevents unstyled images from stretching the figure box when their intrinsic aspect ratio differs from the rendered slot. Audio and video `kind` flows are unaffected — those still use the existing `width: 100%` selector pair (those are media players, not images).
+
 ### Added
 - `figure` shortcode now supports a lightbox overlay via `lightbox="true"` and optional `group="key"` (for multi-image carousels). The overlay is powered by `assets/js/modules/lightbox.ts` (open/close, group-keyed carousel, arrow-key navigation with RTL reversal, Home/End jump, focus trap, adjacent image preload) and styled by `assets/css/components/lightbox.scss` (fixed overlay, backdrop click-to-close, close/prev/next buttons with disabled states, caption bar, counter). Usage: `{{< figure src="x.jpg" caption="..." lightbox="true" >}}` or `{{< figure src="x.jpg" lightbox="true" group="gallery" >}}` for multi-image sets. Keyboard: ArrowLeft/Right navigate, Home/End jump to first/last, Escape closes. Also fixes a latent bug in `layouts/_shortcodes/figure.html` where `$attribution` was referenced but never defined — the variable is now declared and rendered as `<p class="figure-attribution">`.
 
