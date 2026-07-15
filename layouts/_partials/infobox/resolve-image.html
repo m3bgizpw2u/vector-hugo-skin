@@ -1,0 +1,37 @@
+{{/*
+  Original work — Wikipedia infobox reimplementation. GPL-2.0-or-later.
+  Resource acquisition for infobox images. Tries in order:
+    1. Page-bundle resource (matching `cover.jpg` from a sibling image)
+    2. Static-asset resource (matching `/media/foo.jpg` from `static/`)
+    3. nil (the caller emits a plain `<img src=…>` fallback for
+       remote URLs or unresolved assets)
+
+  Inputs:
+    src     string  — image URL or path
+    context page     — page context used for Resources.GetMatch
+
+  Output:
+    image   resource or nil
+*/}}
+{{- $src    := .src -}}
+{{- $ctx    := .context -}}
+{{- $image  := "" -}}
+
+{{- if and $src (hasPrefix $src "http") -}}
+  {{/* Remote URL: leave $image nil so the caller falls back to <img src=…> */}}
+{{- else -}}
+  {{- $name   := "" -}}
+  {{- if $src -}}
+    {{- $name = path.Base $src -}}
+  {{- end -}}
+
+  {{- if $ctx -}}
+    {{- $image = $ctx.Resources.GetMatch (printf "%s.*" $name) -}}
+  {{- end -}}
+  {{- if and (not $image) $src -}}
+    {{- $cleaned := strings.TrimPrefix "/" $src -}}
+    {{- $image = resources.Get $cleaned -}}
+  {{- end -}}
+{{- end -}}
+
+{{- return $image -}}

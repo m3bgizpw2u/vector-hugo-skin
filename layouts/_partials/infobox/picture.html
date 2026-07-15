@@ -1,0 +1,27 @@
+{{/*
+  Original work — Wikipedia infobox reimplementation. GPL-2.0-or-later.
+  Emits the full `<picture>` element with WebP source + jpg fallback.
+
+  Inputs (dict):
+    webp_srcset   string   — srcset for the WebP variants
+    jpg_srcset    string   — srcset for the jpg fallback variants
+    sizes         string   — `sizes` attribute for both source and img
+    alt           string   — alt text
+    width         int      — intrinsic width
+    height        int      — intrinsic height
+    fallback_src  string   — plain <img src=…> when no picture wrapping
+    lazy          bool     — lazy/eager loading hint
+*/}}
+<picture>
+  {{- with .webp_srcset }}
+    <source type="image/webp" srcset="{{ . }}" sizes="{{ $.sizes }}">
+  {{- end }}
+  <img class="infobox-image"
+       src="{{ .fallback_src }}"
+       {{- with .jpg_srcset }} srcset="{{ . }}" sizes="{{ $.sizes }}"{{ end }}
+       alt="{{ .alt }}"
+       width="{{ .width }}"
+       height="{{ .height }}"
+       decoding="async"
+       {{ if .lazy }}loading="lazy"{{ else }}loading="eager" fetchpriority="high"{{ end }}>
+</picture>

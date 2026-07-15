@@ -1,46 +1,59 @@
 {{/*
-  Original work — reimplementation of Wikipedia's infobox family as a
-  Hugo shortcode. GPL-2.0-or-later.
-  License header per docs/PORT-MAP-CONVENTIONS.md §A.
+  Original work — Wikipedia infobox reimplementation. GPL-2.0-or-later.
+  Renders a complete `<figure class="infobox-image-block">` block
+  with an optional caption, using the resource pipeline from
+  Phase 3-2 (resolve-image → variants → srcset → picture).
 
-  Single-image block partial for the v2 infobox family. Renders the
-  `<figure class="infobox-image-block">` wrapper around the `<img>`,
-  marks it `data-lightbox` so the rewritten lightbox module picks it up,
-  attaches a group key for carousel navigation, and sets the upright
-  scaling factor on the figure.
-
-  Dict keys:
-    .src       string  — image URL or page-resource path (required for the <img>)
-    .alt       string  — alt text (always set, may be empty for decorative)
-    .caption   string  — caption under the image (paired-form .Inner already
-                          rendered HTML in `.caption`)
-    .group     string  — lightbox group key, default "default"
-    .upright   float   — upright scaling factor, default 1.0
-    .lazy      bool    — when true (default), adds loading="lazy"
-    .context   Page    — Hugo page context for resource acquisition
-
-  This version emits a plain `<img>` to keep the v2 skeleton buildable
-  even before the full Hugo resource pipeline lands in Phase 3-2. The
-  advanced `<picture>` + WebP srcset implementation is layered on top by
-  Phase 3-2's ticket.
+  Inputs (dict):
+    src      string   — page-bundle name, static asset path, or remote URL
+    alt      string   — alt text for the image
+    caption  string   — caption text (markdownified)
+    group    string   — lightbox group key (default "default")
+    upright  float    — upright scaling factor (default 1.0)
+    lazy     bool     — true → loading="lazy"; false → loading="eager"
+    context  page     — page context used by resolve-image.html
 */}}
-{{ $src     := .src     | default "" }}
-{{ $alt     := .alt     | default "" }}
-{{ $caption := .caption | default "" }}
-{{ $group   := .group   | default "default" }}
-{{ $upright := .upright | default 1.0 }}
-{{ $lazy    := .lazy    | default true }}
+{{- $src     := .src     | default "" -}}
+{{- $alt     := .alt     | default "" -}}
+{{- $caption := .caption | default "" -}}
+{{- $group   := .group   | default "default" -}}
+{{- $upright := .upright | default 1.0 -}}
+{{- $lazy    := .lazy    | default true -}}
+{{- $ctx     := .context -}}
+
+{{- $img := "" -}}
+{{- if $src -}}
+  {{- $img = partial "infobox/resolve-image.html" (dict "src" $src "context" $ctx) -}}
+{{- end -}}
+
+{{- $sizesAttr := "(max-width: 720px) 100vw, (max-width: 1200px) 50vw, 320px" -}}
 
 <figure class="infobox-image-block"
-        data-lightbox
-        {{ if ne $group "" }}data-lightbox-group="{{ $group }}"{{ end }}
+        {{- if $img }} data-lightbox{{ end }}
+        {{- if and $img $group }} data-lightbox-group="{{ $group }}"{{ end }}
         data-upright="{{ $upright }}">
-  <img class="infobox-image"
-       src="{{ $src }}"
-       alt="{{ $alt }}"
-       {{ if $lazy }}loading="lazy"{{ else }}loading="eager" fetchpriority="high"{{ end }}
-       decoding="async">
-  {{ if ne $caption "" }}
-    <figcaption class="infobox-caption">{{ $caption | markdownify }}</figcaption>
-  {{ end }}
+  {{- if $img -}}
+    {{- $variants := partial "infobox/variants.html" (dict "image" $img) -}}
+    {{- $webpSet := partial "infobox/srcset.html" $variants.webp -}}
+    {{- $jpgSet  := partial "infobox/srcset.html" $variants.jpg -}}
+    {{- partial "infobox/picture.html" (dict
+        "webp_srcset" $webpSet
+        "jpg_srcset"  $jpgSet
+        "sizes"       $sizesAttr
+        "alt"         $alt
+        "width"       $variants.srcWidth
+        "height"      $variants.srcHeight
+        "fallback_src" (printf "/%s" $img.RelPermalink)
+        "lazy"        $lazy
+    ) -}}
+  {{- else if $src -}}
+    <img class="infobox-image"
+         src="{{ $src }}"
+         alt="{{ $alt }}"
+         {{- if $lazy }} loading="lazy"{{ else }} loading="eager" fetchpriority="high"{{ end }}
+         decoding="async">
+  {{- end -}}
+  {{- with $caption }}
+    <figcaption class="infobox-caption">{{ . | markdownify }}</figcaption>
+  {{- end }}
 </figure>

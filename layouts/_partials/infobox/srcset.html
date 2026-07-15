@@ -1,0 +1,19 @@
+{{/*
+  Original work — Wikipedia infobox reimplementation. GPL-2.0-or-later.
+  Builds an HTML `srcset` attribute value from a slice of resources.
+
+  Input:  slice of resources (each has .RelPermalink and .Width)
+  Output: srcset string ("foo_320x_abc.webp 320w, foo_640x_abc.webp 640w, …")
+*/}}
+{{- $variants := . -}}
+{{- $srcset := "" -}}
+
+{{- range $variants -}}
+  {{- if eq $srcset "" -}}
+    {{- $srcset = printf "%s %dw" .RelPermalink .Width -}}
+  {{- else -}}
+    {{- $srcset = printf "%s, %s %dw" $srcset .RelPermalink .Width -}}
+  {{- end -}}
+{{- end -}}
+
+{{- return $srcset -}}

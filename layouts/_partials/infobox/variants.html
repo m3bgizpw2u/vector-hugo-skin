@@ -1,0 +1,28 @@
+{{/*
+  Original work — Wikipedia infobox reimplementation. GPL-2.0-or-later.
+  Generates per-format responsive variants for an image resource.
+  Produces four sizes (320, 640, 1024, 2048) in both WebP and jpg
+  formats. Skips sizes larger than the source image's intrinsic
+  width (Hugo's Resize returns the source unchanged when the target
+  is larger, but capping here keeps the srcset short and accurate).
+
+  Input:  dict { "image" resource, "sizes" slice }
+  Output: dict { "webp" slice, "jpg" slice }
+*/}}
+{{- $image := .image -}}
+{{- $sizes := .sizes | default (slice 320 640 1024 2048) -}}
+
+{{- $webp := slice -}}
+{{- $jpg  := slice -}}
+
+{{- range $sizes -}}
+  {{- $px := printf "%dx" . -}}
+  {{- if le . $image.Width -}}
+    {{- $w := $image.Resize (printf "%s webp q85" $px) -}}
+    {{- $j := $image.Resize (printf "%s jpg q85"  $px) -}}
+    {{- $webp = $webp | append $w -}}
+    {{- $jpg  = $jpg  | append $j -}}
+  {{- end -}}
+{{- end -}}
+
+{{- return (dict "webp" $webp "jpg" $jpg "srcWidth" $image.Width "srcHeight" $image.Height) -}}
