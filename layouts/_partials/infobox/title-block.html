@@ -1,0 +1,32 @@
+{{/*
+  Original work — reimplementation of Wikipedia's infobox family as a
+  Hugo shortcode. GPL-2.0-or-later.
+  License header per docs/PORT-MAP-CONVENTIONS.md §A.
+
+  Renders the title block (`.infobox-title` + `.infobox-above` + subheaders)
+  for the v2 infobox shortcode family.
+
+  Dict keys:
+    .title       string  — top caption (above the border)
+    .above       string  — topmost cell inside the border
+    .subheaders  slice   — repeated subtitle lines (each a string)
+    .titleClass  string  — extra CSS class for the title (optional)
+
+  Emits, in order: title, above, subheader(s). All elements are optional;
+  the partial emits nothing for any unspecified block.
+*/}}
+{{ $title      := .title       | default "" }}
+{{ $above      := .above       | default "" }}
+{{ $subheaders := .subheaders  | default slice }}
+{{ $titleClass := .titleClass  | default "" }}
+{{ if ne $title "" }}
+  <div class="infobox-title{{ with $titleClass }} {{ . }}{{ end }}">{{ $title }}</div>
+{{ end }}
+{{ if ne $above "" }}
+  <div class="infobox-above">{{ $above }}</div>
+{{ end }}
+{{ range $subheaders }}
+  {{ if ne . "" }}
+    <div class="infobox-subheader">{{ . }}</div>
+  {{ end }}
+{{ end }}

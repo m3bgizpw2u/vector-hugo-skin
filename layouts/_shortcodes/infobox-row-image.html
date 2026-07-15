@@ -1,0 +1,59 @@
+{{/*
+  Original work — reimplementation of Wikipedia's infobox family as a
+  Hugo shortcode. GPL-2.0-or-later.
+  License header per docs/PORT-MAP-CONVENTIONS.md §A.
+
+  Image embedded inside a data row (the user's "Mission insignia" pattern).
+  PAIRED form:
+
+    {{< infobox-row-image label="…" image="…" >}}caption or body text{{</ infobox-row-image >}}
+
+  Renders a label + a data cell containing a small `.infobox-row__figure`
+  (lightbox-enabled) followed by the paired body or `value` text.
+  See `infobox-row.html` for the `define`-block rationale.
+
+  Parameters:
+    label           string  — row label
+    image           string  — image URL or page-resource path (required)
+    image-alt       string  — alt text for the embedded image
+    image-caption   string  — caption under the embedded image
+    image-upright   float   — upright scaling factor (default 1.0)
+    group           string  — lightbox group key (default "default")
+    value           string  — additional text in the data cell (markdownified)
+    class           string  — extra CSS class on `.infobox-data`
+*/}}
+{{- define "infobox/row-image" -}}
+  {{- $body := "" -}}
+  {{- if .Inner -}}
+    {{- $body = strings.TrimSpace .Inner -}}
+  {{- end -}}
+  {{- $label   := .Get "label"         | default "" -}}
+  {{- $image   := .Get "image"         | default "" -}}
+  {{- $imageAlt:= .Get "image-alt"     | default "" -}}
+  {{- $imageCap:= .Get "image-caption" | default "" -}}
+  {{- $imageUpr:= .Get "image-upright" | default 1.0 -}}
+  {{- $group   := .Get "group"         | default "default" -}}
+  {{- $value   := .Get "value"         | default "" -}}
+  {{- $class   := .Get "class"         | default "" -}}
+
+  <div class="infobox-row infobox-row--image-data">
+    {{ with $label }}<div class="infobox-label">{{ . }}</div>{{ end }}
+    <div class="infobox-data{{ with $class }} {{ . }}{{ end }}">
+      {{ if ne $image "" }}
+        <figure class="infobox-row__figure"
+                data-lightbox
+                {{ if ne $group "" }}data-lightbox-group="{{ $group }}"{{ end }}
+                data-upright="{{ $imageUpr }}">
+          <img class="infobox-image" src="{{ $image }}" alt="{{ $imageAlt }}" loading="lazy" decoding="async">
+          {{ if ne $imageCap "" }}<figcaption class="infobox-caption">{{ $imageCap | markdownify }}</figcaption>{{ end }}
+        </figure>
+      {{ end }}
+      {{ if ne $body "" }}
+        {{ $body | markdownify }}
+      {{ else if ne $value "" }}
+        {{ $value | markdownify }}
+      {{ end }}
+    </div>
+  </div>
+{{- end -}}
+{{ template "infobox/row-image" . }}

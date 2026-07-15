@@ -1,56 +1,63 @@
 {{/*
-Derived from mediawiki-skins-Vector @ 7c224883 (REL1_42, 2025-06-12) for
-the surrounding skin chrome, plus Wikipedia's rendered infobox table
-markup for the shared base/inner partial. There is no upstream Vector
-counterpart for an infobox — the infobox family is Wikipedia content
-licensed CC BY-SA 4.0. Header per docs/PORT-MAP-CONVENTIONS.md §B (dual).
-*/}}
-{{/*
-  Infobox base partial — the single rendering entrypoint for every named
-  shortcode in the family. Receives a dict from a named wrapper (or from
-  the inner-primitive `infobox` paired outer) and renders the full box
-  in fixed slot order: header → image-block → field slice → .Inner
-  (paired-form rows) → below.
+  Original work — reimplementation of Wikipedia's infobox family as a
+  Hugo shortcode. GPL-2.0-or-later.
+  License header per docs/PORT-MAP-CONVENTIONS.md §A.
 
-  Dict keys expected:
-    .type     string  — slug used for data-infobox-type (and CSS hook)
-    .title    string  — header text; absent title suppresses the header
-    .subtitle string  — optional subtitle under the title
-    .image    string  — image URL/path; absent image suppresses the block
-    .caption  string  — caption text under the image
-    .alt      string  — alt text for the image element
-    .fields   slice   — ordered list of row dicts (label/value/pair/title)
-    .Inner    string  — optional paired-form rows injected by author
-    .below    string  — optional freeform footer content
+  Compatibility shim for the named shortcode family (person, film,
+  settlement, etc.). The Phase 3-1 reimplementation rebuilds the
+  shortcodes against a clean slate — this shim preserves the existing
+  named-wrapper call surface so demo articles continue to render while
+  the wrappers are migrated onto the new v2 `infobox` outer shortcode
+  in subsequent commits.
 
-  Class names emitted exactly match docs/SHORTCODES.md §6 (CSS hook
-  contract) and assets/css/components/infobox.scss.
+  Dict contract (preserved from the prior implementation):
+    .type        string  — `data-infobox-type` discriminator
+    .title       string  — header text
+    .subtitle    string  — optional subtitle (now emitted as `.infobox-subheader`)
+    .image       string  — image URL or page-resource path
+    .caption     string  — caption under the image
+    .alt         string  — alt text for the image
+    .fields      slice   — list of {label, value, [kind=section], [title]} rows
+    .Inner       string  — paired body content (already rendered)
+    .below       string  — footer text
+
+  This shim translates the prior contract to the v2 partials:
+    - header.html / title-block.html
+    - image-block.html
+    - row.html / section (now `.infobox-section-header` div)
+    - below (now `.infobox-below`)
 */}}
-<aside class="infobox" data-infobox-type="{{ .type | default "generic" }}">
-  {{ partial "infobox/header.html" (dict
-      "title"    .title
-      "subtitle" .subtitle
+<aside class="infobox" data-infobox-type="{{ .type | default "generic" }}" aria-label="{{ .type | default "generic" }} infobox">
+  {{ partial "infobox/title-block.html" (dict
+      "title"      .title
+      "subheaders" (slice .subtitle)
   ) }}
+
   {{ if or .image .caption }}
     {{ partial "infobox/image-block.html" (dict
-        "image"   .image
-        "caption" .caption
+        "src"     .image
         "alt"     .alt
+        "caption" .caption
+        "group"   "default"
     ) }}
   {{ end }}
+
+  {{ $body := "" }}
   {{ range .fields }}
     {{ if eq .kind "section" }}
-      {{ partial "infobox/section.html" (dict "title" .title) }}
+      {{ $body = printf "%s%s" $body (printf `<div class="infobox-section-header">%s</div>` .title) }}
     {{ else }}
-      {{ partial "infobox/row.html" (dict
-          "label" .label
-          "value" .value
-          "pair"  .pair
-      ) }}
+      {{ $body = printf "%s%s" $body (partial "infobox/row.html" (dict
+          "label"    .label
+          "value"    .value
+          "rowShape" (cond (eq .kind "full") "full" "default")
+      )) }}
     {{ end }}
   {{ end }}
-  {{ with .Inner }}{{ . }}{{ end }}
+  {{ with .Inner }}{{ $body = printf "%s%s" $body . }}{{ end }}
+  {{ partial "infobox/body.html" (dict "Inner" $body "autoheaders" true) }}
+
   {{ with .below }}
-    {{ partial "infobox/below.html" (dict "below" .) }}
+    <div class="infobox-below">{{ . | markdownify }}</div>
   {{ end }}
 </aside>

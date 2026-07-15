@@ -1,0 +1,44 @@
+// Original work — infobox reimplementation. GPL-2.0-or-later.
+// Per .cursor/rules/20-styles.mdc: one file per component under assets/css/components/.
+// Styles for the `.infobox-row--image-data` modifier variant — a row that has
+// an inline thumbnail in its data cell (the user's "Mission insignia" pattern).
+// Sized smaller than the main infobox-image block; mobile relaxes to a tap-target.
+
+.infobox-row--image-data {
+  align-items: center;
+}
+
+.infobox-row--image-data .infobox-data {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.infobox-row__figure {
+  flex: 0 0 auto;
+  width: 60px;
+  height: 60px;
+  margin: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  cursor: zoom-in;
+}
+
+.infobox-row__figure img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+@media (max-width: 720px) {
+  .infobox-row--image-data .infobox-label {
+    width: 100%;
+  }
+
+  .infobox-row__figure {
+    width: 80px;
+    height: 80px;
+  }
+}

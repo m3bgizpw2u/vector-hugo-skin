@@ -1,0 +1,70 @@
+// Original work — infobox reimplementation. GPL-2.0-or-later.
+// Per-type visual overrides keyed on [data-infobox-type="..."] (per Phase 2-2
+// per-type contract). Each rule is scoped to a single template discriminator
+// from the Phase 0-4 Wikipedia reverse map. Generic styling lives in infobox.scss.
+
+// Person biographies get a portrait-friendly header treatment.
+.infobox[data-infobox-type="person"] {
+  .infobox-image-block {
+    max-width: 70%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+// Film infoboxes invert the header to dark text on light surface.
+.infobox[data-infobox-type="film"] {
+  .infobox-above {
+    background-color: var(--color-text);
+    color: var(--color-surface);
+  }
+}
+
+// Software / numeric infoboxes switch data to tabular numerals.
+.infobox[data-infobox-type="software"] {
+  .infobox-data {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+// Settlement infoboxes use uppercase section headers for a more formal feel.
+.infobox[data-infobox-type="settlement"] {
+  .infobox-section-header {
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+}
+
+// Country infoboxes get an accent-colored top border.
+.infobox[data-infobox-type="country"] {
+  border-top: 3px solid var(--color-accent);
+}
+
+// Organization infoboxes use the accent palette on the header.
+.infobox[data-infobox-type="organization"] {
+  .infobox-above {
+    background-color: var(--color-accent);
+    color: var(--color-accent-contrast);
+  }
+}
+
+// Album cover art keeps softly-rounded corners.
+.infobox[data-infobox-type="album"] {
+  .infobox-image-block .infobox-image {
+    border-radius: var(--radius-sm);
+  }
+}
+
+// Election infoboxes cap the candidate photo column.
+.infobox[data-infobox-type="election"] {
+  .infobox-image-block {
+    max-width: 70%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+// Default / custom — no overrides.
+.infobox[data-infobox-type="custom"] {
+  // intentionally empty
+}

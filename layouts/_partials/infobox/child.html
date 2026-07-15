@@ -1,0 +1,52 @@
+{{/*
+  Original work — reimplementation of Wikipedia's infobox family as a
+  Hugo shortcode. GPL-2.0-or-later.
+  License header per docs/PORT-MAP-CONVENTIONS.md §A.
+
+  Wrapper for the outer `infobox` shortcode when the author opts into
+  `child="true"` or `subbox="true"` (the wrapper / embedding pattern
+  required by 10 of Wikipedia's top 30 templates — see Phase 0-4
+  Wrapper Pattern).
+
+  Behaviour:
+   - emits the root <aside> with the appropriate modifier class
+     (.infobox--child or .infobox--subbox)
+   - skips title / above / subheader / below blocks — embedded modules
+     inherit typography from the parent, not produce their own
+   - delegates .Inner rendering to body.html (so empty-row + autoheaders
+     filters apply to nested rows too)
+   - mutual exclusion: when both child and subbox are set, the first one
+     wins per the documented conflict-resolution rule (Phase 1-2 D-set)
+
+  Dict keys:
+    .type        string  — `data-infobox-type` discriminator value
+    .bodyclass   string  — additional bodyclass pass-through
+    .child       bool    — emit .infobox--child modifier
+    .subbox      bool    — emit .infobox--subbox modifier
+    .pairedBody  string  — paired .Inner (already rendered HTML)
+    .id          string  — optional id attribute on root
+*/}}
+{{ $type       := .type       | default "custom" }}
+{{ $bodyclass  := .bodyclass  | default "" }}
+{{ $child      := .child      | default false }}
+{{ $subbox     := .subbox     | default false }}
+{{ $pairedBody := .pairedBody | default "" }}
+{{ $id         := .id         | default "" }}
+
+{{/*
+  Mutual exclusion: when both are set, `child` takes precedence (the
+  author's explicit decision in Phase 1-2). The build does not error —
+  this deterministic rule is preferred for static site simplicity.
+*/}}
+{{ $modifier := "" }}
+{{ if $child }}
+  {{ $modifier = "infobox--child" }}
+{{ else if $subbox }}
+  {{ $modifier = "infobox--subbox" }}
+{{ end }}
+
+<aside class="infobox {{ $modifier }}{{ with $bodyclass }} {{ . }}{{ end }}"
+       data-infobox-type="{{ $type }}"
+       {{ with $id }}id="{{ . }}"{{ end }}>
+  {{ partial "infobox/body.html" (dict "Inner" $pairedBody "autoheaders" false) }}
+</aside>

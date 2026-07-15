@@ -1,86 +1,103 @@
 /**
- * Wikipedia-style lightbox (Multimedia Viewer / MMV) for the Hugo theme.
+ * Original work — Wikipedia-style lightbox (Multimedia Viewer equivalent).
+ * GPL-2.0-or-later.
  *
- * Clicks on any `<figure data-lightbox>` (or any container with
- * `data-lightbox` wrapping a single `<img>`, like `.row-table__photo`)
- * open a full-screen overlay showing the image at full resolution.
- * Containers sharing the same `data-lightbox-group` value form a
- * navigable carousel; ungrouped containers operate in isolation.
+ * Rewrite per the fourth-plan phase 0-3 / 2-4 spec. Clicks on any
+ * `<figure data-lightbox>` (or wrapper carrying `data-lightbox` around
+ * an `<img>`) open a full-screen overlay with metadata panel.
  *
- * The caption is read first from any descendant `<figcaption>`, then
- * (if absent) from a `data-lightbox-caption` attribute on the trigger
- * element — this lets non-`<figure>` wrappers pass a caption without
- * embedding an invisible figcaption.
+ * Triggers:
+ *   - `click` on a figure with `data-lightbox`
+ *   - `click` on an `<img>` inside a data-lightbox figure (event bubbles)
+ *   - `Enter` / `Space` keypress on the focused figure
+ *
+ * Group carousel: figures sharing the same `data-lightbox-group` value
+ * form a navigable carousel. Ungrouped figures operate in isolation
+ * (prev/next disabled, counter shows "1 / 1").
  *
  * Keyboard: Escape closes, ArrowLeft/Right navigates (RTL-aware),
- * Home/End jump to first/last. Tab cycles through interactive elements only.
+ * Home/End jump to first/last, Tab cycles focus within the overlay.
  *
- * Accessibility: role="dialog" + aria-modal, focus-trapped while open,
- * focus returned to the trigger figure on close.
+ * Accessibility: `role="dialog"` + `aria-modal`, focus-trapped while
+ * open, focus returned to trigger on close, all buttons ARIA-labelled.
+ *
+ * Metadata panel: caption / filename / dimensions / license / counter,
+ * each independently hideable when empty.
  */
-
 import { addClass, q, qAll, removeClass, toggleClass } from '../utils/dom';
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 interface LightboxImage {
-  element: HTMLElement; // the <figure>
-  img: HTMLImageElement; // the <img> inside
-  src: string; // current src
-  caption: string | null; // textContent of figcaption
-  group: string; // group key or ""
+  element: HTMLElement;
+  img: HTMLImageElement;
+  src: string;
+  caption: string | null;
+  filename: string | null;
+  dimensions: { width: number; height: number } | null;
+  license: string | null;
+  group: string;
 }
 
 interface LightboxGroup {
-  key: string; // group key or ""
+  key: string;
   images: LightboxImage[];
 }
 
-// ─── State ───────────────────────────────────────────────────────────────────
-
 let overlay: HTMLElement | null = null;
-let backdrop: HTMLElement | null = null;
 let currentGroup: LightboxGroup | null = null;
 let currentIndex = 0;
 let triggerElement: HTMLElement | null = null;
 
-// lazily-initialised DOM refs (populated by buildOverlay)
 let closeBtn: HTMLButtonElement;
 let prevBtn: HTMLButtonElement;
 let nextBtn: HTMLButtonElement;
 let imgEl: HTMLImageElement;
 let captionEl: HTMLElement;
+let filenameEl: HTMLElement;
+let dimensionsEl: HTMLElement;
+let licenseEl: HTMLElement;
 let counterEl: HTMLElement;
 
-// ─── Init ────────────────────────────────────────────────────────────────────
+let initialized = false;
 
 export const init = (): void => {
-  const figures = qAll<HTMLElement>('[data-lightbox]');
-  if (figures.length === 0) return;
+  if (initialized) return;
+  initialized = true;
+
+  const triggers = qAll<HTMLElement>('[data-lightbox]');
+  if (triggers.length === 0) return;
 
   buildOverlay();
-  const groups = collectGroups(figures);
+  const groups = collectGroups(triggers);
   attachClickHandlers(groups);
   document.addEventListener('keydown', handleKeydown);
 };
 
-// ─── Group collection ────────────────────────────────────────────────────────
-
-const collectGroups = (figures: HTMLElement[]): Map<string, LightboxGroup> => {
+const collectGroups = (
+  triggers: HTMLElement[],
+): Map<string, LightboxGroup> => {
   const groups = new Map<string, LightboxGroup>();
 
-  for (const figure of figures) {
-    const key = figure.getAttribute('data-lightbox-group') ?? '';
-    const img = q<HTMLImageElement>('img', figure);
+  for (const trigger of triggers) {
+    const key = trigger.getAttribute('data-lightbox-group') ?? '';
+    const img = q<HTMLImageElement>('img', trigger);
+
+    if (!img) continue;
 
     const image: LightboxImage = {
-      element: figure,
-      img: img!,
-      src: img?.src ?? '',
+      element: trigger,
+      img,
+      src: img.currentSrc || img.src,
       caption:
-        q<HTMLElement>('figcaption', figure)?.textContent?.trim() ??
-        figure.getAttribute('data-lightbox-caption') ??
+        q<HTMLElement>('figcaption', trigger)?.textContent?.trim() ??
+        trigger.getAttribute('data-lightbox-caption') ??
         null,
+      filename:
+        trigger.getAttribute('data-lightbox-filename') ?? basename(img.src),
+      dimensions:
+        img.naturalWidth > 0
+          ? { width: img.naturalWidth, height: img.naturalHeight }
+          : null,
+      license: trigger.getAttribute('data-lightbox-license') ?? null,
       group: key,
     };
 
@@ -93,6 +110,12 @@ const collectGroups = (figures: HTMLElement[]): Map<string, LightboxGroup> => {
   return groups;
 };
 
+const basename = (src: string): string => {
+  if (!src) return '';
+  const parts = src.split('/');
+  return parts[parts.length - 1] || src;
+};
+
 const attachClickHandlers = (groups: Map<string, LightboxGroup>): void => {
   for (const group of groups.values()) {
     for (const image of group.images) {
@@ -101,11 +124,16 @@ const attachClickHandlers = (groups: Map<string, LightboxGroup>): void => {
         const index = group.images.indexOf(image);
         openLightbox(group, index, image.element);
       });
+      image.element.addEventListener('keydown', (event: KeyboardEvent) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          const index = group.images.indexOf(image);
+          openLightbox(group, index, image.element);
+        }
+      });
     }
   }
 };
-
-// ─── Overlay construction (once) ────────────────────────────────────────────
 
 const buildOverlay = (): void => {
   overlay = document.createElement('div');
@@ -116,53 +144,56 @@ const buildOverlay = (): void => {
   overlay.setAttribute('aria-modal', 'true');
   overlay.setAttribute('aria-label', 'Image viewer');
 
-  backdrop = document.createElement('div');
+  const backdrop = document.createElement('div');
   backdrop.className = 'lightbox-backdrop';
 
   const container = document.createElement('div');
   container.className = 'lightbox-container';
 
-  closeBtn = document.createElement('button');
-  closeBtn.className = 'lightbox-btn lightbox-btn--close';
-  closeBtn.setAttribute('aria-label', 'Close');
-  closeBtn.textContent = 'X';
-
-  prevBtn = document.createElement('button');
-  prevBtn.className = 'lightbox-btn lightbox-btn--prev';
-  prevBtn.setAttribute('aria-label', 'Previous image');
-  prevBtn.textContent = '<';
-
-  nextBtn = document.createElement('button');
-  nextBtn.className = 'lightbox-btn lightbox-btn--next';
-  nextBtn.setAttribute('aria-label', 'Next image');
-  nextBtn.textContent = '>';
+  closeBtn = createButton('lightbox-btn lightbox-btn--close', 'Close', '\u00d7');
+  prevBtn = createButton('lightbox-btn lightbox-btn--prev', 'Previous image', '\u2039');
+  nextBtn = createButton('lightbox-btn lightbox-btn--next', 'Next image', '\u203a');
 
   const imageWrapper = document.createElement('div');
   imageWrapper.className = 'lightbox-image-wrapper';
 
   imgEl = document.createElement('img');
   imgEl.className = 'lightbox-img';
-  imgEl.src = '';
   imgEl.alt = '';
 
-  const captionArea = document.createElement('div');
-  captionArea.className = 'lightbox-caption-area';
+  imageWrapper.appendChild(imgEl);
+
+  const metadata = document.createElement('div');
+  metadata.className = 'lightbox-metadata';
 
   captionEl = document.createElement('p');
   captionEl.className = 'lightbox-caption';
 
+  filenameEl = document.createElement('p');
+  filenameEl.className = 'lightbox-filename';
+
+  dimensionsEl = document.createElement('p');
+  dimensionsEl.className = 'lightbox-dimensions';
+
+  licenseEl = document.createElement('p');
+  licenseEl.className = 'lightbox-license';
+
   counterEl = document.createElement('p');
   counterEl.className = 'lightbox-counter';
 
-  captionArea.appendChild(captionEl);
-  captionArea.appendChild(counterEl);
-  imageWrapper.appendChild(imgEl);
-  overlay.appendChild(backdrop);
+  metadata.appendChild(captionEl);
+  metadata.appendChild(filenameEl);
+  metadata.appendChild(dimensionsEl);
+  metadata.appendChild(licenseEl);
+  metadata.appendChild(counterEl);
+
   container.appendChild(closeBtn);
   container.appendChild(prevBtn);
   container.appendChild(nextBtn);
   container.appendChild(imageWrapper);
-  container.appendChild(captionArea);
+  container.appendChild(metadata);
+
+  overlay.appendChild(backdrop);
   overlay.appendChild(container);
   document.body.appendChild(overlay);
 
@@ -170,22 +201,34 @@ const buildOverlay = (): void => {
   prevBtn.addEventListener('click', () => navigate(-1));
   nextBtn.addEventListener('click', () => navigate(1));
   backdrop.addEventListener('click', closeLightbox);
-  overlay!.addEventListener('keydown', handleOverlayKeydown);
+  overlay.addEventListener('keydown', handleOverlayKeydown);
 };
 
-// ─── Open / close ─────────────────────────────────────────────────────────────
+const createButton = (
+  className: string,
+  ariaLabel: string,
+  text: string,
+): HTMLButtonElement => {
+  const btn = document.createElement('button');
+  btn.className = className;
+  btn.setAttribute('aria-label', ariaLabel);
+  btn.setAttribute('type', 'button');
+  btn.textContent = text;
+  return btn;
+};
 
 const openLightbox = (
   group: LightboxGroup,
   index: number,
   trigger: HTMLElement,
 ): void => {
+  if (!overlay) return;
   currentGroup = group;
   currentIndex = index;
   triggerElement = trigger;
   showImage(index);
-  addClass(overlay!, 'lightbox-overlay--visible');
-  overlay!.removeAttribute('aria-hidden');
+  addClass(overlay, 'lightbox-overlay--visible');
+  overlay.removeAttribute('aria-hidden');
   closeBtn.focus();
 };
 
@@ -193,48 +236,53 @@ const closeLightbox = (): void => {
   if (!overlay) return;
   removeClass(overlay, 'lightbox-overlay--visible');
   overlay.setAttribute('aria-hidden', 'true');
-  (triggerElement as HTMLElement | null)?.focus();
+  if (triggerElement) triggerElement.focus();
   currentGroup = null;
   currentIndex = 0;
   triggerElement = null;
 };
 
-// ─── Image display ───────────────────────────────────────────────────────────
+const isRtl = (): boolean =>
+  document.dir === 'rtl' || document.documentElement.dir === 'rtl';
 
 const showImage = (index: number): void => {
-  const img = currentGroup!.images[index];
-  imgEl.src = img.src;
-  imgEl.alt = img.img.alt;
-  captionEl.textContent = img.caption ?? '';
-  counterEl.textContent = `${index + 1} / ${currentGroup!.images.length}`;
-  updateNavButtons(index, currentGroup!.images.length);
+  if (!currentGroup) return;
+  const image = currentGroup.images[index];
+  imgEl.src = image.src;
+  imgEl.alt = image.img.alt;
+
+  captionEl.textContent = image.caption ?? '';
+  filenameEl.textContent = image.filename ?? '';
+  dimensionsEl.textContent = image.dimensions
+    ? `${image.dimensions.width} \u00d7 ${image.dimensions.height} pixels`
+    : '';
+  licenseEl.textContent = image.license ?? '';
+  counterEl.textContent = `${index + 1} / ${currentGroup.images.length}`;
+
+  toggleClass(captionEl, 'lightbox-metadata--hidden', !image.caption);
+  toggleClass(filenameEl, 'lightbox-metadata--hidden', !image.filename);
+  toggleClass(dimensionsEl, 'lightbox-metadata--hidden', !image.dimensions);
+  toggleClass(licenseEl, 'lightbox-metadata--hidden', !image.license);
+
+  updateNavButtons(index, currentGroup.images.length);
   preloadAdjacent(index);
 };
 
 const updateNavButtons = (index: number, total: number): void => {
   prevBtn.disabled = total <= 1;
   nextBtn.disabled = total <= 1;
-  toggleClass(prevBtn, 'lightbox-btn--hidden', index <= 0);
-  toggleClass(nextBtn, 'lightbox-btn--hidden', index >= total - 1);
+  toggleClass(prevBtn, 'lightbox-btn--hidden', total <= 1);
+  toggleClass(nextBtn, 'lightbox-btn--hidden', total <= 1);
 };
-
-// ─── Navigation ──────────────────────────────────────────────────────────────
 
 const navigate = (direction: 1 | -1): void => {
   if (!currentGroup) return;
   const len = currentGroup.images.length;
-  const isRtl =
-    document.dir === 'rtl' ||
-    document.documentElement.dir === 'rtl';
-
-  // In RTL, left arrow means "next" and right arrow means "prev"
-  const effectiveDir = isRtl ? -direction : direction;
-  const nextIndex = (currentIndex + effectiveDir + len) % len;
+  const effective = isRtl() ? -direction : direction;
+  const nextIndex = (currentIndex + effective + len) % len;
   currentIndex = nextIndex;
   showImage(nextIndex);
 };
-
-// ─── Preload ─────────────────────────────────────────────────────────────────
 
 const preloadAdjacent = (index: number): void => {
   if (!currentGroup) return;
@@ -242,41 +290,26 @@ const preloadAdjacent = (index: number): void => {
   const prevIndex = (index - 1 + len) % len;
   const nextIndex = (index + 1) % len;
 
-  const preload = (i: number): void => {
-    const src = currentGroup!.images[i].src;
+  if (prevIndex !== index) {
     const img = new Image();
-    img.src = src;
-  };
-
-  if (prevIndex !== index) preload(prevIndex);
-  if (nextIndex !== index) preload(nextIndex);
+    img.src = currentGroup.images[prevIndex].src;
+  }
+  if (nextIndex !== index) {
+    const img = new Image();
+    img.src = currentGroup.images[nextIndex].src;
+  }
 };
 
-// ─── Keyboard handling ───────────────────────────────────────────────────────
-
 const handleKeydown = (event: KeyboardEvent): void => {
-  if (!overlay || overlay.getAttribute('aria-hidden') === 'true') return;
-
-  switch (event.key) {
-    case 'Escape':
-      event.preventDefault();
-      closeLightbox();
-      break;
-    case 'ArrowLeft':
-    case 'ArrowRight':
-    case 'Home':
-    case 'End':
-      event.preventDefault();
-      break;
+  if (!overlay || overlay.getAttribute('aria-hidden') !== 'false') return;
+  if (event.key === 'Escape') {
+    event.preventDefault();
+    closeLightbox();
   }
 };
 
 const handleOverlayKeydown = (event: KeyboardEvent): void => {
-  if (!overlay || overlay.getAttribute('aria-hidden') === 'true') return;
-
-  const isRtl =
-    document.dir === 'rtl' ||
-    document.documentElement.dir === 'rtl';
+  if (!overlay || overlay.getAttribute('aria-hidden') !== 'false') return;
 
   switch (event.key) {
     case 'Escape':
@@ -285,53 +318,49 @@ const handleOverlayKeydown = (event: KeyboardEvent): void => {
       break;
     case 'ArrowLeft':
       event.preventDefault();
-      navigate(isRtl ? 1 : -1);
+      navigate(isRtl() ? 1 : -1);
       break;
     case 'ArrowRight':
       event.preventDefault();
-      navigate(isRtl ? -1 : 1);
+      navigate(isRtl() ? -1 : 1);
       break;
     case 'Home':
       event.preventDefault();
-      currentIndex = 0;
-      showImage(0);
+      if (currentGroup) {
+        currentIndex = 0;
+        showImage(0);
+      }
       break;
     case 'End':
       event.preventDefault();
-      currentIndex = (currentGroup?.images.length ?? 1) - 1;
-      showImage(currentIndex);
-      break;
-    case 'Tab': {
-      event.preventDefault();
-      const focusable = qAll<HTMLElement>(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
-        overlay!,
-      ).filter(
-        (el) =>
-          !(el as HTMLButtonElement).disabled && el.offsetParent !== null,
-      );
-
-      if (focusable.length === 0) break;
-
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-
-      if (event.shiftKey) {
-        if (document.activeElement === first) {
-          last.focus();
-        } else {
-          const idx = focusable.indexOf(document.activeElement as HTMLElement);
-          focusable[idx - 1]?.focus();
-        }
-      } else {
-        if (document.activeElement === last) {
-          first.focus();
-        } else {
-          const idx = focusable.indexOf(document.activeElement as HTMLElement);
-          focusable[idx + 1]?.focus();
-        }
+      if (currentGroup) {
+        currentIndex = currentGroup.images.length - 1;
+        showImage(currentIndex);
       }
       break;
-    }
+    case 'Tab':
+      trapFocus(event);
+      break;
+  }
+};
+
+const trapFocus = (event: KeyboardEvent): void => {
+  if (!overlay) return;
+  const focusable = qAll<HTMLElement>(
+    'button:not([disabled]):not([tabindex="-1"]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled])',
+    overlay,
+  ).filter((el) => el.offsetParent !== null);
+
+  if (focusable.length === 0) return;
+
+  const first = focusable[0];
+  const last = focusable[focusable.length - 1];
+
+  if (event.shiftKey && document.activeElement === first) {
+    event.preventDefault();
+    last.focus();
+  } else if (!event.shiftKey && document.activeElement === last) {
+    event.preventDefault();
+    first.focus();
   }
 };

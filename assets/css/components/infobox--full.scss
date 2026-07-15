@@ -1,0 +1,15 @@
+// Original work — infobox reimplementation. GPL-2.0-or-later.
+// Per .cursor/rules/20-styles.mdc: one file per component under assets/css/components/.
+// Styles for the `.infobox-row--full` and `.infobox-data--full` modifiers
+// used by `infobox-row-full` (label-less, full-width data rows that escape
+// the label/data two-column structure).
+
+.infobox-row--full {
+  display: block;
+}
+
+.infobox-row--full .infobox-data--full {
+  flex-basis: auto;
+  width: 100%;
+  padding: var(--space-sm);
+}

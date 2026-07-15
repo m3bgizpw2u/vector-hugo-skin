@@ -38,6 +38,10 @@
 @use 'components/toc';
 @use 'components/tabs';
 @use 'components/infobox';
+@use 'components/infobox--image-data';
+@use 'components/infobox--full';
+@use 'components/infobox--subbox';
+@use 'components/infobox--per-type';
 @use 'components/article-header';
 @use 'components/page-titlebar';
 @use 'components/article-categories';

@@ -1,23 +1,69 @@
 {{/*
-  Paired outer infobox escape hatch.
-  `{{< infobox type="custom" >}}…{{< /infobox >}}` for content that does
-  not fit any named shortcode. Author composes rows from inner
-  primitives (infobox-row, infobox-image, infobox-section, infobox-below)
-  inside the `.Inner` block.
+  Original work — reimplementation of Wikipedia's infobox family as a
+  Hugo shortcode. GPL-2.0-or-later.
+  License header per docs/PORT-MAP-CONVENTIONS.md §A.
+
+  Outer infobox shortcode. PAIRED form. The body is the rows / sections /
+  subheaders / images / below / nested infoboxes.
+
+  Hugo v0.164.0's AST scanner inspects `.Inner` references inside this
+  template directly and would force paired invocation; we wrap the body
+  in a `define` block that the scanner does not drill into (the scanner
+  only inspects `FieldNode`/`VariableNode` references at the template
+  TOP LEVEL, not inside `{{ define }}` blocks). The pattern is shared by
+  all eight v2 family shortcodes — see `infobox-row.html` for the
+  rationale.
+
+  Authors write:
+    {{< infobox title="…" >}}
+      {{< infobox-section >}}…{{</ infobox-section >}}
+      {{< infobox-row label="…" >}}…{{</ infobox-row >}}
+    {{</ infobox >}}
+
+  Parameters:
+    type         string  — type discriminator for per-type styling (default "custom")
+    title        string  — title text
+    above        string  — "above" cell rendered above the title
+    subheaders   slice   — list of subheader strings rendered below the title
+    title-class  string  — extra CSS class on `.infobox-title`
+    body-class   string  — extra CSS class on the outer `<aside>`
+    child        bool    — render without border (nested inside another infobox)
+    subbox       bool    — render inside a data cell
+    id           string  — optional id attribute
 */}}
-<aside class="infobox" data-infobox-type="{{ .Get "type" | default "custom" }}">
-  {{ with .Get "title" }}
-    {{ partial "infobox/header.html" (dict "title" .) }}
-  {{ end }}
-  {{ if or (.Get "image") (.Get "caption") }}
-    {{ partial "infobox/image-block.html" (dict
-        "image"   (.Get "image")
-        "caption" (.Get "caption")
-        "alt"     (.Get "alt")
-    ) }}
-  {{ end }}
-  {{ .Inner }}
-  {{ with .Get "below" }}
-    {{ partial "infobox/below.html" (dict "below" .) }}
-  {{ end }}
-</aside>
+{{- define "infobox/outer" -}}
+  {{- $innerHTML := "" -}}
+  {{- if .Inner -}}
+    {{- $innerHTML = strings.TrimSpace .Inner -}}
+  {{- end -}}
+  {{- $type       := .Get "type"       | default "custom" -}}
+  {{- $bodyclass  := .Get "body-class" | default "" -}}
+  {{- $id         := .Get "id"         | default "" -}}
+  {{- $childRaw   := .Get "child"      | default "" -}}
+  {{- $subboxRaw  := .Get "subbox"     | default "" -}}
+  {{- $child      := or (eq (printf "%v" $childRaw) "true")  $childRaw -}}
+  {{- $subbox     := or (eq (printf "%v" $subboxRaw) "true") $subboxRaw -}}
+
+  {{- if or $child $subbox -}}
+    {{- partial "infobox/child.html" (dict
+        "type"       $type
+        "bodyclass"  $bodyclass
+        "child"      $child
+        "subbox"     $subbox
+        "pairedBody" $innerHTML
+        "id"         $id
+    ) -}}
+  {{- else -}}
+    {{- partial "infobox/outer.html" (dict
+        "type"       $type
+        "title"      (.Get "title")
+        "above"      (.Get "above")
+        "subheaders" (.Get "subheaders")
+        "titleClass" (.Get "title-class")
+        "bodyclass"  $bodyclass
+        "id"         $id
+        "pairedBody" $innerHTML
+    ) -}}
+  {{- end -}}
+{{- end -}}
+{{ template "infobox/outer" . }}

@@ -1,12 +1,50 @@
 {{/*
-  Inner primitive — a single label/value row.
-  Pair-form `{{< infobox-row >}}label text{{< /infobox-row >}}` and
-  parameter form `{{< infobox-row label="Born" value="1990-01-15" >}}`
-  are both supported; the parameter form wins when present.
+  Original work — reimplementation of Wikipedia's infobox family as a
+  Hugo shortcode. GPL-2.0-or-later.
+  License header per docs/PORT-MAP-CONVENTIONS.md §A.
+
+  Inner primitive — a single label/value row. PAIRED-form only.
+
+  The `.Inner` reference is wrapped in a Hugo `define` block to work
+  around Hugo v0.164.0's shortcode AST scanner: the scanner only
+  inspects `FieldNode`/`VariableNode` references at the TEMPLATE TOP
+  level, not inside `{{ define }}` blocks, so a paired invocation
+  no longer trips the "does not evaluate .Inner" check. Paired form
+  is required regardless of whether the body has content, so the
+  template invokes `{{ template "infobox/row" . }}` to render through
+  the body which references `.Inner`.
+
+  Authors write one of:
+    {{< infobox-row label="Born" >}}1990-01-15{{</ infobox-row >}}
+    {{< infobox-row label="Born" >}}- item 1
+- item 2{{</ infobox-row >}}
+
+  Parameters:
+    label       string  — row label
+    value       string  — used as fallback when paired body is empty
+    class       string  — extra CSS class on `.infobox-data`
+    label-class string  — extra CSS class on `.infobox-label`
+    data-class  string  — extra CSS class on `.infobox-row` wrapper
+    id          string  — optional id attribute on the row
 */}}
-{{ $label := .Get "label" }}
-{{ if not $label }}{{ with .Inner }}{{ $label = . }}{{ end }}{{ end }}
-{{ partial "infobox/row.html" (dict
-    "label" $label
-    "value" (.Get "value")
-) }}
+{{- define "infobox/row" -}}
+  {{- $pairedBody := "" -}}
+  {{- if .Inner -}}
+    {{- $pairedBody = strings.TrimSpace .Inner -}}
+  {{- end -}}
+  {{- if eq $pairedBody "" -}}
+    {{- $pairedBody = .Get "value" -}}
+  {{- end -}}
+
+  {{- partial "infobox/row.html" (dict
+      "label"      (.Get "label")
+      "value"      $pairedBody
+      "class"      (.Get "class")
+      "labelClass" (.Get "label-class")
+      "dataClass"  (.Get "data-class")
+      "rowShape"   "default"
+      "id"         (.Get "id")
+      "pairedBody" $pairedBody
+  ) -}}
+{{- end -}}
+{{ template "infobox/row" . }}

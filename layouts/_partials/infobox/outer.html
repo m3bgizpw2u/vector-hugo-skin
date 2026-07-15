@@ -1,0 +1,32 @@
+{{/*
+  Original work — reimplementation of Wikipedia's infobox family as a
+  Hugo shortcode. GPL-2.0-or-later.
+  License header per docs/PORT-MAP-CONVENTIONS.md §A.
+
+  Outer infobox body partial: assembles the title block, image block,
+  body rows, and below block into a single `.infobox` `<aside>`.
+*/}}
+{{- $type       := .type       | default "custom" -}}
+{{- $title      := .title      | default "" -}}
+{{- $above      := .above      | default "" -}}
+{{- $subheaders := .subheaders | default slice -}}
+{{- $titleClass := .titleClass | default "" -}}
+{{- $bodyclass  := .bodyclass  | default "" -}}
+{{- $id         := .id         | default "" -}}
+{{- $pairedBody := .pairedBody | default "" -}}
+
+<aside class="infobox{{ with $bodyclass }} {{ . }}{{ end }}"
+       data-infobox-type="{{ $type }}"
+       {{ with $id }}id="{{ . }}"{{ end }}>
+  {{- partial "infobox/title-block.html" (dict
+      "title"      $title
+      "above"      $above
+      "subheaders" $subheaders
+      "titleClass" $titleClass
+  ) -}}
+
+  {{- partial "infobox/body.html" (dict
+      "Inner"       $pairedBody
+      "autoheaders" true
+  ) -}}
+</aside>

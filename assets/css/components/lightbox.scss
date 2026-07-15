@@ -1,23 +1,33 @@
-// Original work, GPL-2.0-or-later.
-// Header per docs/PORT-MAP-CONVENTIONS.md §A.
-// Wikipedia Multimedia Viewer (MMV) — lightbox overlay for the figure shortcode.
-// Injected into document.body by assets/js/modules/lightbox.ts.
-// Token references: --z-overlay, --space-*, --font-size-*, --transition-slow,
-// --radius-sm. No color hard-coding for dark-theme compatibility.
+// Original work — lightbox reimplementation. GPL-2.0-or-later.
+// Per .cursor/rules/20-styles.mdc: one file per component under assets/css/components/.
+// Lightbox overlay (Wikipedia Multimedia Viewer equivalent) — full-screen
+// modal triggered by `data-lightbox` on any figure. Implements the Phase 0-3
+// metadata panel, ARIA dialog styling, and 3 responsive tiers (desktop /
+// tablet / mobile).
+
+$breakpoint-tablet: 1024px;
+$breakpoint-mobile: 720px;
 
 .lightbox-overlay {
   display: none;
   position: fixed;
   inset: 0;
-  z-index: var(--z-overlay);
-  align-items: center;
-  justify-content: center;
+  z-index: var(--z-overlay, 9999);
+  align-items: stretch;
+  justify-content: stretch;
   opacity: 0;
   pointer-events: none;
-  transition: opacity var(--transition-slow);
+  transition: opacity 200ms ease-out;
+  font-family: var(--font-sans);
 }
 
 .lightbox-overlay--visible {
+  display: flex;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.lightbox-overlay[aria-hidden="false"] {
   display: flex;
   opacity: 1;
   pointer-events: auto;
@@ -27,6 +37,7 @@
   position: absolute;
   inset: 0;
   background-color: rgba(0, 0, 0, 0.92);
+  cursor: pointer;
 }
 
 .lightbox-container {
@@ -50,24 +61,26 @@
   border: none;
   border-radius: 50%;
   background-color: rgba(0, 0, 0, 0.5);
-  color: #ffffff;
+  color: #fff;
   cursor: pointer;
-  transition: background-color var(--transition-fast);
+  font-size: 1.5rem;
+  line-height: 1;
+  z-index: 2;
+  transition: background-color 150ms ease-out;
+}
 
-  svg {
-    width: 20px;
-    height: 20px;
-    fill: currentColor;
-  }
+.lightbox-btn:hover {
+  background-color: rgba(0, 0, 0, 0.7);
+}
 
-  &:hover {
-    background-color: rgba(0, 0, 0, 0.7);
-  }
+.lightbox-btn:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
 
-  &:focus-visible {
-    outline: 2px solid var(--color-focus-ring);
-    outline-offset: 2px;
-  }
+.lightbox-btn[disabled] {
+  opacity: 0.3;
+  pointer-events: none;
 }
 
 .lightbox-btn--close {
@@ -87,9 +100,8 @@
   transform: translateY(-50%);
 }
 
-.lightbox-btn[disabled] {
-  opacity: 0.3;
-  pointer-events: none;
+.lightbox-btn--hidden {
+  display: none;
 }
 
 .lightbox-image-wrapper {
@@ -111,28 +123,73 @@
   margin: auto;
 }
 
-.lightbox-caption-area {
+.lightbox-metadata {
   display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--space-md);
-  padding: var(--space-sm) var(--space-md);
-  background-color: rgba(0, 0, 0, 0.6);
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding: var(--space-md);
+  background-color: rgba(0, 0, 0, 0.75);
   flex-shrink: 0;
-  min-height: 0;
+  color: #fff;
 }
 
 .lightbox-caption {
   font-size: var(--font-size-sm);
-  color: rgba(255, 255, 255, 0.9);
   margin: 0;
-  text-align: left;
-  flex: 1;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.lightbox-filename,
+.lightbox-dimensions,
+.lightbox-license {
+  font-size: var(--font-size-xs);
+  margin: 0;
+  color: rgba(255, 255, 255, 0.7);
+  font-family: var(--font-mono, monospace);
 }
 
 .lightbox-counter {
   font-size: var(--font-size-xs);
-  color: rgba(255, 255, 255, 0.6);
+  margin: 0;
+  color: rgba(255, 255, 255, 0.5);
   text-align: right;
-  flex-shrink: 0;
+}
+
+.lightbox-metadata--hidden {
+  display: none;
+}
+
+// Responsive tiers
+@media (max-width: $breakpoint-tablet) {
+  .lightbox-btn--close {
+    top: var(--space-sm);
+    right: var(--space-sm);
+  }
+
+  .lightbox-image-wrapper {
+    padding: var(--space-md);
+  }
+}
+
+@media (max-width: $breakpoint-mobile) {
+  .lightbox-image-wrapper {
+    padding: var(--space-sm);
+  }
+
+  .lightbox-btn {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    min-height: 36px;
+  }
+
+  .lightbox-metadata {
+    padding: var(--space-sm);
+  }
+}
+
+@media print {
+  .lightbox-overlay {
+    display: none !important;
+  }
 }

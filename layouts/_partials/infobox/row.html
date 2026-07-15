@@ -1,28 +1,57 @@
 {{/*
-Derived from mediawiki-skins-Vector @ 7c224883 (REL1_42, 2025-06-12) for
-the surrounding skin chrome, plus Wikipedia's rendered infobox table
-markup for the shared base/inner partial. There is no upstream Vector
-counterpart for an infobox — the infobox family is Wikipedia content
-licensed CC BY-SA 4.0. Header per docs/PORT-MAP-CONVENTIONS.md §B (dual).
-*/}}
-{{/*
-  Infobox row — a label/value pair, the dominant row type inside an
-  infobox. Standalone `<dt>` and `<dd>` elements are valid HTML5 outside
-  a `<dl>` when they form a term/value group (WHATWG HTML Living
-  Standard). The parent `<aside>` is not a description list, so we keep
-  the row's wrapper as a `<div>` and let the term/value cells stand on
-  their own.
+  Original work — reimplementation of Wikipedia's infobox family as a
+  Hugo shortcode. GPL-2.0-or-later.
+  License header per docs/PORT-MAP-CONVENTIONS.md §A.
 
-  Dict keys expected:
-    .label   string  — row label (left cell)
-    .value   string  — row value (right cell); rendered through safeHTML
-                       so inline emphasis and links work
-    .pair    string  — optional pair-primitive slug (e.g. "date",
-                       "budget-gross") that lights up the matching
-                       assets/css/components/infobox-pair-*.scss rules
-                       via [data-pair="<name>"]
+  Shared row template used by `infobox-row` (paired or single-tag), the
+  base wrapper, and the named shortcode family. One concern per file.
+
+  Dict keys:
+    .label        string  — label text (omit for full-width row shape)
+    .value        string  — value text (parameter-only form, will be markdownified)
+    .pairedBody   string  — already-rendered HTML from paired .Inner (wins over value)
+    .class        string  — extra CSS class on .infobox-data (microformats, etc.)
+    .labelClass   string  — extra CSS class on .infobox-label
+    .dataClass    string  — extra CSS class on .infobox-row wrapper
+    .rowShape     string  — "default" | "full" | "image-data" ; controls modifiers
+    .id           string  — optional id attribute on the row
+
+  Emits the standard label+data row markup from the Phase 0 contract.
+  Empty-row filter: if both .value and .pairedBody are empty AND there is
+  no label, the entire row is suppressed. If the label is set but content
+  is empty, the row still emits (caller's choice; this preserves author
+  intent for placeholder rows).
 */}}
-<div class="infobox-row"{{ with .pair }} data-pair="{{ . }}"{{ end }}>
-  {{ with .label }}<dt class="infobox-label">{{ . }}</dt>{{ end }}
-  {{ with .value }}<dd class="infobox-data">{{ . | safeHTML }}</dd>{{ end }}
+{{ $label      := .label        | default "" }}
+{{ $value      := .value        | default "" }}
+{{ $pairedBody := .pairedBody   | default "" }}
+{{ $class      := .class        | default "" }}
+{{ $labelClass := .labelClass   | default "" }}
+{{ $dataClass  := .dataClass    | default "" }}
+{{ $rowShape   := .rowShape     | default "default" }}
+{{ $id         := .id           | default "" }}
+
+{{/*
+  Row-shape modifiers. `full` → .infobox-row--full + .infobox-data--full;
+  `image-data` → .infobox-row--image-data. Default emits only base classes.
+*/}}
+{{ $rowClass := "infobox-row" }}
+{{ if eq $rowShape "full" }}{{ $rowClass = printf "%s infobox-row--full" $rowClass }}{{ end }}
+{{ if eq $rowShape "image-data" }}{{ $rowClass = printf "%s infobox-row--image-data" $rowClass }}{{ end }}
+
+{{ $dataWrapperClass := "infobox-data" }}
+{{ if eq $rowShape "full" }}{{ $dataWrapperClass = printf "%s infobox-data--full" $dataWrapperClass }}{{ end }}
+{{ if ne $class "" }}{{ $dataWrapperClass = printf "%s %s" $dataWrapperClass $class }}{{ end }}
+
+<div class="{{ $rowClass }}{{ with $dataClass }} {{ . }}{{ end }}"{{ with $id }} id="{{ . }}"{{ end }}>
+  {{ with $label }}
+    <div class="infobox-label{{ with $labelClass }} {{ . }}{{ end }}">{{ . }}</div>
+  {{ end }}
+  <div class="{{ $dataWrapperClass }}">
+    {{ if ne $pairedBody "" }}
+      {{ $pairedBody | safeHTML }}
+    {{ else }}
+      {{ $value | markdownify }}
+    {{ end }}
+  </div>
 </div>

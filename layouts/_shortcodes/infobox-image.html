@@ -1,10 +1,23 @@
 {{/*
-  Inner primitive — image + caption + alt block, used standalone when a
-  named wrapper does not cover the article's image, or composed inside
-  the `infobox` paired outer.
+  Original work — reimplementation of Wikipedia's infobox family as a
+  Hugo shortcode. GPL-2.0-or-later.
+  License header per docs/PORT-MAP-CONVENTIONS.md §A.
+
+  Additional image block within an infobox (separate figure slot below
+  the main image). Single-tag form.
+
+  Parameters:
+    src      string  — image URL or page-resource path (required)
+    caption  string  — caption under the image (markdownified)
+    alt      string  — alt text for the image
+    upright  float   — upright scaling factor (default 1.0)
+    group    string  — lightbox group key (default "default")
 */}}
 {{ partial "infobox/image-block.html" (dict
-    "image"   (.Get "image")
-    "caption" (.Get "caption")
-    "alt"     (.Get "alt")
+  "src"     (.Get "src")
+  "alt"     (.Get "alt"     | default "")
+  "caption" (.Get "caption" | default "")
+  "group"   (.Get "group"   | default "default")
+  "upright" (.Get "upright" | default 1.0)
+  "lazy"    true
 ) }}

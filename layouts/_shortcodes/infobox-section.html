@@ -1,6 +1,9 @@
-{{/*
-  Inner primitive — section divider header that spans both columns.
-  Used to break a long row list into thematic groups (e.g. "Personal
-  life", "Career").
-*/}}
-{{ partial "infobox/section.html" (dict "title" (.Get "title")) }}
+{{- define "infobox/section" -}}
+{{- $title := .Get "title" | default "" -}}
+{{- if and (eq $title "") .Inner -}}
+  {{- $title = strings.TrimSpace .Inner -}}
+{{- end -}}
+{{- $class := .Get "class" | default "" -}}
+<div class="infobox-section-header{{ with $class }} {{ . }}{{ end }}">{{ $title }}</div>
+{{- end -}}
+{{ template "infobox/section" . }}

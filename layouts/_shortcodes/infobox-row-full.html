@@ -1,0 +1,33 @@
+{{/*
+  Original work — reimplementation of Wikipedia's infobox family as a
+  Hugo shortcode. GPL-2.0-or-later.
+  License header per docs/PORT-MAP-CONVENTIONS.md §A.
+
+  Label-less, full-width data row. PAIRED form.
+
+  Authors write:
+    {{< infobox-row-full >}}Body that flows full width.{{</ infobox-row-full >}}
+
+  Or use the `value` parameter for simple text. The `.Inner` reference
+  lives inside a `define` block per the v0.164.0 AST-scanner
+  workaround described in `infobox-row.html`.
+
+  Parameters:
+    value   string  — fallback text when paired body is empty
+    class   string  — extra CSS class on `.infobox-data`
+*/}}
+{{- define "infobox/row-full" -}}
+  {{- $body := "" -}}
+  {{- if .Inner -}}
+    {{- $body = strings.TrimSpace .Inner -}}
+  {{- end -}}
+  {{- if eq $body "" -}}
+    {{- $body = .Get "value" -}}
+  {{- end -}}
+  <div class="infobox-row infobox-row--full">
+    <div class="infobox-data infobox-data--full{{ with (.Get "class") }} {{ . }}{{ end }}">
+      {{ if ne $body "" }}{{ $body | markdownify }}{{ end }}
+    </div>
+  </div>
+{{- end -}}
+{{ template "infobox/row-full" . }}

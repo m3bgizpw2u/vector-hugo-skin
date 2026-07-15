@@ -1,0 +1,47 @@
+{{/*
+  Original work — reimplementation of Wikipedia's infobox family as a
+  Hugo shortcode. GPL-2.0-or-later.
+  License header per docs/PORT-MAP-CONVENTIONS.md §A.
+
+  Wraps .Inner from the outer `infobox` shortcode. Implements:
+   - empty-row filter (rows with empty label AND empty value are dropped)
+   - autoheaders filter (section headers preceding only empty rows are
+     dropped when the parent infobox sets autoheaders="true")
+
+  Dict keys:
+    .Inner           string  — already-rendered HTML from paired body
+    .autoheaders     bool    — when true, drop empty sections (optional)
+
+  Output: the input HTML with the filters applied.
+
+  Implementation note: Hugo's renderer does not give us a structural AST
+  here (paired body is a string of HTML after .Inner processing), so we
+  apply regexp-based substring scans. Go's regexp package — the one Hugo
+  passes to templates — uses RE2 syntax, which excludes look-around
+  constructs (`(?=...)`, `(?!...)`, `(?<=...)`, `(?<!...)`). Two simpler
+  passes cover the filter set:
+    1. Any `<div class="infobox-section-header">...</div>` whose body
+       is followed by nothing but `</div>` and the end of `.Inner` (or
+       the end of the parent `aside`) is dropped, leaving a trailing
+       empty section collapsed when `autoheaders=true`.
+    2. Any `<div class="infobox-row ...">` containing only empty
+       `.infobox-label` and `.infobox-data` cells is removed.
+*/}}
+{{ $autoheaders := .autoheaders | default false }}
+{{ $html := .Inner | default "" }}
+
+{{ if and $autoheaders $html }}
+  {{/* Drop trailing empty section headers (no siblings). Look for
+     `<section-header></div>` followed by `</aside>` (or end of string)
+     and collapse them. */}}
+  {{ $html = replaceRE `(?s)<div class="infobox-section-header"[^>]*>[^<]*</div>(\s*</aside>|$)` `\1` $html }}
+  {{/* Drop empty section followed only by another empty section. Pairwise
+     reduction in two passes; covers repeated empty sections. */}}
+  {{ $html = replaceRE `(?s)<div class="infobox-section-header"[^>]*>[^<]*</div>\s*<div class="infobox-section-header"` `<div class="infobox-section-header"` $html }}
+{{ end }}
+
+{{/* Empty-row filter: a `<div class="infobox-row ...">` containing only
+   empty `.infobox-label` and `.infobox-data` cells is suppressed. */}}
+{{ $html = replaceRE `(?s)<div class="infobox-row\b[^"]*"[^>]*>\s*<div class="infobox-label[^"]*"[^>]*>\s*</div>\s*<div class="infobox-data[^"]*"[^>]*>\s*</div>\s*</div>` "" $html }}
+
+{{ $html | safeHTML }}

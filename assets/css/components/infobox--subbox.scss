@@ -1,0 +1,22 @@
+// Original work — infobox reimplementation. GPL-2.0-or-later.
+// Stub for the wrapper/embedding modifiers enabled by Phase 1-2's `child="true"`
+// and `subbox="true"` parameters on the outer `infobox` shortcode. Border is
+// stripped on the modifier so embedded modules inherit the parent's chrome.
+.infobox--subbox {
+  border: 0;
+  background-color: transparent;
+  box-shadow: none;
+  margin: 0;
+  padding: 0;
+}
+
+.infobox--child {
+  border: 0;
+  background-color: transparent;
+  box-shadow: none;
+  margin: 0;
+  padding: 0;
+  float: none;
+  width: auto;
+  max-width: none;
+}

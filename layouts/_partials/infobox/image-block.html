@@ -1,42 +1,46 @@
 {{/*
-Derived from mediawiki-skins-Vector @ 7c224883 (REL1_42, 2025-06-12) for
-the surrounding skin chrome, plus Wikipedia's rendered infobox table
-markup for the shared base/inner partial. There is no upstream Vector
-counterpart for an infobox — the infobox family is Wikipedia content
-licensed CC BY-SA 4.0. Header per docs/PORT-MAP-CONVENTIONS.md §B (dual).
-*/}}
-{{/*
-  Infobox image block — figure wrapper around an optional image with an
-  optional caption. Called by the base partial (when `image` or
-  `caption` is present) or directly by the `infobox-image` primitive
-  shortcode.
+  Original work — reimplementation of Wikipedia's infobox family as a
+  Hugo shortcode. GPL-2.0-or-later.
+  License header per docs/PORT-MAP-CONVENTIONS.md §A.
 
-  Dict keys expected:
-    .image   string  — image URL or page-bundle-relative path
-    .caption string  — caption text; rendered through safeHTML so
-                       inline emphasis and links work
-    .alt     string  — alt text for assistive tech
+  Single-image block partial for the v2 infobox family. Renders the
+  `<figure class="infobox-image-block">` wrapper around the `<img>`,
+  marks it `data-lightbox` so the rewritten lightbox module picks it up,
+  attaches a group key for carousel navigation, and sets the upright
+  scaling factor on the figure.
+
+  Dict keys:
+    .src       string  — image URL or page-resource path (required for the <img>)
+    .alt       string  — alt text (always set, may be empty for decorative)
+    .caption   string  — caption under the image (paired-form .Inner already
+                          rendered HTML in `.caption`)
+    .group     string  — lightbox group key, default "default"
+    .upright   float   — upright scaling factor, default 1.0
+    .lazy      bool    — when true (default), adds loading="lazy"
+    .context   Page    — Hugo page context for resource acquisition
+
+  This version emits a plain `<img>` to keep the v2 skeleton buildable
+  even before the full Hugo resource pipeline lands in Phase 3-2. The
+  advanced `<picture>` + WebP srcset implementation is layered on top by
+  Phase 3-2's ticket.
 */}}
-<figure class="infobox-image-block" data-lightbox>
-  {{ with .image }}
-    {{/* Image rendering is delegated to the shared article/thumb.html partial
-         so the infobox image inherits the project's native-ratio responsive
-         pipeline (srcset/sizes, intrinsic width/height, no aspect-ratio crop).
-         align="none" + width="100%" makes the .thumb fill the infobox column;
-         the infobox-scoped width override lives in
-         assets/css/components/infobox.scss. The lightbox opt-in stays on this
-         outer .infobox-image-block wrapper (not passed to the partial) so
-         assets/js/modules/lightbox.ts binds exactly once, and the
-         .infobox-caption below is preserved as the documented CSS hook
-         (docs/SHORTCODES.md §6). */}}
-    {{ partial "article/thumb.html" (dict
-        "src"   .
-        "alt"   ($.alt | default "")
-        "align" "none"
-        "width" "100%"
-    ) }}
-  {{ end }}
-  {{ with .caption }}
-    <figcaption class="infobox-caption">{{ . | safeHTML }}</figcaption>
+{{ $src     := .src     | default "" }}
+{{ $alt     := .alt     | default "" }}
+{{ $caption := .caption | default "" }}
+{{ $group   := .group   | default "default" }}
+{{ $upright := .upright | default 1.0 }}
+{{ $lazy    := .lazy    | default true }}
+
+<figure class="infobox-image-block"
+        data-lightbox
+        {{ if ne $group "" }}data-lightbox-group="{{ $group }}"{{ end }}
+        data-upright="{{ $upright }}">
+  <img class="infobox-image"
+       src="{{ $src }}"
+       alt="{{ $alt }}"
+       {{ if $lazy }}loading="lazy"{{ else }}loading="eager" fetchpriority="high"{{ end }}
+       decoding="async">
+  {{ if ne $caption "" }}
+    <figcaption class="infobox-caption">{{ $caption | markdownify }}</figcaption>
   {{ end }}
 </figure>

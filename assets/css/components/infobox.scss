@@ -1,94 +1,80 @@
-// Derived from mediawiki-skins-Vector @ 7c224883 (REL1_42, 2025-06-12) for
-// the surrounding skin chrome, plus Wikipedia's rendered `<table class=
-// "infobox">` rendering for the per-type [data-infobox-type="..."] rule
-// buckets. There is no upstream Vector counterpart for an infobox — the
-// infobox family lives on en.wikipedia.org and is licensed CC BY-SA 4.0.
-// GPL-2.0-or-later (skin chrome) + CC-BY-SA-4.0 (infobox content rules).
-// Header per docs/PORT-MAP-CONVENTIONS.md §B (dual).
-// Infobox — the MediaWiki-style summary box that appears at the top of
-// articles. Styles one component per .cursor/rules/00-core.mdc; per-
-// template visual tweaks are keyed on the [data-infobox-type="..."]
-// attribute on the outer <aside> (per docs/SHORTCODES.md §6 — CSS hook
-// contract). Per-template CSS files are prohibited.
-//
-// CSS hook contract (must match docs/SHORTCODES.md §6 exactly):
-//   .infobox              outer <aside>
-//   .infobox-header       title <div>
-//   .infobox-image        image <figure>
-//   .infobox-caption      caption <figcaption>
-//   .infobox-row          label/value row <div>
-//   .infobox-label        label cell
-//   .infobox-data         data cell
-//   .infobox-section-header  grouping header <div>
-//   .infobox-below        freeform footer <div>
-//   [data-infobox-type="..."]  per-template hook on the outer <aside>
+// Original work — infobox reimplementation. GPL-2.0-or-later.
+// Per .cursor/rules/20-styles.mdc: one file per component under assets/css/components/.
+// File owns the visual rules for the v2 infobox <aside class="infobox" ...> family.
+// Cascade ordering (loaded after base + layout, before per-type overrides) is
+// documented in .plans/fourth-plan/phase-2-architecture/2-2-css-architecture.md.
+// Design tokens (colors, spacing, typography) come from base/_tokens.scss; no
+// hard-coded theme values here.
 
-// The seven infobox-pair-* primitives live in their own files under
-// components/ (one concern per file per .cursor/rules/00-core.mdc).
-// They must be @use'd before any rule in this file — Dart Sass forbids
-// @use after rule declarations. Each pair file emits rules keyed on
-// .infobox-row[data-pair="<name>"].
-@use 'infobox-pair-date';
-@use 'infobox-pair-software-release';
-@use 'infobox-pair-population';
-@use 'infobox-pair-area';
-@use 'infobox-pair-air-date';
-@use 'infobox-pair-budget-gross';
-@use 'infobox-pair-episode-season';
+@use 'sass:math';
 
+// Per Phase 2-2 breakpoints: 1200px desktop/tablet split, 720px tablet/mobile
+// split. SCSS variables are compile-time only — these do not become CSS.
+$breakpoint-tablet: 1200px;
+$breakpoint-mobile: 720px;
+
+// Root container. Floated right on desktop so article body text wraps
+// around it; drops to full-width stack below the tablet breakpoint.
 .infobox {
   float: right;
   clear: right;
   width: 100%;
-  max-width: var(--infobox-max-width);
+  max-width: var(--infobox-max-width, 22rem);
   margin: 0 0 var(--space-lg) var(--space-lg);
   padding: 0;
-  background-color: var(--color-infobox-bg);
-  border: 1px solid var(--color-infobox-border);
+  background-color: var(--color-infobox-bg, var(--color-surface));
+  border: 1px solid var(--color-infobox-border, var(--color-border));
   border-radius: var(--radius-md);
   font-size: var(--font-size-sm);
   line-height: var(--line-height-snug);
   color: var(--color-text);
   box-shadow: var(--shadow-sm);
+  box-sizing: border-box;
 }
 
-.infobox-header {
-  padding: var(--space-sm) var(--space-md);
-  background-color: var(--color-infobox-header-bg);
-  border-bottom: 1px solid var(--color-infobox-border);
+// Captions above the border and the topmost inside-border cell.
+.infobox-title {
+  padding: var(--space-xs) var(--space-md);
   font-family: var(--font-sans);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  text-align: center;
+  color: var(--color-text);
+  border-bottom: 1px solid var(--color-infobox-border, var(--color-border));
+}
+
+.infobox-above {
+  padding: var(--space-sm) var(--space-md);
+  background-color: var(--color-infobox-header-bg, var(--color-surface-alt));
+  border-bottom: 1px solid var(--color-infobox-border, var(--color-border));
   font-size: var(--font-size-lg);
   font-weight: var(--font-weight-semibold);
   text-align: center;
-  border-top-left-radius: var(--radius-md);
-  border-top-right-radius: var(--radius-md);
 }
 
-.infobox-image {
+.infobox-subheader {
+  padding: var(--space-xs) var(--space-md);
+  font-size: var(--font-size-sm);
+  text-align: center;
+  color: var(--color-text-muted);
+  border-bottom: 1px solid var(--color-infobox-border, var(--color-border));
+}
+
+// Image block fills the column, native-ratio. The <picture> and srcset
+// variants are produced by Phase 3-2's image partial pipeline.
+.infobox-image-block {
   margin: 0;
   padding: var(--space-sm);
   text-align: center;
   background-color: var(--color-surface);
 }
 
-// The infobox image is rendered by the shared article/thumb.html partial
-// (native-ratio responsive pipeline — see assets/css/components/_thumb.scss),
-// so the image is no longer cropped to 4/3 with object-fit:cover. The nested
-// .thumb figure fills the infobox column; the image scales to its native
-// ratio. Per-type max-width hints below keep tall portraits from dominating
-// the column without re-introducing a fixed aspect ratio.
-// The .infobox ancestor is included in the selector so this fill rule beats
-// _thumb.scss's `.thumb[data-align="none"] { width: … }` desktop tier (both
-// would otherwise be 0,2,0 and infobox is @use'd before thumb in main.scss).
-.infobox .infobox-image-block .thumb,
-.infobox .infobox-image .thumb {
+.infobox-image-block .infobox-image {
+  display: block;
   margin: 0 auto;
-  width: 100%;
-}
-
-.infobox-image-block .thumb__img,
-.infobox-image .thumb__img {
   max-width: 100%;
+  height: auto;
+  border-radius: var(--radius-sm);
 }
 
 .infobox-caption {
@@ -99,11 +85,18 @@
   font-style: italic;
 }
 
+// Body / rows. Each row is a horizontal flex container with the label
+// on the left (40%) and the data on the right (60%).
+.infobox-body {
+  display: flex;
+  flex-direction: column;
+}
+
 .infobox-row {
   display: flex;
   flex-wrap: wrap;
   gap: 0;
-  border-bottom: 1px solid var(--color-infobox-border);
+  border-bottom: 1px solid var(--color-infobox-border, var(--color-border));
 }
 
 .infobox-row:last-child {
@@ -114,7 +107,7 @@
   flex: 0 0 40%;
   padding: var(--space-xs) var(--space-sm);
   font-weight: var(--font-weight-semibold);
-  background-color: var(--color-infobox-label-bg);
+  background-color: var(--color-infobox-label-bg, var(--color-surface-alt));
   color: var(--color-text);
   word-wrap: break-word;
 }
@@ -126,24 +119,44 @@
   word-wrap: break-word;
 }
 
+// Inline links follow design tokens.
 .infobox-data a {
   color: var(--color-link);
+  text-decoration: underline;
+
+  &:hover {
+    text-decoration: none;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-focus-ring);
+    outline-offset: 2px;
+  }
 }
 
+// Optional external-link icon (opt-in via rel="external", per Phase 3-4).
+.infobox-data a[rel~="external"]::after {
+  content: " \2197"; // ↗
+  font-size: 0.8em;
+  vertical-align: super;
+}
+
+// Section header divider.
 .infobox-section-header {
   padding: var(--space-xs) var(--space-sm);
-  background-color: var(--color-infobox-header-bg);
+  background-color: var(--color-infobox-header-bg, var(--color-surface-alt));
   font-weight: var(--font-weight-semibold);
   color: var(--color-text);
-  border-bottom: 1px solid var(--color-infobox-border);
+  border-bottom: 1px solid var(--color-infobox-border, var(--color-border));
   font-size: var(--font-size-sm);
   text-transform: uppercase;
   letter-spacing: 0.03em;
 }
 
+// Below (footer). Sits outside the row grid, full-width of the box.
 .infobox-below {
   padding: var(--space-sm) var(--space-md);
-  border-top: 1px solid var(--color-infobox-border);
+  border-top: 1px solid var(--color-infobox-border, var(--color-border));
   font-size: var(--font-size-xs);
   color: var(--color-text-muted);
   background-color: var(--color-surface-alt);
@@ -151,15 +164,10 @@
   border-bottom-right-radius: var(--radius-md);
 }
 
-// ---- Mobile + tablet: stack full-width below the lead ----
-// Float is dropped at ≤1024 px (not just ≤720 px) so the article body
-// keeps a readable text column when the sidebar column is still showing.
-// At 768 px (iPad portrait) the available article width is roughly
-// 528 px, which after padding leaves room for the 352 px infobox AND
-// only ~140 px of body text — unreadable. Dropping the float there
-// gives the article full tablet width and stacks the infobox below the
-// first paragraph, matching Vector 2022's behavior at this width.
-@media (max-width: 1024px) {
+// Responsive tiers. Tablet drops the float so the article body keeps a
+// readable column; mobile stacks label above data so non-trivial values
+// don't get squeezed into ~140px columns.
+@media (max-width: $breakpoint-tablet) {
   .infobox {
     float: none;
     max-width: 100%;
@@ -167,118 +175,37 @@
   }
 }
 
-// ---- Mobile: stack label above data ----
-// At narrow viewports the `flex: 0 0 40%` / `flex: 1 1 60%` split leaves
-// only ~140px for data, unreadable for non-trivial values. Vector's
-// mobile infobox pattern: label sits above its data cell, full row width.
-// Stacking row to column drops the per-row horizontal real-estate split
-// and matches Wikipedia's mobile article view.
-@media (max-width: 719px) {
+@media (max-width: $breakpoint-mobile) {
   .infobox-row {
     flex-direction: column;
   }
+
   .infobox-label {
     flex-basis: auto;
     width: 100%;
   }
+
   .infobox-data {
     flex-basis: auto;
     width: 100%;
   }
 }
 
-// ---- Print: keep the infobox visible but tighten borders ----
+// Print: keep the infobox visible but tighten borders, drop float/shadow.
 @media print {
   .infobox {
     float: none;
     page-break-inside: avoid;
     box-shadow: none;
+    border-color: var(--color-text);
   }
 }
 
-// =========================================================================
-// Per-template hooks — keyed on [data-infobox-type="..."] per the
-// CSS hook contract in docs/SHORTCODES.md §6. Independent of the seven
-// pair primitives; this is where named shortcodes that need a unique
-// visual tweak land (portrait aspect ratio for person, banner treatment
-// for film, etc.). Per-template CSS files are forbidden.
-// =========================================================================
-
-// Per-type IMAGE ratios are gone: images now render at their native ratio
-// through the shared article/thumb.html partial (see the note on
-// .infobox-image-block above). What remains here are (a) the non-image
-// per-type visual tweaks (headers, borders, tabular figures) and (b) a set
-// of per-type *container max-width hints* so a naturally-tall portrait
-// doesn't grow the image column absurdly taller than its landscape peers.
-// The hints cap the .thumb width as a percentage of the infobox column; a
-// type with no hint fills the column (settlement / country / television —
-// landscape photos that read best full-width).
-
-.infobox[data-infobox-type="film"] .infobox-header {
-  background-color: var(--color-text);
-  color: var(--color-surface);
-}
-
-.infobox[data-infobox-type="software"] .infobox-data {
-  font-variant-numeric: tabular-nums;
-}
-
-.infobox[data-infobox-type="company"] .infobox-row[data-pair="date"] {
-  background-color: var(--color-surface-alt);
-}
-
-.infobox[data-infobox-type="settlement"] .infobox-section-header {
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.infobox[data-infobox-type="country"] {
-  border-top: 3px solid var(--color-accent);
-}
-
-.infobox[data-infobox-type="organization"] .infobox-header {
-  background-color: var(--color-accent);
-  color: var(--color-accent-contrast);
-}
-
-// Album covers keep their soft-rounded corners; the ratio is now native.
-.infobox[data-infobox-type="album"] .infobox-image-block .thumb__img {
-  border-radius: var(--radius-sm);
-}
-
-// ---- Per-type container max-width hints (NOT aspect ratios) ----
-// Portrait-leaning types get a narrower cap so a tall native image doesn't
-// dominate the box; logo/cover types get a moderate cap; landscape photo
-// types (settlement / country / television*) stay at the column's full
-// width. Centred by the .infobox-image-block's text-align:center.
-.infobox[data-infobox-type="person"] .infobox-image-block .thumb {
-  max-width: 70%;
-}
-
-.infobox[data-infobox-type="film"] .infobox-image-block .thumb {
-  max-width: 60%;
-}
-
-.infobox[data-infobox-type="company"] .infobox-image-block .thumb {
-  max-width: 60%;
-}
-
-.infobox[data-infobox-type="album"] .infobox-image-block .thumb {
-  max-width: 80%;
-}
-
-.infobox[data-infobox-type="organization"] .infobox-image-block .thumb {
-  max-width: 60%;
-}
-
-.infobox[data-infobox-type="election"] .infobox-image-block .thumb {
-  max-width: 70%;
-}
-
-.infobox[data-infobox-type="baseball-biography"] .infobox-image-block .thumb,
-.infobox[data-infobox-type="basketball-biography"] .infobox-image-block .thumb,
-.infobox[data-infobox-type="football-biography"] .infobox-image-block .thumb,
-.infobox[data-infobox-type="ice-hockey-biography"] .infobox-image-block .thumb,
-.infobox[data-infobox-type="military-person"] .infobox-image-block .thumb {
-  max-width: 70%;
+// Upright mode: read by .infobox-image for portrait scaling. Author sets
+// `data-upright="<factor>"` on the root <aside>; CSS targets the value via
+// attribute selectors. Note: CSS custom properties cannot consume attr() in
+// percentage units across all browsers, so per-type max-width hints in
+// infobox--per-type.scss are used instead and --infobox-upright stays at 1.
+.infobox {
+  --infobox-upright: 1;
 }
