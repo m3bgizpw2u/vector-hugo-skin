@@ -2001,3 +2001,54 @@ templates, ES6 → TS).
 
 For the per-file upstream provenance table covering all 290+
 files, see `docs/PORT-MAP.md`.
+
+---
+
+## §16 — Fourth Plan: infobox v2 clean-slate reimplementation
+
+The Fourth Plan replaced the infobox family **clean-slate** in
+2026-07. Research was organised under
+`.plans/fourth-plan/` with the following surfaces:
+
+- `phase-0-research/` — primary-source research for the new API.
+  `0-1-wikipedia-dom-analysis.md` records the DOM evidence (MMV
+  overlay structure, `.infobox` / `.infobox-header` / `.infobox-row`
+  / `.infobox-label` / `.infobox-data` / `.infobox-section-header`
+  / `.infobox-below` class contract). `0-3-lightbox-mm-spec.md`
+  is the normative specification for the rewritten lightbox
+  (`role="dialog"`, metadata panel, group carousel, keyboard,
+  preload, no-JS fallback). `0-4-wikipedia-template-infobox-canonical-contract.md`
+  fixes the `bodyclass` / `data-infobox-type` / child-module
+  semantics against the upstream metatemplate.
+- `phase-1-discovery/` — surface translation into Hugo requirements
+  and the eight-shortcode API. `1-1-greenfield-requirements.md`
+  enumerates R1–R10 (title block, image block, row block, freeform
+  content, below footer, per-type discriminator, etc.).
+  `1-2-shortcode-api-surface.md` is the public contract the docs
+  reflect (parameter tables, authoring patterns A–I, child vs
+  subbox wrapper semantics). `1-3-conformance-scorecard.md`
+  confirms the new API covers the Wikipedia contract.
+- `phase-2-architecture/` — implementation decisions. `2-1-shortcode-architecture.md`
+  locks the flat single-file layout for all eight shortcodes
+  (Hugo v0.163.3 folder-layout registration name and AST-scanner
+  crash on `.Inner` — flat remains the default). `2-2-css-architecture.md`
+  fixes the per-component SCSS file split. `2-3-image-pipeline.md`
+  is the four-partial image pipeline (`resolve-image` →
+  `variants` → `srcset` → `picture`). `2-4-lightbox-architecture.md`
+  is the TypeScript module layout for the rewritten lightbox.
+- `phase-3-implementation/3-1-infobox-v2-structure/README.md`
+  — the file-creation ticket: 8 shortcodes, 12 partials, 4 SCSS
+  partials, and the deletion list for the old
+  `infobox-pair-*.html` family. `3-2-image-handling/README.md`,
+  `3-3-freeform-rows`, `3-4-link-decisions`, `3-5-…`,
+  `3-6-lightbox-enhancement`, `3-7-figure-filename` cover the
+  remaining implementation phases.
+- `START-HERE.md` — the plan index.
+
+The infobox v2 family shipped by this commit is therefore not a
+rearrangement of the existing code; it is the **first build**
+of the new family. The 30 named `{{< person >}}` / `{{< film >}}`
+wrappers documented at §10 still route through the kept-for-back-
+compat `layouts/_partials/infobox/base.html` shim until Phase 3-7
+rewrites them, but new content is authored against the §1-§9 v2
+API documented in `docs/SHORTCODES.md`.

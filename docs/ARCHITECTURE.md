@@ -114,19 +114,32 @@ not a branch in an existing one.
   the `sidebar/` folder holds `main-menu.html`, `toc-panel.html`. A region folder
   is not a single mega-partial — that would violate the one-concern rule, since
   a region usually serves several distinct sub-widgets.
-- `partials/infobox/` — the *rendering* primitives (not invocable shortcodes)
-  shared by every named shortcode: `base.html`, `header.html`, `image-block.html`,
-  `row.html`, `section.html`, `below.html`, plus a `special/` subfolder for
-  pair/section templates reused across many named shortcodes
-  (`person-birth-death.html`, `software-release.html`, etc.). Partial lookup is
-  type-driven: the named shortcode sets `data-infobox-type` and the partial
-  looks itself up by that key.
-- `shortcodes/{name}/` — per the folder-per-shortcode rule. `infobox/`
-  contains the inner primitive shortcodes (`infobox-row`, `infobox-image`,
-  `infobox-section`, `infobox-below`, `infobox-field`, `infobox-pair-*`).
-  The thirty named family shortcodes (`person/`, `company/`, `software/`,
-  `settlement/`, `film/`, ...) each get their own folder whose contents
-  compose the inner primitives into a topic-specific wrapper.
+- `partials/infobox/` — the **v2 rendering pipeline** behind the eight
+  infobox shortcodes. The Fourth Plan's clean-slate reimplementation
+  replaced the prior `base.html` shim with a per-concern partial set:
+  `outer.html`, `child.html` (`.infobox--child` / `.infobox--subbox`
+  modifier wrapper), `title-block.html` (title + above + subheaders),
+  `body.html` (`.Inner` wrapper + empty-row / autoheader RE2 filter),
+  `row.html` (shared row template), `image-block.html`
+  (orchestrates the image pipeline below), plus the image-pipeline
+  parts `resolve-image.html` / `variants.html` / `srcset.html` /
+  `picture.html`. `base.html` is retained as a backwards-compatibility
+  shim for the 30 named wrappers (person, film, …) — Phase 3-7 will
+  retire it. The auxiliary `_link.html` partial is an opt-in autolink
+  helper, not auto-invoked by any row primitive. Full shortcode API
+  lives in `docs/SHORTCODES.md` §2.
+- `shortcodes/infobox*.html` — **flat single files** for the eight v2
+  primitives: `infobox`, `infobox-section`, `infobox-row`,
+  `infobox-row-full`, `infobox-row-image`, `infobox-image`,
+  `infobox-subheader`, `infobox-below`. The folder-per-shortcode rule
+  from §1 was relaxed in the Fourth Plan (Hugo v0.163.3's folder layout
+  registers the shortcode as `{{< name/index >}}` and crashes on paired
+  `.Inner` references) — see `00-core.mdc` §"Shortcode layout". The
+  thirty named family shortcodes (`person/`, `company/`, `software/`,
+  `settlement/`, `film/`, ...) each still get their own folder under
+  `layouts/_shortcodes/<slug>/` because they grew into multi-file
+  shapes; each calls into the v2 primitives via the `base.html` shim
+  until Phase 3-7 rewrites them.
 
 ### Tests and example site
 
@@ -241,10 +254,60 @@ when the wrapper grows to need `infobox-row`, `infobox-image`, and
 | Tiny pure helpers | `assets/js/utils/` | `dom.ts`, `debounce.ts`, `storage.ts`. No side effects, no event listeners. |
 | Behavior wiring | `assets/js/modules/` | One behavior per file. Never cross-imports another module. |
 | Page-region partials | `layouts/_partials/<region>/` | `header/`, `sidebar/`, `article/`, `footer/`, `infobox/`. Region folder is not a single mega-partial. |
-| Infobox rendering primitives | `layouts/_partials/infobox/` | `base.html`, `header.html`, `image-block.html`, `row.html`, `section.html`, `below.html`, plus `special/` for cross-template pair/section templates (`person-birth-death.html`, `software-release.html`, `organization-founded-dissolved.html`, `settlement-coordinates.html`). |
+| Infobox rendering pipeline (v2) | `layouts/_partials/infobox/` | `outer.html`, `child.html`, `title-block.html`, `body.html`, `row.html`, `image-block.html`, plus the image-pipeline parts `resolve-image.html`, `variants.html`, `srcset.html`, `picture.html`. `base.html` is the kept-for-back-compat shim for the 30 named wrappers. See `docs/SHORTCODES.md` §5 for the full file map. |
 
 The naming contract is locked because the grep-for-filename workflow only
 works if it is consistent across the whole repo.
+
+## 3½. Infobox image pipeline and lightbox (Fourth Plan)
+
+The image pipeline and the lightbox overlay sit *between* the template
+and the CSS layers for the infobox family — they are not template-only,
+not CSS-only, not JS-only. A short one-paragraph note lives here so the
+ARCHITECTURE reader has the file picture without flipping to §A and
+`docs/SHORTCODES.md` §4; the full API lives there.
+
+**Image pipeline (Phase 3-2).** Every responsive image inside an
+infobox runs through `layouts/_partials/infobox/image-block.html`,
+which orchestrates four small partials:
+
+1. `resolve-image.html` — page-bundle → static asset → remote URL
+   fallback. Bundle and static lookups return a Hugo `resource`
+   object; remote URLs return `nil` and the caller falls back to a
+   plain `<img src=…>` without the `<picture>` stack.
+2. `variants.html` — emits four sizes (320, 640, 1024, 2048 px) in
+   both WebP and jpg formats via Hugo's `Resize()`, skipping sizes
+   larger than the source's intrinsic width.
+3. `srcset.html` — joins variant slices into `"…320w, …640w, …"`
+   strings.
+4. `picture.html` — emits the
+   `<picture><source type="image/webp" srcset=… sizes=…><img src=…
+   srcset=… sizes=… alt=… width=… height=… loading="lazy"
+   decoding="async"></picture>` shell with intrinsic `width` /
+   `height` for CLS-free layout.
+
+The `sizes` attribute is the same three-viewport shape the responsive
+SCSS uses: `"(max-width: 720px) 100vw, (max-width: 1200px) 50vw,
+320px"`.
+
+**Lightbox overlay (Phase 3-6).** `assets/js/modules/lightbox.ts` is
+a single ~370-line TS file that mounts a `role="dialog"
+aria-modal="true"` overlay into `<body>` on init, opens it on click or
+Enter / Space of any `<figure data-lightbox>` (or any element with
+`data-lightbox` containing an `<img>`), and exposes a metadata panel
+with five fields — caption (`<figcaption>` text → `data-lightbox-
+caption` attribute), filename (`data-lightbox-filename` → `src` URL
+basename), dimensions (`naturalWidth × naturalHeight`), license
+(`data-lightbox-license`), counter (`"<index+1> / <total>"`). Empty
+fields hide independently. Group carousel: figures sharing the same
+`data-lightbox-group` value form a navigable carousel (ArrowLeft /
+ArrowRight, RTL-aware; Home / End; Tab focus trap; Escape closes;
+adjacent images preloaded). Init is idempotent. Triggered figures
+include the main `{{< infobox-image >}}`, `{{< infobox-row-image
+>}}`'s 60×60 thumbnail, and the article-body `{{< figure >}}`
+shortcode.
+
+---
 
 ## 4. Build invocation
 

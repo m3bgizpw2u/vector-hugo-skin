@@ -63,392 +63,854 @@ original).
 
 ## §1. Overview
 
-The theme ships a **family of named shortcodes** that reproduce the visual
-contract of Wikipedia's `Infobox <topic>` template family in a static Hugo
-context. The mapping to MediaWiki is direct: every `{{< topic >}}` shortcode
-the theme ships is a 1:1 conceptual wrapper for `{{Infobox topic …}}` on
-Wikipedia, accepts the same named parameters in the same order, and renders
-through one shared base partial. The 30 named shortcodes in
-`docs/RESEARCH.md` §7 are the v1 coverage contract; the architecture below
-makes adding more a small mechanical process (see `docs/RESEARCH.md` §8).
+The Fourth Plan rebuilt the infobox family **clean-slate** in 2026-07 and
+ships a single public surface — **eight shortcodes** under
+`layouts/_shortcodes/` — that compose into any Wikipedia-style infobox
+the author needs. There is no separate named-wrapper layer for new
+infobox types; everything goes through the v2 primitives.
 
-The architecture is three layers, top to bottom:
+The eight shortcodes are:
 
-```
-┌──────────────────────────────────────────────────────────────────┐
-│  Layer 1: Named wrappers                                         │
-│  layouts/_shortcodes/{slug}/{slug}.html                           │
-│  One file per MediaWiki template (top 30 in RESEARCH.md §7).     │
-│  Thin 15–30 line Go-template that maps the upstream param list    │
-│  onto the base partial's slot list.                              │
-│                                                                  │
-│   {{< person name="…" birth_date="…" birth_place="…" />}}       │
-│   {{< settlement name="…" population_total="…" area_total="…" >}}│
-│   {{< film title="…" director="…" budget="…" gross="…" />}}      │
-└──────────────────────────────────────────────────────────────────┘
-                              │ delegates to
-                              ▼
-┌──────────────────────────────────────────────────────────────────┐
-│  Layer 2: Base rendering partial                                 │
-│  layouts/partials/infobox/base.html                              │
-│  One partial that renders every infobox: the header, the image   │
-│  block, the row sequence, the special-case field groups, the     │
-│  optional "below" footer. Receives a dict from layer 1, dispatches│
-│  to the matching per-concept partials.                           │
-└──────────────────────────────────────────────────────────────────┘
-                              │ composed from
-                              ▼
-┌──────────────────────────────────────────────────────────────────┐
-│  Layer 3: Inner primitive shortcodes                            │
-│  layouts/_shortcodes/infobox/infobox-{primitive}.html             │
-│  Five generic building blocks (infobox-row, infobox-image,       │
-│  infobox-section, infobox-below, the outer infobox paired         │
-│  wrapper) plus seven infobox-pair-* special-case primitives.     │
-│  The named wrappers compose these into their final row list.     │
-└──────────────────────────────────────────────────────────────────┘
+| Shortcode | Form | Purpose |
+|---|---|---|
+| `infobox` | paired | Outer `<aside class="infobox">` wrapper. Holds the rows, sections, images, and below block. |
+| `infobox-section` | paired (or `title=` param) | Section divider that spans both columns. |
+| `infobox-row` | paired (or `value=` param) | Label + data row, the most common shape. |
+| `infobox-row-full` | paired (or `value=` param) | Label-less, full-width data row (cast lists, sourced citations). |
+| `infobox-row-image` | paired | Data row with an inline thumbnail + lightbox-trigger figure. |
+| `infobox-image` | single-tag | Additional image block below the main image, for multi-image carousels. |
+| `infobox-subheader` | paired (or `value=` param) | Subtitle line under the title. |
+| `infobox-below` | paired (or `value=` param) | Footer block at the bottom of the box. |
+
+All eight are **paired-form-only**. The paired body is what makes them
+work inside another paired shortcode: the shortcode template pulls the
+author's Markdown through `.Page.RenderString`, so links, lists, bold,
+italic, and **nested shortcodes** (e.g. `{{< figure >}}` or another
+`{{< infobox subbox="true">}}`) all render through the same pipeline.
+Hugo v0.164.0's shortcode AST scanner inspects `.Inner` references at
+the top level of a template and forces paired invocation; every v2
+shortcode therefore wraps its body in a `{{ define }}` block so the
+scanner sees the right shape and the build does not error with
+"shortcode does not evaluate .Inner" — see the comment block at the
+top of `layouts/_shortcodes/infobox-row.html` for the rationale.
+
+The author-facing composition rule:
+
+```text
+{{< infobox type="person" title="…" >}}
+
+  {{< infobox-row label="…" >}}value or markdown{{</ infobox-row >}}
+  {{< infobox-section title="…" >}}
+  {{< infobox-row-image label="…" image="…" >}}optional caption + body{{</ infobox-row-image >}}
+
+{{< /infobox >}}
 ```
 
-The shape matters: a named wrapper file is a **mechanical** map from upstream
-parameter names to the base partial's slot list. Once the base partial and
-the primitives are written, the per-template work is bookkeeping — and a
-downstream site author who wants a new wrapper does not need to recompile
-the theme.
+A column-floated `<aside>` with a title, body rows organised into
+sections, an embedded image, and a footer. The class contract
+(`.infobox`, `.infobox-title`, `.infobox-row`, `.infobox-label`,
+`.infobox-data`, `.infobox-section-header`, `.infobox-image-block`,
+`.infobox-caption`, `.infobox-below`) is what the SCSS hook contract
+in §6 keys off.
+
+> **Note on the 30 named wrappers (`{{< person >}}`, `{{< film >}}`,
+> etc.).** The 30 named top-level wrappers documented in §10 still
+> ship and still accept their existing param dicts. They continue to
+> route through `layouts/_partials/infobox/base.html`, a kept-for-
+> backwards-compatibility shim that maps the old `.fields`-list /
+> `.image` / `.caption` / `.below` contract onto the new
+> v2 primitives. **New content should be written against the v2
+> primitives directly.** Phase 3-7 will retire the shim when every
+> named wrapper has been rewritten to emit the v2 `infobox` outer
+> shortcode instead.
 
 ---
 
-## §2. Syntax mapping (MediaWiki → Hugo)
+## §2. Authoring model: the eight v2 shortcodes
 
-The transition from MediaWiki wikitext to a Hugo shortcode is mostly
-mechanical. Field names are preserved verbatim. Only the delimiters and the
-value-quoting convention change.
+Every v2 shortcode is a flat single Hugo template at
+`layouts/_shortcodes/<name>.html`. Each declares its parameter list in a
+header comment block — that comment is the source of truth; this section
+is the human-readable companion. Pairing is mandatory per the §1 note;
+use the paired body for any field that may contain Markdown.
 
-| MediaWiki wikitext | Hugo shortcode | Why the change |
-|---|---|---|
-| `{{Infobox person \| name = X }}` | `{{< person name="X" >}}` | `{{` → `{{<`; `}}` → `>}}`; pipes around the key become spaces; the `= value` part gains surrounding quotes. |
-| `{{Infobox person \| name = X \| birth_date = 1990 }}` | `{{< person name="X" birth_date="1990" >}}` | Same — the trailing `}}` closes both forms identically. |
-| `{{Infobox person` (paired form, opens a block) | `{{< person >}}…{{< /person >}}` | Hugo's paired form is the wikitext `{{Infobox person` / `}}` equivalent: everything between the open and close tag is `.Inner` inside the named wrapper. |
-| `\| name = "X"` (with explicit quotes) | `name = "X"` | The quotes were never MediaWiki-mandatory; they are required for any value containing spaces in Hugo's shortcode parser. Authors can keep them everywhere for consistency, or only when the value has whitespace. |
-| `\| name = ''` (empty string) | `name=""` | Empty strings render as no row in both. The base partial uses a `with`-style guard that suppresses the row when the value is empty or absent, matching MediaWiki's "absent values leave no empty rows" guarantee. |
-| Nested templates: `{{Infobox settlement \| pushpin_map = {{Infobox map …}} }}` | Not yet supported in v1 | Hugo's shortcode parser evaluates args as raw strings, so nested `infobox-*` calls inside a parent's param list do not render. This is **flagged as future work** in §9. Authors who need a nested value can use the inner-primitive escape hatch (§5). |
+### §2.1 `{{< infobox >}}` (paired)
 
-**Why the param names are identical, not Hugo-idiomatic.** Wikipedia's
-`Wikipedia:Manual of Style/Infoboxes` already specifies snake_case, lowercase
-nouns, cross-template reuse of field names like `birth_date` / `death_date` /
-`coordinates`. The Hugo shortcode family follows the same convention
-deliberately: an author copy-pasting a Wikipedia infobox body into a Hugo
-article is a small quoting edit, not a rename. The naming contract is locked
-in `.cursor/rules/40-shortcodes.mdc`.
+The outer wrapper. Renders `<aside class="infobox" data-infobox-type="…">`.
+All other v2 shortcodes are placed inside it as `.Inner` content.
 
-**Worked example — single-line form:**
+| Parameter | Type | Default | Purpose |
+|---|---|---|---|
+| `type` | string | `"custom"` | Sets `data-infobox-type` on the root; the SCSS hook the per-type overrides in `assets/css/components/infobox--per-type.scss` key on. |
+| `title` | string | `""` | `.infobox-title` text (above the border). |
+| `above` | string | `""` | `.infobox-above` text inside the border, above the image. |
+| `subheaders` | slice of string | `(empty)` | Repeated `.infobox-subheader` lines below the title. For a single subtitle, prefer the `{{< infobox-subheader >}}` shortcode inside the body. |
+| `title-class` | string | `""` | Extra CSS class on `.infobox-title`. |
+| `body-class` | string | `""` | Extra CSS class on the root `<aside>` (Wikipedia `bodyclass` pass-through — supports microformats like `vcard biography`). |
+| `child` | bool | `false` | Render without border, no title/above/subheader/below — wraps the inner rows as a child module inside the parent infobox. See §3 wrapper pattern. |
+| `subbox` | bool | `false` | Same modifier but for full-width data cells (cast lists, track listings). See §3 subbox pattern. |
+| `id` | string | `""` | Optional `id` attribute on the root. |
 
-```markdown
-{{< person
-    name          = "Douglas Adams"
-    image         = "douglas-adams.jpg"
-    alt           = "Black-and-white portrait of Douglas Adams"
-    caption       = "Adams in 2001"
-    birth_date    = "11 March 1952"
-    birth_place   = "Cambridge, England"
-    death_date    = "11 May 2001"
-    death_place   = "Santa Barbara, California"
-    occupation    = "Author, screenwriter"
-    notable_works = "*The Hitchhiker's Guide to the Galaxy*"
+`child` and `subbox` are **mutually exclusive**. Setting both produces
+the `child` modifier and silently drops `subbox` — see
+`layouts/_partials/infobox/child.html` and §3 for the deterministic
+rule.
+
+Worked example:
+
+```text
+{{< infobox type="person" title="Sally Ride" body-class="vcard biography" >}}
+
+  {{< infobox-row label="Born" >}}May 26, 1951{{</ infobox-row >}}
+  {{< infobox-row label="Died" >}}July 23, 2012{{</ infobox-row >}}
+
+  {{< infobox-section title="Education" >}}
+  {{< infobox-row label="Alma mater" >}}Swarthmore; Stanford{{</ infobox-row >}}
+
+{{< /infobox >}}
+```
+
+Renders:
+
+```html
+<aside class="infobox vcard biography" data-infobox-type="person">
+  <div class="infobox-title">Sally Ride</div>
+  <div class="infobox-row">
+    <div class="infobox-label">Born</div>
+    <div class="infobox-data"><p>May 26, 1951</p></div>
+  </div>
+  <div class="infobox-row">
+    <div class="infobox-label">Died</div>
+    <div class="infobox-data"><p>July 23, 2012</p></div>
+  </div>
+  <div class="infobox-section-header">Education</div>
+  <div class="infobox-row">
+    <div class="infobox-label">Alma mater</div>
+    <div class="infobox-data"><p>Swarthmore; Stanford</p></div>
+  </div>
+</aside>
+```
+
+### §2.2 `{{< infobox-section >}}`
+
+Section divider that spans both columns. Both the `title=` parameter and
+a paired body are supported — title wins when both are present.
+
+| Parameter | Type | Default | Purpose |
+|---|---|---|---|
+| `title` | string | `""` (paired body fallback) | Header text. |
+| `class` | string | `""` | Extra CSS class. |
+
+```text
+{{< infobox-section title="Career" >}}
+```
+
+Renders:
+
+```html
+<div class="infobox-section-header">Career</div>
+```
+
+### §2.3 `{{< infobox-row >}}` (paired)
+
+The label + data row — the most common shape. Value comes from one of
+two equivalent sources, in priority order: paired `.Inner` body wins;
+the `value=` parameter is the fallback.
+
+| Parameter | Type | Default | Purpose |
+|---|---|---|---|
+| `label` | string | (required) | Row label text. |
+| `value` | string | `""` | Fallback when the paired body is empty. Markdown-rendered. |
+| `class` | string | `""` | Extra CSS class on `.infobox-data` (microformats). |
+| `label-class` | string | `""` | Extra CSS class on `.infobox-label`. |
+| `data-class` | string | `""` | Extra CSS class on the `.infobox-row` wrapper. |
+| `id` | string | `""` | Optional `id` attribute on the row. |
+
+Empty-row filter: a row whose label and value are both empty is removed
+from the output by `layouts/_partials/infobox/body.html` before the row
+ever reaches the page.
+
+```text
+{{< infobox-row label="Alma mater" value="Swarthmore; Stanford" >}}{{</ infobox-row >}}
+```
+
+is functionally identical to:
+
+```text
+{{< infobox-row label="Alma mater" >}}Swarthmore; Stanford{{</ infobox-row >}}
+```
+
+Markdown inside the paired body (`**bold**`, `[links](url)`, `- lists`)
+renders through `.Page.RenderString`, so an arbitrary Markdown body —
+**including nested shortcodes** like `{{< figure >}}` or another
+`{{< infobox >}}` — produces the same DOM it would at article root.
+
+### §2.4 `{{< infobox-row-full >}}` (paired)
+
+Label-less, full-width data row. Used for sourced citations, cast lists,
+track listings, or any block that benefits from breaking out of the
+two-column key/value layout. Same paired-body vs `value=` fallback as
+`infobox-row`.
+
+| Parameter | Type | Default | Purpose |
+|---|---|---|---|
+| `value` | string | `""` | Fallback when the paired body is empty. Markdown-rendered. |
+| `class` | string | `""` | Extra CSS class on `.infobox-data--full`. |
+
+```text
+{{< infobox-row-full >}}
+  **Cast**: Mark Hamill, Harrison Ford, Carrie Fisher,
+  Alec Guinness, Peter Cushing
+{{</ infobox-row-full >}}
+```
+
+Renders a single data cell spanning the full infobox column.
+
+### §2.5 `{{< infobox-row-image >}}` (paired)
+
+Data row with an inline thumbnail (the "Mission insignia" pattern from
+Phase 1-2). The figure is `data-lightbox`-enabled so it opens in the
+lightbox overlay from §4, joined with `group=` for carousel scoping.
+
+| Parameter | Type | Default | Purpose |
+|---|---|---|---|
+| `label` | string | `""` | Row label. |
+| `image` | string | (required) | Image URL or page-resource path. |
+| `image-alt` | string | `""` | Alt text for the embedded image. |
+| `image-caption` | string | `""` | Caption under the embedded image (markdownified). |
+| `image-upright` | float | `1.0` | Upright scaling factor (ports that use portrait images set this above 1). |
+| `group` | string | `"default"` | Lightbox group key. |
+| `value` | string | `""` | Additional body text in the data cell (markdownified). |
+| `class` | string | `""` | Extra CSS class on `.infobox-data`. |
+
+Note: `infobox-row-image` does not participate in the page-bundle /
+`<picture>` pipeline the main image uses. It renders a single
+`<img class="infobox-image" loading="lazy" decoding="async">` directly
+inside a 60×60 `.infobox-row__figure` thumbnail container — see
+`assets/css/components/infobox--image-data.scss` for the constrained
+size and `assets/css/components/infobox.scss` for the lightbox wiring.
+
+### §2.6 `{{< infobox-image >}}`
+
+Additional image block below the main image, used to build a
+multi-image carousel that opens through the lightbox with prev/next
+navigation. Single-tag form.
+
+| Parameter | Type | Default | Purpose |
+|---|---|---|---|
+| `src` | string | (required) | Image URL or page-resource path. |
+| `caption` | string | `""` | Caption under the image (markdownified). |
+| `alt` | string | `""` | Alt text. |
+| `upright` | float | `1.0` | Upright scaling factor (maps to `data-upright` on the figure). |
+| `group` | string | `"default"` | Lightbox group key — share the same value with sibling `infobox-image` shortcodes and the main image to form a navigable carousel. |
+
+`infobox-image` runs through the full `image-block.html` pipeline
+(`resolve-image.html` → `variants.html` → `srcset.html` →
+`picture.html`), so a bundle or static asset receives the responsive
+`<picture><source type="image/webp">…<img src=… srcset=… sizes=…></picture>`
+stack the main image gets. Remote URLs fall back to a plain
+`<img src=…>`.
+
+### §2.7 `{{< infobox-subheader >}}` (paired)
+
+Subtitle line below the title. Single subtitle use this shortcode; for
+multiple subtitles, pass a `subheaders` slice to the `{{< infobox >}}`
+outer instead.
+
+| Parameter | Type | Default | Purpose |
+|---|---|---|---|
+| `value` | string | `""` | Fallback text when paired body is empty. |
+
+```text
+{{< infobox-subheader >}}American astronaut, 1951–2012{{</ infobox-subheader >}}
+```
+
+Renders:
+
+```html
+<div class="infobox-subheader">American astronaut, 1951–2012</div>
+```
+
+### §2.8 `{{< infobox-below >}}` (paired)
+
+The footer block at the bottom of the box, used for footnotes, see-also
+links, or trailing commentary the author wants to keep inside the box
+rather than in the article body. Markdown-rendered through `markdownify`.
+
+| Parameter | Type | Default | Purpose |
+|---|---|---|---|
+| `value` | string | `""` | Fallback text when paired body is empty. |
+
+```text
+{{< infobox-below >}}Source: Wikipedia, "Sally Ride", CC BY-SA 4.0.{{</ infobox-below >}}
+```
+
+---
+
+## §3. Authoring patterns
+
+The eight shortcodes above compose into the patterns Wikipedia uses
+across its top-30 templates. Each pattern is a worked example the
+author can copy.
+
+### §3.1 Pattern A — Simple infobox (title + 3 rows)
+
+```text
+{{< infobox type="person" title="Sally Ride" >}}
+
+  {{< infobox-row label="Born"  >}}May 26, 1951{{</ infobox-row >}}
+  {{< infobox-row label="Died"  >}}July 23, 2012{{</ infobox-row >}}
+  {{< infobox-row label="Nationality" >}}American{{</ infobox-row >}}
+
+{{< /infobox >}}
+```
+
+### §3.2 Pattern B — Sectioned infobox
+
+The section header divider organises rows into thematic groups (the
+upstream Wikipedia "Personal life / Career / Education" pattern):
+
+```text
+{{< infobox type="person" title="Sally Ride" body-class="vcard biography" >}}
+
+  {{< infobox-section title="Personal" >}}
+  {{< infobox-row label="Born"  >}}May 26, 1951{{</ infobox-row >}}
+  {{< infobox-row label="Died"  >}}July 23, 2012{{</ infobox-row >}}
+
+  {{< infobox-section title="Education" >}}
+  {{< infobox-row label="Alma mater" >}}Swarthmore; Stanford{{</ infobox-row >}}
+
+  {{< infobox-section title="Career" >}}
+  {{< infobox-row label="Occupation"   >}}Astronaut, physicist{{</ infobox-row >}}
+  {{< infobox-row label="Years active" >}}1978–1987{{</ infobox-row >}}
+
+{{< /infobox >}}
+```
+
+### §3.3 Pattern C — Image embedded in a data row
+
+```text
+{{< infobox type="astronaut" title="Sally Ride" body-class="vcard biography" >}}
+
+  {{< infobox-row label="Born" >}}May 26, 1951{{</ infobox-row >}}
+
+  {{< infobox-row-image
+       label="Mission insignia"
+       image="sts7-patch.png"
+       image-alt="STS-7 mission patch"
+       image-caption="STS-7"
+       group="ride-gallery"
+       >}}June 18–24, 1983{{</ infobox-row-image >}}
+
+  {{< infobox-row label="Time in space" >}}14d 07h 46m{{</ infobox-row >}}
+
+{{< /infobox >}}
+```
+
+The figure opens in the lightbox overlay (see §4) and joins the
+`ride-gallery` carousel. The pair-body text after the figure is the
+inline annotation that sits next to the thumbnail.
+
+### §3.4 Pattern D — Full-width data-only row
+
+```text
+{{< infobox type="film" title="Star Wars" >}}
+
+  {{< infobox-row label="Directed by" >}}George Lucas{{</ infobox-row >}}
+  {{< infobox-row label="Produced by" >}}Gary Kurtz{{</ infobox-row >}}
+  {{< infobox-row-full >}}**Cast**: Mark Hamill, Harrison Ford,
+    Carrie Fisher, Alec Guinness, Peter Cushing{{</ infobox-row-full >}}
+  {{< infobox-row label="Box office" >}}$775.4 million{{</ infobox-row >}}
+
+{{< /infobox >}}
+```
+
+`infobox-row-full` escapes the two-column structure for sourced
+citations, cast lists, or supporting paragraphs that need the full
+column width.
+
+### §3.5 Pattern E — Freeform paired body with markdown
+
+The paired body is run through `.Page.RenderString`, so any Markdown
+construct works inside a row:
+
+```text
+{{< infobox-row label="Notable works" >}}
+- *The Pleasure of Finding Things Out* (1999)
+- *Genius: The Life and Science of Richard Feynman* (1992)
+{{</ infobox-row >}}
+```
+
+Renders the bullet list inside the data cell. The same `RenderString`
+treatment lets authors nest shortcodes:
+
+```text
+{{< infobox-row label="Photo" >}}
+{{< figure src="/media/ride-training.jpg" alt="Water survival training" >}}
+{{</ infobox-row >}}
+```
+
+### §3.6 Pattern F — Multiple images grouped for a carousel
+
+```text
+{{< infobox
+    type="person"
+    title="Sally Ride"
+    body-class="vcard biography"
 >}}
+
+  {{< infobox-image src="/media/ride-1984.jpg" caption="In 1984"
+       alt="Portrait" group="ride-gallery" upright="0.8" >}}
+
+  {{< infobox-image src="/media/ride-1985.jpg" caption="At a press conference, 1985"
+       alt="Speaking at podium" group="ride-gallery" upright="0.8" >}}
+
+  {{< infobox-row label="Born" >}}May 26, 1951{{</ infobox-row >}}
+
+{{< /infobox >}}
 ```
 
-**Worked example — paired form (inner-primitive escape hatch).** When the
-named wrapper's fixed schema does not cover a field, the author can switch
-to the paired form and insert inner primitives directly inside the
-`.Inner` block:
+Sharing the same `group="ride-gallery"` keys the three figures into one
+navigable carousel in the lightbox overlay (ArrowLeft / ArrowRight cycle
+through them).
 
-```markdown
-{{< person name="Ada Lovelace" birth_date="10 December 1815" >}}
-  {{< infobox-section title="Recognition" >}}
-    {{< infobox-row label="Honours" value="Ada Initiative (named for her)" >}}
-    {{< infobox-row label="In popular culture" value="Featured in the film *Conceiving Ada*" >}}
-  {{< /infobox-section >}}
-{{< /person >}}
+### §3.7 Pattern G — Child module inside a parent infobox
+
+The wrapper pattern mirrors Wikipedia's `Infobox artist` /
+`Infobox football biography` and similar templates where an outer
+template embeds the canonical `Infobox person` rows.
+
+```text
+{{< infobox
+    type="person"
+    title="Lionel Messi"
+    body-class="vcard biography sportsperson football-biography"
+>}}
+
+  {{< infobox-row label="Nationality" >}}Argentine{{</ infobox-row >}}
+
+  {{< infobox-section title="Club career" >}}
+  {{< infobox-row label="Position"      >}}Forward{{</ infobox-row >}}
+  {{< infobox-row label="Current club"  >}}Inter Miami CF{{</ infobox-row >}}
+
+  {{< infobox child="true" type="person" body-class="vcard biography" >}}
+    {{< infobox-row label="Height" >}}1.70 m (5 ft 7 in){{</ infobox-row >}}
+    {{< infobox-row label="Weight" >}}72 kg (159 lb){{</ infobox-row >}}
+    {{< infobox-row label="Spouse" >}}Antonela Roccuzzo{{</ infobox-row >}}
+  {{</ infobox >}}
+
+{{< /infobox >}}
 ```
 
-The two forms are visually identical at render time — the named wrapper's
-fixed-schema rows precede the `.Inner` rows in the final output, and every
-cell uses the same base styles.
+The inner `{{< infobox child="true" …>}}` renders as
+`<aside class="infobox infobox--child" data-infobox-type="person">`
+inside the parent's row flow. The child has no border, no title, no
+above, no below — its rows are visually part of the parent's section.
+`assets/css/components/infobox--subbox.scss` strips the border and
+shadow on the modifier, and `layouts/_partials/infobox/child.html`
+skips the title/above/subheader/below blocks entirely.
+
+### §3.8 Pattern H — Subbox inside a data cell (cast lists)
+
+```text
+{{< infobox type="film" title="Star Wars (1977)" body-class="vevent hproduct" >}}
+
+  {{< infobox-row label="Directed by" >}}George Lucas{{</ infobox-row >}}
+  {{< infobox-row label="Produced by" >}}Gary Kurtz{{</ infobox-row >}}
+
+  {{< infobox-row-full >}}
+    {{< infobox subbox="true" type="custom" body-class="film-cast" >}}
+      {{< infobox-row label="" >}}Mark Hamill as Luke Skywalker{{</ infobox-row >}}
+      {{< infobox-row label="" >}}Harrison Ford as Han Solo{{</ infobox-row >}}
+      {{< infobox-row label="" >}}Carrie Fisher as Princess Leia{{</ infobox-row >}}
+    {{</ infobox >}}
+  {{</ infobox-row-full >}}
+
+{{< /infobox >}}
+```
+
+The cast list subbox renders inside a full-width data row
+(`infobox-row-full` wrapper), without its own border, so the cast list
+breaks out of the label/data two-column structure into a self-contained
+sub-region of the parent's row.
 
 ---
 
-## §3. Layer 1 — Named wrappers
+## §4. Image pipeline and lightbox integration
 
-A **named wrapper** is one Go-template file per MediaWiki `Infobox <topic>`
-template. The 30 in v1 are the rows of `docs/RESEARCH.md` §7. The file lives
-at `layouts/_shortcodes/{slug}/{slug}.html` per the folder-per-shortcode rule
-in `.cursor/rules/00-core.mdc` and `.cursor/rules/40-shortcodes.mdc`.
+The infobox family runs every responsive image through one shared
+pipeline (Phase 3-2) so portrait and landscape sources render at native
+ratio with `srcset`/`sizes` and intrinsic dimensions for CLS-free
+layout. The lightbox overlay (Phase 3-6) opens on any `data-lightbox`
+trigger and exposes a full metadata panel.
 
-A named wrapper is small — **15 to 30 lines**. The file does three things
-and nothing else:
+### §4.1 Resource acquisition
 
-1. Opens `<aside class="infobox" data-infobox-type="{slug}">`. The
-   `data-infobox-type` attribute is the SCSS hook Phase 5 keys per-template
-   rules on; the wrapper is the only file that emits the attribute for a
-   given slug.
-2. Builds a `dict` of the upstream parameter list (and `.Inner` for the
-   paired form) and calls `partial "infobox/base.html" .` with that dict.
-   Special-case field groups are composed as inner `infobox-pair-*` shortcode
-   calls inside the dict, not in the wrapper's body — that way the base
-   partial can place them in the row sequence using the same dispatch logic
-   it uses for primitives.
-3. Closes the `<aside>`. That's it.
+The `layouts/_partials/infobox/resolve-image.html` partial tries three
+sources for the `src` parameter, in order:
 
-The wrapper's **comment block at the top of the file** lists the accepted
-parameters in declaration order, mirroring the upstream MediaWiki template's
-documentation. Reading the file is sufficient to know the wrapper's surface
-without leaving the file. Phase 8 will fill in the per-wrapper parameter
-tables from the upstream docs.
+1. **Page bundle** — `ctx.Resources.GetMatch "<basename>.*"` matches a
+   sibling image in the article's page bundle (`cover.jpg`,
+   `cover.png`, `cover.webp`, etc.). This is the canonical authoring
+   pattern: drop the image next to the article and reference it by
+   filename.
+2. **Static asset** — `resources.Get "<path>"` resolves a path under
+   `static/` (the typical `/media/foo.jpg` pattern).
+3. **Remote URL** — if `src` starts with `http(s)://`, the partial
+   returns `nil` and the calling partial emits a plain
+   `<img src=…>` fallback. The build does not break and the figure
+   still renders, without the responsive `<picture>` stack.
 
-The wrapper never:
+A failed bundle or static lookup (no match, typo in the filename) emits
+the fallback `<img>` rather than a broken image and the build still
+passes — the partial is intentionally lossy on missing assets.
 
-- emits HTML beyond the opening and closing `<aside>` tags
-- runs business logic (no date parsing, no currency conversion, no
-  unit normalisation — those happen in the special partials)
-- contains conditional branching that varies the structural shape
-  (the same rows are emitted in the same order; absent values are
-  suppressed, but the row order never changes)
-- grows past the 30-line ceiling; if it does, that's the signal to lift the
-  row sequence into a `partials/infobox/special/{slug}.html` partial and
-  have the wrapper call that partial from inside its dict instead
+### §4.2 Variants, srcset, picture
+
+When the partial resolves a real resource, the pipeline produces a
+`<picture>` element with:
+
+- Four sizes per format, **WebP and jpg**: 320, 640, 1024, 2048 px.
+  Sizes larger than the source's intrinsic width are skipped so the
+  `srcset` stays accurate. Output via
+  `layouts/_partials/infobox/variants.html`.
+- A `srcset` string per format, joined in the
+  `"<url> 320w, <url> 640w, …"` shape the browser parses.
+- A `sizes` attribute set to
+  `"(max-width: 720px) 100vw, (max-width: 1200px) 50vw, 320px"` —
+  three viewport tiers matching the §7 responsive breakpoints.
+- Intrinsic `width` and `height` from the source resource for
+  CLS-free layout.
+- `loading="lazy"` and `decoding="async"` on every image; main
+  infobox images opt into `loading="eager" fetchpriority="high"`
+  when the caller passes `lazy=false`.
+
+The full HTML shape:
+
+```html
+<figure class="infobox-image-block"
+        data-lightbox
+        data-lightbox-group="default"
+        data-upright="1">
+  <picture>
+    <source type="image/webp"
+            srcset="/media/ride_320x_hash.webp 320w,
+                    /media/ride_640x_hash.webp 640w,
+                    /media/ride_1024x_hash.webp 1024w,
+                    /media/ride_2048x_hash.webp 2048w"
+            sizes="(max-width: 720px) 100vw, (max-width: 1200px) 50vw, 320px">
+    <img class="infobox-image"
+         src="/media/ride_320x_hash.jpg"
+         srcset="/media/ride_320x_hash.jpg 320w, …"
+         sizes="(max-width: 720px) 100vw, …"
+         alt="Sally Ride portrait"
+         width="2790" height="3487"
+         decoding="async"
+         loading="lazy">
+  </picture>
+  <figcaption class="infobox-caption">In 1984, the year she became the first American woman in space.</figcaption>
+</figure>
+```
+
+All three image-emitting v2 shortcodes share this pipeline:
+
+- `{{< infobox >}}` does not have a dedicated main-image parameter; the
+  main image is typically an `{{< infobox-image >}}` invoked inside
+  the body (Pattern F). Authors who want a single image can rely on
+  one `{{< infobox-image >}}` child.
+- `{{< infobox-image >}}` runs the full pipeline.
+- `{{< infobox-row-image >}}` runs a constrained 60×60 thumbnail
+  pipeline — a single `<img>`, no `<picture>`, no srcset, no caption
+  layout — because the figure has a fixed cell width by design.
+
+### §4.3 Upright mode
+
+Each figure carries a `data-upright="<factor>"` attribute (default `1`,
+configurable via the `upright` / `image-upright` parameter, used above
+`1` for portrait images whose container should be narrower than the
+full column). The CSS in `assets/css/components/infobox.scss`
+initialises `--infobox-upright: 1` on every `.infobox` and the
+per-type overrides in `infobox--per-type.scss` use the value to size
+the image block. Authors do not need to do anything — the default of
+`1` renders the column at its full width.
+
+### §4.4 Lightbox overlay and metadata panel
+
+`assets/js/modules/lightbox.ts` (rewritten in Phase 3-6) opens a
+full-screen overlay on click of any `<figure data-lightbox>` (and the
+keyboard activation paths — Enter / Space — when the trigger has
+focus). The overlay is mounted into `<body>` with
+`role="dialog" aria-modal="true" aria-label="Image viewer"`, captures
+focus on open, and returns it to the trigger on close.
+
+The metadata panel — `.lightbox-metadata` — exposes five fields, each
+hidden independently when its source is empty:
+
+| Field | Source (priority order) |
+|---|---|
+| Caption | `<figcaption>` text → `data-lightbox-caption` attribute → empty |
+| Filename | `data-lightbox-filename` attribute → `urls.Parse` basename of `src` (the figure shortcode emits this attribute automatically) → empty |
+| Dimensions | `naturalWidth × naturalHeight` after the image loads |
+| License | `data-lightbox-license` attribute → empty |
+| Counter | always present: `"<index+1> / <total>"` |
+
+A counter shows the position inside the group; keyboard navigation
+(ArrowLeft / ArrowRight, RTL-aware; Home / End jumps to first / last;
+Tab traps focus inside the overlay; Escape closes) cycles through the
+carousel. `assets/js/main.ts` calls `lightboxInit()` on `DOMContentLoaded`
+and the function is idempotent (safe under HMR / quick-reload).
+
+Multiple figures sharing the same `data-lightbox-group` value form a
+navigable carousel. Omitting the attribute gives a single-image group
+where prev/next are hidden and the counter shows `"1 / 1"`.
+
+> **For the article-body `{{< figure >}}` shortcode.** The figure
+> shortcode emits `data-lightbox-filename` automatically (Phase 3-7)
+> so the panel can show a useful filename without the author repeating
+> it; pairing the data-lightbox with `data-halign` keeps the
+> article-body float behaviour intact. See §A for figure's full
+> shortcode reference.
 
 ---
 
-## §4. Layer 2 — Base partial
+## §5. File layout
 
-`layouts/partials/infobox/base.html` is the single rendering entrypoint for
-every named shortcode in the family. It receives the dict that the named
-wrapper built, and renders, in order:
+The v2 implementation lives across three trees — shortcodes, partials,
+and styles. One concern per file; one behaviour per TypeScript module.
+Every file is well under the §1 `00-core.mdc` ceiling.
 
-1. **The header cell.** The `title` value, in a `<div class="infobox-header">`.
-   Title is the only required field on every named shortcode. No title → no
-   infobox (matches upstream, where an absent title is also a degenerate
-   case).
-2. **The image block** (if `image` is present). A `<figure>` containing the
-   image, a `caption` underneath (rendered through `markdownify` to allow
-   inline emphasis and links), and the `alt` attribute on the `<img>` itself
-   for assistive tech. Absent image → block omitted entirely, no placeholder.
-   The image itself is rendered by the shared `article/thumb.html` partial
-   (native-ratio responsive pipeline — `srcset`/`sizes`, intrinsic
-   `width`/`height`, no aspect-ratio crop), the same partial every
-   image-emitting shortcode delegates to; the `.infobox-image-block`
-   `<figure>` and its `.infobox-caption` stay as the positioning/caption
-   wrapper.
-3. **The row sequence.** The `fields` value is a slice of `dict` entries,
-   each one either:
-   - a plain label/value pair (the wrapper provides a `label` and a `value`
-     string), rendered as `<div class="infobox-row">` with
-     `<div class="infobox-label">` and `<div class="infobox-data">` cells, or
-   - a section divider, rendered as `<div class="infobox-section-header">`,
-     or
-   - a special-case pair primitive, rendered through its matching
-     `partials/infobox/special/{pair-name}.html`.
-4. **The optional `below` footer** (if present). A `<div class="infobox-below">`
-   at the bottom of the box for footnotes, see-also links, or trailing
-   commentary the author wants to keep inside the box instead of in the
-   body. Rendered through `markdownify` so inline emphasis works.
+```
+layouts/_shortcodes/
+├── infobox.html              # Outer wrapper (paired, see §2.1)
+├── infobox-section.html      # Section divider (paired, §2.2)
+├── infobox-row.html          # Label + data row (paired, §2.3)
+├── infobox-row-full.html     # Full-width data row (paired, §2.4)
+├── infobox-row-image.html    # Data row with inline thumbnail (paired, §2.5)
+├── infobox-image.html        # Additional image block (single-tag, §2.6)
+├── infobox-subheader.html    # Subtitle (paired, §2.7)
+└── infobox-below.html        # Footer (paired, §2.8)
 
-The base partial emits no inline `<style>` or `<script>`. Every class name
-on every element matches the contract in §6 exactly. The base partial
-intentionally has no knowledge of which named wrapper called it — it reads
-the dict, dispatches to the matching per-concept partials, and returns.
-Adding a new named shortcode is the wrapper-only work in §3.
+layouts/_partials/infobox/
+├── outer.html                # Outer non-child renderer (delegated by infobox.html)
+├── child.html                # .infobox--child and .infobox--subbox modifier wrapper
+├── title-block.html          # Title + above + subheaders block
+├── body.html                 # .Inner wrapping + empty-row / autoheader RE2 filter
+├── row.html                  # Shared row template (default / full / image-data shape)
+├── image-block.html          # .infobox-image-block orchestration (uses resolve / variants / srcset / picture)
+├── resolve-image.html        # Bundle → static → remote source resolution
+├── variants.html             # 4-size WebP+jpg Resize() chain
+├── srcset.html               # Variant-slice → srcset string
+├── picture.html              # <picture><source type=image/webp>…<img></picture>
+├── _link.html                # Optional autolink helper (not auto-invoked by any row)
+└── base.html                 # Backwards-compatibility shim for the 30 named wrappers (person, film, …)
 
----
+assets/css/components/
+├── infobox.scss              # Root <aside>, title, above, subheader, image-block,
+│                             # caption, row, label, data, section-header, below,
+│                             # inline-link rules, external-link icon, three
+│                             # responsive tiers (1200 / 720), print, upright.
+├── infobox--full.scss        # .infobox-row--full / .infobox-data--full modifier
+├── infobox--image-data.scss  # .infobox-row--image-data + 60×60 .infobox-row__figure thumbnail
+├── infobox--subbox.scss      # .infobox--child and .infobox--subbox border strip
+└── infobox--per-type.scss    # [data-infobox-type="…"] overrides for person / film /
+                              # software / settlement / country / organization / album /
+                              # election. Generic styling stays in infobox.scss.
 
-## §5. Layer 3 — Inner primitives
+assets/js/modules/
+└── lightbox.ts               # Single-file lightbox module (Phase 3-6 rewrite):
+                              # overlay, group collection, open/close, navigation,
+                              # keyboard handling, focus trap, preload, metadata panel.
+                              # Idempotent init() called from main.ts.
+```
 
-When the named wrapper's fixed schema does not cover a field an author
-needs, the **inner primitive escape hatch** is the answer. Five generic
-primitives plus seven `infobox-pair-*` special-case primitives make up
-layer 3. All live at `layouts/_shortcodes/infobox/infobox-{name}.html`
-(folder-per-shortcode rule applies) and render through the base partial's
-slot system — so a primitive inside a `.Inner` block is visually
-indistinguishable from the same primitive called from inside the named
-wrapper's dict.
-
-### §5.1 The five generic primitives
-
-| Primitive | Paired? | What it renders |
-|---|---|---|
-| `infobox` | yes | The outer paired wrapper. Used when the content does not fit any named template; lets the author build the full row list from primitives. The named wrappers are thin shims around this primitive in concept. |
-| `infobox-row` | yes | A single label/value row. Author writes the label as the `label` param and the value as the `value` param. Value is rendered through `markdownify` so inline bold/italic/links work. Absent value → row omitted. |
-| `infobox-image` | yes | An image + caption + alt block, used standalone when the named wrapper does not cover the article's image. |
-| `infobox-section` | yes | A grouping header that spans both columns. Useful for visual structure inside a long infobox; the section is a label that breaks the row list into thematic groups (e.g. "Personal life", "Career"). |
-| `infobox-below` | yes | The freeform footer block at the bottom of the box. Mirrors the upstream `below` slot. |
-
-### §5.2 The seven `infobox-pair-*` special-case primitives
-
-Some field pairs appear in so many named templates that promoting them to
-their own primitive is cheaper than asking the author to compose two
-`infobox-row`s. The seven shipped in v1 are the `docs/RESEARCH.md` §9
-catalogue: `infobox-pair-date`, `infobox-pair-software-release`,
-`infobox-pair-population`, `infobox-pair-area`, `infobox-pair-air-date`,
-`infobox-pair-budget-gross`, `infobox-pair-episode-season`. The named
-wrappers for the templates that use each pair (the same list as
-`docs/RESEARCH.md` §9) call the primitive from inside their dict. Authors
-can also use them standalone in the paired form. The CSS hook
-`[data-infobox-type="…"]` selector picks up per-template tweaks, so the
-pairs never need per-template CSS files.
-
-### §5.3 Escape hatch philosophy
-
-The primitives are the **escape hatch**: anything the named wrapper's fixed
-schema does not cover, the author can express by switching to the paired
-form and inserting primitives directly. The author never has to fall back
-to raw HTML or to a per-site CSS override to add an unusual field. The
-escape hatch is the long tail of "every Wikipedia infobox ever had a
-bespoke one-off field" — the primitives absorb the common cases, and
-anything that escapes the primitive set is one paired shortcode away.
+The `base.html` shim is the one part of the pipeline not rebuilt in the
+v2 cut-over: it preserves the `{{< person name="…" birth_date="…" />}}`
+etc. call surface so the 30 named wrappers in §10 continue to render.
+Adding new infobox content should bypass the shim and write directly
+against the v2 primitives in §2.
 
 ---
 
 ## §6. CSS hook contract
 
-The base partial and every special partial emit a fixed set of class names
-on every element. The class names are the **CSS hook contract**: anything
-`assets/scss/components/infobox.scss` styles must use exactly these names,
-and the templates must emit exactly these names — drift in either direction
-is a bug. The contract is the source of truth for both directions; the
-Phase 5 SCSS work and the Phase 8 template work read from this list and
-contribute to it on either side as needed.
+The v2 templates emit a fixed set of class names and data attributes on
+every element. The CSS hook contract is the source of truth for both
+directions: anything `assets/css/components/infobox*.scss` styles must
+use these names; anything the templates emit must be in this table;
+drift in either direction is a bug.
 
-| Class name | Emitted on | Purpose |
+| Class / attribute | Emitted on | Purpose |
 |---|---|---|
-| `infobox` | the outer `<aside>` | The root box. Selector for box-level styles (max-width, float, border, background). |
-| `infobox-header` | the title `<div>` | The top header cell. Bold, centred or left-aligned, slightly larger than body text. |
-| `infobox-image` | the image `<figure>` | Wraps the image element when present. The `<img>` inside is rendered by the shared `article/thumb.html` partial (native-ratio, `srcset`/`sizes`); per-type `max-width` hints keyed on `[data-infobox-type]` keep tall portraits from dominating the column. |
-| `infobox-caption` | the caption `<figcaption>` | Underneath the image, smaller text. |
-| `infobox-row` | a label/value row `<div>` | The dominant row type; two-column key/value layout. |
-| `infobox-label` | the label cell of a row | Left column; usually bolder and narrower. |
-| `infobox-data` | the data cell of a row | Right column; usually wider and lighter. |
-| `infobox-section-header` | a section divider `<div>` | Spans both columns; tonal background tint. |
-| `infobox-below` | the footer block `<div>` | Full-width freeform area at the bottom. |
+| `.infobox` | the outer `<aside>` | Root box. Selector for box-level styles (float, max-width, border, background). |
+| `.infobox--child` | child wrapper aside | `border: 0; background: transparent; box-shadow: none`. See §3.7. |
+| `.infobox--subbox` | subbox wrapper aside | Same modifier rules as child. See §3.8. |
+| `[data-infobox-type]` | root `<aside>` | Per-template discriminator (default `"custom"`); the SCSS hook every per-type rule in `infobox--per-type.scss` keys on. |
+| `.infobox-title` | title `<div>` | Above-the-border caption. |
+| `.infobox-above` | top-of-box cell | Inside-the-border pre-image cell. |
+| `.infobox-subheader` | each subtitle `<div>` | Repeated, between title and body. |
+| `.infobox-image-block` | the image `<figure>` | Image block; lightbox-enabled; full pipeline from §4. |
+| `.infobox-image` | the `<img>` (or `<picture>`'s `<img>`) | Native-ratio image — no aspect-ratio crop, no `object-fit: cover`. |
+| `.infobox-caption` | the `<figcaption>` | Underneath the image. |
+| `.infobox-row` | each label / data row `<div>` | Two-column key/value layout. |
+| `.infobox-row--full` | full-width row variant | Single-cell full-width row from `infobox-row-full`. |
+| `.infobox-row--image-data` | image-embedded row variant | `infobox-row-image` row. |
+| `.infobox-row__figure` | the inline thumbnail `<figure>` | 60×60 (`80×80` mobile) cursor-zoom-in thumbnail inside an image-data row. |
+| `.infobox-label` | the label `<div>` of a row | Left column; bolder, narrower. |
+| `.infobox-data` | the data `<div>` of a row | Right column; wider, lighter. |
+| `.infobox-data--full` | the full-width row's data cell | `flex-basis: auto; width: 100%`. |
+| `.infobox-section-header` | each section divider | Spans both columns; tonal background tint. |
+| `.infobox-below` | the footer block | Full-width freeform area at the bottom. |
+| `[data-lightbox]` | image figures | Marks a figure as lightbox-trigger. |
+| `[data-lightbox-group]` | image figures | Carousel key — share to form a navigable group. |
+| `[data-upright]` | image figures | Per-image upright scaling factor (`infobox-image`'s `upright` and `infobox-row-image`'s `image-upright` parameters). |
 
-The named wrapper also emits a **`data-infobox-type="{slug}"`** attribute on
-the outer `<aside>`. This is the per-template SCSS hook: any visual tweak
-specific to one shortcode (e.g. a narrower image-column `max-width` hint for
-`person`) is a single SCSS rule keyed on `[data-infobox-type="{slug}"]`.
-Since images now render at their native ratio through the shared
-`article/thumb.html` partial, per-type rules use `max-width` container hints
-rather than the former per-type `aspect-ratio` + `object-fit: cover` crops.
-Per-template
-SCSS files are prohibited by `.cursor/rules/00-core.mdc`; all per-template
-rules live in the one `infobox.scss` file, keyed on the attribute.
+Modifying the class contract is a plan-level change — adding a new
+class name requires updating every shortcode that emits it and the
+matching SCSS in the same commit. New visual behaviours should be
+expressed as a new attribute on the existing `.infobox` (e.g.
+`data-state="collapsed"`) or a modifier on an existing class, not as a
+new class name.
 
-The CSS hook contract is **fixed** for v1. Adding a new class name is a
-plan-level change: it would require updating every named wrapper that
-emits it, every special partial that uses it, and `infobox.scss` in the
-same commit. New visual behaviours should be expressed as a new
-attribute on the outer `<aside>` (e.g. `data-state="collapsed"`) or a
-modifier on an existing class, not as a new class name.
+### §6.1 Per-type rules
+
+`assets/css/components/infobox--per-type.scss` holds every
+`[data-infobox-type="…"]` override. The shipping set covers the most
+common Wikipedia infobox templates the v2 family is likely to be
+written against:
+
+| Type | Rule |
+|---|---|
+| `person` | `.infobox-image-block { max-width: 70%; margin: 0 auto }` — portrait-friendly container width. |
+| `film` | `.infobox-above { background: var(--color-text); color: var(--color-surface) }` — inverted header. |
+| `software` | `.infobox-data { font-variant-numeric: tabular-nums }` — tabular figures. |
+| `settlement` | `.infobox-section-header { text-transform: uppercase; letter-spacing: 0.05em }` — formal section feel. |
+| `country` | `border-top: 3px solid var(--color-accent)` — accent divider. |
+| `organization` | `.infobox-above { background: var(--color-accent); color: var(--color-accent-contrast) }`. |
+| `album` | `.infobox-image-block .infobox-image { border-radius: var(--radius-sm) }` — softer corners on cover art. |
+| `election` | `.infobox-image-block { max-width: 70%; margin: 0 auto }` — candidate-photo cap. |
+| `custom` | (no overrides — explicit "intentionally empty" block documents the default.) |
+
+Adding a per-type rule is a one-block addition in
+`infobox--per-type.scss` plus, if the template gets a new
+`data-infobox-type` value, the matching `type=…` parameter on the
+outer `{{< infobox >}}` shortcode invocation.
 
 ---
 
 ## §7. Responsiveness
 
-The infobox follows the rendered pattern observed on Wikipedia and the
-Mobile-Friendly guidance in `Wikipedia:Manual of Style/Infoboxes`:
+The infobox follows Wikipedia's Mobile-Friendly `Manual of Style` and
+the responsive tokens in `assets/css/base/_tokens.scss`. Three viewport
+tiers, all SCSS variables at compile time:
 
-- **Desktop / wide viewport** (above the theme's configured mobile
-  breakpoint): the infobox is floated to the right with a max-width
-  (~22em per MoS, ~300px on standard desktop), and the body text wraps
-  around it on the left. The `data-infobox-type` attribute on the outer
-  `<aside>` is the SCSS hook the floating rule attaches to.
-- **Mobile / narrow viewport** (below the breakpoint): the float is
-  collapsed. The infobox becomes a full-width block, typically
-  repositioned above the lead's first paragraph continuation or just
-  below the lead — never floated alongside body text.
+| Token / breakpoint | Range | Behaviour |
+|---|---|---|
+| `$breakpoint-tablet` (`1200px`) | `max-width: 1200px` | Float is dropped; infobox becomes a full-width block above the article body (no longer floats right of the prose). |
+| `$breakpoint-mobile` (`720px`) | `max-width: 720px` | Each `.infobox-row` flips from horizontal flex (label 40% / data 60%) to a stacked layout: label on top, data below. Data cells no longer get squeezed into ~140px columns. |
+| Mobile image-data | `max-width: 720px` | The 60×60 `.infobox-row__figure` grows to 80×80 for tap-target comfort; the row label goes full-width. |
+| Print | `print` | Float and shadow are dropped; `border-color: var(--color-text)`; `page-break-inside: avoid` so an infobox doesn't split across pages. |
 
-The breakpoint is the same one Phase 3 / Phase 5 adopt for the rest of
-the Vector 2022 chrome (sidebar, ToC, sticky header). The infobox does
-not redefine it; it follows whatever the site author configures as
-"mobile" via `theme.toml`. The two-state commitment (floated at wide,
-stacked at narrow) is what the §6.3 responsiveness decision in
-`docs/RESEARCH.md` locks in. There is no intermediate "tablet" state in
-v1.
+The `sizes` attribute on the image pipeline follows the same three
+tiers — see §4.2:
+
+```text
+(max-width: 720px) 100vw, (max-width: 1200px) 50vw, 320px
+```
+
+These breakpoints match the §14 single-source-of-truth table in
+`docs/RESEARCH.md` (which the rest of the theme — sidebar, ToC, sticky
+header — uses too). The infobox does not redefine them; it follows
+`assets/css/base/_tokens.scss`.
 
 ---
 
-## §8. Out of scope for v1
+## §8. Migration: old API → v2 API
 
-The following are explicitly **not** shipped in v1, with the rationale
-recorded here so a future reader can tell scoping from oversight:
+The Fourth Plan's clean-slate cutover retired the previous infobox
+shortcode family with **no compatibility shim** for the inner
+primitives. Content that used the old family must be rewritten against
+the v2 family; there is no automatic migration.
 
-- **Geographic coordinate maps.** Upstream `{{coord}}` and the interactive
-  map embed used by `settlement`, `country`, etc. pull in a JS map widget
-  and an external tile service at runtime — incompatible with
-  `public/`-as-static-output per `.cursor/rules/00-core.mdc`. Coordinates
-  as **text** (decimal lat/long or `°N/°E`) are still accepted by the
-  relevant shortcodes; only the map widget is excluded.
-- **Embedded mini-charts and timelines.** Population-trend sparklines,
-  length-of-reign bars, and similar in-box visualisations. Out of scope as
-  image-generation; raw text data is still representable via `infobox-row`.
-- **Collapsible sub-tables inside the infobox itself.** Nested
-  per-season-statistics tables in sport-biography forks. Authors who need
-  one can link to an external page or carry a per-template concrete
-  decision in a later phase.
-- **Wikidata property tracking.** The `P18` / `P946` / `P17` fallbacks
-  the upstream templates perform against the live Wikidata API. Out of
-  scope; the theme has no runtime to call an external lookup service.
-- **Lua / Scribunto modules.** Every upstream template's runtime data
-  shaping (`Module:Person date`, `Module:Coordinates`, etc.). The
-  reimplementation accepts raw user-supplied strings and does not
-  canonicalise.
-- **Wikipedia microformat emission.** `hCard` / `hCalendar` markup on
-  the rendered infobox. Relevant only if the theme is consumed by
-  external Wikipedia-data scrapers, which is not the target use case.
-- **Nested shortcodes as param values.** Hugo's shortcode parser
-  evaluates params as raw strings, so `{{< settlement pushpin_map=<map …> >}}`
-  does not render. Authors who need a nested value use the inner-primitive
-  escape hatch in §5.3 instead. This is **future work**, not a permanent
-  cut.
+### §8.1 Removed (no replacement at the same name)
 
-Each item above could be re-evaluated by a follow-on phase if there is
-concrete author demand. Adding any of them is the §8 procedure in
-`docs/RESEARCH.md` — it does not require theme recompilation for the
-naming and rendering layers, but does require a plan amendment for any
-new runtime dependency.
+| Old shortcode | Status | Migrate to |
+|---|---|---|
+| `{{< infobox-field >}}` | Deleted | `{{< infobox-row label="…" value="…" >}}` (parameter form) or `{{< infobox-row-full value="…" >}}` if the row had no label. |
+| `{{< infobox-pair-date >}}` | Deleted | `{{< infobox-row label="Date" >}}YYYY-MM-DD{{</ infobox-row >}}` — inline markdown formatting. |
+| `{{< infobox-pair-software-release >}}` | Deleted | `{{< infobox-row label="Version" >}}` + `{{< infobox-row label="Released" >}}`. |
+| `{{< infobox-pair-population >}}` | Deleted | `{{< infobox-row label="Population" >}}` (or add a per-type rule in `infobox--per-type.scss` for tabular numerals). |
+| `{{< infobox-pair-area >}}` | Deleted | `{{< infobox-row label="Area" >}}` + a per-type rule if needed. |
+| `{{< infobox-pair-air-date >}}` | Deleted | Two `{{< infobox-row >}}`s for date and network. |
+| `{{< infobox-pair-budget-gross >}}` | Deleted | Two `{{< infobox-row >}}`s. |
+| `{{< infobox-pair-episode-season >}}` | Deleted | Two `{{< infobox-row >}}`s. |
+
+The per-pair formatting that the deleted primitives used to encode is
+now expressed either inline (the author writes `"$775.4 million"`
+verbatim) or as a `[data-infobox-type]` rule in
+`infobox--per-type.scss`. Wikipedia itself has no per-data-type
+primitives in this sense; the upstream pattern is one `data(n)` field
+formatted via wikitext. The v2 family matches that.
+
+### §8.2 Kept (compatibility shim)
+
+The 30 named `{{< person >}}`, `{{< film >}}`, `{{< settlement >}}`,
+etc. wrappers under `layouts/_shortcodes/<topic>.html` continue to
+ship and continue to accept their original parameter dicts. They
+route through `layouts/_partials/infobox/base.html`, which maps the
+old `.fields`-list / `.image` / `.caption` / `.below` contract onto
+the v2 primitives.
+
+The shim is a transitional aid; Phase 3-7 retires it when every named
+wrapper has been rewritten to emit the v2 `{{< infobox >}}` outer
+shortcode directly. **New content should be written against §2's
+v2 primitives directly**, not the named-wrapper shorthand, so the
+shim is the boundary between the maintained and the migration-
+pend-rewrite surfaces.
+
+### §8.3 What to migrate first
+
+A content audit finds (or does not find) usages of the deleted
+shortcodes in `exampleSite/content/**/*.md`. A grep for
+`{{< infobox-` is enough — every match will be a v2 primitive
+(compatible) or a deleted pair primitive (rewrite). The
+`infobox-smoke.md` and `embedded-test.md` demo pages are the canonical
+v2 examples to copy patterns from.
 
 ---
 
 ## §9. Future work
 
-Items that are **deliberately deferred** from v1 to a follow-on phase,
-with the trigger condition for picking them up:
+Items deliberately deferred beyond the v2 cut-over, with the trigger
+condition for picking them up:
 
-- **`{{< cite-ref >}}` / `{{< references >}}` citation shortcodes.** ~~Mimicking
-  Wikipedia's footnote / references-list pattern.~~ **Shipped, no
-  front matter required.** The shortcodes drive off the Markdown
-  footnote block (`[^key]: text`) at the bottom of the article body —
-  see `layouts/_shortcodes/cite-ref.html` and
-  `layouts/_shortcodes/references.html`. Goldmark's auto-footnote
-  renderer is suppressed via `[markup.goldmark.extensions.footnote]
-  enable = false` in `hugo.toml`. Worked example in
-  `exampleSite/content/articles/long-article-with-toc.md`.
-- **Nested shortcodes as param values.** See §8 last bullet. Trigger
-  condition: a follow-on phase adopts a Hugo version that supports
-  evaluating shortcodes inside param values, or the theme moves to a
-  build-time templating step that pre-resolves them. Without one of
-  those, nesting is the §5.3 escape-hatch territory.
-- **Per-template CSS files.** Currently prohibited by
-  `.cursor/rules/00-core.mdc`. All per-template visual tweaks must
-  collapse into a single attribute-selector rule in `infobox.scss`.
-  Trigger condition for revisiting: a future per-template rule grows past
-  what a single attribute selector can express, which would suggest the
-  visual contract itself should move to a per-template partial. Until
-  then, one SCSS file is the rule.
-- **Phase 8 — per-template entries.** Each of the 30 named shortcodes in
-  `docs/RESEARCH.md` §7 will get its own sub-section in §10 of this file
-  when Phase 8 lands: one-line description, parameter table matching the
-  upstream MediaWiki docs, a worked example in MediaWiki form side-by-side
-  with the Hugo form, and a "see also" link to the upstream template
-  documentation on `en.wikipedia.org`. The Authoring Guide above is the
-  whole document until that phase ships.
+- **Native-ratio container width via `data-upright`.** The CSS hook is in
+  place (`--infobox-upright` on `.infobox`) and the attribute is emitted
+  on every figure, but no per-type rule currently consumes the value
+  beyond the fixed `max-width` percentages. A future enhancement
+  passes the figure's upright factor through to the container
+  `max-width` via `clamp()`. The existing per-type rules give authors
+  most of the value already — see §6.1.
+- **Nested shortcodes as param values.** Hugo's shortcode parser still
+  evaluates params as raw strings, so the v2 family cannot nest
+  `{{< infobox >}}` calls as **parameter values** of another
+  shortcode. Nesting inside a paired `.Inner` body works fine (it is
+  the §3.5 escape-hatch path), and the §3.7 / §3.8 wrapper pattern
+  covers the most-needed nested template cases. Trigger condition: a
+  follow-on Hugo version or a build-time templating step that lets
+  params evaluate other shortcodes.
+- **Phase 3-7 — named-wrapper v2 migration.** Rewrite each of the 30
+  named `{{< topic >}}` wrappers to emit the v2 `{{< infobox >}}` outer
+  directly, then retire `layouts/_partials/infobox/base.html`. Until
+  then, §10 documents the named wrappers as they are; the
+  compatibility shim stays in place.
+- **`{{< person-flexible >}}` and similar flexible-parameter
+  wrappers.** A future enhancement exposes the inner v2 primitives
+  as a single flexible-field wrapper (`{{< person-flexible
+  name="…" image="…" >}}…rows…{{< /person-flexible >}}`) so authors
+  who want the named-wrapper surface and the v2 `data-infobox-type`
+  hooks get both. The Wikipedia upstream does not have an exact
+  equivalent, so the API surface is a fresh design choice and is
+  deferred to a follow-on plan.
 
 ---
 

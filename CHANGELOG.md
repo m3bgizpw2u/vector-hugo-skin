@@ -129,6 +129,12 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   Folder layout remains reserved for shortcodes that genuinely need multiple
   concerns.
 
+### Changed
+- Rewrote `docs/SHORTCODES.md` infobox section for the v2 API; old shortcodes (`infobox-field`, `infobox-pair-*`) are gone, content must migrate to the v2 family.
+- Migrated `exampleSite/content/articles/person-demo.md` to the v2 API as the canonical demo.
+- Updated `docs/ARCHITECTURE.md` infobox section to reflect the new file layout (8 shortcodes, 6 partials, 5 SCSS, 1 lightbox TS) and added a note on the image pipeline + lightbox metadata panel.
+- Appended a research note to `docs/RESEARCH.md` pointing to the Fourth Plan primary sources.
+
 ### Relicensed (third plan, phase 0)
 - Theme re-licensed from MIT to **GPL-2.0-or-later** to match the upstream
   `wikimedia/mediawiki-skins-Vector` license at the pinned SHA
