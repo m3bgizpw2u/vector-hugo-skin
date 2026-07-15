@@ -98,7 +98,17 @@
      the partial doesn't handle) to avoid double-binding in
      assets/js/modules/lightbox.ts. */}}
 {{ $isImageBranch := and (ne $kind "audio") (ne $kind "video") }}
-<figure class="figure" data-halign="{{ $halign }}" data-mw-size="default" data-kind="{{ $kind }}"{{ if and (eq $lightbox "true") (not $isImageBranch) }} data-lightbox{{ if ne $group "" }} data-lightbox-group="{{ $group }}"{{ end }}{{ end }}>
+{{/* Derive a filename from the src basename so the Phase 3-6 lightbox
+     module can populate its metadata panel without an explicit
+     data-lightbox-filename attribute on the figure. */}}
+{{ $filename := "" }}
+{{ if $src }}
+  {{ $parts := split (urls.Parse $src).Path "/" }}
+  {{ if gt (len $parts) 0 }}
+    {{ $filename = index $parts (sub (len $parts) 1) }}
+  {{ end }}
+{{ end }}
+<figure class="figure" data-halign="{{ $halign }}" data-mw-size="default" data-kind="{{ $kind }}"{{ if and (eq $lightbox "true") (not $isImageBranch) }} data-lightbox{{ if ne $group "" }} data-lightbox-group="{{ $group }}"{{ end }}{{ if ne $filename "" }} data-lightbox-filename="{{ $filename }}"{{ end }}{{ end }}>
   {{ if eq $kind "audio" }}
     <audio controls preload="metadata" src="{{ $src }}">
       Your browser does not support the audio element.
