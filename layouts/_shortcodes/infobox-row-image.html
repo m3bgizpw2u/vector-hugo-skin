@@ -9,8 +9,10 @@
     {{< infobox-row-image label="…" image="…" >}}caption or body text{{</ infobox-row-image >}}
 
   Renders a label + a data cell containing a small `.infobox-row__figure`
-  (lightbox-enabled) followed by the paired body or `value` text.
-  See `infobox-row.html` for the `define`-block rationale.
+  (lightbox-enabled) followed by the paired body or `value` text. The
+  paired body is run through `.Page.RenderString` so inline Markdown
+  (links, lists, emphasis) renders to HTML — see `infobox-row.html` for
+  the `define`-block AST-scanner workaround rationale.
 
   Parameters:
     label           string  — row label
@@ -23,17 +25,24 @@
     class           string  — extra CSS class on `.infobox-data`
 */}}
 {{- define "infobox/row-image" -}}
-  {{- $body := "" -}}
+  {{- $raw := "" -}}
   {{- if .Inner -}}
-    {{- $body = strings.TrimSpace .Inner -}}
+    {{- $raw = strings.TrimSpace .Inner -}}
+  {{- else -}}
+    {{- $raw = .Get "value" -}}
   {{- end -}}
+
+  {{- $rendered := "" -}}
+  {{- if ne $raw "" -}}
+    {{- $rendered = .Page.RenderString $raw -}}
+  {{- end -}}
+
   {{- $label   := .Get "label"         | default "" -}}
   {{- $image   := .Get "image"         | default "" -}}
   {{- $imageAlt:= .Get "image-alt"     | default "" -}}
   {{- $imageCap:= .Get "image-caption" | default "" -}}
   {{- $imageUpr:= .Get "image-upright" | default 1.0 -}}
   {{- $group   := .Get "group"         | default "default" -}}
-  {{- $value   := .Get "value"         | default "" -}}
   {{- $class   := .Get "class"         | default "" -}}
 
   <div class="infobox-row infobox-row--image-data">
@@ -48,11 +57,7 @@
           {{ if ne $imageCap "" }}<figcaption class="infobox-caption">{{ $imageCap | markdownify }}</figcaption>{{ end }}
         </figure>
       {{ end }}
-      {{ if ne $body "" }}
-        {{ $body | markdownify }}
-      {{ else if ne $value "" }}
-        {{ $value | markdownify }}
-      {{ end }}
+      {{ $rendered | safeHTML }}
     </div>
   </div>
 {{- end -}}

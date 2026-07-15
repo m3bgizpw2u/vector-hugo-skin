@@ -8,50 +8,49 @@
 
   Dict keys:
     .label        string  — label text (omit for full-width row shape)
-    .value        string  — value text (parameter-only form, will be markdownified)
-    .pairedBody   string  — already-rendered HTML from paired .Inner (wins over value)
-    .class        string  — extra CSS class on .infobox-data (microformats, etc.)
+    .value        string  — value text (parameter-only form, already
+                             rendered HTML when passed from the shortcode)
+    .pairedBody   string  — already-rendered HTML from paired .Inner
+                             (wins over value)
+    .class        string  — extra CSS class on .infobox-data (microformats)
     .labelClass   string  — extra CSS class on .infobox-label
     .dataClass    string  — extra CSS class on .infobox-row wrapper
-    .rowShape     string  — "default" | "full" | "image-data" ; controls modifiers
+    .rowShape     string  — "default" | "full" | "image-data"
     .id           string  — optional id attribute on the row
 
-  Emits the standard label+data row markup from the Phase 0 contract.
-  Empty-row filter: if both .value and .pairedBody are empty AND there is
-  no label, the entire row is suppressed. If the label is set but content
-  is empty, the row still emits (caller's choice; this preserves author
-  intent for placeholder rows).
+  Empty-row filter: if both .value and .pairedBody are empty AND there
+  is no label, the entire row is suppressed. If the label is set but
+  the data cells are empty, the row still emits (caller's choice; this
+  preserves author intent for placeholder rows).
 */}}
-{{ $label      := .label        | default "" }}
-{{ $value      := .value        | default "" }}
-{{ $pairedBody := .pairedBody   | default "" }}
-{{ $class      := .class        | default "" }}
-{{ $labelClass := .labelClass   | default "" }}
-{{ $dataClass  := .dataClass    | default "" }}
-{{ $rowShape   := .rowShape     | default "default" }}
-{{ $id         := .id           | default "" }}
+{{- $label      := .label        | default "" -}}
+{{- $value      := .value        | default "" -}}
+{{- $pairedBody := .pairedBody   | default "" -}}
+{{- $class      := .class        | default "" -}}
+{{- $labelClass := .labelClass   | default "" -}}
+{{- $dataClass  := .dataClass    | default "" -}}
+{{- $rowShape   := .rowShape     | default "default" -}}
+{{- $id         := .id           | default "" -}}
 
-{{/*
-  Row-shape modifiers. `full` → .infobox-row--full + .infobox-data--full;
-  `image-data` → .infobox-row--image-data. Default emits only base classes.
-*/}}
-{{ $rowClass := "infobox-row" }}
-{{ if eq $rowShape "full" }}{{ $rowClass = printf "%s infobox-row--full" $rowClass }}{{ end }}
-{{ if eq $rowShape "image-data" }}{{ $rowClass = printf "%s infobox-row--image-data" $rowClass }}{{ end }}
+{{- $rowClass := "infobox-row" -}}
+{{- if eq $rowShape "full" }}{{ $rowClass = printf "%s infobox-row--full" $rowClass }}{{ end -}}
+{{- if eq $rowShape "image-data" }}{{ $rowClass = printf "%s infobox-row--image-data" $rowClass }}{{ end -}}
 
-{{ $dataWrapperClass := "infobox-data" }}
-{{ if eq $rowShape "full" }}{{ $dataWrapperClass = printf "%s infobox-data--full" $dataWrapperClass }}{{ end }}
-{{ if ne $class "" }}{{ $dataWrapperClass = printf "%s %s" $dataWrapperClass $class }}{{ end }}
+{{- $dataWrapperClass := "infobox-data" -}}
+{{- if eq $rowShape "full" }}{{ $dataWrapperClass = printf "%s infobox-data--full" $dataWrapperClass }}{{ end -}}
+{{- if ne $class "" }}{{ $dataWrapperClass = printf "%s %s" $dataWrapperClass $class }}{{ end -}}
 
 <div class="{{ $rowClass }}{{ with $dataClass }} {{ . }}{{ end }}"{{ with $id }} id="{{ . }}"{{ end }}>
-  {{ with $label }}
+  {{- with $label }}
     <div class="infobox-label{{ with $labelClass }} {{ . }}{{ end }}">{{ . }}</div>
-  {{ end }}
+  {{- end }}
   <div class="{{ $dataWrapperClass }}">
-    {{ if ne $pairedBody "" }}
+    {{- if ne $pairedBody "" }}
       {{ $pairedBody | safeHTML }}
-    {{ else }}
-      {{ $value | markdownify }}
-    {{ end }}
+    {{- else if ne $value "" }}
+      {{ $value | safeHTML }}
+    {{- else }}
+      {{- /* Both empty: render an empty cell so the row stays balanced. */ -}}
+    {{- end }}
   </div>
 </div>

@@ -6,27 +6,35 @@
   Label-less, full-width data row. PAIRED form.
 
   Authors write:
-    {{< infobox-row-full >}}Body that flows full width.{{</ infobox-row-full >}}
+    {{< infobox-row-full >}}Body that flows full width. **Markdown** works,
+    and nested shortcodes (e.g. {{< figure >}}) render through the same
+    pipeline as in paired `infobox-row`.{{</ infobox-row-full >}}
 
-  Or use the `value` parameter for simple text. The `.Inner` reference
-  lives inside a `define` block per the v0.164.0 AST-scanner
-  workaround described in `infobox-row.html`.
+  Or use the `value` parameter for plain text. The paired body is run
+  through `.Page.RenderString` so inline Markdown (links, lists,
+  emphasis) and nested shortcodes render to HTML. See `infobox-row.html`
+  for the rationale and the `define`-block AST-scanner workaround.
 
   Parameters:
     value   string  — fallback text when paired body is empty
     class   string  — extra CSS class on `.infobox-data`
 */}}
 {{- define "infobox/row-full" -}}
-  {{- $body := "" -}}
+  {{- $raw := "" -}}
   {{- if .Inner -}}
-    {{- $body = strings.TrimSpace .Inner -}}
+    {{- $raw = strings.TrimSpace .Inner -}}
+  {{- else -}}
+    {{- $raw = .Get "value" -}}
   {{- end -}}
-  {{- if eq $body "" -}}
-    {{- $body = .Get "value" -}}
+
+  {{- $rendered := "" -}}
+  {{- if ne $raw "" -}}
+    {{- $rendered = .Page.RenderString $raw -}}
   {{- end -}}
+
   <div class="infobox-row infobox-row--full">
     <div class="infobox-data infobox-data--full{{ with (.Get "class") }} {{ . }}{{ end }}">
-      {{ if ne $body "" }}{{ $body | markdownify }}{{ end }}
+      {{ $rendered | safeHTML }}
     </div>
   </div>
 {{- end -}}

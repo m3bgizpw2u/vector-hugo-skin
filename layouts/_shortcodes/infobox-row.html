@@ -14,37 +14,49 @@
   template invokes `{{ template "infobox/row" . }}` to render through
   the body which references `.Inner`.
 
+  Phase 3-3 freeform-row handling: the paired body is run through
+  `.Page.RenderString` so inline Markdown — links, lists, emphasis,
+  nested shortcodes — renders to HTML before being passed into the
+  row partial. When a paired body is empty, the `value` parameter is
+  used as a fallback (also rendered as Markdown). This matches the
+  existing `figure` shortcode convention.
+
   Authors write one of:
     {{< infobox-row label="Born" >}}1990-01-15{{</ infobox-row >}}
-    {{< infobox-row label="Born" >}}- item 1
+    {{< infobox-row label="Born" value="1990-01-15" >}}{{</ infobox-row >}}
+    {{< infobox-row label="Notable works" >}}- item 1
 - item 2{{</ infobox-row >}}
 
   Parameters:
     label       string  — row label
-    value       string  — used as fallback when paired body is empty
+    value       string  — fallback text, used when paired body is empty
     class       string  — extra CSS class on `.infobox-data`
     label-class string  — extra CSS class on `.infobox-label`
     data-class  string  — extra CSS class on `.infobox-row` wrapper
     id          string  — optional id attribute on the row
 */}}
 {{- define "infobox/row" -}}
-  {{- $pairedBody := "" -}}
+  {{- $raw := "" -}}
   {{- if .Inner -}}
-    {{- $pairedBody = strings.TrimSpace .Inner -}}
+    {{- $raw = strings.TrimSpace .Inner -}}
+  {{- else -}}
+    {{- $raw = .Get "value" -}}
   {{- end -}}
-  {{- if eq $pairedBody "" -}}
-    {{- $pairedBody = .Get "value" -}}
+
+  {{- $rendered := "" -}}
+  {{- if ne $raw "" -}}
+    {{- $rendered = .Page.RenderString $raw -}}
   {{- end -}}
 
   {{- partial "infobox/row.html" (dict
       "label"      (.Get "label")
-      "value"      $pairedBody
+      "value"      $rendered
       "class"      (.Get "class")
       "labelClass" (.Get "label-class")
       "dataClass"  (.Get "data-class")
       "rowShape"   "default"
       "id"         (.Get "id")
-      "pairedBody" $pairedBody
+      "pairedBody" $rendered
   ) -}}
 {{- end -}}
 {{ template "infobox/row" . }}
