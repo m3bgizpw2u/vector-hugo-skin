@@ -1442,3 +1442,81 @@ default static case. `lightbox="true"` and `group=` on the child, or
 existing `assets/js/modules/lightbox.ts` overlay — see the worked
 example above. No upstream `Template:Infobox row-table` mapping
 exists.
+
+## §12. Links in data cells (Fourth Plan, phase 3-4)
+
+Infobox data cells render Markdown, so any standard link pattern works:
+
+```go
+{{< infobox-row label="Website" >}}[Official site](https://example.com){{< /infobox-row >}}
+{{< infobox-row label="Born" >}}Santa Monica, [California]({{< ref "california.md" >}}){{< /infobox-row >}}
+```
+
+### Same-window default (no `target="_blank"`)
+
+By design the v2 family does **not** add `target="_blank"` to links inside
+data cells. Plain Markdown links render as `<a href="…">…</a>` and open in
+the same tab. This matches the project's no-surprise-navigation policy and
+keeps screen-reader / cognitive-load behaviour predictable.
+
+### New-tab opt-in via raw HTML
+
+Authors who need a new tab use raw HTML in the paired body or `value`
+parameter:
+
+```go
+{{< infobox-row label="Docs" >}}<a href="https://example.com" target="_blank" rel="noopener noreferrer">External docs</a>{{</ infobox-row >}}
+```
+
+`rel="noopener noreferrer"` is required for any `target="_blank"` link
+because it blocks reverse-tabnabbing and referrer leakage — Hugo's
+markdownify does not enforce this automatically.
+
+### External-link icon opt-in
+
+Add `rel="external"` to any link to surface the outbound-arrow icon
+(`↗`) via CSS:
+
+```go
+{{< infobox-row label="Profile" >}}<a href="https://example.com" rel="external">Open profile</a>{{</ infobox-row >}}
+```
+
+The CSS rule is `assets/css/components/infobox.scss` `.infobox-data a[rel~="external"]::after`. The marker is opt-in; authors who want plain `<a>`
+without the icon simply omit `rel="external"`.
+
+### Link styling
+
+`.infobox-data a` uses the project's design tokens:
+
+```scss
+.infobox-data a {
+  color: var(--color-link);
+  text-decoration: underline;
+
+  &:hover { text-decoration: none; }
+  &:focus-visible {
+    outline: 2px solid var(--color-focus-ring);
+    outline-offset: 2px;
+  }
+}
+```
+
+The rule is scoped to `.infobox-data` so it does not affect link color
+elsewhere in the article body.
+
+### `_link.html` partial (advanced)
+
+`layouts/_partials/infobox/_link.html` is an optional autolink helper for
+callers who want every value rendered as a clickable link (rare pattern
+— most call sites render values as plain text). It is **not** invoked by
+default; authors opt in by calling the partial themselves:
+`{{ partial "infobox/_link.html" (dict "url" "…" "text" "…") }}`. The
+helper also auto-emits `target="_blank" rel="noopener noreferrer"` for
+`http://` and `https://` URLs as a convenience for the rare autolink use
+case, but it is not used by the row primitive.
+
+### Accessibility
+
+- Link text is meaningful. Avoid `[here](url)`; prefer `[Documentation](url)`.
+- Multi-link cells separate links with `<br>` so the link phrases are
+  clearly enumerable.

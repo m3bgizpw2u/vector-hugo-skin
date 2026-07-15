@@ -1,0 +1,17 @@
+{{/*
+  Original work — Wikipedia infobox reimplementation. GPL-2.0-or-later.
+
+  Optional autolink helper. Authors who want every value rendered as a
+  clickable link can call this partial directly. NOT used by default —
+  by design (Phase 3-4 decision: no automatic `target="_blank"` on
+  inside-data links). Authors who want a new tab use raw HTML.
+
+  Usage:
+    {{ partial "infobox/_link.html" (dict "url" $url "text" $text) }}
+*/}}
+{{- $url  := .url  -}}
+{{- $text := .text -}}
+{{- $isExternal := or (hasPrefix $url "http://") (hasPrefix $url "https://") -}}
+
+<a href="{{ $url }}"
+   {{- if $isExternal }} target="_blank" rel="noopener noreferrer"{{ end }}>{{ $text }}</a>
