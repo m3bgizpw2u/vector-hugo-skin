@@ -268,7 +268,7 @@ const showImage = (index: number): void => {
   preloadAdjacent(index);
 };
 
-const updateNavButtons = (index: number, total: number): void => {
+const updateNavButtons = (_index: number, total: number): void => {
   prevBtn.disabled = total <= 1;
   nextBtn.disabled = total <= 1;
   toggleClass(prevBtn, 'lightbox-btn--hidden', total <= 1);
