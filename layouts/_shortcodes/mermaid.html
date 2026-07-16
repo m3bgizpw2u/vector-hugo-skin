@@ -1,0 +1,18 @@
+{{/*
+  Paired mermaid shortcode — wraps diagram source in a <pre class="mermaid"> block
+  that the Mermaid runtime (vendored at static/js/mermaid/) renders at
+  DOMContentLoaded.
+
+  Two authoring paths:
+    1. Paired body (canonical):
+         {{< mermaid >}}flowchart TD ...{{< /mermaid >}}
+    2. Via Goldmark fenced code block (handled by the JS init module on .mermaid
+       elements — no shortcode needed for that path).
+
+  Per .cursor/rules/40-shortcodes.mdc and .cursor/rules/00-core.mdc rule 4:
+  flat single-file layout, paired-form-only, no folder layout.
+
+  CSS hook contract (targeted by assets/css/components/mermaid.scss):
+    pre.mermaid  — root; receives scoped styling from the SCSS partial.
+*/}}
+<pre class="mermaid">{{- with .Get "code" }}{{ . | htmlEscape }}{{ else }}{{ .Inner | htmlEscape }}{{ end -}}</pre>

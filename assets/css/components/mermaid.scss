@@ -1,0 +1,36 @@
+// Original work, GPL-2.0-or-later.
+// Header per docs/PORT-MAP-CONVENTIONS.md §A.
+// Mermaid diagram chrome — styles the <pre class="mermaid"> root that both
+// Goldmark's fenced ```mermaid blocks and the {{< mermaid >}} shortcode emit.
+//
+// The SCSS owns the container chrome (background, border, padding, overflow).
+// The actual rendered diagram (an inline <svg> injected by mermaid.run()) is
+// inside this <pre> as a sibling and inherits text-align from .mermaid.
+//
+// One component per file: this file only styles the .mermaid subtree, never
+// reaches into layout or other component concerns.
+//
+// CSS hook contract:
+//   pre.mermaid  — root; wraps both the raw source (before JS renders) and the
+//                  injected SVG (after JS renders); JS replaces innerHTML so the
+//                  <pre> remains but its children change.
+.mermaid {
+  text-align: center;
+  overflow-x: auto;
+  margin: var(--space-md) 0;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+
+  // Ensure diagrams don't overflow on narrow screens.
+  svg {
+    max-width: 100%;
+    height: auto;
+  }
+
+  // Rendered diagrams get this class added by mermaid.run().
+  &.mermaid--rendered {
+    border-color: transparent;
+  }
+}

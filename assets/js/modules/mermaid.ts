@@ -1,0 +1,53 @@
+/**
+ * Mermaid diagram renderer — auto-renders every <pre class="mermaid"> block
+ * on the page by delegating to the vendored Mermaid runtime
+ * (static/js/mermaid/mermaid.esm.min.mjs).
+ *
+ * The runtime is loaded via a <script type="module"> in layouts/_partials/footer/js.html
+ * and exports a `mermaid` global (the ESM build does this by default).
+ * This module calls mermaid.initialize() once, then mermaid.run() to transform
+ * all .mermaid elements to SVG inline.
+ *
+ * Idioms supported:
+ *   - Fenced ```mermaid code blocks in Markdown (Goldmark emits <pre class="mermaid">)
+ *   - The {{< mermaid >}} paired shortcode (which also emits <pre class="mermaid">)
+ *
+ * One behavior only: idempotent init(). No DOM mutations beyond the runtime's own.
+ */
+let initialized = false;
+
+export const init = (): void => {
+  if (initialized) return;
+  initialized = true;
+
+  // The vendored ESM runtime exports a `mermaid` global; wait for it to exist.
+  // Use requestAnimationFrame to defer past the script's own execution in case
+  // this module's import runs first (the defer attribute on the runtime script
+  // tag orders scripts, but a module's top-level runs synchronously before
+  // any deferred scripts fire — so we need to wait for the global to appear).
+  const tryRender = (): void => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const mermaid = (window as unknown as Record<string, unknown>)['mermaid'];
+    if (typeof mermaid !== 'object' || mermaid === null) {
+      // Runtime not yet loaded; skip silently — graceful degradation leaves the
+      // <pre class="mermaid"> as a raw text block.
+      return;
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const api = mermaid as Record<string, (...args: unknown[]) => unknown>;
+    if (typeof api.initialize === 'function' && typeof api.run === 'function') {
+      void api.initialize({
+        startOnLoad: false,
+        securityLevel: 'loose',
+        theme: 'default',
+      });
+      void api.run({ nodes: document.querySelectorAll('pre.mermaid') });
+    }
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', tryRender, { once: true });
+  } else {
+    tryRender();
+  }
+};
