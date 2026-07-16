@@ -1,9 +1,29 @@
+{{/*
+  Original work — reimplementation of Wikipedia's infobox family as a
+  Hugo shortcode. GPL-2.0-or-later.
+  License header per docs/PORT-MAP-CONVENTIONS.md §A.
+
+  Section divider header that spans both columns. PAIRED form.
+
+  The `.Inner` reference lives inside a Hugo `define` block to work
+  around Hugo v0.164.0's shortcode AST scanner — see the rationale in
+  `infobox-row.html`. The `title` parameter wins when set; otherwise the
+  trimmed paired body becomes the section header text.
+
+  Authors write either:
+    {{< infobox-section title="Career" >}}{{</ infobox-section >}}
+    {{< infobox-section >}}Career{{</ infobox-section >}}
+
+  Parameters:
+    title  string  — section title (overrides the paired body)
+    class  string  — extra CSS class on `.infobox-section-header`
+*/}}
 {{- define "infobox/section" -}}
-{{- $title := .Get "title" | default "" -}}
-{{- if and (eq $title "") .Inner -}}
-  {{- $title = strings.TrimSpace .Inner -}}
-{{- end -}}
-{{- $class := .Get "class" | default "" -}}
-<div class="infobox-section-header{{ with $class }} {{ . }}{{ end }}">{{ $title }}</div>
+  {{- $title := .Get "title" | default "" -}}
+  {{- if and (eq $title "") .Inner -}}
+    {{- $title = strings.TrimSpace .Inner -}}
+  {{- end -}}
+  {{- $class := .Get "class" | default "" -}}
+  <div class="infobox-section-header{{ with $class }} {{ . }}{{ end }}">{{ $title }}</div>
 {{- end -}}
 {{ template "infobox/section" . }}

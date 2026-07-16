@@ -2,12 +2,12 @@
 title: "Person demo"
 date: 2026-07-10
 draft: false
-summary: "Demonstrates the v2 {{< infobox >}} shortcode with the typical person schema."
+summary: "Demonstrates the v2 {{</* infobox */>}} shortcode with the typical person schema."
 categories: ["Infobox demos"]
 ---
 
 Lead paragraph introducing the Person demo. This page exercises the v2
-`{{< infobox >}}` outer shortcode with the typical schema for an
+`{{</* infobox */>}}` outer shortcode with the typical schema for an
 individual biography infobox: a main image, a sectioned body, and a
 footer. See `docs/SHORTCODES.md` §2 for the full parameter list and
 §3 for the authoring patterns.
@@ -17,17 +17,17 @@ footer. See `docs/SHORTCODES.md` §2 for the full parameter list and
 {{< infobox-image src="/media/sample-image-1.png" caption="Sample portrait"
     alt="Sample portrait of demo person" upright="1" >}}
 
-{{< infobox-section title="Personal" >}}
+{{< infobox-section title="Personal" >}}{{</ infobox-section >}}
 {{< infobox-row label="Born"        >}}1 January 1990{{</ infobox-row >}}
 {{< infobox-row label="Birth place" >}}Demo City, Demo Country{{</ infobox-row >}}
 {{< infobox-row label="Nationality" >}}Demo nationality{{</ infobox-row >}}
 
-{{< infobox-section title="Career" >}}
+{{< infobox-section title="Career" >}}{{</ infobox-section >}}
 {{< infobox-row label="Occupation"   >}}Demo occupation{{</ infobox-row >}}
 {{< infobox-row label="Years active" >}}2015–present{{</ infobox-row >}}
 {{< infobox-row label="Notable works" >}}Demo work one; demo work two{{</ infobox-row >}}
 
-{{< infobox-section title="External links" >}}
+{{< infobox-section title="External links" >}}{{</ infobox-section >}}
 {{< infobox-row label="Website" >}}[Example site](https://example.com){{</ infobox-row >}}
 
 {{< infobox-below >}}Demonstration page using the v2 infobox family — see
