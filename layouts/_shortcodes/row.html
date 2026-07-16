@@ -5,16 +5,19 @@
 
   Required params: title, text, image.
   Optional: icon (filename without extension under layouts/partials/icons/),
-  alt (falls back to title), lightbox ("true" opts the photo into the
-  lightbox overlay — see assets/js/modules/lightbox.ts), group (lightbox
-  carousel key; only meaningful when lightbox="true"). The group value
-  is normally inherited from the parent `{{< row-table >}}` wrapper via
-  `.Parent` and acts as a default here so per-row overrides are still
-  possible.
+  image2 (image path/URL rendered into the icon slot at icon scale — useful
+  when a small decorative photo or brand mark is more appropriate than an SVG
+  icon; mutually exclusive with icon, image2 takes priority), alt (falls back
+  to title), lightbox ("true" opts the photo into the lightbox overlay —
+  see assets/js/modules/lightbox.ts), image2lightbox ("true" opts image2
+  into the lightbox), group (lightbox carousel key; only meaningful when
+  lightbox="true" or image2lightbox="true"). The group value is normally
+  inherited from the parent `{{< row-table >}}` wrapper via `.Parent` and
+  acts as a default here so per-row overrides are still possible.
 
   Class hooks emitted (targeted by assets/css/components/_row-table.scss):
     .row-table__row    the row container
-    .row-table__icon   the icon slot
+    .row-table__icon   the icon slot (SVG or image)
     .row-table__text   the text slot (title + body)
     .row-table__photo  the photo slot
 */}}
@@ -22,8 +25,11 @@
 {{- $text := .Get "text" }}
 {{- $image := .Get "image" }}
 {{- $icon := .Get "icon" }}
+{{- $image2 := .Get "image2" }}
 {{- $alt := default $title (.Get "alt") }}
+{{- $image2Alt := default $alt (.Get "image2alt") }}
 {{- $lightbox := eq (.Get "lightbox") "true" }}
+{{- $image2Lightbox := eq (.Get "image2lightbox") "true" }}
 {{- $rowGroup := default "" (.Get "group") }}
 {{- if not $title }}{{ errorf "row shortcode: 'title' is required" .Position }}{{ end }}
 {{- if not $text }}{{ errorf "row shortcode: 'text' is required" .Position }}{{ end }}
@@ -32,20 +38,36 @@
     Group inheritance: prefer the row's own `group` param, then fall
     back to the parent `{{< row-table >}}` `group` param, then "". Keeps
     the parent as the carousel default while letting a single row opt
-    out by setting its own group (or group="-" to go standalone — we
-    treat empty string as "use parent / standalone" rather than a key).
+    out by setting its own group.
 */ -}}
 {{- $parentGroup := "" }}
 {{- with .Parent }}{{ $parentGroup = default "" (.Get "group") }}{{ end }}
 {{- $group := or $rowGroup $parentGroup }}
+{{- $showIcon := or $icon $image2 }}
 <div class="row-table__row">
-  {{- with $icon }}
-    {{- $iconFile := printf "icons/%s.svg" . }}
-    <div class="row-table__icon"{{ if $title }} aria-hidden="true"{{ end }}>
-      {{- if templates.Exists (printf "_partials/%s" $iconFile) }}
-        {{- partial (printf "%s" $iconFile) (dict "title" $title) }}
-      {{- end }}
-    </div>
+  {{- if $showIcon }}
+    {{- if $image2 }}
+      {{- /* image2 renders into the icon slot via the shared thumb partial,
+             constrained to the icon cell's clamp() size. object-fit: contain
+             preserves the full image at icon scale; lightbox opt-in works
+             identically to the photo cell. */ -}}
+      <div class="row-table__icon"
+           {{- if $image2Lightbox }} data-lightbox{{ if ne $group "" }} data-lightbox-group="{{ $group }}"{{ end }} data-lightbox-caption="{{ $image2Alt }}"{{ end }}>
+        {{ partial "article/thumb.html" (dict
+            "src"   $image2
+            "alt"   $image2Alt
+            "align" "none"
+            "width" "100%"
+        ) }}
+      </div>
+    {{- else }}
+      {{- $iconFile := printf "icons/%s.svg" $icon }}
+      <div class="row-table__icon"{{ if $title }} aria-hidden="true"{{ end }}>
+        {{- if templates.Exists (printf "_partials/%s" $iconFile) }}
+          {{- partial (printf "%s" $iconFile) (dict "title" $title) }}
+        {{- end }}
+      </div>
+    {{- end }}
   {{- end }}
   <div class="row-table__text">
     <p class="row-table__text-title">{{ $title }}</p>

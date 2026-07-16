@@ -12,15 +12,25 @@
     "lint": "eslint \"assets/js/**/*.ts\" && stylelint \"assets/css/**/*.scss\"",
     "check:ts": "tsc",
     "tools:shortcodes": "node tools/shortcodes-generator/dev-server.mjs",
-    "tools:check": "node tools/shortcodes-generator/check-sync.mjs"
+    "tools:check": "node tools/shortcodes-generator/check-sync.mjs",
+    "tools:shortcodes:v2": "vite --config tools/shortcodes-generator-v2/vite.config.ts",
+    "tools:shortcodes:v2:build": "vite build --config tools/shortcodes-generator-v2/vite.config.ts",
+    "tools:shortcodes:v2:check": "node tools/shortcodes-generator-v2/check-sync.mjs"
   },
   "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
     "concurrently": "^9.1.0",
     "eslint": "^9.17.0",
     "prettier": "^3.4.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "sass-embedded": "^1.100.0",
     "stylelint": "^16.12.0",
     "typescript": "^5.7.2",
-    "wait-on": "^8.0.1"
+    "vite": "^5.4.10",
+    "wait-on": "^8.0.1",
+    "zustand": "^4.5.5"
   }
 }

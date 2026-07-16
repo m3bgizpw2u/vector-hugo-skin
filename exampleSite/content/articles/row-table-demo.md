@@ -7,6 +7,7 @@ categories: ["Article-body demos", "Articles"]
 tags: ["demo", "row-table", "article-body", "responsive"]
 ---
 
+
 This page exercises the `{{</* row-table */>}}` shortcode — an article-body
 element that renders a repeating `icon | text | photo` row layout. Each row
 takes a small decorative SVG icon, a multi-line markdown body, and a photo;
@@ -189,6 +190,53 @@ group, Escape closes, focus returns to the trigger.
 
 {{< /row-table >}}
 
+## `quick-row` — fewer required params
+
+The `quick-row` shortcode is a lightweight alternative to `row` for cases where
+the full icon|text|photo triple is overkill. Only title is required; text,
+image, icon, and alt are all optional. It also adds an href parameter
+that turns the entire text cell into a clickable link — useful for directory
+listings where each row links to a detail page.
+
+Below: three `quick-row` examples inside a `row-table`. The first
+omits image (icon + text only), the second omits text (icon + linked title
+only), the third uses all four slots.
+
+{{< row-table
+    eyebrow     = "5/5 · Quick"
+    title       = "Article types"
+    description = "A `quick-row` is the right pick when you only need title, or title + text, or title + photo — without the ceremony of all three. It also adds `href=` for a fully clickable row."
+>}}
+
+{{< quick-row
+    icon  = "leaf-palmate"
+    title = "How-to articles"
+    text  = "Step-by-step guides and tutorials. Supports code blocks, callouts, and embedded media."
+    href  = "/articles/how-to/"
+>}}
+
+{{< quick-row
+    icon  = "leaf-ovate"
+    title = "Reference docs"
+    text  = "API references, configuration guides, and technical specifications."
+    href  = "/docs/"
+>}}
+
+{{< quick-row
+    icon  = "leaf-pinnate"
+    title = "Blog posts"
+    href  = "/blog/"
+>}}
+
+{{< quick-row
+    icon  = "leaf-ovate"
+    title = "Community showcase"
+    image = "/media/sample-image-5.png"
+    text  = "Real-world sites built with the theme. Screenshots, descriptions, and links."
+>}}
+
+{{< /row-table >}}
+
 ## Parameters
 
 | Parameter     | Required | Purpose |
@@ -200,18 +248,29 @@ group, Escape closes, focus returns to the trigger.
 | `footer`      | optional | Markdown-rendered closing note. |
 | `variant`     | optional | `compact` or `expandable`; emitted as `row-table--{variant}`. |
 | `group`       | optional | Lightbox carousel key inherited by every child row that opts into `lightbox="true"` without its own `group=`. |
-| inner rows    | required | One or more `{{</* row */>}}` children. |
+| inner rows    | required | One or more `{{</* row */>}}` or `{{</* quick-row */>}}` children. |
 
 The `{{</* row */>}}` child accepts: `title` (required), `text` (required,
 markdown), `image` (required — rendered through the shared
 `article/thumb.html` partial at native ratio with `srcset`/`sizes`, no
 4:3 crop),
-`icon` (optional, basename under `layouts/partials/icons/`), `alt`
-(optional, defaults to the row `title`), `lightbox` (optional, `"true"`
-opts the photo into the lightbox overlay), `group` (optional, lightbox
+`icon` (optional, basename under `layouts/partials/icons/`), `image2`
+(optional, image path/URL rendered into the icon slot at icon scale —
+mutually exclusive with icon, image2 takes priority), `alt` (optional,
+defaults to the row `title`), `lightbox` (optional, `"true"` opts the
+photo into the lightbox overlay), `image2lightbox` (optional, `"true"`
+opts image2 into the lightbox overlay), `group` (optional, lightbox
 carousel key — overrides the parent default). Missing required parameters
 raise a build-time `errorf` so empty rows never reach the rendered
 output.
+
+The `{{</* quick-row */>}}` child is a lightweight alternative where only
+`title` is required. `text` and `image` are both optional (omitting either
+skips that slot entirely), and `href=` turns the text cell into a clickable
+link. All other params (`icon`, `image2`, `alt`, `image2alt`, `lightbox`,
+`image2lightbox`, `group`) work the same as `{{</* row */>}}`. Use
+`{{</* quick-row */>}}` for directory-style listings where you only need
+a subset of the icon|text|photo triple.
 
 The full per-shortcode reference lives at
 [`docs/shortcodes/row-table.md`](../../../docs/shortcodes/row-table.md);

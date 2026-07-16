@@ -1,0 +1,96 @@
+{{/*
+  Original work — reimplementation of Wikipedia's infobox family as a
+  Hugo theme. GPL-2.0-or-later.
+  License header per docs/PORT-MAP-CONVENTIONS.md §A.
+
+  quick-row — a lighter-weight alternative to {{< row >}} with fewer
+  required params and one extra affordance (href for a clickable row).
+  Unlike row, `title` is the only truly required field; `text` and
+  `image` both default to empty so authors can compose rows with just
+  title, just text, just image, or any combination.
+
+  When `href=` is set, the row's entire text cell becomes an <a> so
+  the whole thing is a tap/click target (keyboard accessible, cursor:
+  pointer on hover). The photo cell does not become a link even when
+  href is set — that would conflict with the optional lightbox opt-in.
+
+  image2= renders a small image into the icon slot at icon scale
+  (clamp(2.5rem…4rem) square), useful when a decorative photo or brand
+  mark is more appropriate than an SVG. Mutually exclusive with icon=;
+  image2= takes priority. image2lightbox= opts it into the lightbox.
+
+  Parameters (all optional except title):
+    title       string  — row heading; also used as aria-label when href is set
+    text        string  — markdown-rendered body; empty = no text slot rendered
+    image       string  — image path/URL; empty = no photo cell rendered
+    icon        string  — SVG filename under layouts/partials/icons/
+    image2      string  — image path/URL rendered into the icon slot at icon scale
+    alt         string  — img alt for the photo cell; defaults to title
+    image2alt   string  — img alt for the image2 cell; defaults to alt
+    href        string  — when set, wraps the text cell in an anchor
+    lightbox    string  — "true" opts the photo into the lightbox overlay
+    image2lightbox string — "true" opts image2 into the lightbox overlay
+    group       string  — lightbox carousel key; inherits from parent row-table
+                           when not set here (mirrors {{< row >}} behaviour)
+*/}}
+{{- $title := .Get "title" }}
+{{- if not $title }}{{ errorf "quick-row shortcode: 'title' is required" .Position }}{{ end }}
+{{- $text    := .Get "text" }}
+{{- $image   := .Get "image" }}
+{{- $icon    := .Get "icon" }}
+{{- $image2  := .Get "image2" }}
+{{- $alt     := default $title (.Get "alt") }}
+{{- $image2Alt := default $alt (.Get "image2alt") }}
+{{- $href    := .Get "href" }}
+{{- $lightbox := eq (.Get "lightbox") "true" }}
+{{- $image2Lightbox := eq (.Get "image2lightbox") "true" }}
+{{- $rowGroup    := default "" (.Get "group") }}
+{{- $parentGroup := "" }}
+{{- with .Parent }}{{ $parentGroup = default "" (.Get "group") }}{{ end }}
+{{- $group := or $rowGroup $parentGroup }}
+{{- $showIcon := or $icon $image2 }}
+<div class="row-table__row{{ if $href }} row-table__row--linked{{ end }}">
+  {{- if $showIcon }}
+    {{- if $image2 }}
+      <div class="row-table__icon"
+           {{- if $image2Lightbox }} data-lightbox{{ if ne $group "" }} data-lightbox-group="{{ $group }}"{{ end }} data-lightbox-caption="{{ $image2Alt }}"{{ end }}>
+        {{ partial "article/thumb.html" (dict
+            "src"   $image2
+            "alt"   $image2Alt
+            "align" "none"
+            "width" "100%"
+        ) }}
+      </div>
+    {{- else }}
+      {{- $iconFile := printf "icons/%s.svg" $icon }}
+      <div class="row-table__icon"{{ if $title }} aria-hidden="true"{{ end }}>
+        {{- if templates.Exists (printf "_partials/%s" $iconFile) }}
+          {{- partial (printf "%s" $iconFile) (dict "title" $title) }}
+        {{- end }}
+      </div>
+    {{- end }}
+  {{- end }}
+  <div class="row-table__text">
+    {{- if $href }}
+      <a class="row-table__text-title" href="{{ $href }}"{{ if $title }} aria-label="{{ $title }}"{{ end }}>
+        {{- $title -}}
+      </a>
+    {{- else }}
+      <p class="row-table__text-title">{{ $title }}</p>
+    {{- end }}
+    {{- if ne $text "" }}
+      <div class="row-table__text-body">{{ $text | markdownify }}</div>
+    {{- end }}
+  </div>
+  {{- if ne $image "" }}
+    <div class="row-table__photo"
+         {{- if $lightbox }} data-lightbox{{ if ne $group "" }} data-lightbox-group="{{ $group }}"{{ end }} data-lightbox-caption="{{ $alt }}"{{ end }}>
+      {{ partial "article/thumb.html" (dict
+          "src"   $image
+          "alt"   $alt
+          "align" "none"
+          "width" "100%"
+      ) }}
+    </div>
+  {{- end }}
+</div>

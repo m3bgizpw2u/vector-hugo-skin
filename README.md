@@ -58,15 +58,22 @@ The workspace-as-theme layout means the theme root sits at the repository root, 
 
 ## Local development tools
 
-`npm run tools:shortcodes` opens a local webUI that generates filled-in
-infobox shortcodes — pick a shortcode from the left pane, fill the fields
-in the middle, and copy the generated shortcode from the right. Covers
-all 30 named shortcodes plus the 12 inner primitives
-(`infobox-row`, `infobox-section`, `infobox-pair-*`, …). Pure HTML +
-vanilla TS, served by a tiny Node stdlib HTTP server on
-`localhost:8731`. `npm run tools:check` asserts every YAML in the tool
-has a matching layout file. See [`tools/shortcodes-generator/README.md`](tools/shortcodes-generator/README.md)
-for full docs (architecture, YAML schema, maintenance workflow).
+Two shortcode generators are available, co-located under `tools/`:
+
+`npm run tools:shortcodes` — v1 generator. Pure HTML + vanilla TypeScript,
+served by a tiny Node stdlib HTTP server on `localhost:8731`. Covers all
+30 named shortcodes plus 12 inner primitives (`infobox-row`, `infobox-section`,
+`infobox-pair-*`, …). YAML schemas under `tools/shortcodes-generator/data/`.
+`npm run tools:check` asserts every YAML has a matching layout file.
+See [`tools/shortcodes-generator/README.md`](tools/shortcodes-generator/README.md).
+
+`npm run tools:shortcodes:v2` — v2 generator. React 18 + Vite + TypeScript,
+served on `localhost:5173`. Typed TS specs under `tools/shortcodes-generator-v2/src/data/`
+replace the runtime YAML layer; adds a freeform **Custom rows** builder for
+infobox composition. `npm run tools:shortcodes:v2:check` asserts every TS spec
+slug maps to a `layouts/_shortcodes/<slug>.html` file. React and Vite are
+devDependencies only — zero runtime JS lands in `public/`. See
+[`tools/shortcodes-generator-v2/README.md`](tools/shortcodes-generator-v2/README.md).
 
 ## Documentation
 

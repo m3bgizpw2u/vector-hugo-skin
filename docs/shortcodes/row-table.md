@@ -54,11 +54,37 @@ is the source of truth.
 
 | Parameter | Required | Purpose |
 |---|---|---|
-| `title` | required | Row heading; falls back to `alt` if `image` has no `alt` |
+| `title` | required | Row heading |
 | `text` | required | Markdown-rendered body copy; can be multi-line |
 | `image` | required | Image path/URL; local paths run through `relURL`, external URLs pass through |
-| `icon` | optional | Filename (no extension) under `layouts/_partials/icons/`; missing icon renders the row without an icon (no error) |
-| `alt` | optional | `<img alt=…>` text; defaults to `title` |
+| `icon` | optional | Filename (no extension) under `layouts/_partials/icons/`; mutually exclusive with `image2` |
+| `image2` | optional | Image path/URL rendered into the icon slot at icon scale (`clamp(2.5rem…4rem)`); mutually exclusive with `icon`, takes priority |
+| `alt` | optional | `<img alt=…>` text for the main photo; defaults to `title` |
+| `image2alt` | optional | `<img alt=…>` text for `image2`; defaults to `alt` |
+| `lightbox` | optional | `"true"` opts the main photo into the lightbox overlay |
+| `image2lightbox` | optional | `"true"` opts `image2` into the lightbox overlay |
+| `group` | optional | Lightbox carousel key; inherits from parent `{{< row-table >}}` |
+
+## Parameters — quick-row
+
+`{{< quick-row >}}` is a lightweight alternative to `{{< row >}}`. Only `title`
+is required; `text` and `image` both default to empty so the slots are
+omitted from the row when not needed. It also adds `href=` to turn the text
+cell into a clickable link. All other params work identically to `{{< row >}}`.
+
+| Parameter | Required | Purpose |
+|---|---|---|
+| `title` | required | Row heading |
+| `text` | optional | Markdown body; omit to skip the text slot entirely |
+| `image` | optional | Image path/URL; omit to skip the photo slot entirely |
+| `icon` | optional | SVG filename under `layouts/_partials/icons/`; mutually exclusive with `image2` |
+| `image2` | optional | Image path/URL rendered into the icon slot at icon scale; mutually exclusive with `icon`, takes priority |
+| `alt` | optional | `<img alt=…>` text for the photo; defaults to `title` |
+| `image2alt` | optional | `<img alt=…>` text for `image2`; defaults to `alt` |
+| `href` | optional | When set, wraps the text cell in an `<a>` — the whole row becomes a clickable link |
+| `lightbox` | optional | `"true"` opts the photo into the lightbox overlay |
+| `image2lightbox` | optional | `"true"` opts `image2` into the lightbox overlay |
+| `group` | optional | Lightbox carousel key; inherits from parent `{{< row-table >}}` |
 
 ## Worked example
 
@@ -110,6 +136,25 @@ is the source of truth.
 {{< /row-table >}}
 ```
 
+**Image2 for the icon slot** (small photo or brand logo instead of an SVG):
+
+```go
+{{< row-table title="Featured authors" >}}
+  {{< row
+      image2    = "/images/author-portraits/maya.jpg"
+      image2alt = "Portrait of Maya"
+      title     = "Maya"
+      image     = "/images/cover-maya.jpg"
+      text      = "Science fiction and fantasy." >}}
+  {{< row
+      image2    = "/images/author-portraits/chinua.jpg"
+      image2alt = "Portrait of Chinua"
+      title     = "Chinua"
+      image     = "/images/cover-achebe.jpg"
+      text      = "Postcolonial literature." >}}
+{{< /row-table >}}
+```
+
 ## CSS hook contract
 
 The base partial and the row partial emit a fixed set of class names
@@ -128,9 +173,10 @@ off these names, and the templates must emit exactly these names.
 | `row-table__description` | the intro paragraph | Markdown-rendered |
 | `row-table__rows` | the children container | Wraps every `{{< row >}}` output |
 | `row-table__row` | a single data row | The grid container; one per `{{< row >}}` |
-| `row-table__icon` | the icon slot | Inline SVG; `aria-hidden="true"` when decorative |
+| `row-table__row--linked` | row root | Added when `href=` is set on `quick-row` |
+| `row-table__icon` | the icon slot | Inline SVG; `aria-hidden="true"` when decorative. Also wraps `image2` (rendered via `article/thumb.html`); `object-fit: contain` preserves the full image at icon scale |
 | `row-table__text` | the text slot | title + body wrapper |
-| `row-table__text-title` | the row heading | Bold row title |
+| `row-table__text-title` | the row heading | Bold row title; becomes an `<a>` when `href=` is set |
 | `row-table__text-body` | the row body | Markdown-rendered, supports inline links/emphasis |
 | `row-table__photo` | the photo slot | grid-area anchor wrapping a `.thumb` figure (rendered by `layouts/_partials/article/thumb.html`); the image renders at its native ratio with `srcset`/`sizes`, no `object-fit`/`aspect-ratio` crop |
 | `row-table__footer` | the closing note | Markdown-rendered at the bottom of the section |
@@ -143,7 +189,7 @@ viewport uses `clamp()` so the layout scales smoothly between
 
 - font-size (root, title, body, eyebrow) — clamp
 - row gap, padding, section gap — clamp
-- icon size — clamp
+- icon size — clamp (also constrains `image2` at icon scale)
 - photo size — clamp
 
 A single structural breakpoint at the project's documented mobile
@@ -162,6 +208,8 @@ already override for the rest of the cascade).
 
 - Icons are decorative relative to the row heading — the icon slot
   gets `aria-hidden="true"` whenever a `title` is present on the row.
+  When `image2` is used, the icon slot has no `aria-hidden` (the
+  image carries its own `alt` text via `image2alt`).
 - The `<img>` always gets `alt` text; falls back to the row `title`
   if no explicit `alt` is supplied.
 - Heading levels come from the `level` parameter on the parent —
@@ -211,6 +259,8 @@ the example site's Articles index.
 - [`layouts/_shortcodes/row.html`](../../layouts/_shortcodes/row.html)
   — the child template (source of truth for the child
   parameter list).
+- [`layouts/_shortcodes/quick-row.html`](../../layouts/_shortcodes/quick-row.html)
+  — the lightweight child template; only `title` is required.
 - [`assets/css/components/_row-table.scss`](../../assets/css/components/_row-table.scss)
   — the SCSS that targets the class hook contract above.
 - [`assets/js/modules/row-table.ts`](../../assets/js/modules/row-table.ts)
