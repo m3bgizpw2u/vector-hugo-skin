@@ -193,8 +193,16 @@ Renders:
 
 ### §2.2 `{{< infobox-section >}}`
 
-Section divider that spans both columns. Both the `title=` parameter and
-a paired body are supported — title wins when both are present.
+Header-only section divider that spans both columns. **Rows are siblings
+of the section, not children** — the section emits a single
+`<div class="infobox-section-header">…</div>` and is otherwise empty,
+so `{{</ infobox-section >}}` sits immediately after the opening tag.
+Rows that follow the section header inherit the visual grouping.
+
+The `title=` parameter and a paired body are both supported for the
+header text — `title` wins when both are present. The paired-body form
+is a thin convenience for callers whose header text is short enough to
+fit in the call site (e.g. `{{< infobox-section >}}Career{{</ infobox-section >}}`).
 
 | Parameter | Type | Default | Purpose |
 |---|---|---|---|
@@ -202,14 +210,29 @@ a paired body are supported — title wins when both are present.
 | `class` | string | `""` | Extra CSS class. |
 
 ```text
-{{< infobox-section title="Career" >}}
+{{< infobox-section title="Career" >}}{{</ infobox-section >}}
+{{< infobox-row label="Occupation" >}}Astronaut, physicist{{</ infobox-row >}}
 ```
 
 Renders:
 
 ```html
 <div class="infobox-section-header">Career</div>
+<div class="infobox-row">
+  <div class="infobox-label">Occupation</div>
+  <div class="infobox-data"><p>Astronaut, physicist</p></div>
+</div>
 ```
+
+> **Pitfall.** Putting rows inside the paired body — e.g.
+> `{{< infobox-section title="Career" >}}{{< infobox-row … >}}…{{</ infobox-section >}}`
+> — emits the section header but **drops the rows**, because
+> `layouts/_partials/infobox/body.html` only filters the rendered HTML
+> after `.Inner` has been processed; the rows never reach the partial
+> because the v0.164.0 AST scanner treats the section's nested `.Inner`
+> access as opaque. Keep the section paired-empty and put the rows
+> after it. See the working pattern in `infobox-smoke.md` and the
+> corrected `person-demo.md`.
 
 ### §2.3 `{{< infobox-row >}}` (paired)
 

@@ -111,26 +111,38 @@ not, or when composing a fully-custom `infobox` from primitives).
 
 ## Section divider — `{{< infobox-section >}}`
 
-**Paired.** A grouping header that spans both columns. Breaks the row
-list into thematic groups (e.g. "Personal life", "Career", "Awards").
-Useful in long infoboxes where the row list otherwise runs together.
+**Paired but bodyless in practice.** A header-only divider that spans
+both columns. Breaks the row list into thematic groups (e.g. "Personal
+life", "Career", "Awards"). Useful in long infoboxes where the row list
+otherwise runs together.
+
+**The section is a header, not a container.** Rows must be **siblings
+of the section, not children** — `{{</ infobox-section >}}` sits
+immediately after the opening tag, and the rows follow on subsequent
+lines. Putting rows inside the paired body silently drops them at
+render time; see the §2.2 note in [`docs/SHORTCODES.md`](../SHORTCODES.md).
 
 **Parameters:**
 
 | Name | Required | Purpose |
 |---|---|---|
-| `title` | required | The section header text. |
+| `title` | required | The section header text. Falls back to the trimmed paired body if omitted. |
+| `class` | optional | Extra CSS class on `.infobox-section-header`. |
 
 **Worked example:**
 
 ```go
-{{< infobox-section title="Personal life" >}}
-  {{< infobox-row label="Spouse" value="Jane Doe" >}}
-  {{< infobox-row label="Children" value="Two" >}}
-{{< /infobox-section >}}
-{{< infobox-section title="Career" >}}
-  {{< infobox-row label="Years active" value="2010–present" >}}
-{{< /infobox-section >}}
+{{< infobox-section title="Personal life" >}}{{</ infobox-section >}}
+{{< infobox-row label="Spouse" value="Jane Doe" >}}
+{{< infobox-row label="Children" value="Two" >}}
+{{< infobox-section title="Career" >}}{{</ infobox-section >}}
+{{< infobox-row label="Years active" value="2010–present" >}}
+```
+
+The equivalent single-line title form is also supported:
+
+```go
+{{< infobox-section >}}Career{{</ infobox-section >}}
 ```
 
 ## Footer block — `{{< infobox-below >}}`

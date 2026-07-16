@@ -6,9 +6,8 @@ upstream: https://en.wikipedia.org/wiki/Template:Infobox
 worked_example: |
   {{< infobox type="custom" title="Custom topic" >}}
     {{< infobox-row label="Founded" value="2010" >}}
-    {{< infobox-section title="Career" >}}
-      {{< infobox-row label="Known for" value="First algorithm" >}}
-    {{< /infobox-section >}}
+    {{< infobox-section title="Career" >}}{{</ infobox-section >}}
+    {{< infobox-row label="Known for" value="First algorithm" >}}
   {{< /infobox >}}
 fields:
   - key: type
