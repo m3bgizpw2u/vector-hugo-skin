@@ -1,6 +1,6 @@
 ---
 title: "Mermaid diagram demo"
-date: 2026-07-17
+date: 2026-07-16
 draft: false
 summary: "Demonstrates the mermaid article-body shortcode — flowcharts, ER diagrams, class diagrams, and state diagrams."
 categories:
@@ -12,7 +12,7 @@ tags:
   - article-body
 ---
 
-This page exercises the {{</* mermaid */>}} shortcode and the ` ```mermaid ` fenced code block — two authoring paths that produce the same rendered diagram. Both paths emit `<pre class="mermaid">`; the Mermaid runtime auto-renders all such blocks at DOMContentLoaded.
+This page exercises the mermaid article-body shortcode and the fenced `mermaid` code block — two authoring paths that produce the same rendered diagram. Both paths emit a `pre.mermaid` element; the Mermaid runtime auto-renders all such blocks at DOMContentLoaded.
 
 The shortcode path is useful inside blockquotes, list items, or other Markdown containers where a fenced block would break the surrounding syntax.
 
@@ -29,7 +29,7 @@ flowchart TD
     B -- No --> E[End]
 ```
 
-The canonical Markdown authoring shape — wrap the diagram definition in a fenced `mermaid` block.
+The canonical Markdown authoring shape.
 
 ### Paired shortcode path
 
@@ -40,8 +40,6 @@ The canonical Markdown authoring shape — wrap the diagram definition in a fenc
     D --> B
     B -- No --> E[End]
 {{< /mermaid >}}
-
-Use the paired form inside blockquotes, list items, or other Markdown containers.
 
 ## Entity Relationship Diagram
 
