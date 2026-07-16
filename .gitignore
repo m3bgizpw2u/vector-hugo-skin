@@ -46,3 +46,4 @@ Thumbs.db
 .misc
 .claude/
 vendor/
+tests/
