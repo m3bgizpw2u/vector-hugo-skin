@@ -106,5 +106,12 @@ themesDir = "../.."
 # `{{< references >}}` shortcode. The shortcode parses the same
 # `[^key]: text` definitions from `.RawContent` and renders the custom
 # markup itself. Available since Hugo v0.151.0.
+# Enable Goldmark's shortcode-as-fenced-code-blocks feature so that
+# ` ```mermaid ` fenced blocks are internally rendered as
+# `{{< mermaid >}}...{{< /mermaid >}}` shortcode invocations.
+# Available since Hugo v0.151.0.
+[markup.goldmark.extensions.shortcodes]
+enabled = true
+
 [markup.goldmark.extensions.footnote]
 enable = false
