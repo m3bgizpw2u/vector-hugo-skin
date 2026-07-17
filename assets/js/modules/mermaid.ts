@@ -42,12 +42,42 @@ export const init = (): void => {
         startOnLoad: false,
         securityLevel: 'loose',
         theme: 'default',
+        // Explicit fontSize so mermaid calculates foreignObject dimensions with the
+        // correct text size.  Without this, mermaid uses browser-default font metrics
+        // before CSS is applied, producing tiny foreignObject containers.
+        fontSize: 16,
       });
       // Clear data-processed so run() renders every diagram, not just unprocessed ones.
       for (const el of document.querySelectorAll('pre.mermaid')) {
         el.removeAttribute('data-processed');
       }
-      void api.run({ nodes: document.querySelectorAll('pre.mermaid') });
+      void api.run({ nodes: document.querySelectorAll('pre.mermaid') }).then(() => {
+        // Fix foreignObject dimensions that mermaid calculated with wrong font metrics.
+        // Mermaid sets width/height attributes on foreignObject via setAttribute() which
+        // can't be overridden by CSS.  It also sets inline height:100% on inner divs
+        // which keeps them constrained to the wrong foreignObject height.
+        // Remove both so content auto-sizes to its actual font-size.
+        for (const fo of document.querySelectorAll('.mermaid svg foreignobject')) {
+          fo.removeAttribute('width');
+          fo.removeAttribute('height');
+          const foEl = fo as HTMLElement;
+          foEl.style.width = 'auto';
+          foEl.style.height = 'auto';
+          for (const div of fo.querySelectorAll('div')) {
+            const divEl = div as HTMLElement;
+            divEl.style.width = 'auto';
+            divEl.style.height = 'auto';
+            divEl.style.display = 'block';
+            divEl.style.overflow = 'visible';
+          }
+          for (const cell of fo.querySelectorAll('div[style*="table-cell"]')) {
+            const cellEl = cell as HTMLElement;
+            cellEl.style.display = 'block';
+            cellEl.style.verticalAlign = 'top';
+            cellEl.style.textAlign = 'left';
+          }
+        }
+      });
     }
   };
 

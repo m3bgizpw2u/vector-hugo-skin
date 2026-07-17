@@ -27,6 +27,31 @@
   svg {
     max-width: 100%;
     height: auto;
+    // Anchor font-size for the entire diagram so mermaid's internal text
+    // metrics (used when measuring foreignObject dimensions via
+    // getBoundingClientRect) reflect a readable 16px size.
+    font-size: 16px;
+  }
+
+  // Override the fixed width/height attributes that mermaid sets on
+  // foreignObject via setAttribute().  SVG presentation attributes are
+  // overridable by CSS properties; without this the foreignObject ends up
+  // 7px tall because mermaid measured text with browser-default font metrics
+  // before CSS loaded.
+  svg foreignobject {
+    width: unset !important;
+    height: unset !important;
+    min-width: 24px;
+    min-height: 20px;
+    overflow: visible;
+    font-size: 16px;
+
+    div,
+    p,
+    span {
+      font-size: 16px;
+      white-space: nowrap;
+    }
   }
 
   // Rendered diagrams get this class added by mermaid.run().
