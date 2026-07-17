@@ -26,7 +26,16 @@ export const militaryConflict: ShortcodeSpec = {
       default: "Gettysburg, Pennsylvania",
     },
     { key: "result", label: "Result", type: "text" },
-    { key: "belligerents", label: "Belligerents", type: "list" },
+    {
+      key: "combatant1",
+      label: "Belligerents (side 1)",
+      type: "text",
+    },
+    {
+      key: "combatant2",
+      label: "Belligerents (side 2)",
+      type: "text",
+    },
     { key: "below", label: "Below", type: "markdown" },
   ],
 };

@@ -14,6 +14,7 @@ import { init as initToc } from './modules/toc';
 import { init as initTabs } from './modules/tabs';
 import { init as initThemeToggle } from './modules/theme-toggle';
 import { init as initLightbox } from './modules/lightbox';
+import { init as initMermaid } from './modules/mermaid';
 import { init as initSearch } from './modules/search';
 import { init as initTitlebarToc } from './modules/titlebar-toc';
 import { init as initRowTables } from './modules/row-table';
@@ -25,6 +26,7 @@ function bootstrap(): void {
   initTabs();
   initThemeToggle();
   initLightbox();
+  initMermaid();
   initSearch();
   initTitlebarToc();
   initRowTables();

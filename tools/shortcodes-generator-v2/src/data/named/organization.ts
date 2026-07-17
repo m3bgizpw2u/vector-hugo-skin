@@ -25,7 +25,7 @@ export const organization: ShortcodeSpec = {
       default: "Nonprofit organization",
     },
     { key: "founded", label: "Founded", type: "text", default: "20 June 2003" },
-    { key: "hq", label: "Headquarters", type: "text" },
+    { key: "headquarters", label: "Headquarters", type: "text" },
     { key: "members", label: "Members", type: "text" },
     { key: "website", label: "Website", type: "text" },
     { key: "below", label: "Below", type: "markdown" },

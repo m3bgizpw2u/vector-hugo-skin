@@ -10,12 +10,10 @@ export const infoboxImage: ShortcodeSpec = {
   upstream: null,
   allowCustomRows: true,
   fields: [
-    { key: "image", label: "Image", type: "image", required: true },
+    { key: "src", label: "Source", type: "image", required: true },
     { key: "alt", label: "Alt", type: "text" },
     { key: "caption", label: "Caption", type: "markdown" },
-    { key: "size", label: "Size", type: "text" },
     { key: "upright", label: "Upright", type: "number", default: 1 },
     { key: "group", label: "Group", type: "text" },
-    { key: "class", label: "Class", type: "text" },
   ],
 };

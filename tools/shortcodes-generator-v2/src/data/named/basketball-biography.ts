@@ -21,9 +21,7 @@ export const basketballBiography: ShortcodeSpec = {
     { key: "caption", label: "Caption", type: "markdown" },
     { key: "position", label: "Position", type: "text", default: "Center" },
     { key: "height", label: "Height", type: "text", default: "1.96 m" },
-    { key: "team", label: "Team", type: "text", default: "Los Angeles Sparks" },
-    { key: "years_active", label: "Years active", type: "text" },
-    { key: "national_team", label: "National team", type: "text" },
+    { key: "nationalteam", label: "National team", type: "text" },
     { key: "below", label: "Below", type: "markdown" },
   ],
 };

@@ -19,20 +19,19 @@ export const settlement: ShortcodeSpec = {
     { key: "image", label: "Image", type: "image" },
     { key: "caption", label: "Caption", type: "markdown" },
     {
-      key: "population",
-      label: "Population",
-      type: "text",
-      default: "8982000",
-    },
-    { key: "area", label: "Area", type: "text" },
-    {
       key: "country",
       label: "Country",
       type: "text",
       default: "United Kingdom",
     },
-    { key: "founded", label: "Founded", type: "text" },
-    { key: "elevation", label: "Elevation", type: "text" },
+    {
+      key: "population_total",
+      label: "Population",
+      type: "text",
+      default: "8982000",
+    },
+    { key: "area_total_km2", label: "Area (km²)", type: "text" },
+    { key: "elevation_m", label: "Elevation (m)", type: "text" },
     { key: "below", label: "Below", type: "markdown" },
   ],
 };

@@ -20,14 +20,12 @@ export const iceHockeyBiography: ShortcodeSpec = {
     { key: "image", label: "Image", type: "image" },
     { key: "caption", label: "Caption", type: "markdown" },
     { key: "position", label: "Position", type: "text", default: "Center" },
-    { key: "team", label: "Team", type: "text", default: "Edmonton Oilers" },
     {
       key: "national_team",
       label: "National team",
       type: "text",
       default: "Canada",
     },
-    { key: "years_active", label: "Years active", type: "text" },
     { key: "below", label: "Below", type: "markdown" },
   ],
 };

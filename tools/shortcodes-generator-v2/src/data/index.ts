@@ -11,6 +11,7 @@ import { infoboxBelow } from "./primitives/infobox-below";
 import { row } from "./primitives/row";
 import { rowTable } from "./primitives/row-table";
 import { quickRow } from "./primitives/quick-row";
+import { thumb } from "./primitives/thumb";
 
 import { person } from "./named/person";
 import { footballBiography } from "./named/football-biography";
@@ -55,6 +56,7 @@ export const catalog: ShortcodeSpec[] = [
   row,
   rowTable,
   quickRow,
+  thumb,
   person,
   footballBiography,
   basketballBiography,
@@ -119,6 +121,7 @@ export {
   row,
   rowTable,
   quickRow,
+  thumb,
   school,
   settlement,
   software,

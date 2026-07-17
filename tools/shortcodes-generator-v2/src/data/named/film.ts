@@ -24,12 +24,7 @@ export const film: ShortcodeSpec = {
       type: "text",
       default: "Georges Méliès",
     },
-    {
-      key: "release_year",
-      label: "Release year",
-      type: "number",
-      default: 1902,
-    },
+    { key: "released", label: "Released", type: "text", default: "1902" },
     { key: "runtime", label: "Runtime", type: "text" },
     { key: "country", label: "Country", type: "text" },
     { key: "language", label: "Language", type: "text" },

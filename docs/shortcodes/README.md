@@ -76,6 +76,7 @@ mapping and so do not belong in the named-shortcodes list above. See
 | [`{{< thumb >}}`](thumb.md) | Inline native-ratio thumbnail — the shared image-rendering surface (srcset/sizes, float alignment, magnify + lightbox) that every image-emitting shortcode delegates to |
 | [`{{< figure >}}`](figure.md) | Inline figures — image / audio / video with caption, float alignment, and optional lightbox participation |
 | [`{{< row-table >}}`](row-table.md) | Repeating `icon \| text \| photo` rows with fluid responsiveness and an opt-in expandable variant |
+| [`{{< mermaid >}}`](mermaid.md) | Mermaid diagram shortcode — renders flowcharts, ER diagrams, class diagrams, state diagrams, and more from fenced ` ```mermaid ` blocks or the paired shortcode form |
 
 ## Citations
 

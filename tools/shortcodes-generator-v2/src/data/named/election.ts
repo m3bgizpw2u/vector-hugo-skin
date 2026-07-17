@@ -2,7 +2,7 @@ import type { ShortcodeSpec } from "../types";
 
 export const election: ShortcodeSpec = {
   slug: "election",
-  category: "sports",
+  category: "other",
   title: "Election",
   description: "Infobox for an election and its result.",
   paired: true,
@@ -26,7 +26,11 @@ export const election: ShortcodeSpec = {
     },
     { key: "date", label: "Date", type: "date", default: "2024-11-05" },
     { key: "type", label: "Type", type: "text" },
-    { key: "seats", label: "Seats", type: "number" },
+    {
+      key: "seats_for_election",
+      label: "Seats for election",
+      type: "number",
+    },
     { key: "turnout", label: "Turnout", type: "text" },
     { key: "result", label: "Result", type: "text" },
     { key: "below", label: "Below", type: "markdown" },

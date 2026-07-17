@@ -36,8 +36,6 @@ export const init = (): void => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const api = mermaid as Record<string, (...args: unknown[]) => unknown>;
     if (typeof api.initialize === 'function' && typeof api.run === 'function') {
-      // Do NOT set startOnLoad:true — that lets mermaid auto-render at the
-      // window load event, which races with our run() call below.
       void api.initialize({
         startOnLoad: false,
         securityLevel: 'loose',
@@ -51,12 +49,15 @@ export const init = (): void => {
       for (const el of document.querySelectorAll('pre.mermaid')) {
         el.removeAttribute('data-processed');
       }
-      void api.run({ nodes: document.querySelectorAll('pre.mermaid') }).then(() => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (api.run as (...args: unknown[]) => Promise<unknown>)(
+        { nodes: document.querySelectorAll('pre.mermaid') }
+      ).then(() => {
         // Fix foreignObject dimensions that mermaid calculated with wrong font metrics.
-        // Mermaid sets width/height attributes on foreignObject via setAttribute() which
-        // can't be overridden by CSS.  It also sets inline height:100% on inner divs
-        // which keeps them constrained to the wrong foreignObject height.
-        // Remove both so content auto-sizes to its actual font-size.
+        // Mermaid sets width/height attributes on foreignObject via setAttribute()
+        // which can't be overridden by CSS.  It also sets inline height:100% on
+        // inner divs which keeps them constrained to the too-small foreignObject
+        // height.  Remove both so content auto-sizes to its actual font-size.
         for (const fo of document.querySelectorAll('.mermaid svg foreignobject')) {
           fo.removeAttribute('width');
           fo.removeAttribute('height');

@@ -10,7 +10,7 @@ export const infoboxRow: ShortcodeSpec = {
   upstream: null,
   allowCustomRows: true,
   fields: [
-    { key: "label", label: "Label", type: "text", required: true },
+    { key: "label", label: "Label", type: "text" },
     {
       key: "value",
       label: "Value",
@@ -20,6 +20,5 @@ export const infoboxRow: ShortcodeSpec = {
     { key: "class", label: "Class", type: "text" },
     { key: "label-class", label: "Label class", type: "text" },
     { key: "data-class", label: "Data class", type: "text" },
-    { key: "id", label: "ID", type: "text" },
   ],
 };

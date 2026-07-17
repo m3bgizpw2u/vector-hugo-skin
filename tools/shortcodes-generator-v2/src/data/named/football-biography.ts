@@ -20,18 +20,16 @@ export const footballBiography: ShortcodeSpec = {
     { key: "caption", label: "Caption", type: "markdown" },
     { key: "position", label: "Position", type: "text", default: "Forward" },
     {
-      key: "clubs",
-      label: "Clubs",
-      type: "list",
-      default: ["Barcelona", "Inter Miami"],
+      key: "current_club",
+      label: "Current club",
+      type: "text",
     },
     {
-      key: "national_team",
+      key: "nationalteam",
       label: "National team",
       type: "text",
       default: "Argentina",
     },
-    { key: "years_active", label: "Years active", type: "text" },
     { key: "below", label: "Below", type: "markdown" },
   ],
 };

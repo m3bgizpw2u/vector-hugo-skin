@@ -1928,7 +1928,59 @@ existing `assets/js/modules/lightbox.ts` overlay — see the worked
 example above. No upstream `Template:Infobox row-table` mapping
 exists.
 
-## §12. Links in data cells (Fourth Plan, phase 3-4)
+  ## §12. Mermaid diagrams
+
+  `assets/js/modules/mermaid.ts` plus `static/js/mermaid/` (Mermaid 11 ESM build, vendored locally — no CDN runtime dependency, per `00-core.mdc` "no JS runtime dependencies beyond the browser"). The runtime is loaded via a `<script type="module">` in `layouts/_partials/footer/js.html`; the TS module calls `mermaid.initialize()` and `mermaid.run()` on every `<pre class="mermaid">` element at DOMContentLoaded. Two authoring paths:
+
+  ### Use Mermaid via Code Block
+
+  The canonical Markdown path — a fenced ` ```mermaid ` block in the article body:
+
+  ````markdown
+  ```mermaid
+  flowchart TD
+      A[Start] --> B{Is it?}
+      B -- Yes --> C[OK]
+      C --> D[Rethink]
+      D --> B
+      B -- No ----> E[End]
+  ```
+  ````
+
+  Goldmark emits `<pre class="mermaid">`; the TS module picks it up automatically.
+
+  ### Use Mermaid via Shortcode
+
+  The paired shortcode path — useful when the diagram needs to live inside another Markdown construct (blockquote, list item) where a fenced block would break the surrounding syntax:
+
+  ```go
+  {{< mermaid >}}flowchart TD
+      A[Start] --> B{Is it?}
+      B -- Yes --> C[OK]
+      C --> D[Rethink]
+      D --> B
+      B -- No ----> E[End]
+  {{< /mermaid >}}
+  ```
+
+  The shortcode template emits `<pre class="mermaid">` — the same target the TS module handles. The `code=` parameter is supported as a fallback when the paired body is empty.
+
+  ### Supported diagram types
+
+  | Type | Keyword |
+  |---|---|
+  | Flowchart | `flowchart TD` etc. |
+  | Sequence diagram | `sequenceDiagram` |
+  | Class diagram | `classDiagram` |
+  | State diagram | `stateDiagram-v2` |
+  | Entity Relationship | `erDiagram` |
+  | Gantt chart | `gantt` |
+  | Pie chart | `pie` |
+  | Git graph | `gitGraph` |
+
+  Full list at [mermaid.js.org](https://mermaid.js.org). Each diagram type is loaded lazily by the ESM chunk loader — only the chunks needed for the diagrams on a given page are fetched.
+
+  ## §13. Links in data cells (Fourth Plan, phase 3-4)
 
 Infobox data cells render Markdown, so any standard link pattern works:
 

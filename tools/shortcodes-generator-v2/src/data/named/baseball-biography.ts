@@ -25,13 +25,17 @@ export const baseballBiography: ShortcodeSpec = {
       default: "Outfielder, pitcher",
     },
     {
-      key: "bats_throws",
-      label: "Bats / throws",
+      key: "bats",
+      label: "Bats",
       type: "text",
-      default: "Left / Left",
+      default: "Left",
     },
-    { key: "team", label: "Team", type: "text", default: "New York Yankees" },
-    { key: "years_active", label: "Years active", type: "text" },
+    {
+      key: "throws",
+      label: "Throws",
+      type: "text",
+      default: "Left",
+    },
     { key: "below", label: "Below", type: "markdown" },
   ],
 };

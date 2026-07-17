@@ -31,9 +31,9 @@ export const videoGame: ShortcodeSpec = {
       default: "Supergiant Games",
     },
     {
-      key: "release_date",
-      label: "Release date",
-      type: "date",
+      key: "released",
+      label: "Released",
+      type: "text",
       default: "2020-09-17",
     },
     { key: "platform", label: "Platform", type: "list" },

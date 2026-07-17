@@ -25,13 +25,13 @@ export const award: ShortcodeSpec = {
       default: "United States",
     },
     {
-      key: "presented_by",
+      key: "presenter",
       label: "Presented by",
       type: "text",
       default: "Academy of Motion Picture Arts and Sciences",
     },
     {
-      key: "first_awarded",
+      key: "firstawarded",
       label: "First awarded",
       type: "text",
       default: "1929",

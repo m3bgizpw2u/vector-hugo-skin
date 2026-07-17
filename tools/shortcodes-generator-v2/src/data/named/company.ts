@@ -26,7 +26,16 @@ export const company: ShortcodeSpec = {
     },
     { key: "founded", label: "Founded", type: "text", default: "1907" },
     { key: "founder", label: "Founder", type: "text" },
-    { key: "hq", label: "Headquarters", type: "text" },
+    {
+      key: "hq_location_city",
+      label: "Headquarters city",
+      type: "text",
+    },
+    {
+      key: "hq_location_country",
+      label: "Headquarters country",
+      type: "text",
+    },
     { key: "website", label: "Website", type: "text" },
     { key: "below", label: "Below", type: "markdown" },
   ],
