@@ -4,7 +4,17 @@
   place; baseof.html calls this partial at the body close. Output is
   minified and fingerprinted (sha256) with SRI integrity attributes,
   loaded as a deferred module script.
+
+  The vendored mermaid.min.js is an esbuild-generated bundle that stores
+  its exports in __esbuild_esm_mermaid_nm.mermaid, but only sets
+  window.mermaid = that namespace object whose only key is `default`.
+  The full mermaid API (initialize, render, run, etc.) lives inside
+  __esbuild_esm_mermaid_nm.mermaid.default.  The bridge below unwraps to
+  that, so the init module (modules/mermaid.ts) can call the API directly.
 */ -}}
-{{- $js := resources.Get "js/main.ts" | js.Build (dict "targetPath" "main.js" "minify" true) | resources.Fingerprint "sha256" }}
 <script src="{{ "js/mermaid/mermaid.min.js" | relURL }}"></script>
+<script>
+window.mermaid=(((__esbuild_esm_mermaid_nm||={}).mermaid||null)||{}).default||null;
+</script>
+{{- $js := resources.Get "js/main.ts" | js.Build (dict "targetPath" "main.js" "minify" true) | resources.Fingerprint "sha256" }}
 <script type="module" src="{{ $js.Permalink }}" integrity="{{ $js.Data.Integrity }}" crossorigin="anonymous" defer></script>

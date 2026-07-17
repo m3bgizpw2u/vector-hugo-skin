@@ -36,11 +36,17 @@ export const init = (): void => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const api = mermaid as Record<string, (...args: unknown[]) => unknown>;
     if (typeof api.initialize === 'function' && typeof api.run === 'function') {
+      // Do NOT set startOnLoad:true — that lets mermaid auto-render at the
+      // window load event, which races with our run() call below.
       void api.initialize({
         startOnLoad: false,
         securityLevel: 'loose',
         theme: 'default',
       });
+      // Clear data-processed so run() renders every diagram, not just unprocessed ones.
+      for (const el of document.querySelectorAll('pre.mermaid')) {
+        el.removeAttribute('data-processed');
+      }
       void api.run({ nodes: document.querySelectorAll('pre.mermaid') });
     }
   };

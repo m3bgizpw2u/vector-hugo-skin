@@ -10,6 +10,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [Unreleased]
 
 ### Fixed
+- `layouts/_partials/footer/js.html` + `assets/js/modules/mermaid.ts`: fixed ER, class, and state diagrams rendering as raw text. Two problems were compounded: (1) `mermaid.min.js` sets `window.mermaid` to the namespace object `{ default: <api> }`, not the API directly — the bridge now unwraps `__esbuild_esm_mermaid_nm.mermaid.default`; (2) `mermaid.run()` skips diagrams that already have `data-processed="true"` set by the file's auto-init on `window.load` — clearing the attribute before calling `run()` forces all diagrams to render. Also changed `startOnLoad` to `false` to prevent a race between the file's auto-init and the explicit `run()` call.
 - `layouts/_shortcodes/mermaid.html` + `layouts/_partials/footer/js.html` + `static/js/mermaid/`: replaced the `mermaid.esm.min.mjs` + 57 dynamic-imported chunks setup with the self-contained `mermaid.min.js` (3.5 MB, no dynamic imports). The chunk-based ESM build caused "Syntax error in text — mermaid version 11.16.0" at render time, likely because lazy-loaded diagram modules failed to resolve in the Hugo static context. The single-file build bundles every diagram type upfront. Also removed the `| htmlEscape` filter from the shortcode — it was encoding `<` as `&lt;` and `"` as `&#34;`, which broke class diagram inheritance arrows and ER diagram quoted labels.
 
 ### Changed
