@@ -1,7 +1,7 @@
 /**
  * Mermaid diagram renderer — auto-renders every <pre class="mermaid"> block
  * on the page by delegating to the vendored Mermaid runtime
- * (static/js/mermaid/mermaid.esm.min.mjs).
+ * (static/js/mermaid/mermaid.min.js).
  *
  * The runtime is loaded via a <script type="module"> in layouts/_partials/footer/js.html
  * and exports a `mermaid` global (the ESM build does this by default).

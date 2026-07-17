@@ -10,7 +10,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [Unreleased]
 
 ### Fixed
-- `layouts/_shortcodes/mermaid.html`: removed `| htmlEscape` from the shortcode output. The filter was encoding `<` as `&lt;` and `"` as `&#34;`, which Mermaid's parser rejected as invalid syntax (class diagram inheritance arrows `<|--` and ER diagram quoted labels were broken). The shortcode emits into a `<pre>` element so structural HTML characters don't need escaping.
+- `layouts/_shortcodes/mermaid.html` + `layouts/_partials/footer/js.html` + `static/js/mermaid/`: replaced the `mermaid.esm.min.mjs` + 57 dynamic-imported chunks setup with the self-contained `mermaid.min.js` (3.5 MB, no dynamic imports). The chunk-based ESM build caused "Syntax error in text — mermaid version 11.16.0" at render time, likely because lazy-loaded diagram modules failed to resolve in the Hugo static context. The single-file build bundles every diagram type upfront. Also removed the `| htmlEscape` filter from the shortcode — it was encoding `<` as `&lt;` and `"` as `&#34;`, which broke class diagram inheritance arrows and ER diagram quoted labels.
 
 ### Changed
 - `exampleSite/hugo.toml`: added `[markup.goldmark.extensions.shortcodes].enabled = true` so that ````mermaid ` fenced code blocks are processed as `{{< mermaid >}}` shortcode invocations, not generic highlighted code blocks. Without this Goldmark produces `<pre><code class="language-mermaid">` instead of `<pre class="mermaid">`, leaving all diagrams unrendered.

@@ -6,4 +6,5 @@
   loaded as a deferred module script.
 */ -}}
 {{- $js := resources.Get "js/main.ts" | js.Build (dict "targetPath" "main.js" "minify" true) | resources.Fingerprint "sha256" }}
+<script src="{{ "js/mermaid/mermaid.min.js" | relURL }}"></script>
 <script type="module" src="{{ $js.Permalink }}" integrity="{{ $js.Data.Integrity }}" crossorigin="anonymous" defer></script>
