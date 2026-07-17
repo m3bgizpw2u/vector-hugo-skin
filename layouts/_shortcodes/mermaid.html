@@ -15,4 +15,4 @@
   CSS hook contract (targeted by assets/css/components/mermaid.scss):
     pre.mermaid  — root; receives scoped styling from the SCSS partial.
 */}}
-<pre class="mermaid">{{- with .Get "code" }}{{ . | htmlEscape }}{{ else }}{{ .Inner | htmlEscape }}{{ end -}}</pre>
+<pre class="mermaid">{{- with .Get "code" }}{{ . }}{{ else }}{{ .Inner }}{{ end -}}</pre>

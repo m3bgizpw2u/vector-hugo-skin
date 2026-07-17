@@ -9,6 +9,9 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Fixed
+- `layouts/_shortcodes/mermaid.html`: removed `| htmlEscape` from the shortcode output. The filter was encoding `<` as `&lt;` and `"` as `&#34;`, which Mermaid's parser rejected as invalid syntax (class diagram inheritance arrows `<|--` and ER diagram quoted labels were broken). The shortcode emits into a `<pre>` element so structural HTML characters don't need escaping.
+
 ### Changed
 - `exampleSite/hugo.toml`: added `[markup.goldmark.extensions.shortcodes].enabled = true` so that ````mermaid ` fenced code blocks are processed as `{{< mermaid >}}` shortcode invocations, not generic highlighted code blocks. Without this Goldmark produces `<pre><code class="language-mermaid">` instead of `<pre class="mermaid">`, leaving all diagrams unrendered.
 
